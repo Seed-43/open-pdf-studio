@@ -258,7 +258,10 @@
     "importComments": "टिप्पणियाँ आयात करें...",
     "exportComments": "टिप्पणियाँ डेटा फ़ाइल में निर्यात करें...",
     "exportSelectedComments": "चयनित टिप्पणियाँ डेटा फ़ाइल में निर्यात करें...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

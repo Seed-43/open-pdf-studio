@@ -17,6 +17,8 @@ export function createDocument(filePath: string | null = null): DocumentState {
     watermarks: [],
     ocrResults: {},
     bookmarks: [],
+    pageLabels: null,
+    pageLabelsDirty: false,
     undoStack: [],
     redoStack: [],
     savedUndoStackLength: 0,

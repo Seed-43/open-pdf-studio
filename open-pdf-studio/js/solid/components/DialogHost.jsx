@@ -18,6 +18,7 @@ import SignatureDialog from './dialogs/SignatureDialog.jsx';
 import TextAnnotationDialog from './dialogs/TextAnnotationDialog.jsx';
 import UpdateDialog from './dialogs/UpdateDialog.jsx';
 import BookmarkDialog from './dialogs/BookmarkDialog.jsx';
+import PageLabelsDialog from './dialogs/PageLabelsDialog.jsx';
 import FormValidationDialog from './dialogs/FormValidationDialog.jsx';
 import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
 import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
@@ -79,6 +80,7 @@ const DIALOG_MAP = {
   'text-annotation': TextAnnotationDialog,
   'update': UpdateDialog,
   'bookmark': BookmarkDialog,
+  'pageLabels': PageLabelsDialog,
   'form-validation': FormValidationDialog,
   'stamp-picker': StampPickerDialog,
   'calibration': CalibrationDialog,

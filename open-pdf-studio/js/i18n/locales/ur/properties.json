@@ -258,7 +258,10 @@
     "importComments": "تبصرے درآمد کریں...",
     "exportComments": "تبصرے ڈیٹا فائل میں برآمد کریں...",
     "exportSelectedComments": "منتخب تبصرے ڈیٹا فائل میں برآمد کریں...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

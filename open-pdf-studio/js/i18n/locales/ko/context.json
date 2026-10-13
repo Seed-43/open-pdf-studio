@@ -97,7 +97,8 @@
     "properties": "속성",
     "insertFromFile": "Insert from File...",
     "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page..."
+    "insertFromFileAfter": "After This Page...",
+    "pageLabels": "Page labels (name builder)..."
   },
   "textSelection": {
     "highlightSelection": "선택 영역 하이라이트",

@@ -21,12 +21,29 @@ import {
   thumbnailSelectedPages, selectThumbnailPage,
 } from '../../bridge.js';
 
-// Thumbnail scale (relative to actual page size). The thumbnail panel
-// displays at ~152 px wide; rendering close to that 1:1 saves PDFium
-// work without visible quality loss. 0.14 puts an A4 portrait at
-// ~595*0.14 = 83 pt = ~111 px wide; landscape A0 at ~5156*0.14 = 722 pt
-// → capped to targetW=140 by the JS-replay path.
-const THUMBNAIL_SCALE = 0.14;
+// Thumbnails are rendered THUMB_PX wide whatever the page size, and the
+// panel scales them to its column width (CSS grid in layout.css). 280 px
+// keeps them sharp when the left panel is widened or wraps to columns.
+const THUMB_PX = 280;
+const thumbScaleFor = (widthPt) => THUMB_PX / (widthPt || 595);
+
+// Shrink a large page bitmap to thumbnail size in halving steps. A single
+// drawImage from a full-page bitmap (often 4000+ px) down to THUMB_PX skips
+// most source pixels, so thin CAD linework breaks up into dots.
+function drawDownscaled(ctx, src, srcW, srcH, w, h) {
+  let cur = src, cw = srcW, ch = srcH;
+  while (cw / 2 > w && ch / 2 > h) {
+    const nw = Math.max(w, Math.round(cw / 2)), nh = Math.max(h, Math.round(ch / 2));
+    const step = document.createElement('canvas');
+    step.width = nw; step.height = nh;
+    const sctx = step.getContext('2d');
+    sctx.imageSmoothingEnabled = true; sctx.imageSmoothingQuality = 'high';
+    sctx.drawImage(cur, 0, 0, cw, ch, 0, 0, nw, nh);
+    cur = step; cw = nw; ch = nh;
+  }
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(cur, 0, 0, cw, ch, 0, 0, w, h);
+}
 
 // Cache for thumbnail data per document: Map<docId, Map<pageNum, imageDataURL>>
 const thumbnailCache = new Map();
@@ -219,7 +236,7 @@ export async function generateThumbnails() {
   try {
     const firstPage = await pdfDoc.getPage(1);
     const extraRot = getPageRotation(1);
-    const thOpts = { scale: THUMBNAIL_SCALE };
+    const thOpts = { scale: thumbScaleFor(firstPage.view[2] - firstPage.view[0]) };
     if (extraRot) thOpts.rotation = (firstPage.rotate + extraRot) % 360;
     const viewport = firstPage.getViewport(thOpts);
     placeholderWidth = Math.round(viewport.width);
@@ -548,7 +565,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
           // limits. For PORTRAIT pages (h > w), 200 px wide may produce a
           // thumbnail taller than the panel — but downstream layout handles
           // that. The original sizing is preserved here for compatibility.
-          const targetW = 140;
+          const targetW = THUMB_PX;
           const scale = targetW / dims.w;
           const w = Math.max(1, Math.round(dims.w * scale));
           const h = Math.max(1, Math.round(dims.h * scale));
@@ -620,7 +637,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
         const best = pbc.getBestAvailableBitmap(doc.filePath, pageNum, rotation, 1);
         if (best && best.bitmap) {
-          const targetW = 140;
+          const targetW = THUMB_PX;
           const s = targetW / best.w;
           const w = Math.max(1, Math.round(best.w * s));
           const h = Math.max(1, Math.round(best.h * s));
@@ -630,7 +647,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
           const ctx = canvas.getContext('2d');
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(best.bitmap, 0, 0, w, h);
+          drawDownscaled(ctx, best.bitmap, best.bitmap.width || best.w, best.bitmap.height || best.h, w, h);
           const dataURL = canvas.toDataURL('image/jpeg', 0.7);
           const widthPt = doc.pageDims?.[pageNum]?.widthPt;
           const overlayScale = widthPt ? w / widthPt : null;
@@ -651,8 +668,8 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         try {
           const widthPt = doc.pageDims?.[pageNum]?.widthPt || 2000;
           // Render op ~2x thumbnailbreedte (scherpe AA op dun lijnwerk), daarna
-          // downschalen naar 140 px.
-          const renderW = 280;
+          // downschalen naar THUMB_PX.
+          const renderW = THUMB_PX * 2;
           const thumbScale = Math.max(0.008, Math.min(0.5, renderW / widthPt));
           const { renderPdfPage } = await import('../../pdf/engine-router.js');
           const raw = await renderPdfPage({ path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation });
@@ -665,7 +682,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
               const src = document.createElement('canvas');
               src.width = rw; src.height = rh;
               src.getContext('2d').putImageData(new ImageData(rgba, rw, rh), 0, 0);
-              const targetW = 140;
+              const targetW = THUMB_PX;
               const s = targetW / rw;
               const w = Math.max(1, Math.round(rw * s));
               const h = Math.max(1, Math.round(rh * s));
@@ -673,8 +690,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
-              ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-              ctx.drawImage(src, 0, 0, w, h);
+              drawDownscaled(ctx, src, rw, rh, w, h);
               const dataURL = canvas.toDataURL('image/jpeg', 0.7);
               const oScale = doc.pageDims?.[pageNum]?.widthPt ? w / doc.pageDims[pageNum].widthPt : null;
               if (oScale) {
@@ -711,7 +727,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
       const result = await invoke('render_thumbnail', {
         path: doc.filePath,
         pageIndex: pageNum - 1,
-        maxWidth: 140,
+        maxWidth: THUMB_PX,
         rotation: extraRot || 0,
         skipImages: true,
       });
@@ -748,7 +764,8 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
     const renderPromise = (async () => {
       const page = await pdfDoc.getPage(pageNum);
       const extraRot = getPageRotation(pageNum);
-      const trOpts = { scale: THUMBNAIL_SCALE };
+      const thumbScale = thumbScaleFor(page.view[2] - page.view[0]);
+      const trOpts = { scale: thumbScale };
       if (extraRot) trOpts.rotation = (page.rotate + extraRot) % 360;
       const viewport = page.getViewport(trOpts);
 
@@ -764,8 +781,8 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
       }).promise;
 
       // Overlay plugin/Solid-store annotations op dezelfde ctx vóór toDataURL.
-      // viewport.width = pdfPtWidth * THUMBNAIL_SCALE, dus scale-factor naar
-      // PDF-pt-coordsysteem = THUMBNAIL_SCALE.
+      // viewport.width = pdfPtWidth * thumbScale, dus scale-factor naar
+      // PDF-pt-coordsysteem = thumbScale.
       try {
         // Use the owning document's annotations (not the active one's) — same
         // cross-document leak as the other thumbnail paths.
@@ -773,7 +790,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         const annotations = (docAnn?.annotations || []).filter(a => a.page === pageNum);
         if (annotations.length > 0) {
           ctx.save();
-          ctx.scale(THUMBNAIL_SCALE, THUMBNAIL_SCALE);
+          ctx.scale(thumbScale, thumbScale);
           annotations.forEach(a => {
             try { drawAnnotation(ctx, a); }
             catch (e) {

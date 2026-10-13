@@ -258,7 +258,10 @@
     "importComments": "கருத்துகளை இறக்குமதி...",
     "exportComments": "கருத்துகளை தரவு கோப்பில் ஏற்றுமதி...",
     "exportSelectedComments": "தேர்ந்தெடுத்த கருத்துகளை தரவு கோப்பில் ஏற்றுமதி...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

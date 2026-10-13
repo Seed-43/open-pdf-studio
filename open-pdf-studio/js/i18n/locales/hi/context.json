@@ -97,7 +97,8 @@
     "properties": "गुण",
     "insertFromFile": "Insert from File...",
     "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page..."
+    "insertFromFileAfter": "After This Page...",
+    "pageLabels": "Page labels (name builder)..."
   },
   "textSelection": {
     "highlightSelection": "चयन हाइलाइट करें",

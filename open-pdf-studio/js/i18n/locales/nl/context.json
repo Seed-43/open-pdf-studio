@@ -122,7 +122,8 @@
     "deselectAll": "Selectie opheffen",
     "insertFromFile": "Invoegen uit bestand...",
     "insertFromFileBefore": "Vóór deze pagina...",
-    "insertFromFileAfter": "Na deze pagina..."
+    "insertFromFileAfter": "Na deze pagina...",
+    "pageLabels": "Paginalabels (naambouwer)..."
   },
   "textSelection": {
     "highlightSelection": "Selectie markeren",

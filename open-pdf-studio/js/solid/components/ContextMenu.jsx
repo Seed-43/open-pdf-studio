@@ -1176,6 +1176,7 @@ function ThumbnailMenuContent() {
 
       <Separator />
 
+      <MenuItem label={t('thumbnail.pageLabels', { defaultValue: 'Page labels (name builder)...' })} onClick={() => openDialog('pageLabels')} />
       <MenuItem icon={thumbnailPropertiesIcon} label={t('thumbnail.properties')} disabled={isMulti()} onClick={() => {
         import('../stores/dialogStore.js').then(m => m.openDialog('page-properties', { pageNum: pageNum() }));
       }} />

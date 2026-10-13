@@ -205,6 +205,31 @@ function navigateToBookmark(bm) {
   goToPage(bm.page);
 }
 
+// Expand every ancestor of a bookmark so it is visible in the tree.
+export function revealBookmark(id) {
+  const doc = getActiveDocument();
+  if (!doc || !doc.bookmarks) return;
+  const byId = new Map(doc.bookmarks.map(b => [b.id, b]));
+  let changed = false;
+  let cur = byId.get(id);
+  while (cur && cur.parentId) {
+    const parent = byId.get(cur.parentId);
+    if (parent && !parent.expanded) { parent.expanded = true; changed = true; }
+    cur = parent;
+  }
+  if (changed) updateBookmarksList();
+}
+
+/** Bookmarks in tree order (parents before children, siblings sorted). */
+export function bookmarksInTreeOrder() {
+  const doc = getActiveDocument();
+  if (!doc || !doc.bookmarks) return [];
+  const out = [];
+  const walk = (nodes) => { for (const n of nodes) { out.push(n); walk(n.children); } };
+  walk(buildTree(doc.bookmarks));
+  return out;
+}
+
 // Toggle expand/collapse
 export function toggleBookmarkExpand(id) {
   const doc = getActiveDocument();

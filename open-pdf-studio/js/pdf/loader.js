@@ -527,6 +527,13 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       if (isClosed()) return;
       doc.bookmarks = await loadBookmarksFromPdf(doc.pdfDoc);
       if (isClosed()) return;
+      // Page labels (sheet names) — unsaved edits survive a reload of the
+      // same document as long as the page count is unchanged.
+      const keep = doc.pageLabelsDirty && doc.pageLabels?.length === doc.pdfDoc.numPages ? doc.pageLabels : null;
+      const { loadPageLabels } = await import('./page-labels.js');
+      await loadPageLabels(doc);
+      if (isClosed()) return;
+      if (keep) { doc.pageLabels = keep; doc.pageLabelsDirty = true; }
     }
     console.log(`[PERF] bookmarks DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
 

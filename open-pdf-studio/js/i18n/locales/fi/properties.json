@@ -258,7 +258,10 @@
     "importComments": "Tuo kommentit...",
     "exportComments": "Vie kommentit datatiedostoon...",
     "exportSelectedComments": "Vie valitut kommentit datatiedostoon...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

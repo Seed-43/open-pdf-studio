@@ -258,7 +258,10 @@
     "importComments": "মন্তব্য আমদানি...",
     "exportComments": "মন্তব্য ডেটা ফাইলে রপ্তানি...",
     "exportSelectedComments": "নির্বাচিত মন্তব্য ডেটা ফাইলে রপ্তানি...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

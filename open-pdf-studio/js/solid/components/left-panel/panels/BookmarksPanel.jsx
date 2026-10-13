@@ -1,16 +1,34 @@
-import { For, Show, createSignal } from 'solid-js';
+import { For, Show, createSignal, createEffect } from 'solid-js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import { tree, countText, emptyMessage, selectedId, toolbarDisabled } from '../../../stores/panels/bookmarksStore.js';
 import { showBookmarkMenu } from '../../../stores/contextMenuStore.js';
+import { activePage } from '../../../stores/panels/thumbnailStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
+
+// Bookmark search: jumps to (highlights) the first match while typing; it
+// does not filter the list. Enter opens the found bookmark, Enter again
+// moves on to the next match.
+const [foundId, setFoundId] = createSignal(null);
 
 function BookmarkNode(props) {
   const indent = () => props.depth * 16;
+  // Highlight the bookmark of the page being viewed, so it stays marked while
+  // you scroll or page through the document by any means.
+  const isCurrent = () => props.node.page === activePage();
+  let itemRef;
+
+  createEffect(() => {
+    if (isCurrent() && activeTab() === 'bookmarks' && itemRef) {
+      itemRef.scrollIntoView({ block: 'nearest' });
+    }
+  });
 
   return (
     <div>
       <div
-        class={`bookmark-item${selectedId() === props.node.id ? ' selected' : ''}`}
+        ref={itemRef}
+        data-bm-id={props.node.id}
+        class={`bookmark-item${selectedId() === props.node.id ? ' selected' : ''}${isCurrent() ? ' current' : ''}${foundId() === props.node.id ? ' found' : ''}`}
         style={{ 'padding-left': `${indent()}px` }}
         onClick={() => {
           import('../../../../ui/panels/bookmarks.js').then(m => m.selectBookmark(props.node.id));
@@ -60,11 +78,72 @@ function BookmarkNode(props) {
 export default function BookmarksPanel() {
   const { t } = useTranslation('properties');
   const disabled = () => toolbarDisabled();
+  let searchRef;
+
+  // Find the next bookmark whose title matches `q`, starting after `afterId`.
+  // Titles that START with the text win over ones that merely contain it.
+  async function findMatch(q, afterId) {
+    const m = await import('../../../../ui/panels/bookmarks.js');
+    const all = m.bookmarksInTreeOrder();
+    const needle = q.trim().toLowerCase();
+    if (!needle || !all.length) return null;
+    const start = afterId ? all.findIndex(b => b.id === afterId) + 1 : 0;
+    const order = [...all.slice(start), ...all.slice(0, start)];
+    const title = (b) => (b.title || '').toLowerCase();
+    return order.find(b => title(b).startsWith(needle)) || order.find(b => title(b).includes(needle)) || null;
+  }
+
+  async function reveal(bm) {
+    setFoundId(bm ? bm.id : null);
+    if (!bm) return;
+    const m = await import('../../../../ui/panels/bookmarks.js');
+    m.revealBookmark(bm.id);
+    requestAnimationFrame(() => {
+      document.querySelector(`#bookmarks-panel [data-bm-id="${CSS.escape(bm.id)}"]`)
+        ?.scrollIntoView({ block: 'center' });
+    });
+  }
+
+  async function onSearchInput(e) {
+    await reveal(await findMatch(e.currentTarget.value, null));
+  }
+
+  async function onSearchKey(e) {
+    e.stopPropagation(); // keep app shortcuts (single-letter tools) out of the field
+    if (e.key === 'Escape') {
+      e.currentTarget.value = '';
+      setFoundId(null);
+      return;
+    }
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const q = e.currentTarget.value;
+    const id = foundId();
+    const m = await import('../../../../ui/panels/bookmarks.js');
+    // First Enter opens the highlighted match; the next Enter moves on.
+    if (id && selectedId() !== id) {
+      m.selectBookmark(id);
+    } else {
+      const next = await findMatch(q, id);
+      await reveal(next);
+      if (next) m.selectBookmark(next.id);
+    }
+    searchRef?.focus();
+  }
 
   return (
     <div class={`left-panel-content${activeTab() === 'bookmarks' ? ' active' : ''}`} id="bookmarks-panel">
       <div class="left-panel-header">
         <span>{t('leftPanel.bookmarks')}</span>
+        <input
+          ref={searchRef}
+          class="bookmarks-search"
+          type="search"
+          placeholder={t('leftPanel.findBookmark', { defaultValue: 'Find...' })}
+          title={t('leftPanel.findBookmarkTip', { defaultValue: 'Type to jump to a bookmark. Enter opens it, Enter again goes to the next match.' })}
+          onInput={onSearchInput}
+          onKeyDown={onSearchKey}
+        />
       </div>
       <div class="bookmarks-toolbar">
         <button

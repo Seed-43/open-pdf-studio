@@ -258,7 +258,10 @@
     "importComments": "Nhập nhận xét...",
     "exportComments": "Xuất nhận xét ra tệp dữ liệu...",
     "exportSelectedComments": "Xuất nhận xét đã chọn ra tệp dữ liệu...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

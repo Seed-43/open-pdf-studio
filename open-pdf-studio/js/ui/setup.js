@@ -163,7 +163,9 @@ function setupPanelResize() {
         if (leftPanel.classList.contains('collapsed')) return;
         const isRtl = document.documentElement.dir === 'rtl';
         const delta = e.clientX - startX;
-        const newWidth = Math.max(120, Math.min(500, startWidth + (isRtl ? -delta : delta)));
+        // Up to 60% of the window, so the thumbnails can wrap to several columns.
+        const maxWidth = Math.max(500, Math.round(window.innerWidth * 0.6));
+        const newWidth = Math.max(120, Math.min(maxWidth, startWidth + (isRtl ? -delta : delta)));
         leftPanel.style.width = newWidth + 'px';
       };
 

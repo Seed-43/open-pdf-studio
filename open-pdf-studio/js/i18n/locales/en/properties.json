@@ -379,7 +379,10 @@
     "collapseAll": "Collapse All",
     "annotationsMenu": "Menu",
     "schedules": "Schedules",
-    "addPage": "Add page"
+    "addPage": "Add page",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "schedules": {
     "title": "Schedules",

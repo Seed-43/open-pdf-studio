@@ -87,6 +87,10 @@ export interface DocumentState {
    *  searchable text layer on save (see js/pdf/ocr.js, saver/ocr-text-layer.js). */
   ocrResults: Record<number, OcrWord[]>;
   bookmarks: Bookmark[];
+  /** Page names (index 0 = page 1); null = plain page numbers. */
+  pageLabels?: string[] | null;
+  /** True once labels were edited, so save rewrites /PageLabels. */
+  pageLabelsDirty?: boolean;
   undoStack: UndoCommand[];
   redoStack: UndoCommand[];
   savedUndoStackLength: number;

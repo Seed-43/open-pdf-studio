@@ -1,9 +1,11 @@
-import { Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import {
   activePage, thumbnailData, draggedPage, setDraggedPage, dropTarget, setDropTarget, placeholderSize,
   selectedPages, selectPage, togglePageSelection, selectPageRange, isPageSelected
 } from '../../stores/panels/thumbnailStore.js';
 import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
+import { state } from '../../../core/state.js';
+import { pageLabelFor, hasPageLabel, setPageLabel } from '../../../pdf/page-labels.js';
 
 export default function ThumbnailItem(props) {
   const isActive = () => activePage() === props.pageNum;
@@ -15,6 +17,21 @@ export default function ThumbnailItem(props) {
   const isSelected = () => { selectedPages(); return isPageSelected(props.pageNum); };
 
   const size = () => placeholderSize();
+
+  // Page label (sheet name). Reads the active document through the mutable
+  // state so a rename or a name-builder run re-renders the label.
+  const doc = () => state.documents[state.activeDocumentIndex];
+  const label = () => { doc()?.pageLabels; return pageLabelFor(doc(), props.pageNum); };
+  const named = () => { doc()?.pageLabels; return hasPageLabel(doc(), props.pageNum); };
+  const [renaming, setRenaming] = createSignal(false);
+  const commitRename = (value) => {
+    setRenaming(false);
+    const d = doc();
+    if (!d) return;
+    const v = (value || '').trim();
+    if (v === label()) return;
+    setPageLabel(d, props.pageNum, v);
+  };
 
   const handleClick = (e) => {
     if (e.ctrlKey && e.shiftKey) {
@@ -85,13 +102,37 @@ export default function ThumbnailItem(props) {
       }}
     >
       <Show when={imageData()} fallback={
-        <div class="thumbnail-canvas thumbnail-loading" style={{ width: size().width + 'px', height: size().height + 'px' }}>
+        <div class="thumbnail-canvas thumbnail-loading" style={{ 'aspect-ratio': `${size().width} / ${size().height}` }}>
           <div class="thumbnail-spinner" />
         </div>
       }>
-        <img class="thumbnail-canvas" src={imageData().dataURL} style={{ width: imageData().width + 'px' }} />
+        <img class="thumbnail-canvas" src={imageData().dataURL} />
       </Show>
-      <div class="thumbnail-label">{props.pageNum}</div>
+      <Show when={renaming()} fallback={
+        <div
+          class="thumbnail-label"
+          classList={{ named: named() }}
+          title={named() ? `${props.pageNum}: ${label()}` : String(props.pageNum)}
+          onDblClick={(e) => { e.stopPropagation(); setRenaming(true); }}
+        >
+          <span class="thumbnail-label-text">{label()}</span>
+        </div>
+      }>
+        <input
+          class="thumbnail-label-input"
+          value={named() ? label() : ''}
+          placeholder={String(props.pageNum)}
+          ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
+          onClick={(e) => e.stopPropagation()}
+          onDblClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') commitRename(e.currentTarget.value);
+            else if (e.key === 'Escape') setRenaming(false);
+          }}
+          onBlur={(e) => { if (renaming()) commitRename(e.currentTarget.value); }}
+        />
+      </Show>
     </div>
   );
 }

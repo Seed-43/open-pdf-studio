@@ -258,7 +258,10 @@
     "importComments": "Importa commenti...",
     "exportComments": "Esporta commenti in file di dati...",
     "exportSelectedComments": "Esporta commenti selezionati in file di dati...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

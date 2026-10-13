@@ -246,7 +246,10 @@
     "expandAll": "Expandir-ho tot",
     "collapseAll": "Reduir-ho tot",
     "annotationsMenu": "Menú",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

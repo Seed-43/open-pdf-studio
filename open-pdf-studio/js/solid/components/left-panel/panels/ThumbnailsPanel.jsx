@@ -51,7 +51,20 @@ export default function ThumbnailsPanel() {
   return (
     <div class={`left-panel-content${activeTab() === 'thumbnails' ? ' active' : ''}`} id="thumbnails-panel">
       <div class="left-panel-header">
-        <span>{t('leftPanel.thumbnails')}</span>
+        <span class="thumbnails-header-title">
+          {t('leftPanel.thumbnails')}
+          {/* Name the pages from their title blocks (page label builder). */}
+          <button
+            class="thumbnails-header-btn"
+            title={t('leftPanel.namePages', { defaultValue: 'Name pages from title block (OCR)' })}
+            onClick={async () => {
+              const { openDialog } = await import('../../../stores/dialogStore.js');
+              openDialog('pageLabels');
+            }}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 3.5h7.5L14 8l-4.5 4.5H2z"/><path d="M4.5 6.5h3M4.5 9.5h4"/></svg>
+          </button>
+        </span>
       </div>
       <div class="thumbnails-container" id="thumbnails-container" ref={setContainerRef} tabIndex={0} onKeyDown={handleKeyDown}>
         <For each={pages()}>

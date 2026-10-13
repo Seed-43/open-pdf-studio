@@ -258,7 +258,10 @@
     "importComments": "Импортиране на коментари...",
     "exportComments": "Експортиране на коментари във файл...",
     "exportSelectedComments": "Експортиране на избрани коментари във файл...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

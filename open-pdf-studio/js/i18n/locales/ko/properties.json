@@ -258,7 +258,10 @@
     "importComments": "주석 가져오기...",
     "exportComments": "주석을 데이터 파일로 내보내기...",
     "exportSelectedComments": "선택한 주석을 데이터 파일로 내보내기...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

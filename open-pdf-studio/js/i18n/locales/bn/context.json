@@ -97,7 +97,8 @@
     "properties": "বৈশিষ্ট্য",
     "insertFromFile": "Insert from File...",
     "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page..."
+    "insertFromFileAfter": "After This Page...",
+    "pageLabels": "Page labels (name builder)..."
   },
   "textSelection": {
     "highlightSelection": "নির্বাচন হাইলাইট করুন",

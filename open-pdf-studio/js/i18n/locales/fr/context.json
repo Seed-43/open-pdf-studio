@@ -97,7 +97,8 @@
     "properties": "Propriétés",
     "insertFromFile": "Insert from File...",
     "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page..."
+    "insertFromFileAfter": "After This Page...",
+    "pageLabels": "Page labels (name builder)..."
   },
   "textSelection": {
     "highlightSelection": "Surligner la sélection",

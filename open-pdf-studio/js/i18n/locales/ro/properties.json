@@ -258,7 +258,10 @@
     "importComments": "Importă comentarii...",
     "exportComments": "Exportă comentarii în fișier de date...",
     "exportSelectedComments": "Exportă comentariile selectate în fișier de date...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

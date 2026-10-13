@@ -258,7 +258,10 @@
     "importComments": "Importér kommentarer...",
     "exportComments": "Eksportér kommentarer til datafil...",
     "exportSelectedComments": "Eksportér valgte kommentarer til datafil...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

@@ -258,7 +258,10 @@
     "importComments": "استيراد التعليقات...",
     "exportComments": "تصدير التعليقات إلى ملف بيانات...",
     "exportSelectedComments": "تصدير التعليقات المحددة إلى ملف بيانات...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

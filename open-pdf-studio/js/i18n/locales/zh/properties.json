@@ -258,7 +258,10 @@
     "importComments": "导入批注...",
     "exportComments": "将批注导出到数据文件...",
     "exportSelectedComments": "将选定批注导出到数据文件...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

@@ -258,7 +258,10 @@
     "importComments": "Importovať komentáre...",
     "exportComments": "Exportovať komentáre do dátového súboru...",
     "exportSelectedComments": "Exportovať vybrané komentáre do dátového súboru...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",

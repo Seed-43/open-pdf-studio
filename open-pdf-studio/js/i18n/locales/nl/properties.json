@@ -328,7 +328,10 @@
     "exportSelectedComments": "Geselecteerde opmerkingen exporteren naar gegevensbestand...",
     "measurements": "Metingen",
     "schedules": "Staten",
-    "addPage": "Pagina toevoegen"
+    "addPage": "Pagina toevoegen",
+    "namePages": "Pagina's benoemen uit stempelveld (OCR)",
+    "findBookmark": "Zoeken...",
+    "findBookmarkTip": "Typ om naar een bladwijzer te springen. Enter opent hem, nogmaals Enter gaat naar de volgende."
   },
   "scaleBar": {
     "title": "Scale Bar",

@@ -258,7 +258,10 @@
     "importComments": "นำเข้าความคิดเห็น...",
     "exportComments": "ส่งออกความคิดเห็นไปยังไฟล์ข้อมูล...",
     "exportSelectedComments": "ส่งออกความคิดเห็นที่เลือกไปยังไฟล์ข้อมูล...",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "namePages": "Name pages from title block (OCR)",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
   },
   "scaleBar": {
     "title": "Scale Bar",
