@@ -172,5 +172,22 @@
     "clipboardEmpty": "Không có đoạn cắt nào trong bảng tạm"
   },
   "snippetOutputFailed": "Không thể kết xuất một đoạn cắt vector, nên quá trình xuất hoặc in đã bị dừng. Hãy thử lại.",
-  "protectedPdfReadOnly": "Tài liệu này được mở bằng mật khẩu và ở chế độ chỉ đọc. Không thể lưu."
+  "protectedPdfReadOnly": "Tài liệu này được mở bằng mật khẩu và ở chế độ chỉ đọc. Không thể lưu.",
+  "threeD": {
+    "barText": "This page contains a 3D model.",
+    "open": "Open 3D view",
+    "title": "3D view",
+    "view": "View",
+    "fit": "Fit",
+    "display": "Display",
+    "modeSolid": "Solid",
+    "modeEdges": "Solid with edges",
+    "modeWire": "Wireframe",
+    "modeXray": "Transparent",
+    "tree": "Model tree",
+    "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
+    "loading": "Loading 3D model... {{pct}}%",
+    "stats": "{{models}} objects, {{tris}} triangles",
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D)."
+  }
 }

@@ -9,7 +9,8 @@ import ElementVisibilityPanel from './components/left-panel/ElementVisibilityPan
 import AnnotationLayersPanel from './components/left-panel/AnnotationLayersPanel.jsx';
 import FindBar from './components/FindBar.jsx';
 import FormFieldsBar from './components/FormFieldsBar.jsx';
-import PdfABar from './components/PdfABar.jsx';
+import PdfABar from './components/PdfABar.jsx';
+import ThreeDView, { ThreeDBar } from './components/ThreeDView.jsx';
 import BeveiligdBar from './components/BeveiligdBar.jsx';
 import HandtekeningBar from './components/HandtekeningBar.jsx';
 import NotificationBar from './components/NotificationBar.jsx';
@@ -113,6 +114,7 @@ function DesktopApp() {
           <FormFieldsBar />
 
           <PdfABar />
+          <ThreeDBar />
           <BeveiligdBar />
 
           <HandtekeningBar />
@@ -129,6 +131,7 @@ function DesktopApp() {
             <CanvasScrollbars />
             <CompareView />
           </div>
+          <ThreeDView />
         </div>
 
         <OrderedDockedPalettes side="right" />

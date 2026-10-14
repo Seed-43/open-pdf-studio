@@ -172,5 +172,22 @@
     "clipboardEmpty": "کلپ بورڈ پر کوئی تراشہ نہیں ہے"
   },
   "snippetOutputFailed": "ایک ویکٹر تراشہ رینڈر نہیں ہو سکا، اس لیے برآمد یا پرنٹ روک دیا گیا۔ دوبارہ کوشش کریں۔",
-  "protectedPdfReadOnly": "یہ دستاویز پاس ورڈ کے ساتھ کھولی گئی ہے اور صرف پڑھنے کے لیے ہے۔ اسے محفوظ نہیں کیا جا سکتا۔"
+  "protectedPdfReadOnly": "یہ دستاویز پاس ورڈ کے ساتھ کھولی گئی ہے اور صرف پڑھنے کے لیے ہے۔ اسے محفوظ نہیں کیا جا سکتا۔",
+  "threeD": {
+    "barText": "This page contains a 3D model.",
+    "open": "Open 3D view",
+    "title": "3D view",
+    "view": "View",
+    "fit": "Fit",
+    "display": "Display",
+    "modeSolid": "Solid",
+    "modeEdges": "Solid with edges",
+    "modeWire": "Wireframe",
+    "modeXray": "Transparent",
+    "tree": "Model tree",
+    "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
+    "loading": "Loading 3D model... {{pct}}%",
+    "stats": "{{models}} objects, {{tris}} triangles",
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D)."
+  }
 }

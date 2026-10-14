@@ -172,5 +172,22 @@
     "failed": "Knippen mislukt",
     "clipboardEmpty": "Geen knipsel op het klembord"
   },
-  "protectedPdfReadOnly": "Dit document is met een wachtwoord geopend en is alleen-lezen. Het kan niet worden opgeslagen."
+  "protectedPdfReadOnly": "Dit document is met een wachtwoord geopend en is alleen-lezen. Het kan niet worden opgeslagen.",
+  "threeD": {
+    "barText": "Deze pagina bevat een 3D-model.",
+    "open": "3D-weergave openen",
+    "title": "3D-weergave",
+    "view": "Aanzicht",
+    "fit": "Passend",
+    "display": "Weergave",
+    "modeSolid": "Massief",
+    "modeEdges": "Massief met randen",
+    "modeWire": "Draadmodel",
+    "modeXray": "Transparant",
+    "tree": "Modelboom",
+    "hint": "Links slepen: draaien, rechts slepen: schuiven, wiel: zoomen",
+    "loading": "3D-model laden... {{pct}}%",
+    "stats": "{{models}} objecten, {{tris}} driehoeken",
+    "unsupported": "Dit 3D-model gebruikt het {{fmt}}-formaat, dat nog niet wordt ondersteund (alleen U3D)."
+  }
 }

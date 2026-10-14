@@ -172,5 +172,22 @@
     "clipboardEmpty": "Inget utsnitt i Urklipp"
   },
   "snippetOutputFailed": "Ett vektorutsnitt kunde inte återges, så exporten eller utskriften stoppades. Försök igen.",
-  "protectedPdfReadOnly": "Det här dokumentet öppnades med ett lösenord och är skrivskyddat. Det kan inte sparas."
+  "protectedPdfReadOnly": "Det här dokumentet öppnades med ett lösenord och är skrivskyddat. Det kan inte sparas.",
+  "threeD": {
+    "barText": "This page contains a 3D model.",
+    "open": "Open 3D view",
+    "title": "3D view",
+    "view": "View",
+    "fit": "Fit",
+    "display": "Display",
+    "modeSolid": "Solid",
+    "modeEdges": "Solid with edges",
+    "modeWire": "Wireframe",
+    "modeXray": "Transparent",
+    "tree": "Model tree",
+    "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
+    "loading": "Loading 3D model... {{pct}}%",
+    "stats": "{{models}} objects, {{tris}} triangles",
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D)."
+  }
 }

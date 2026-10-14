@@ -172,5 +172,22 @@
     "clipboardEmpty": "클립보드에 스니펫이 없습니다"
   },
   "snippetOutputFailed": "벡터 스니펫을 렌더링할 수 없어 내보내기 또는 인쇄를 중단했습니다. 다시 시도하세요.",
-  "protectedPdfReadOnly": "이 문서는 암호로 열렸으며 읽기 전용입니다. 저장할 수 없습니다."
+  "protectedPdfReadOnly": "이 문서는 암호로 열렸으며 읽기 전용입니다. 저장할 수 없습니다.",
+  "threeD": {
+    "barText": "This page contains a 3D model.",
+    "open": "Open 3D view",
+    "title": "3D view",
+    "view": "View",
+    "fit": "Fit",
+    "display": "Display",
+    "modeSolid": "Solid",
+    "modeEdges": "Solid with edges",
+    "modeWire": "Wireframe",
+    "modeXray": "Transparent",
+    "tree": "Model tree",
+    "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
+    "loading": "Loading 3D model... {{pct}}%",
+    "stats": "{{models}} objects, {{tris}} triangles",
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D)."
+  }
 }
