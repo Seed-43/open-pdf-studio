@@ -3,14 +3,18 @@ import { closeAppMenu } from '../../stores/appMenuStore.js';
 import { openPDFFile, loadPDFIfNeeded } from '../../../pdf/loader.js';
 import { getRecentFiles, removeRecentFile, pinRecentFile, unpinRecentFile } from '../../../mobile/recent-files.js';
 import { createTab } from '../../../ui/chrome/tabs.js';
-import { isTauri, fileExists, openFolderDialog, downloadPdfFromUrl, listPdfFiles } from '../../../core/platform.js';
+import { isTauri, fileExists, openFolderDialog, downloadPdfFromUrl, listPdfFiles, hostOpslag, hostDocumenten } from '../../../core/platform.js';
+import { openHostDocument } from '../../../pdf/host-document.js';
 import { useTranslation, localizeNumber } from '../../../i18n/useTranslation.js';
 import { getSavedSessions, saveCurrentSession, deleteSession, restoreSession } from '../../../stores/sessions.js';
 import { getSavedPlaces, addPlace, removePlace } from '../../../stores/places.js';
 
 export default function OpenPanel() {
   const { t } = useTranslation('appMenu');
-  const [activeSubPanel, setActiveSubPanel] = createSignal('recent');
+  // Als gast met een opslagcontract dat een lijst kent: de documenten van de
+  // site als eerste keuze (#546).
+  const siteLijst = typeof hostOpslag()?.list === 'function';
+  const [activeSubPanel, setActiveSubPanel] = createSignal(siteLijst ? 'site' : 'recent');
   const [recentFiles, setRecentFiles] = createSignal([]);
   const [searchQuery, setSearchQuery] = createSignal('');
   const [pinnedCollapsed, setPinnedCollapsed] = createSignal(false);
@@ -25,6 +29,11 @@ export default function OpenPanel() {
   const [urlLoading, setUrlLoading] = createSignal(false);
   const [urlError, setUrlError] = createSignal('');
 
+  // Site state (#546)
+  const [siteDocs, setSiteDocs] = createSignal([]);
+  const [siteLoading, setSiteLoading] = createSignal(false);
+  const [siteError, setSiteError] = createSignal(false);
+
   // Places state
   const [places, setPlaces] = createSignal([]);
   const [expandedPlace, setExpandedPlace] = createSignal(null);
@@ -35,7 +44,27 @@ export default function OpenPanel() {
     refreshFiles();
     refreshSessions();
     refreshPlaces();
+    if (siteLijst) refreshSite();
   });
+
+  async function refreshSite() {
+    setSiteLoading(true);
+    setSiteError(false);
+    try {
+      setSiteDocs(await hostDocumenten());
+    } catch (e) {
+      console.warn('[gast] lijst van de site niet geladen:', e);
+      setSiteDocs([]);
+      setSiteError(true);
+    } finally {
+      setSiteLoading(false);
+    }
+  }
+
+  async function handleOpenSiteDoc(doc) {
+    closeAppMenu();
+    await openHostDocument(doc.id);
+  }
 
   function refreshFiles() {
     const files = getRecentFiles();
@@ -415,6 +444,41 @@ export default function OpenPanel() {
     );
   }
 
+  function SiteContent() {
+    return (
+      <>
+        <h2 class="open-panel-title">{t('openPanel.site')}</h2>
+        <div class="open-panel-groups">
+          <Show when={!siteLoading()} fallback={<div class="open-panel-empty">{t('common:loading')}</div>}>
+            <Show when={!siteError()} fallback={<div class="open-panel-empty">{t('openPanel.siteListError')}</div>}>
+              <Show when={siteDocs().length > 0} fallback={<div class="open-panel-empty">{t('openPanel.noSiteDocuments')}</div>}>
+                <For each={siteDocs()}>
+                  {(doc) => (
+                    <div class="recent-file-item" onClick={() => handleOpenSiteDoc(doc)}>
+                      <div class="recent-file-icon">
+                        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 0H2C0.9 0 0 0.9 0 2V22C0 23.1 0.9 24 2 24H18C19.1 24 20 23.1 20 22V8L12 0Z" fill="#E53935"/>
+                          <path d="M12 0V8H20L12 0Z" fill="#EF9A9A"/>
+                          <text x="10" y="19" font-size="7" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">PDF</text>
+                        </svg>
+                      </div>
+                      <div class="recent-file-info">
+                        <div class="recent-file-name">{doc.name || doc.id}</div>
+                        <Show when={doc.modified && !Number.isNaN(Date.parse(doc.modified))}>
+                          <div class="recent-file-path">{formatDate(Date.parse(doc.modified))}</div>
+                        </Show>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </Show>
+            </Show>
+          </Show>
+        </div>
+      </>
+    );
+  }
+
   function PlacesContent() {
     return (
       <>
@@ -497,6 +561,19 @@ export default function OpenPanel() {
   return (
     <div class="open-panel">
       <div class="open-panel-nav">
+        <Show when={siteLijst}>
+          <button
+            class={`open-panel-nav-item${activeSubPanel() === 'site' ? ' active' : ''}`}
+            onClick={() => { setActiveSubPanel('site'); refreshSite(); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="6"/>
+              <rect x="3" y="15" width="18" height="6"/>
+              <line x1="12" y1="9" x2="12" y2="15"/>
+            </svg>
+            <span>{t('openPanel.site')}</span>
+          </button>
+        </Show>
         <button
           class={`open-panel-nav-item${activeSubPanel() === 'recent' ? ' active' : ''}`}
           onClick={() => setActiveSubPanel('recent')}
@@ -550,6 +627,9 @@ export default function OpenPanel() {
 
       <div class="open-panel-content">
         <Switch>
+          <Match when={activeSubPanel() === 'site'}>
+            <SiteContent />
+          </Match>
           <Match when={activeSubPanel() === 'recent'}>
             <RecentFilesContent />
           </Match>

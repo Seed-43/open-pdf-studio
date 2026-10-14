@@ -4,7 +4,7 @@ import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { showMessage } from '../bridge.js';
 import i18next from '../i18n/config.js';
 import { textItemsToBoxes, recoverLayout, recoverDrawingLayout } from './office-layout.js';
-import { buildOdt, buildXlsx } from './office-files.js';
+import { buildDocx, buildOdt, buildXlsx } from './office-files.js';
 
 async function pageImage(page, rotation) {
   const base = page.getViewport({ scale: 1, rotation });
@@ -22,7 +22,14 @@ async function pageImage(page, rotation) {
 
 export async function exportOffice({ format, pages, includeImages = false, decimal = '.', doc = getActiveDocument() }) {
   const t = key => i18next.t(`appMenu:exportPanel.${key}`);
-  if (!doc?.pdfDoc || !['odt', 'xlsx'].includes(format)) return false;
+  // Tekstdocumenten krijgen alinea's, tabellen en (optioneel) paginabeelden;
+  // het werkboek de tabellen en de tekst per pagina.
+  const OFFICE_FORMATS = {
+    odt: { filter: 'OpenDocument Text', images: true, build: buildOdt },
+    docx: { filter: 'Office Open XML Text', images: true, build: buildDocx },
+    xlsx: { filter: 'Excel Workbook', images: false, build: buildXlsx },
+  };
+  if (!doc?.pdfDoc || !Object.hasOwn(OFFICE_FORMATS, format)) return false;
   if (doc.textEdits?.some(edit => !edit.baked && !edit._pendingNew)) {
     showMessage(t('officeSaveEditsFirst'));
     return false;
@@ -39,7 +46,7 @@ export async function exportOffice({ format, pages, includeImages = false, decim
   const selected = [...new Set(pages)].filter(p => Number.isInteger(p) && p >= 1 && p <= pdf.numPages).sort((a, b) => a - b);
   if (!selected.length) return false;
   const base = (doc.fileName || 'document.pdf').replace(/\.pdf$/i, '');
-  const path = await saveFileDialog(`${base}.${format}`, [{ name: format === 'odt' ? 'OpenDocument Text' : 'Excel Workbook', extensions: [format] }]);
+  const path = await saveFileDialog(`${base}.${format}`, [{ name: OFFICE_FORMATS[format].filter, extensions: [format] }]);
   if (!path) return false;
   const outputPath = path.toLowerCase().endsWith(`.${format}`) ? path : `${path}.${format}`;
   showLoading(t('officeWorking'));
@@ -62,13 +69,13 @@ export async function exportOffice({ format, pages, includeImages = false, decim
         : recoverLayout(boxes, { joinParagraphs: true });
       output.push({ number, blocks, width: viewport.width, height: viewport.height,
         emptyMessage: blocks.length ? '' : t('officeNoText'),
-        image: format === 'odt' && (includeImages || !blocks.length) ? await pageImage(page, rotation) : null });
+        image: OFFICE_FORMATS[format].images && (includeImages || !blocks.length) ? await pageImage(page, rotation) : null });
       ensureSource();
       // Let the loading overlay paint between pages.
       await new Promise(resolve => setTimeout(resolve, 0));
     }
     const options = { title: doc.fileName || base, decimal, pageLabel: t('officePage'), tableLabel: t('officeTable'), textLabel: t('officeText') };
-    const bytes = format === 'odt' ? buildOdt(output, options) : buildXlsx(output, options);
+    const bytes = OFFICE_FORMATS[format].build(output, options);
     ensureSource();
     await writeBinaryFileAtomic(outputPath, bytes);
     return true;

@@ -1,4 +1,5 @@
 import { huidigeSymboolSchaal } from '../symbols/symbol-scale-store.js';
+import { withSymbolInsertFormat } from '../symbols/symbol-insert-format-store.js';
 import { schaalVakOmMidden } from '../symbols/symbol-scale.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
@@ -22,6 +23,7 @@ import { getEffectiveScale } from './effective-scale.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
 import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
+import { documentHeeftSchaal } from '../annotations/schaal-op-punt.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -579,6 +581,11 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
 function finalizeAnnotation(tool, props) {
   if (!props) return null;
 
+  // Opmaak uit de invoegsessie voor symbolen (#587). Alleen bij tekenen (beide
+  // tekenroutes komen hier langs): buildAnnotationProps blijft zonder, zodat
+  // een symbool of wand via MCP of een plug-in de standaardopmaak houdt.
+  props = withSymbolInsertFormat(tool, props);
+
   // Geen ondergrens in paginapunten meer voor wolk (was 10 pt: een wolk van
   // 8 x 100 pt verviel stil) en redactiemarkering (was 5 pt: een smalle strook
   // over een dunne lijn moet kunnen). De vormen-tool heeft de echte
@@ -657,6 +664,8 @@ export function createMeasureAreaAnnotation(points, holes) {
   if (holes && holes.length > 0) {
     annProps.holes = holes;
   }
+  // Zijdematen (#536): alleen als de gebruiker ze als standaard aanzette.
+  if (mPrefs.measureAreaShowEdgeLengths === true) annProps.measureShowEdgeLengths = true;
   // Always use calculateArea (which resolves scale from scaleBar / document / prefs)
   // followed by formatMeasurement (which auto-converts mm² → m²).
   const currentPage = getActiveDocument()?.currentPage || 1;
@@ -687,9 +696,10 @@ export function createMeasurePerimeterAnnotation(points) {
     headSize: mPrefs.measurePerimHeadSize || 12,
   };
   const currentPage = getActiveDocument()?.currentPage || 1;
-  // Scale regions count as a scale source too — measurements inside one must
-  // inherit its scale instead of the manual preference scale.
-  const hasScaleSource = getActiveDocument()?.annotations?.some(a => a.type === 'scaleRegion' || a.type === 'scaleBar' || a.type === 'viewport');
+  // Elke schaalbron van het document (schaalgebied, schaalbalk, viewport, een
+  // viewport uit de PDF zelf of de documentschaal uit de kalibratie, #554)
+  // gaat voor de handmatige voorkeursschaal; dezelfde regel als de maatlijn.
+  const hasScaleSource = documentHeeftSchaal(getActiveDocument());
   if (!hasScaleSource && mPrefs.measurePerimDimScale && typeof mPrefs.measurePerimDimScale === 'number') {
     perimProps.measureScale = mPrefs.measurePerimDimScale;
     perimProps.measureUnit = mPrefs.measurePerimDimUnit || 'mm';

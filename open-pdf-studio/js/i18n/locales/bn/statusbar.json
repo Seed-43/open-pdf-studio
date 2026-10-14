@@ -11,6 +11,7 @@
     "box": "আয়তক্ষেত্র",
     "polygon": "বহুভুজ",
     "cloud": "মেঘ",
+    "cloudPolyline": "ক্লাউড পলিলাইন",
     "polyline": "পলিলাইন",
     "textbox": "পাঠ্য বাক্স",
     "callout": "কলআউট",
@@ -27,7 +28,8 @@
     "formTextField": "ফর্ম পাঠ্য ক্ষেত্র",
     "formCheckbox": "ফর্ম চেকবক্স",
     "formRadio": "ফর্ম রেডিও বোতাম",
-    "screenshot": "স্ক্রিনশট"
+    "screenshot": "স্ক্রিনশট",
+    "pageLabelPick": "পৃষ্ঠা লেবেলের জন্য লেখা বাছুন"
   },
   "toolLabel": "সরঞ্জাম:",
   "annotationsLabel": "টীকা:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "এই নথিতে ইন্টারেক্টিভ ফর্ম ক্ষেত্র রয়েছে। আপনি ফর্মটি পূরণ করে আপনার ডেটা সংরক্ষণ করতে পারেন।",
   "enableEditing": "সম্পাদনা সক্রিয় করুন",
   "pdfAConformance": "এই নথিটি PDF/A সামঞ্জস্যের দাবি করে।",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "ফাইলের নাম পরিবর্তন করতে ব্যর্থ: {{error}}",
+  "renameInvalidChars": "ফাইলের নামে এগুলো থাকতে পারবে না:  / : * ? \" < > |",
+  "renameFileExists": "এই নামে একটি ফাইল আগে থেকেই আছে।",
+  "engineTitle": "বর্তমান দৃশ্যের জন্য ব্যবহৃত রেন্ডারিং ইঞ্জিন",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (ভেক্টর)"
+  },
+  "viewSingle": "একক পৃষ্ঠা",
+  "viewContinuous": "ক্রমাগত",
+  "viewBook": "দুই পৃষ্ঠা",
+  "viewFacing": "পাশাপাশি দুই পৃষ্ঠা",
   "viewRotatedTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে {{degrees}}° ঘোরানো আছে; নথি অপরিবর্তিত। দৃশ্য ফিরিয়ে আনতে ক্লিক করুন।",
+  "compareTabTitle": "তুলনা",
   "filledAreaSketch": {
     "undoPoint": "পয়েন্ট পূর্বাবস্থায় ফেরান",
     "undoPointTitle": "শেষ পয়েন্ট সরান (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "প",
   "boxHeightAbbr": "উ",
+  "boxSizeHint": "একটি মান টাইপ করুন + Enter — অথবা প্রয়োগ করতে বাইরে ক্লিক করুন",
   "ocr": {
     "progress": {
       "starting": "টেক্সট শনাক্ত করা হচ্ছে...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "ফলাফল ({{count}})",
   "searchResultPage": "পৃষ্ঠা {{page}}",
   "searchHitsOne": "1টি মিল",
-  "searchHitsMany": "{{count}}টি মিল"
+  "searchHitsMany": "{{count}}টি মিল",
+  "passwordProtectedBar": "পাসওয়ার্ড দিয়ে সুরক্ষিত: শুধু পড়ার জন্য খোলা হয়েছে।"
 }

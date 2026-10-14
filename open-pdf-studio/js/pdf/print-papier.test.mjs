@@ -577,7 +577,7 @@ test('alle locales hebben de papierkop met dezelfde plaatshouders als Engels', a
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8'));
   const en = lees('en');
   const talen = readdirSync(map);
-  assert.equal(talen.length, 39);
+  assert.equal(talen.length, 40);
   for (const taal of talen) {
     const d = lees(taal);
     for (const sleutel of ['paperLabel', 'pageSizeLabel', 'paperFallback']) {

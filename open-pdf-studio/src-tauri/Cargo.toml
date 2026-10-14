@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.41.0"
+version = "2026.42.7"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -47,8 +47,14 @@ open-pdf-render = { path = "../../open-pdf-render" }
 # Export van een PDF-pagina naar DXF/DWG (#400); trekt acadrust mee (pure Rust,
 # MPL-2.0). De app-crate bevat alleen de commando-schil in src/cad_export.rs.
 open-pdf-cad = { path = "../../open-pdf-cad" }
+# CMYK-omzetting voor de PDF/X-export (#422): Little CMS en de documentloop.
+# De app-crate bevat alleen de commando-schil in src/pdfx_cmyk.rs.
+open-pdf-cmyk = { path = "../../open-pdf-cmyk" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 pdfium-render = { version = "0.9.4", features = ["thread_safe", "image_025"] }
+# Ontsleutelen van PDF's met een wachtwoord (src/beveiligde_pdf.rs): een paar
+# PDFium-functies die pdfium-render niet aanbiedt. Zelfde versie als pdfium-render.
+libloading = "0.9"
 clap = { version = "4", features = ["derive"] }
 
 # OpenAEC Accounts ("Sign in with OpenAEC", accounts.rs): PKCE + OS-keyring
@@ -148,8 +154,13 @@ rustls-native-certs = "0.8"
 # doelen en uitschakeldata per wortel.
 # Win32_Security (met Win32_Graphics_Gdi): `PRINTER_INFO_2W`, voor de
 # printerlijst uit de spooler (print_lijst.rs, #524).
+# webview2-com + windows: de vensteropname van app_screenshot_view (#583) via
+# ICoreWebView2::CapturePreview (src/webview_opname.rs). Dezelfde versies die
+# wry en tauri al meebrengen; ze staan al in Cargo.lock.
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry"] }
+webview2-com = "0.38.2"
+windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
+windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry"] }
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

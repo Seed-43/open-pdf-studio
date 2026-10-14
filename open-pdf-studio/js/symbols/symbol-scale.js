@@ -74,3 +74,40 @@ export function schaalLabel(factor) {
   const s = Number.isInteger(f) ? String(f) : String(f).replace('.', ',');
   return `${s}x`;
 }
+
+/**
+ * Leest wat de gebruiker in het schaalveld van het palet typte (issue #357).
+ * Begrijpt "2", "1,5", "0.5x" en "50%". Geeft null bij onzin, zodat het veld
+ * dan de geldende schaal terugzet in plaats van stil naar 1x te springen.
+ * @param {unknown} tekst
+ * @returns {number|null}
+ */
+export function leesSchaalInvoer(tekst) {
+  const s = String(tekst ?? '').trim().toLowerCase().replace(',', '.');
+  const m = /^([+]?\d*\.?\d+)\s*(x|×|%)?$/.exec(s);
+  if (!m) return null;
+  let n = parseFloat(m[1]);
+  if (m[2] === '%') n /= 100;
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return normaliseerSchaal(n);
+}
+
+/**
+ * Volgende of vorige vaste stap vanaf de huidige schaal, voor de pijltjes-
+ * toetsen in het schaalveld. Een eigen waarde tussen twee stappen springt
+ * naar de dichtstbijzijnde stap in die richting; voorbij de laatste stap
+ * blijft de schaal staan.
+ * @param {number} huidig
+ * @param {1|-1} richting
+ * @returns {number}
+ */
+export function volgendeSchaalStap(huidig, richting) {
+  const f = normaliseerSchaal(huidig);
+  if (richting > 0) {
+    return SCHAAL_STAPPEN.find((s) => s > f + 1e-9) ?? f;
+  }
+  for (let i = SCHAAL_STAPPEN.length - 1; i >= 0; i--) {
+    if (SCHAAL_STAPPEN[i] < f - 1e-9) return SCHAAL_STAPPEN[i];
+  }
+  return f;
+}

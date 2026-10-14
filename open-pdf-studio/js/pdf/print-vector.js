@@ -25,7 +25,7 @@ import {
   PDFDocument, PDFName, PDFRef, PDFDict, PDFArray, PDFStream,
   pushGraphicsState, popGraphicsState, concatTransformationMatrix, drawObject,
 } from 'pdf-lib';
-import { berekenPlaatsing } from './print-plaatsing.js';
+import { berekenPlaatsing, printPaginaMaat } from './print-plaatsing.js';
 import { knipselMatrix, metInhoud } from './vector-embed.js';
 
 const PT_PER_MM = 72 / 25.4;
@@ -207,6 +207,97 @@ export function vakkenUitRaster(raster) {
     });
 }
 
+// --- lagen (optionele inhoud) ------------------------------------------------------------
+
+/**
+ * Loopt een bronobject en zijn kopie tegelijk af en noteert per verwijzing in
+ * de bron de verwijzing in de kopie (`kaart`: bron-tag -> doel-PDFRef).
+ * `embedPages` kopieert de hulpbronnen één op één (pdf-lib PDFObjectCopier),
+ * dus bron en kopie hebben dezelfde vorm.
+ */
+export function koppelKopie(bronCtx, doelCtx, bron, doel, kaart = new Map()) {
+  const gezien = new Set();
+  const stapel = [[bron, doel]];
+  while (stapel.length) {
+    let [b, d] = stapel.pop();
+    if (b instanceof PDFRef) {
+      if (gezien.has(b.tag)) continue;
+      gezien.add(b.tag);
+      if (d instanceof PDFRef && !kaart.has(b.tag)) kaart.set(b.tag, d);
+      b = bronCtx.lookup(b);
+    }
+    if (d instanceof PDFRef) d = doelCtx.lookup(d);
+    if (!b || !d) continue;
+    if (b instanceof PDFStream && d instanceof PDFStream) {
+      b = b.dict;
+      d = d.dict;
+    }
+    if (b instanceof PDFDict && d instanceof PDFDict) {
+      for (const [sleutel, waarde] of b.entries()) {
+        const kopie = d.get(sleutel);
+        if (kopie !== undefined) stapel.push([waarde, kopie]);
+      }
+    } else if (b instanceof PDFArray && d instanceof PDFArray) {
+      for (let i = 0, n = Math.min(b.size(), d.size()); i < n; i++) stapel.push([b.get(i), d.get(i)]);
+    }
+  }
+  return kaart;
+}
+
+/**
+ * Kopieert `obj` uit de bron naar het doel; een verwijzing die al in `kaart`
+ * staat wijst naar het al gekopieerde object, de rest wordt nieuw aangelegd.
+ */
+function kopieerMetKaart(obj, bronCtx, doelCtx, kaart) {
+  if (obj instanceof PDFRef) {
+    const bekend = kaart.get(obj.tag);
+    if (bekend) return bekend;
+    const nieuw = doelCtx.nextRef();
+    kaart.set(obj.tag, nieuw);
+    const waarde = bronCtx.lookup(obj);
+    if (waarde !== undefined) doelCtx.assign(nieuw, kopieerMetKaart(waarde, bronCtx, doelCtx, kaart));
+    return nieuw;
+  }
+  if (obj instanceof PDFStream) {
+    const kopie = obj.clone(doelCtx);
+    for (const [k, v] of obj.dict.entries()) kopie.dict.set(k, kopieerMetKaart(v, bronCtx, doelCtx, kaart));
+    return kopie;
+  }
+  if (obj instanceof PDFDict) {
+    const kopie = obj.clone(doelCtx);
+    for (const [k, v] of obj.entries()) kopie.set(k, kopieerMetKaart(v, bronCtx, doelCtx, kaart));
+    return kopie;
+  }
+  if (obj instanceof PDFArray) {
+    const kopie = obj.clone(doelCtx);
+    for (let i = 0; i < obj.size(); i++) kopie.set(i, kopieerMetKaart(obj.get(i), bronCtx, doelCtx, kaart));
+    return kopie;
+  }
+  return obj;
+}
+
+/**
+ * Neemt de lagen (/OCProperties) van de bron mee. De ingebedde pagina's houden
+ * hun /OC-verwijzingen, maar zonder /OCProperties in de catalogus tekent een
+ * weergave alle optionele inhoud: een laag die in de bron standaard uit staat
+ * (/D /OFF) werd dan zichtbaar. De lagen in /OCProperties wijzen naar
+ * dezelfde OCG-objecten als de gekopieerde hulpbronnen. Aanroepen NA flush.
+ */
+export function neemLagenMee(bron, pdf, werk, vormen) {
+  const lagen = bron.catalog.get(PDFName.of('OCProperties'));
+  if (!lagen) return false;
+  const kaart = new Map();
+  werk.forEach((w, i) => {
+    const vorm = pdf.context.lookup(vormen[i].ref);
+    if (!(vorm instanceof PDFStream)) return;
+    const bronHulp = w.page.node.getInheritableAttribute(PDFName.of('Resources'));
+    const doelHulp = vorm.dict.get(PDFName.of('Resources'));
+    if (bronHulp && doelHulp) koppelKopie(bron.context, pdf.context, bronHulp, doelHulp, kaart);
+  });
+  pdf.catalog.set(PDFName.of('OCProperties'), kopieerMetKaart(lagen, bron.context, pdf.context, kaart));
+  return true;
+}
+
 // --- geen resten van de bron ---------------------------------------------------------
 
 /**
@@ -309,9 +400,7 @@ export async function bouwVectorPrintPdf({
     const { index, plaatsing } = werk[i];
     voortgang(i, index);
     opVel = plaatsing.bekend;
-    const maat = plaatsing.bekend
-      ? [plaatsing.vel.breedteMm * PT_PER_MM, plaatsing.vel.hoogteMm * PT_PER_MM]
-      : [plaatsing.paginaPt.breedtePt, plaatsing.paginaPt.hoogtePt];
+    const maat = printPaginaMaat(plaatsing);
     const pagina = pdf.addPage(maat);
 
     // Niet via page.drawPage: die schaalt met de maat van het ongedraaide vak
@@ -338,8 +427,10 @@ export async function bouwVectorPrintPdf({
     }
   }
 
-  // Pas na flush staan de vormen in de context; daarna de wezen weg.
+  // Pas na flush staan de vormen in de context; dan de lagen van de bron
+  // erbij en daarna de wezen weg.
   await pdf.flush();
+  neemLagenMee(bron, pdf, werk, vormen);
   verwijderOnbereikbaar(pdf);
   return { pdf, opVel };
 }

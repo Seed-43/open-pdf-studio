@@ -3,6 +3,7 @@ import { annotationCtx } from '../ui/dom-elements.js';
 import { redrawAnnotations, drawAnnotation } from '../annotations/rendering.js';
 import { drawSnapIndicator } from './snap-engine.js';
 import { buildAnnotationProps } from './annotation-creators.js';
+import { withSymbolInsertFormat } from '../symbols/symbol-insert-format-store.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { applyToolTransform } from './tool-transform.js';
 
@@ -23,6 +24,8 @@ export function drawShapePreview(currentX, currentY, e) {
   let tempAnn;
   try {
     tempAnn = buildAnnotationProps(state.currentTool, state.startX, state.startY, currentX, currentY, e);
+    // Zelfde opmaak als de plaatsing (invoegsessie voor symbolen, #587).
+    tempAnn = withSymbolInsertFormat(state.currentTool, tempAnn);
   } finally {
     state._isPreview = false;
   }

@@ -11,6 +11,7 @@
     "box": "செவ்வகம்",
     "polygon": "பலகோணம்",
     "cloud": "மேகம்",
+    "cloudPolyline": "மேகப் பல்கோடு",
     "polyline": "பல்கோடு",
     "textbox": "உரைப்பெட்டி",
     "callout": "அழைப்புக்குறிப்பு",
@@ -27,7 +28,8 @@
     "formTextField": "படிவ உரைப் புலம்",
     "formCheckbox": "படிவ தேர்வுப்பெட்டி",
     "formRadio": "படிவ வானொலி பொத்தான்",
-    "screenshot": "திரைப்பிடிப்பு"
+    "screenshot": "திரைப்பிடிப்பு",
+    "pageLabelPick": "பக்க லேபிளுக்கான உரையைத் தேர்ந்தெடு"
   },
   "toolLabel": "கருவி:",
   "annotationsLabel": "குறிப்புரைகள்:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "இந்த ஆவணத்தில் ஊடாடும் படிவப் புலங்கள் உள்ளன. படிவத்தை நிரப்பி உங்கள் தரவைச் சேமிக்கலாம்.",
   "enableEditing": "திருத்தத்தை இயக்கு",
   "pdfAConformance": "இந்த ஆவணம் PDF/A இணக்கத்தைக் கோருகிறது.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "கோப்பின் பெயரை மாற்ற முடியவில்லை: {{error}}",
+  "renameInvalidChars": "கோப்புப் பெயரில் இவை இருக்கக்கூடாது:  / : * ? \" < > |",
+  "renameFileExists": "இந்தப் பெயரில் ஒரு கோப்பு ஏற்கெனவே உள்ளது.",
+  "engineTitle": "தற்போதைய காட்சிக்குப் பயன்படுத்தப்படும் ரெண்டரிங் இயந்திரம்",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (வெக்டர்)"
+  },
+  "viewSingle": "ஒற்றைப் பக்கம்",
+  "viewContinuous": "தொடர்ச்சி",
+  "viewBook": "இரண்டு பக்கங்கள்",
+  "viewFacing": "அருகருகே இரண்டு பக்கங்கள்",
   "viewRotatedTitle": "காட்சி கடிகார திசையில் {{degrees}}° சுழற்றப்பட்டுள்ளது; ஆவணம் மாறவில்லை. காட்சியைத் திருப்ப கிளிக் செய்யவும்.",
+  "compareTabTitle": "ஒப்பீடு",
   "filledAreaSketch": {
     "undoPoint": "புள்ளியை மீட்டமை",
     "undoPointTitle": "கடைசி புள்ளியை அகற்று (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "அ",
   "boxHeightAbbr": "உ",
+  "boxSizeHint": "மதிப்பைத் தட்டச்சு செய்து Enter — அல்லது பயன்படுத்த வெளியே கிளிக் செய்யவும்",
   "ocr": {
     "progress": {
       "starting": "உரை அடையாளம் காணப்படுகிறது...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "முடிவுகள் ({{count}})",
   "searchResultPage": "பக்கம் {{page}}",
   "searchHitsOne": "1 பொருத்தம்",
-  "searchHitsMany": "{{count}} பொருத்தங்கள்"
+  "searchHitsMany": "{{count}} பொருத்தங்கள்",
+  "passwordProtectedBar": "கடவுச்சொல்லால் பாதுகாக்கப்பட்டது: படிக்க மட்டும் திறக்கப்பட்டது."
 }

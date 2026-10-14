@@ -11,6 +11,7 @@
     "box": "Rektangel",
     "polygon": "Polygon",
     "cloud": "Sky",
+    "cloudPolyline": "Skypolylinje",
     "polyline": "Polylinje",
     "textbox": "Tekstboks",
     "callout": "Billedtekst",
@@ -27,7 +28,8 @@
     "formTextField": "Formulartekstfelt",
     "formCheckbox": "Formularafkrydsningsfelt",
     "formRadio": "Formularalternativknap",
-    "screenshot": "Skærmbillede"
+    "screenshot": "Skærmbillede",
+    "pageLabelPick": "Vælg tekst til sideetiket"
   },
   "toolLabel": "Værktøj:",
   "annotationsLabel": "Annotationer:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Dette dokument indeholder interaktive formularfelter. Du kan udfylde formularen og gemme dine data.",
   "enableEditing": "Aktiver redigering",
   "pdfAConformance": "Dette dokument hævder PDF/A-overensstemmelse.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Filen kunne ikke omdøbes: {{error}}",
+  "renameInvalidChars": "Filnavnet må ikke indeholde:  / : * ? \" < > |",
+  "renameFileExists": "Der findes allerede en fil med dette navn.",
+  "engineTitle": "Gengivelsesmotor, der bruges til den aktuelle visning",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektor)"
+  },
+  "viewSingle": "Enkelt side",
+  "viewContinuous": "Kontinuerlig",
+  "viewBook": "To sider",
+  "viewFacing": "To sider side om side",
   "viewRotatedTitle": "Visningen er roteret {{degrees}}° med uret; dokumentet er uændret. Klik for at dreje visningen tilbage.",
+  "compareTabTitle": "Sammenlign",
   "filledAreaSketch": {
     "undoPoint": "Fortryd punkt",
     "undoPointTitle": "Fjern seneste punkt (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Skriv en værdi + Enter — eller klik udenfor for at anvende",
   "ocr": {
     "progress": {
       "starting": "Genkender tekst...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Resultater ({{count}})",
   "searchResultPage": "Side {{page}}",
   "searchHitsOne": "1 match",
-  "searchHitsMany": "{{count}} match"
+  "searchHitsMany": "{{count}} match",
+  "passwordProtectedBar": "Beskyttet med adgangskode: åbnet skrivebeskyttet."
 }

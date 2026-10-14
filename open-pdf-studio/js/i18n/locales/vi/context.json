@@ -7,9 +7,11 @@
     "addReply": "Thêm Trả lời",
     "locked": "Khóa",
     "marked": "Đã đánh dấu",
+    "gridEndLock": "Khóa đầu trục lưới",
+    "gridEndUnlock": "Mở khóa đầu trục lưới",
     "printable": "In được",
     "status": "Trạng thái",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Hiển thị theo trạng thái",
     "statusNone": "Không có",
     "statusAccepted": "Chấp nhận",
     "statusCancelled": "Đã hủy",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Xuất",
     "exportAsImage": "Xuất dưới dạng Hình ảnh...",
     "addHole": "Thêm lỗ",
+    "wallJoinAllow": "Cho phép nối (đầu này)",
+    "wallJoinDisallow": "Không cho phép nối (đầu này)",
     "properties": "Thuộc tính...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Chỉnh sửa tỷ lệ khung nhìn",
+    "calibrateFromLine": "Hiệu chuẩn từ đường này...",
+    "setScale": "Đặt tỷ lệ...",
+    "dimChainAdd": "Thêm điểm vào chuỗi kích thước",
+    "dimChainRemove": "Xóa đường gióng khỏi chuỗi",
+    "selectRoom": "Chọn phòng"
   },
   "multiSelect": {
     "copyAnnotations": "Sao chép {{count}} Chú thích",
@@ -54,6 +63,7 @@
     "centerVertically": "Căn giữa Dọc",
     "distributeHorizontally": "Phân bố Ngang",
     "distributeVertically": "Phân bố Dọc",
+    "trimWallCorners": "Cắt góc tường",
     "deleteAnnotations": "Xóa {{count}} Chú thích",
     "deleteConfirm": "Xóa {{count}} chú thích?",
     "deleteTitle": "Xóa Chú thích"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Xoay trái",
     "rotateRight": "Xoay phải",
+    "moveUp": "Di chuyển lên",
+    "moveDown": "Di chuyển xuống",
     "insertPages": "Chèn Trang...",
     "extractPages": "Trích xuất Trang...",
     "replacePages": "Thay thế Trang...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Xóa trang {{page}}?",
     "deletePageTitle": "Xóa Trang",
     "properties": "Thuộc tính",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Cắt {{count}} trang",
+    "copyPages": "Sao chép {{count}} trang",
+    "rotateLeftPages": "Xoay trái {{count}} trang",
+    "rotateRightPages": "Xoay phải {{count}} trang",
+    "deletePagesMulti": "Xóa {{count}} trang",
+    "selectAll": "Chọn tất cả các trang",
+    "deselectAll": "Bỏ chọn tất cả",
+    "insertFromFile": "Chèn từ tệp...",
+    "insertFromFileBefore": "Trước trang này...",
+    "insertFromFileAfter": "Sau trang này...",
+    "pageLabels": "Nhãn trang (trình tạo tên)..."
   },
   "textSelection": {
     "highlightSelection": "Tô sáng Vùng chọn",
     "strikethroughSelection": "Gạch ngang Vùng chọn",
     "underlineSelection": "Gạch chân Vùng chọn",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Thêm chú thích cong"
   },
   "deleteAnnotation": {
     "confirmSingle": "Xóa chú thích này?",
     "title": "Xóa Chú thích"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Xóa đỉnh",
+    "insertVertex": "Chèn đỉnh tại đây",
+    "convertToArc": "Chuyển thành cung tròn",
+    "convertToLine": "Chuyển thành đường thẳng"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Hiển thị trong Explorer",
+    "mac": "Hiển thị trong Finder",
+    "linux": "Mở thư mục chứa"
+  },
+  "gevelelement": {
+    "addMullionHere": "Thêm đố đứng tại đây",
+    "removeMullion": "Xóa đố đứng gần nhất",
+    "panelItem": "Tấm: {{name}}",
+    "placeInWall": "Đặt vào tường (cắt ngang tường)",
+    "noHostWall": "Không tìm thấy tường bên dưới cấu kiện này",
+    "editRefused": "Không thể thực hiện"
   }
 }

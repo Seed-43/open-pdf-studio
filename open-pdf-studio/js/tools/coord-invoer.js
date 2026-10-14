@@ -131,3 +131,27 @@ export function beperkEindpunt(r, startX, startY, cursorX, cursorY, pxPerUnit) {
       return { x: cursorX, y: cursorY, constrained: false };
   }
 }
+
+/**
+ * Eindpunt van een vorm met getypte maten (rechthoek, cirkel, polygoon,
+ * L-vorm; shape-tool.js). Eén getal (`length`) is een vierkant / diameter in
+ * het kwadrant van de cursor. Cartesisch, polair en absoluut volgen precies
+ * de regel van de lijn (beperkEindpunt): dezelfde hoekrichting, en een half
+ * ingevulde invoer (`=`, `500,`) valt terug op de cursor in plaats van op de
+ * oorsprong of een vorm zonder hoogte.
+ * @returns {{x:number, y:number}|null}  null = (nog) geen bruikbare invoer
+ */
+export function maatVormEindpunt(r, startX, startY, cursorX, cursorY, pxPerUnit) {
+  if (!r || r.kind === 'empty' || r.kind === 'invalid') return null;
+  const k = pxPerUnit > 0 ? pxPerUnit : 1;
+  if (r.kind === 'length') {
+    if (!(r.a > 0)) return null;
+    const dx = Number.isFinite(cursorX) ? cursorX - startX : 0;
+    const dy = Number.isFinite(cursorY) ? cursorY - startY : 0;
+    const richtingX = dx < -1e-9 ? -1 : 1;
+    const richtingY = dy < -1e-9 ? -1 : 1;
+    return { x: startX + richtingX * r.a * k, y: startY + richtingY * r.a * k };
+  }
+  const p = beperkEindpunt(r, startX, startY, cursorX, cursorY, k);
+  return Number.isFinite(p.x) && Number.isFinite(p.y) ? { x: p.x, y: p.y } : null;
+}

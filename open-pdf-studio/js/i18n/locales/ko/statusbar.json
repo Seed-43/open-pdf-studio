@@ -11,6 +11,7 @@
     "box": "사각형",
     "polygon": "다각형",
     "cloud": "구름",
+    "cloudPolyline": "구름 폴리라인",
     "polyline": "폴리라인",
     "textbox": "텍스트 상자",
     "callout": "설명선",
@@ -27,7 +28,8 @@
     "formTextField": "양식 텍스트 필드",
     "formCheckbox": "양식 확인란",
     "formRadio": "양식 라디오 버튼",
-    "screenshot": "스크린샷"
+    "screenshot": "스크린샷",
+    "pageLabelPick": "페이지 레이블용 텍스트 선택"
   },
   "toolLabel": "도구:",
   "annotationsLabel": "주석:",
@@ -36,6 +38,7 @@
   "previousPage": "이전 페이지",
   "nextPage": "다음 페이지",
   "lastPage": "마지막 페이지",
+  "page": "페이지",
   "zoomOut": "축소",
   "zoomIn": "확대",
   "noDocumentsOpen": "열린 문서 없음",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "이 문서에는 대화형 양식 필드가 포함되어 있습니다. 양식을 작성하고 데이터를 저장할 수 있습니다.",
   "enableEditing": "편집 사용",
   "pdfAConformance": "이 문서는 PDF/A 준수를 선언합니다.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "파일 이름을 바꾸지 못했습니다: {{error}}",
+  "renameInvalidChars": "파일 이름에는 다음 문자를 사용할 수 없습니다:  / : * ? \" < > |",
+  "renameFileExists": "같은 이름의 파일이 이미 있습니다.",
+  "engineTitle": "현재 보기에 사용되는 렌더링 엔진",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1(벡터)"
+  },
+  "viewSingle": "단일 페이지",
+  "viewContinuous": "연속",
+  "viewBook": "두 페이지",
+  "viewFacing": "두 페이지 나란히",
   "viewRotatedTitle": "보기가 시계 방향으로 {{degrees}}° 회전되어 있습니다. 문서는 변경되지 않았습니다. 클릭하면 보기가 원래대로 돌아갑니다.",
+  "compareTabTitle": "비교",
   "filledAreaSketch": {
     "undoPoint": "점 실행 취소",
     "undoPointTitle": "마지막 점 제거(Backspace)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "너",
   "boxHeightAbbr": "높",
+  "boxSizeHint": "값 입력 + Enter — 또는 다른 곳을 클릭하여 적용",
   "ocr": {
     "progress": {
       "starting": "텍스트 인식 중...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "결과 ({{count}})",
   "searchResultPage": "{{page}} 페이지",
   "searchHitsOne": "1개 일치",
-  "searchHitsMany": "{{count}}개 일치"
+  "searchHitsMany": "{{count}}개 일치",
+  "passwordProtectedBar": "암호로 보호됨: 읽기 전용으로 열렸습니다."
 }

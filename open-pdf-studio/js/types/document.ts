@@ -87,9 +87,9 @@ export interface DocumentState {
    *  searchable text layer on save (see js/pdf/ocr.js, saver/ocr-text-layer.js). */
   ocrResults: Record<number, OcrWord[]>;
   bookmarks: Bookmark[];
-  /** Page names (index 0 = page 1); null = plain page numbers. */
+  /** Paginalabels (bladnamen, #580), index 0 = pagina 1; null = gewone paginanummers. */
   pageLabels?: string[] | null;
-  /** True once labels were edited, so save rewrites /PageLabels. */
+  /** Labels bewerkt: de volgende save schrijft /PageLabels opnieuw. */
   pageLabelsDirty?: boolean;
   undoStack: UndoCommand[];
   redoStack: UndoCommand[];
@@ -111,6 +111,13 @@ export interface DocumentState {
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
+  /** Met een openingswachtwoord geopend: alleen-lezen, kan niet opgeslagen
+   *  worden (js/pdf/wachtwoord-pdf.js). `filePath` is dan de ontsleutelde
+   *  werkkopie, `originalFilePath` het bestand van de gebruiker. */
+  passwordProtected?: boolean;
+  originalFilePath?: string | null;
+  /** De infobalk van een beveiligde PDF is voor dit tabblad weggeklikt. */
+  _beveiligdBalkVerborgen?: boolean;
   measureScale: MeasureScale | null;
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */

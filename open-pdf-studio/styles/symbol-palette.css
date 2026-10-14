@@ -672,10 +672,8 @@
   color: var(--text-secondary, #666);
 }
 
-.sp-scale select {
-  flex: 0 0 auto;
-}
-
-.sp-scale .sp-scale-eigen {
-  width: 62px;
+/* Eén ComboBox (bewerkbaar veld + uitklaplijst) in plaats van een keuzelijst
+   met een los getalveld ernaast. */
+.sp-scale .sp-scale-combo {
+  width: 72px;
 }

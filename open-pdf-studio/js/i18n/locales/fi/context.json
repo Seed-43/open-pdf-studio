@@ -7,9 +7,11 @@
     "addReply": "Lisää vastaus",
     "locked": "Lukittu",
     "marked": "Merkitty",
+    "gridEndLock": "Lukitse ruudukkoviivan pää",
+    "gridEndUnlock": "Vapauta ruudukkoviivan pää",
     "printable": "Tulostettava",
     "status": "Tila",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Näytä tilan mukaan",
     "statusNone": "Ei mitään",
     "statusAccepted": "Hyväksytty",
     "statusCancelled": "Peruutettu",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Vie",
     "exportAsImage": "Vie kuvana...",
     "addHole": "Lisää aukko",
+    "wallJoinAllow": "Salli liitos (tämä pää)",
+    "wallJoinDisallow": "Estä liitos (tämä pää)",
     "properties": "Ominaisuudet...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Muokkaa näkymäikkunan mittakaavaa",
+    "calibrateFromLine": "Kalibroi tästä viivasta...",
+    "setScale": "Aseta mittakaava...",
+    "dimChainAdd": "Lisää pisteitä mittaketjuun",
+    "dimChainRemove": "Poista apuviiva ketjusta",
+    "selectRoom": "Valitse huone"
   },
   "multiSelect": {
     "copyAnnotations": "Kopioi {{count}} merkintää",
@@ -54,6 +63,7 @@
     "centerVertically": "Keskitä pystysuunnassa",
     "distributeHorizontally": "Jaa vaakasuunnassa",
     "distributeVertically": "Jaa pystysuunnassa",
+    "trimWallCorners": "Trimmaa seinien nurkat",
     "deleteAnnotations": "Poista {{count}} merkintää",
     "deleteConfirm": "Poistetaanko {{count}} merkintää?",
     "deleteTitle": "Poista merkinnät"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Kierrä vasemmalle",
     "rotateRight": "Kierrä oikealle",
+    "moveUp": "Siirrä ylös",
+    "moveDown": "Siirrä alas",
     "insertPages": "Lisää sivuja...",
     "extractPages": "Poimi sivut...",
     "replacePages": "Korvaa sivut...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Poistetaanko sivu {{page}}?",
     "deletePageTitle": "Poista sivu",
     "properties": "Ominaisuudet",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Leikkaa {{count}} sivua",
+    "copyPages": "Kopioi {{count}} sivua",
+    "rotateLeftPages": "Kierrä {{count}} sivua vasemmalle",
+    "rotateRightPages": "Kierrä {{count}} sivua oikealle",
+    "deletePagesMulti": "Poista {{count}} sivua",
+    "selectAll": "Valitse kaikki sivut",
+    "deselectAll": "Poista kaikki valinnat",
+    "insertFromFile": "Lisää tiedostosta...",
+    "insertFromFileBefore": "Ennen tätä sivua...",
+    "insertFromFileAfter": "Tämän sivun jälkeen...",
+    "pageLabels": "Sivujen nimiöt (nimien muodostus)..."
   },
   "textSelection": {
     "highlightSelection": "Korosta valinta",
     "strikethroughSelection": "Yliviivaa valinta",
     "underlineSelection": "Alleviivaa valinta",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Lisää kaareva kuvateksti"
   },
   "deleteAnnotation": {
     "confirmSingle": "Poistetaanko tämä merkintä?",
     "title": "Poista merkintä"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Poista kärkipiste",
+    "insertVertex": "Lisää kärkipiste tähän",
+    "convertToArc": "Muunna kaareksi",
+    "convertToLine": "Muunna viivaksi"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Näytä Resurssienhallinnassa",
+    "mac": "Näytä Finderissa",
+    "linux": "Avaa sisältävä kansio"
+  },
+  "gevelelement": {
+    "addMullionHere": "Lisää välipuite tähän",
+    "removeMullion": "Poista lähin välipuite",
+    "panelItem": "Täyte: {{name}}",
+    "placeInWall": "Sijoita seinään (katkaise seinä)",
+    "noHostWall": "Elementin alta ei löytynyt seinää",
+    "editRefused": "Ei mahdollista"
   }
 }

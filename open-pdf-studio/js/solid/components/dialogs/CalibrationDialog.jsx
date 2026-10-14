@@ -6,6 +6,7 @@ import { savePreferences } from '../../../core/preferences.js';
 import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
+import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -180,50 +181,12 @@ export default function CalibrationDialog(props) {
   }
 
   function handleApply() {
-    let scaleData = null;
-
-    if (method() === 'reference') {
-      const d = parseFloat(distance());
-      const p = parseFloat(pixels());
-      if (d > 0 && p > 0) {
-        scaleData = {
-          pixelsPerUnit: p / d,
-          unit: unit(),
-          method: 'reference',
-          scaleRatio: null
-        };
-      }
-    } else {
-      // Scale ratio method
-      // PDF units are points (1/72 inch). Scale S means 1 drawing unit = S real units.
-      // For mm: 1 pt = 25.4/72 mm on paper. At scale 1:S, 1 pt on paper = S * 25.4/72 mm real.
-      // So pixelsPerUnit (how many PDF pts per 1 real unit) = 72 / (S * 25.4) for mm
-      const S = getScaleDenominator();
-      const u = ratioUnit();
-      let pixelsPerUnit;
-
-      if (u === 'mm') {
-        pixelsPerUnit = 72 / (S * 25.4);
-      } else if (u === 'cm') {
-        pixelsPerUnit = 72 / (S * 2.54);
-      } else if (u === 'm') {
-        pixelsPerUnit = 72 / (S * 0.0254);
-      } else if (u === 'in') {
-        pixelsPerUnit = 72 / S;
-      } else if (u === 'ft') {
-        pixelsPerUnit = 72 / (S * 12);
-      } else {
-        pixelsPerUnit = 72 / (S * 25.4); // fallback mm
-      }
-
-      const ratioStr = `1:${S}`;
-      scaleData = {
-        pixelsPerUnit,
-        unit: u,
-        method: 'ratio',
-        scaleRatio: ratioStr
-      };
-    }
+    // De omrekening staat in annotations/kalibratie-schaal.js; de
+    // schaalverhouding gaat daar via pixelsPerUnitFor, net als het
+    // schaalgebied (#553).
+    const scaleData = method() === 'reference'
+      ? schaalUitKalibratie({ method: 'reference', distance: distance(), pixels: pixels(), unit: unit() })
+      : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit() });
 
     if (scaleData) {
       const doc = getActiveDocument();

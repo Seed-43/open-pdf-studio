@@ -11,6 +11,7 @@
     "box": "Obdélník",
     "polygon": "Mnohoúhelník",
     "cloud": "Oblak",
+    "cloudPolyline": "Oblaková lomená čára",
     "polyline": "Lomená čára",
     "textbox": "Textové pole",
     "callout": "Popisek",
@@ -27,7 +28,8 @@
     "formTextField": "Textové pole formuláře",
     "formCheckbox": "Zaškrtávací pole formuláře",
     "formRadio": "Přepínač formuláře",
-    "screenshot": "Snímek obrazovky"
+    "screenshot": "Snímek obrazovky",
+    "pageLabelPick": "Výběr textu pro popisek stránky"
   },
   "toolLabel": "Nástroj:",
   "annotationsLabel": "Anotace:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Tento dokument obsahuje interaktivní pole formuláře. Můžete vyplnit formulář a uložit svá data.",
   "enableEditing": "Povolit úpravy",
   "pdfAConformance": "Tento dokument deklaruje shodu s PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Přejmenování souboru se nezdařilo: {{error}}",
+  "renameInvalidChars": "Název souboru nesmí obsahovat  / : * ? \" < > |",
+  "renameFileExists": "Soubor s tímto názvem již existuje.",
+  "engineTitle": "Vykreslovací jádro použité pro aktuální zobrazení",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektor)"
+  },
+  "viewSingle": "Jedna stránka",
+  "viewContinuous": "Průběžně",
+  "viewBook": "Dvě stránky",
+  "viewFacing": "Dvě stránky vedle sebe",
   "viewRotatedTitle": "Zobrazení je otočeno o {{degrees}}° ve směru hodinových ručiček; dokument se nezměnil. Kliknutím zobrazení vrátíte.",
+  "compareTabTitle": "Porovnání",
   "filledAreaSketch": {
     "undoPoint": "Zpět bod",
     "undoPointTitle": "Odebrat poslední bod (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V",
+  "boxSizeHint": "Zadejte hodnotu + Enter — nebo klikněte mimo pro použití",
   "ocr": {
     "progress": {
       "starting": "Rozpoznávání textu...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Výsledky ({{count}})",
   "searchResultPage": "Stránka {{page}}",
   "searchHitsOne": "1 shoda",
-  "searchHitsMany": "Shod: {{count}}"
+  "searchHitsMany": "Shod: {{count}}",
+  "passwordProtectedBar": "Chráněno heslem: otevřeno jen pro čtení."
 }

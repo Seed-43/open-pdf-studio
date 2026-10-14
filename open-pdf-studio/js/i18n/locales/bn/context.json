@@ -7,9 +7,11 @@
     "addReply": "উত্তর যোগ করুন",
     "locked": "লক করা",
     "marked": "চিহ্নিত",
+    "gridEndLock": "গ্রিড প্রান্ত লক করুন",
+    "gridEndUnlock": "গ্রিড প্রান্ত আনলক করুন",
     "printable": "মুদ্রণযোগ্য",
     "status": "স্থিতি",
-    "showByStatus": "Show by Status",
+    "showByStatus": "অবস্থা অনুযায়ী দেখান",
     "statusNone": "কোনোটি নয়",
     "statusAccepted": "গৃহীত",
     "statusCancelled": "বাতিল করা হয়েছে",
@@ -38,8 +40,15 @@
     "exportSubmenu": "রপ্তানি",
     "exportAsImage": "চিত্র হিসেবে রপ্তানি...",
     "addHole": "গর্ত যোগ করুন",
+    "wallJoinAllow": "সংযোগের অনুমতি দিন (এই প্রান্ত)",
+    "wallJoinDisallow": "সংযোগের অনুমতি দেবেন না (এই প্রান্ত)",
     "properties": "বৈশিষ্ট্য...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "ভিউপোর্ট স্কেল সম্পাদনা করুন",
+    "calibrateFromLine": "এই রেখা থেকে ক্যালিব্রেট করুন...",
+    "setScale": "স্কেল নির্ধারণ করুন...",
+    "dimChainAdd": "ডাইমেনশন চেইনে বিন্দু যোগ করুন",
+    "dimChainRemove": "চেইন থেকে এক্সটেনশন লাইন সরান",
+    "selectRoom": "কক্ষ নির্বাচন করুন"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} টীকা অনুলিপি করুন",
@@ -54,6 +63,7 @@
     "centerVertically": "উল্লম্বভাবে কেন্দ্রীকরণ",
     "distributeHorizontally": "অনুভূমিকভাবে বিতরণ",
     "distributeVertically": "উল্লম্বভাবে বিতরণ",
+    "trimWallCorners": "দেয়ালের কোণ ট্রিম করুন",
     "deleteAnnotations": "{{count}} টীকা মুছুন",
     "deleteConfirm": "{{count}} টীকা মুছে ফেলবেন?",
     "deleteTitle": "টীকা মুছুন"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "বামে ঘোরান",
     "rotateRight": "ডানে ঘোরান",
+    "moveUp": "উপরে সরান",
+    "moveDown": "নিচে সরান",
     "insertPages": "পৃষ্ঠা সন্নিবেশ...",
     "extractPages": "পৃষ্ঠা নিষ্কাশন...",
     "replacePages": "পৃষ্ঠা প্রতিস্থাপন...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "পৃষ্ঠা {{page}} মুছে ফেলবেন?",
     "deletePageTitle": "পৃষ্ঠা মুছুন",
     "properties": "বৈশিষ্ট্য",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}}টি পৃষ্ঠা কাটুন",
+    "copyPages": "{{count}}টি পৃষ্ঠা কপি করুন",
+    "rotateLeftPages": "{{count}}টি পৃষ্ঠা বামে ঘোরান",
+    "rotateRightPages": "{{count}}টি পৃষ্ঠা ডানে ঘোরান",
+    "deletePagesMulti": "{{count}}টি পৃষ্ঠা মুছুন",
+    "selectAll": "সব পৃষ্ঠা নির্বাচন করুন",
+    "deselectAll": "সব নির্বাচন বাতিল করুন",
+    "insertFromFile": "ফাইল থেকে সন্নিবেশ করুন...",
+    "insertFromFileBefore": "এই পৃষ্ঠার আগে...",
+    "insertFromFileAfter": "এই পৃষ্ঠার পরে...",
+    "pageLabels": "পৃষ্ঠা লেবেল (নাম নির্মাতা)..."
   },
   "textSelection": {
     "highlightSelection": "নির্বাচন হাইলাইট করুন",
     "strikethroughSelection": "নির্বাচন স্ট্রাইকথ্রু করুন",
     "underlineSelection": "নির্বাচন আন্ডারলাইন করুন",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "বাঁকা কলআউট যোগ করুন"
   },
   "deleteAnnotation": {
     "confirmSingle": "এই টীকাটি মুছে ফেলবেন?",
     "title": "টীকা মুছুন"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "শীর্ষবিন্দু মুছুন",
+    "insertVertex": "এখানে শীর্ষবিন্দু সন্নিবেশ করুন",
+    "convertToArc": "চাপে রূপান্তর করুন",
+    "convertToLine": "রেখায় রূপান্তর করুন"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Explorer-এ দেখান",
+    "mac": "Finder-এ দেখান",
+    "linux": "ধারণকারী ফোল্ডার খুলুন"
+  },
+  "gevelelement": {
+    "addMullionHere": "এখানে মুলিয়ন যোগ করুন",
+    "removeMullion": "নিকটতম মুলিয়ন সরান",
+    "panelItem": "প্যানেল: {{name}}",
+    "placeInWall": "দেয়ালে স্থাপন করুন (দেয়াল বিচ্ছিন্ন করুন)",
+    "noHostWall": "এই উপাদানের নিচে কোনো দেয়াল পাওয়া যায়নি",
+    "editRefused": "সম্ভব নয়"
   }
 }

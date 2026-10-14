@@ -442,3 +442,63 @@ test('een vervanging met een doorhaling zonder /IT: na een nieuwe kleur tekent d
     rg.slice(1, 4).map(Number).forEach((v, k) => assert.ok(Math.abs(v - c[k]) < 1e-3, `${label}: lijnkleur ${rg[0]} is /C ${c.join(' ')}`));
   });
 });
+
+// ── eigen lijndikte van een tekstcorrectie-doorhaling (#565) ───────────────
+//
+// De /AP tekende de doorhaling al met de lijndikte van de annotatie, maar het
+// woordenboek bewaarde haar niet: na opnieuw laden viel ze terug op 1 pt. Nu
+// schrijft de saver /OPS_LineWidth, zoals bij een gewone markering (#533).
+
+test('schrappen en vervangen houden hun eigen lijndikte na opslaan en opnieuw laden, op elke /Rotate (#565)', async () => {
+  const { bytes } = await buildTextEditFixture();
+  const model = await laad(bytes);
+  // Per pagina andere diktes, ook een dunne en een niet-ronde.
+  const dikte = (a) => ({ delete: 2.5, 'replace-strike': 0.75, 'rev-strike': 3.25 })[a.nm.replace(/^fx-p\d+-/, '')] + a.page / 4;
+  const doorhalingen = model.filter(isTextEditStrike);
+  assert.equal(doorhalingen.length, 3 * PAGINAS.length, 'schrappen, vervangen en het omgekeerde paar op elke pagina');
+  for (const a of doorhalingen) {
+    assert.equal(a.lineWidth, undefined, `${a.nm}: het bestand had nog geen eigen dikte`);
+    a.lineWidth = dikte(a);
+  }
+
+  const save1 = await slaOp(bytes, model);
+  const model2 = await laad(save1);
+  const save2 = await slaOp(save1, model2);
+  const model3 = await laad(save2);
+
+  for (const [label, lijst] of [['eerste lading', model2], ['tweede lading', model3]]) {
+    const terug = lijst.filter(isTextEditStrike);
+    assert.equal(terug.length, doorhalingen.length, label);
+    for (const a of terug) {
+      assert.equal(a.lineWidth, dikte(a), `${label}: ${a.nm} op /Rotate ${PAGINAS[a.page - 1].rotate}`);
+    }
+  }
+
+  // In het bestand: /OPS_LineWidth, en de /AP tekent met diezelfde dikte.
+  for (const save of [save1, save2]) {
+    const doc = await PDFDocument.load(save);
+    const ctx = doc.context;
+    doc.getPages().forEach((pagina, i) => {
+      for (const ref of ctx.lookup(pagina.node.get(PDFName.of('Annots'))).asArray()) {
+        const d = ctx.lookup(ref);
+        if (d.get(PDFName.of('IT'))?.toString() !== '/StrikeOutTextEdit') continue;
+        const naam = tekstVan(ctx, d.get(PDFName.of('NM')));
+        const verwacht = dikte({ nm: naam, page: i + 1 });
+        assert.equal(ctx.lookup(d.get(PDFName.of('OPS_LineWidth')))?.asNumber(), verwacht, `${naam}: /OPS_LineWidth`);
+        const ap = ctx.lookup(ctx.lookup(d.get(PDFName.of('AP'))).get(PDFName.of('N')));
+        const inhoud = Buffer.from(decodePDFRawStream(ap).decode()).toString('latin1');
+        assert.match(inhoud, new RegExp(` ${String(verwacht).replace('.', '\.')} w `), `${naam}: /AP met dezelfde dikte`);
+      }
+    });
+  }
+});
+
+test('een doorhaling zonder eigen lijndikte krijgt geen /OPS_LineWidth en laadt zoals voorheen (#565)', async () => {
+  const { eerste, model3 } = await rondgang();
+  for (const pagina of eerste) {
+    for (const a of pagina.filter((x) => x.it === '/StrikeOutTextEdit')) {
+      assert.equal(a.dict.get(PDFName.of('OPS_LineWidth')), undefined, `${a.nm}: geen sleutel`);
+    }
+  }
+  for (const a of model3.filter(isTextEditStrike)) assert.equal(a.lineWidth, undefined, a.nm);
+});

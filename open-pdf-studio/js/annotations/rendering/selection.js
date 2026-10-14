@@ -20,6 +20,7 @@ export function drawSelectionHandles(ctx, annotation) {
     case 'textHighlight':
     case 'textStrikethrough':
     case 'textUnderline':
+    case 'textSquiggly':
     case 'caret': {
       // Draw per-rect outlines instead of bounding-box indicator
       // (a caret, #508, has no rects: its own box)

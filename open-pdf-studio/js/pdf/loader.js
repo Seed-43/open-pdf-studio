@@ -1,9 +1,10 @@
+import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { setViewMode, fitPage } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
-import { createTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
+import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import { isTauri, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
 import { PDFDocument } from 'pdf-lib';
@@ -24,6 +25,8 @@ import { resolveGroupLinks } from './loader/correction-load.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
 import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
+import { pdfjsBronnen } from '../core/basis-url.js';
+import { isWachtwoordFout, vraagEnOntsleutel, markeerBeveiligd, isAlleenLezen, isBeveiligdDocument, bronPad } from './wachtwoord-pdf.js';
 
 
 // Convert one batch of pdf.js annotations and push them to doc.annotations,
@@ -109,10 +112,7 @@ export async function reloadDocumentFromBytes(doc, bytes) {
   // Replace the pdf.js document with one loaded from the new bytes
   doc.pdfDoc = await pdfjsLib.getDocument({
     data: bytes.slice(), // copy — pdf.js transfers the buffer
-    cMapUrl: '/pdfjs/web/cmaps/',
-    cMapPacked: true,
-    standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+    ...pdfjsBronnen(),
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -163,10 +163,7 @@ function _attachPdfDocGetPageRecovery(doc, filePath) {
         if (!cached) throw e;
         const fresh = await pdfjsLib.getDocument({
           data: cached.slice(),
-          cMapUrl: '/pdfjs/web/cmaps/',
-          cMapPacked: true,
-          standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+          ...pdfjsBronnen(),
           isEvalSupported: false,
           verbosity: 0,
         }).promise;
@@ -204,6 +201,9 @@ async function checkPdfACompliance(doc) {
 function showPdfABar(part, conformance, doc) {
   if (!doc) return;
   if (doc.pdfADismissed) return;
+  // Met een wachtwoord geopend: die balk zegt het al, en bewerken inschakelen
+  // kan daar niet.
+  if (isBeveiligdDocument(doc)) return;
   const label = `PDF/A-${part}${conformance ? conformance.toLowerCase() : ''}`;
   const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
   import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
@@ -223,12 +223,56 @@ export function dismissPdfAForActiveDoc() {
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
 }
 
-// Check if the active document is PDF/A and editing has NOT been enabled
+// Is the active document read-only? PDF/A while editing has NOT been enabled,
+// and always for a PDF that was opened with a password (wachtwoord-pdf.js).
+// The name stays: every tool, ribbon button and palette gates on it.
 export function isPdfAReadOnly() {
-  const doc = state.documents[state.activeDocumentIndex];
-  if (!doc) return false;
-  if (!doc.pdfaCompliance) return false;
-  return !doc.pdfADismissed;
+  return isAlleenLezen(state.documents[state.activeDocumentIndex]);
+}
+
+// Een PDF met een openingswachtwoord: het wachtwoord vragen en het document
+// openen. In de desktop-app maakt Rust een ontsleutelde werkkopie (alle
+// renderpaden werken op pad); in de browser ontsleutelt PDF.js zelf.
+// Geeft { filePath, pdfDoc, bytes } of null (geannuleerd of tabblad dicht).
+async function _openMetWachtwoord(origineelPad, isClosed) {
+  const naam = extractFileName(origineelPad) || origineelPad || '';
+  const { metWachtwoordDialoog, vraagWachtwoord } = await import('../solid/stores/wachtwoordDialoogStore.js');
+  hideLoading();
+  return metWachtwoordDialoog(() => vraagEnOntsleutel({
+    vraag: ({ verkeerd }) => (isClosed() ? null : vraagWachtwoord({ fileName: naam, verkeerd })),
+    ontsleutel: async (wachtwoord) => {
+      if (isTauri()) {
+        const kopie = await invoke('open_protected_pdf', { path: origineelPad, password: wachtwoord });
+        try {
+          const data = await readBinaryFile(kopie);
+          if (!data) throw new Error('File system access not available');
+          const bytes = new Uint8Array(data);
+          const pdfDoc = await pdfjsLib.getDocument({
+            data: bytes.slice(), // PDF.js neemt de buffer over
+            ...pdfjsBronnen(),
+            isEvalSupported: false,
+            verbosity: 0,
+          }).promise;
+          return { filePath: kopie, pdfDoc, bytes };
+        } catch (e) {
+          invoke('release_protected_pdf', { path: kopie }).catch(() => {});
+          throw e;
+        }
+      }
+      // Browser: geen werkkopie; PDF.js opent de bytes met het wachtwoord
+      // (een onjuist wachtwoord geeft weer een PasswordException).
+      const bron = originalBytesCache.get(origineelPad);
+      if (!bron) throw new Error('PDF bytes not available');
+      const pdfDoc = await pdfjsLib.getDocument({
+        data: bron.slice(),
+        password: wachtwoord,
+        ...pdfjsBronnen(),
+        isEvalSupported: false,
+        verbosity: 0,
+      }).promise;
+      return { filePath: origineelPad, pdfDoc, bytes: null };
+    },
+  }));
 }
 
 // Load PDF from file path into a specific document by index.
@@ -314,7 +358,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
           const view = new DataView(bytes.buffer, bytes.byteOffset, 8);
           const w = view.getUint32(0, true);
           const h = view.getUint32(4, true);
-          const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, bytes.length - 8);
+          const rgba = sharpenPageRgba(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, bytes.length - 8), w, h);
           const imageData = new ImageData(rgba, w, h);
           const bitmap = await createImageBitmap(imageData);
           if (isClosed() || doc.pdfDoc || !isActive()) { bitmap.close(); return; }
@@ -363,15 +407,47 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     console.log(`[PERF] File read done: ${(performance.now() - _t0).toFixed(0)}ms, size: ${typedArray.length} bytes`);
 
     // Load PDF using pdf.js (this transfers the buffer to a worker)
-    doc.pdfDoc = await pdfjsLib.getDocument({
-      data: typedArray,
-      cMapUrl: '/pdfjs/web/cmaps/',
-      cMapPacked: true,
-      standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
-      isEvalSupported: false,
-      verbosity: 0,
-    }).promise;
+    let pdfDoc;
+    try {
+      pdfDoc = await pdfjsLib.getDocument({
+        data: typedArray,
+        ...pdfjsBronnen(),
+        isEvalSupported: false,
+        verbosity: 0,
+      }).promise;
+    } catch (fout) {
+      // Een openingswachtwoord: vragen, en dan openen uit een ontsleutelde
+      // werkkopie (alleen-lezen). Annuleren sluit het tabblad stil.
+      if (!isWachtwoordFout(fout) || isClosed()) throw fout;
+      const origineelPad = filePath;
+      const beveiligd = await _openMetWachtwoord(origineelPad, isClosed);
+      if (!beveiligd || isClosed()) {
+        if (beveiligd) {
+          // Tabblad intussen gesloten: niets vasthouden.
+          try { beveiligd.pdfDoc?.destroy?.(); } catch { /* best effort */ }
+          if (beveiligd.filePath !== origineelPad) {
+            invoke('release_protected_pdf', { path: beveiligd.filePath }).catch(() => {});
+          }
+        }
+        if (!isClosed()) {
+          const index = state.documents.indexOf(doc);
+          if (index !== -1) await closeTab(index, true);
+        }
+        return;
+      }
+      markeerBeveiligd(doc, origineelPad);
+      if (beveiligd.bytes) {
+        // De versleutelde bytes van het origineel zijn niet meer nodig.
+        originalBytesCache.delete(origineelPad);
+        originalBytesCache.set(beveiligd.filePath, beveiligd.bytes);
+      }
+      // Vanaf hier rendert alles uit de werkkopie; tabblad, recente bestanden
+      // en sessie gebruiken het originele pad (bronPad).
+      filePath = beveiligd.filePath;
+      pdfDoc = beveiligd.pdfDoc;
+      if (isActive()) showLoading('Loading PDF...');
+    }
+    doc.pdfDoc = pdfDoc;
     if (isClosed()) return;
     console.log(`[PERF] PDF.js getDocument done: ${(performance.now() - _t0).toFixed(0)}ms, pages: ${doc.pdfDoc.numPages}`);
 
@@ -427,7 +503,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     }
 
     doc.filePath = filePath;
-    doc.fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled';
+    {
+      // Een beveiligde PDF heet naar het origineel, niet naar zijn werkkopie.
+      const zichtbaarPad = bronPad(doc);
+      doc.fileName = zichtbaarPad ? zichtbaarPad.split(/[\\/]/).pop() : 'Untitled';
+    }
 
     // Reset annotation state (per-document)
     doc.annotations = [];
@@ -527,13 +607,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       if (isClosed()) return;
       doc.bookmarks = await loadBookmarksFromPdf(doc.pdfDoc);
       if (isClosed()) return;
-      // Page labels (sheet names): unsaved edits survive a reload of the
-      // same document as long as the page count is unchanged.
-      const keep = doc.pageLabelsDirty && doc.pageLabels?.length === doc.pdfDoc.numPages ? doc.pageLabels : null;
-      const { loadPageLabels } = await import('./page-labels.js');
-      await loadPageLabels(doc);
+      // Paginalabels (bladnamen, #580) uit /PageLabels.
+      const { laadPaginaLabels } = await import('./pagina-labels-app.js');
       if (isClosed()) return;
-      if (keep) { doc.pageLabels = keep; doc.pageLabelsDirty = true; }
+      await laadPaginaLabels(doc);
+      if (isClosed()) return;
     }
     console.log(`[PERF] bookmarks DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
 
@@ -550,6 +628,22 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         if (isClosed()) return;
         if (presets.length > 0) doc.stylePresets = presets;
       }).catch(() => { /* presets zijn optioneel — negeer leesfouten */ });
+    }
+
+    // Titel en kop-/voetteksten uit het bestand (#375): de definities komen
+    // terug in de lijst, zodat een nieuwe save ze vervangt in plaats van er
+    // nog een exemplaar overheen te zetten. Niet-blokkerend, zoals hierboven.
+    {
+      const bron = doc.filePath;
+      getSharedPdfLibDoc(doc).then(async (pdfLibDoc) => {
+        if (isClosed() || !pdfLibDoc) return;
+        const { leesKopVoetUitBestand } = await import('../watermark/kopvoet-weergave.js');
+        if (isClosed()) return;
+        if (leesKopVoetUitBestand(doc, pdfLibDoc, bron) && isActive()) {
+          const { redrawAnnotations, redrawContinuous } = await import('../annotations/rendering.js');
+          if (doc.viewMode === 'continuous') redrawContinuous(); else redrawAnnotations();
+        }
+      }).catch((e) => { console.warn('[loader] kop-/voetteksten niet gelezen:', e); });
     }
 
     // Meetschalen uit de PDF zelf (/VP + /Measure): CAD-plots en de DWG/DXF-
@@ -621,8 +715,13 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
 
     // Track in recent files (skip in-memory keys and untitled temp-backed
     // docs — their temp path is deleted on close and would clutter the list)
-    if (filePath && !filePath.startsWith('__memory__') && !doc.isUntitled) {
-      addRecentFile(filePath, extractFileName(filePath));
+    // A protected PDF is remembered by its original path, never by its
+    // decrypted working copy.
+    {
+      const recentPad = bronPad(doc);
+      if (recentPad && !recentPad.startsWith('__memory__') && !doc.isUntitled) {
+        addRecentFile(recentPad, extractFileName(recentPad));
+      }
     }
 
     // Persist the session NOW (debounced) so a dev-reload or crash right
@@ -935,10 +1034,7 @@ export async function createBlankPDF(widthPt, heightPt, numPages) {
     // Load into pdf.js for viewing
     doc.pdfDoc = await pdfjsLib.getDocument({
       data: typedArray,
-      cMapUrl: '/pdfjs/web/cmaps/',
-      cMapPacked: true,
-      standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+      ...pdfjsBronnen(),
       isEvalSupported: false,
       verbosity: 0,
     }).promise;

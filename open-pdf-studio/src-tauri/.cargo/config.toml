@@ -1,7 +1,0 @@
-# Embed a Windows manifest in the test binary so DLLs initialize correctly.
-# Without a manifest, Windows applies XP compatibility shims that break WinRT API set forwarding.
-# This resource is also harmless for the main app binary.
-[target.x86_64-pc-windows-gnu]
-rustflags = [
-  "-C", "link-arg=C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/src-tauri/test.res"
-]

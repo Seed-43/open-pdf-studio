@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { svgRealSizeMm, stampPlacementSize } from './svg-real-size.js';
+import { svgRealSizeMm, stampPlacementSize, overrideStampMaat } from './svg-real-size.js';
+import { OVERRIDE_STAMP_DEFAULT_HEIGHT, SYMBOL_STAMP_DEFAULT_SIZE } from './stamp-defaults.js';
 
 test('leest een werkelijke maat in mm van de SVG-root', () => {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="65.0mm" height="14.0mm" viewBox="0 0 65 14">';
@@ -99,4 +100,49 @@ test('de gemelde CAD-SVG (65 x 14 mm) komt op ware maat binnen', () => {
   assert.equal(Math.round(r.height), 53);
   // en de verhouding blijft kloppen
   assert.ok(Math.abs(r.width / r.height - 65 / 14) < 1e-9);
+});
+
+// Issue #357: de spookafbeelding onder de cursor (tools/text-tool.js) en de
+// echte plaatsing (stamps.js) delen overrideStampMaat. Deze tests leggen vast
+// dat die ene berekening de gekozen schaal meeneemt.
+const PALET_SYMBOOL = {
+  stampSvg: '<svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="32"/></svg>',
+  stampHeight: SYMBOL_STAMP_DEFAULT_SIZE,
+};
+
+test('overrideStampMaat: zonder schaal de bekende paletmaat', () => {
+  assert.deepEqual(overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2 }), { width: 800, height: 400 });
+  assert.deepEqual(overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2, schaal: 1 }), { width: 800, height: 400 });
+});
+
+test('overrideStampMaat: de gekozen schaal werkt op voorbeeld en plaatsing gelijk', () => {
+  for (const schaal of [0.25, 0.5, 2, 3]) {
+    const r = overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2, schaal });
+    assert.deepEqual(r, { width: 800 * schaal, height: 400 * schaal }, `schaal ${schaal}`);
+  }
+});
+
+test('overrideStampMaat: ook een symbool met een werkelijke maat schaalt mee', () => {
+  const ov = { stampSvg: '<svg width="65mm" height="14mm" viewBox="0 0 65 14">' };
+  const eenmaal = overrideStampMaat(ov, { pxPerMm: 2, aspect: 65 / 14, schaal: 1 });
+  const tweemaal = overrideStampMaat(ov, { pxPerMm: 2, aspect: 65 / 14, schaal: 2 });
+  assert.deepEqual(eenmaal, { width: 130, height: 28 });
+  assert.deepEqual(tweemaal, { width: 260, height: 56 });
+});
+
+test('overrideStampMaat: zonder hoogte valt hij terug op de stempelstandaard', () => {
+  // Het voorbeeld viel hier eerder terug op de paletmaat (400) terwijl de
+  // plaatsing 800 gebruikte: twee verschillende maten voor hetzelfde stempel.
+  const r = overrideStampMaat({ stampImage: 'data:image/png;base64,' }, { pxPerMm: 0, aspect: 1 });
+  assert.deepEqual(r, { width: OVERRIDE_STAMP_DEFAULT_HEIGHT, height: OVERRIDE_STAMP_DEFAULT_HEIGHT });
+});
+
+test('voorbeeld en plaatsing gebruiken dezelfde maatbron', async () => {
+  const { readFileSync } = await import('node:fs');
+  const bron = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+  for (const pad of ['./stamps.js', '../tools/tools/text-tool.js']) {
+    const code = bron(pad);
+    assert.match(code, /overrideStampMaat\(/, `${pad} rekent niet via overrideStampMaat`);
+    assert.match(code, /schaal:\s*huidigeSymboolSchaal\(\)/, `${pad} geeft de symboolschaal niet mee`);
+  }
 });

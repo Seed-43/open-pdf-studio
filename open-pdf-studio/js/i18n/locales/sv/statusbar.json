@@ -11,6 +11,7 @@
     "box": "Rektangel",
     "polygon": "Polygon",
     "cloud": "Moln",
+    "cloudPolyline": "Molnpolylinje",
     "polyline": "Polylinje",
     "textbox": "Textruta",
     "callout": "Pratbubbla",
@@ -27,7 +28,8 @@
     "formTextField": "Formulärtextfält",
     "formCheckbox": "Formulärkryssruta",
     "formRadio": "Formuläralternativknapp",
-    "screenshot": "Skärmbild"
+    "screenshot": "Skärmbild",
+    "pageLabelPick": "Välj text för sidetikett"
   },
   "toolLabel": "Verktyg:",
   "annotationsLabel": "Anteckningar:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Detta dokument innehåller interaktiva formulärfält. Du kan fylla i formuläret och spara dina uppgifter.",
   "enableEditing": "Aktivera redigering",
   "pdfAConformance": "Detta dokument hävdar PDF/A-överensstämmelse.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Det gick inte att byta namn på filen: {{error}}",
+  "renameInvalidChars": "Filnamnet får inte innehålla  / : * ? \" < > |",
+  "renameFileExists": "Det finns redan en fil med det här namnet.",
+  "engineTitle": "Renderingsmotor som används för den aktuella vyn",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektor)"
+  },
+  "viewSingle": "Enkel sida",
+  "viewContinuous": "Kontinuerlig",
+  "viewBook": "Två sidor",
+  "viewFacing": "Två sidor sida vid sida",
   "viewRotatedTitle": "Vyn är roterad {{degrees}}° medurs; dokumentet är oförändrat. Klicka för att rotera tillbaka vyn.",
+  "compareTabTitle": "Jämför",
   "filledAreaSketch": {
     "undoPoint": "Ångra punkt",
     "undoPointTitle": "Ta bort senaste punkten (Backsteg)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Skriv ett värde + Enter — eller klicka utanför för att tillämpa",
   "ocr": {
     "progress": {
       "starting": "Känner igen text...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Resultat ({{count}})",
   "searchResultPage": "Sida {{page}}",
   "searchHitsOne": "1 träff",
-  "searchHitsMany": "{{count}} träffar"
+  "searchHitsMany": "{{count}} träffar",
+  "passwordProtectedBar": "Skyddad med lösenord: öppnad skrivskyddad."
 }

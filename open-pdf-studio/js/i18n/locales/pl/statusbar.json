@@ -11,6 +11,7 @@
     "box": "Prostokąt",
     "polygon": "Wielokąt",
     "cloud": "Chmurka",
+    "cloudPolyline": "Polilinia chmurkowa",
     "polyline": "Polilinia",
     "textbox": "Pole tekstowe",
     "callout": "Dymek",
@@ -27,7 +28,8 @@
     "formTextField": "Pole tekstowe formularza",
     "formCheckbox": "Pole wyboru formularza",
     "formRadio": "Przycisk opcji formularza",
-    "screenshot": "Zrzut ekranu"
+    "screenshot": "Zrzut ekranu",
+    "pageLabelPick": "Wybierz tekst etykiety strony"
   },
   "toolLabel": "Narzędzie:",
   "annotationsLabel": "Adnotacje:",
@@ -36,6 +38,7 @@
   "previousPage": "Poprzednia strona",
   "nextPage": "Następna strona",
   "lastPage": "Ostatnia strona",
+  "page": "Strona",
   "zoomOut": "Pomniejsz",
   "zoomIn": "Powiększ",
   "noDocumentsOpen": "Brak otwartych dokumentów",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "Ten dokument zawiera interaktywne pola formularza. Można wypełnić formularz i zapisać dane.",
   "enableEditing": "Włącz edycję",
   "pdfAConformance": "Ten dokument deklaruje zgodność z PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Nie udało się zmienić nazwy pliku: {{error}}",
+  "renameInvalidChars": "Nazwa pliku nie może zawierać znaków  / : * ? \" < > |",
+  "renameFileExists": "Plik o tej nazwie już istnieje.",
+  "engineTitle": "Silnik renderowania używany w bieżącym widoku",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (wektor)"
+  },
+  "viewSingle": "Pojedyncza strona",
+  "viewContinuous": "Ciągły",
+  "viewBook": "Dwie strony",
+  "viewFacing": "Dwie strony obok siebie",
   "viewRotatedTitle": "Widok jest obrócony o {{degrees}}° zgodnie z ruchem wskazówek zegara; dokument się nie zmienił. Kliknij, aby przywrócić widok.",
+  "compareTabTitle": "Porównanie",
   "filledAreaSketch": {
     "undoPoint": "Cofnij punkt",
     "undoPointTitle": "Usuń ostatni punkt (Backspace)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "S",
   "boxHeightAbbr": "W",
+  "boxSizeHint": "Wpisz wartość + Enter — lub kliknij poza polem, aby zastosować",
   "ocr": {
     "progress": {
       "starting": "Rozpoznawanie tekstu...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "Wyniki ({{count}})",
   "searchResultPage": "Strona {{page}}",
   "searchHitsOne": "1 dopasowanie",
-  "searchHitsMany": "Dopasowania: {{count}}"
+  "searchHitsMany": "Dopasowania: {{count}}",
+  "passwordProtectedBar": "Chroniony hasłem: otwarty tylko do odczytu."
 }

@@ -1,6 +1,7 @@
 import { For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 
 const SHORTCUT_CATEGORIES = [
   {
@@ -39,6 +40,11 @@ const SHORTCUT_CATEGORIES = [
       { action: 'Rotate Page Left', keys: ['Ctrl', 'Shift', '-'] },
       { action: 'Thin Lines', keys: ['Ctrl', '5'] },
       { action: 'Find', keys: ['Ctrl', 'F'] },
+      // Tabblad wisselen (#539). Vertaald via common.json (tabs.*).
+      { actionKey: 'tabs.nextTab', action: 'Next Tab', keys: ['Ctrl', 'Tab'] },
+      { actionKey: 'tabs.previousTab', action: 'Previous Tab', keys: ['Ctrl', 'Shift', 'Tab'] },
+      { actionKey: 'tabs.nextTab', action: 'Next Tab', keys: ['Ctrl', 'PgDn'] },
+      { actionKey: 'tabs.previousTab', action: 'Previous Tab', keys: ['Ctrl', 'PgUp'] },
       { action: 'Toggle Left Panel', keys: ['F9'] },
       { action: 'Toggle Annotations', keys: ['F11'] },
       { action: 'Toggle Properties', keys: ['F12'] },
@@ -62,6 +68,8 @@ const SHORTCUT_CATEGORIES = [
 
 export default function ShortcutsDialog() {
   const close = () => closeDialog('shortcuts');
+  const { t } = useTranslation('common');
+  const actieNaam = (shortcut) => (shortcut.actionKey ? t(shortcut.actionKey, shortcut.action) : shortcut.action);
 
   return (
     <Dialog
@@ -78,7 +86,7 @@ export default function ShortcutsDialog() {
                 <For each={category.shortcuts}>
                   {(shortcut) => (
                     <div class="shortcuts-row">
-                      <span class="shortcuts-action">{shortcut.action}</span>
+                      <span class="shortcuts-action">{actieNaam(shortcut)}</span>
                       <span class="shortcuts-keys">
                         <For each={shortcut.keys}>
                           {(key) => <kbd>{key}</kbd>}
@@ -99,7 +107,7 @@ export default function ShortcutsDialog() {
                 <For each={category.shortcuts}>
                   {(shortcut) => (
                     <div class="shortcuts-row">
-                      <span class="shortcuts-action">{shortcut.action}</span>
+                      <span class="shortcuts-action">{actieNaam(shortcut)}</span>
                       <span class="shortcuts-keys">
                         <For each={shortcut.keys}>
                           {(key) => <kbd>{key}</kbd>}

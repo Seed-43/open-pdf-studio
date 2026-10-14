@@ -5,6 +5,7 @@ import { ringenRichten } from '../vlak-ringen.js';
 import { maatTekstMarge, leesbareHoek } from '../maat-label.js';
 import { maatlijnGeometrie } from '../maatlijn-geometrie.js';
 import { tekenInlineMaat } from './maat-inline-tekenen.js';
+import { zijdeLabel, ZIJDE_TEKST_GROOTTE } from '../vlak-zijden.js';
 
 /**
  * Trace a polygon path on the canvas context, supporting arc segments.
@@ -254,6 +255,27 @@ export function drawCentroidLabel(ctx, points, text, color, annotation) {
   ctx.font = valueFont;
   ctx.fillText(text, lx, ly);
   ctx.textAlign = 'left';
+}
+
+// Zijdematen van een meetvlak (#536): elke tekst midden op haar zijde, langs
+// de zijde, rechtop en aan de buitenkant (vlak-zijden.js — dezelfde plaats als
+// in de opgeslagen appearance). `zijden` komt uit measurement.js
+// (vlakZijdeTeksten): de zijden met hun tekst.
+export function drawVlakZijdematen(ctx, zijden, color, fontSize = ZIJDE_TEKST_GROOTTE) {
+  if (!Array.isArray(zijden) || zijden.length === 0) return;
+  for (const zijde of zijden) {
+    if (!zijde.tekst) continue;
+    const l = zijdeLabel(zijde, { fontSize });
+    ctx.save();
+    ctx.translate(l.x, l.y);
+    ctx.rotate(l.hoek);
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(zijde.tekst, 0, 0);
+    ctx.restore();
+  }
 }
 
 // Draw a measurement polyline (perimeter) with outline and vertex markers

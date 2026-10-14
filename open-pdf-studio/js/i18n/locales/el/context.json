@@ -7,9 +7,11 @@
     "addReply": "Προσθήκη απάντησης",
     "locked": "Κλειδωμένο",
     "marked": "Σημειωμένο",
+    "gridEndLock": "Κλείδωμα άκρου άξονα",
+    "gridEndUnlock": "Ξεκλείδωμα άκρου άξονα",
     "printable": "Εκτυπώσιμο",
     "status": "Κατάσταση",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Εμφάνιση ανά κατάσταση",
     "statusNone": "Καμία",
     "statusAccepted": "Αποδεκτό",
     "statusCancelled": "Ακυρωμένο",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Εξαγωγή",
     "exportAsImage": "Εξαγωγή ως εικόνα...",
     "addHole": "Προσθήκη ανοίγματος",
+    "wallJoinAllow": "Να επιτρέπεται σύνδεση (αυτό το άκρο)",
+    "wallJoinDisallow": "Να μην επιτρέπεται σύνδεση (αυτό το άκρο)",
     "properties": "Ιδιότητες...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Επεξεργασία κλίμακας παραθύρου προβολής",
+    "calibrateFromLine": "Βαθμονόμηση από αυτήν τη γραμμή...",
+    "setScale": "Ορισμός κλίμακας...",
+    "dimChainAdd": "Προσθήκη σημείων στην αλυσίδα διαστάσεων",
+    "dimChainRemove": "Αφαίρεση βοηθητικής γραμμής από την αλυσίδα",
+    "selectRoom": "Επιλογή χώρου"
   },
   "multiSelect": {
     "copyAnnotations": "Αντιγραφή {{count}} σχολιασμών",
@@ -54,6 +63,7 @@
     "centerVertically": "Κεντράρισμα κατακόρυφα",
     "distributeHorizontally": "Οριζόντια κατανομή",
     "distributeVertically": "Κατακόρυφη κατανομή",
+    "trimWallCorners": "Ψαλίδισμα γωνιών τοίχων",
     "deleteAnnotations": "Διαγραφή {{count}} σχολιασμών",
     "deleteConfirm": "Διαγραφή {{count}} σχολιασμών;",
     "deleteTitle": "Διαγραφή σχολιασμών"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Περιστροφή αριστερά",
     "rotateRight": "Περιστροφή δεξιά",
+    "moveUp": "Μετακίνηση επάνω",
+    "moveDown": "Μετακίνηση κάτω",
     "insertPages": "Εισαγωγή σελίδων...",
     "extractPages": "Εξαγωγή σελίδων...",
     "replacePages": "Αντικατάσταση σελίδων...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Διαγραφή σελίδας {{page}};",
     "deletePageTitle": "Διαγραφή σελίδας",
     "properties": "Ιδιότητες",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Αποκοπή {{count}} σελίδων",
+    "copyPages": "Αντιγραφή {{count}} σελίδων",
+    "rotateLeftPages": "Περιστροφή {{count}} σελίδων αριστερά",
+    "rotateRightPages": "Περιστροφή {{count}} σελίδων δεξιά",
+    "deletePagesMulti": "Διαγραφή {{count}} σελίδων",
+    "selectAll": "Επιλογή όλων των σελίδων",
+    "deselectAll": "Αποεπιλογή όλων",
+    "insertFromFile": "Εισαγωγή από αρχείο...",
+    "insertFromFileBefore": "Πριν από αυτήν τη σελίδα...",
+    "insertFromFileAfter": "Μετά από αυτήν τη σελίδα...",
+    "pageLabels": "Ετικέτες σελίδων (δημιουργία ονομάτων)..."
   },
   "textSelection": {
     "highlightSelection": "Επισήμανση επιλογής",
     "strikethroughSelection": "Διαγράμμιση επιλογής",
     "underlineSelection": "Υπογράμμιση επιλογής",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Προσθήκη καμπύλης επεξήγησης"
   },
   "deleteAnnotation": {
     "confirmSingle": "Διαγραφή αυτού του σχολιασμού;",
     "title": "Διαγραφή σχολιασμού"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Διαγραφή κορυφής",
+    "insertVertex": "Εισαγωγή κορυφής εδώ",
+    "convertToArc": "Μετατροπή σε τόξο",
+    "convertToLine": "Μετατροπή σε γραμμή"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Εμφάνιση στην Εξερεύνηση",
+    "mac": "Εμφάνιση στο Finder",
+    "linux": "Άνοιγμα φακέλου που το περιέχει"
+  },
+  "gevelelement": {
+    "addMullionHere": "Προσθήκη ορθοστάτη εδώ",
+    "removeMullion": "Αφαίρεση πλησιέστερου ορθοστάτη",
+    "panelItem": "Πάνελ: {{name}}",
+    "placeInWall": "Τοποθέτηση σε τοίχο (διακοπή του τοίχου)",
+    "noHostWall": "Δεν βρέθηκε τοίχος κάτω από αυτό το στοιχείο",
+    "editRefused": "Δεν είναι δυνατό"
   }
 }

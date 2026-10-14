@@ -8,6 +8,14 @@ export default function ColorPickerButton(props) {
   let btnRef;
   let dropdownRef;
   let hiddenInput;
+  let iconEl;
+
+  // Het pictogram toont de huidige kleur; bij een nieuwe kleur opnieuw zetten
+  // (eerder alleen bij het aanmaken, waardoor de kleurbalk achterliep).
+  createEffect(() => {
+    const svg = props.iconSvg;
+    if (iconEl && svg) iconEl.innerHTML = svg;
+  });
 
   onMount(() => {
     const handler = (e) => {
@@ -64,9 +72,10 @@ export default function ColorPickerButton(props) {
         id={props.id}
         title={props.title}
         ref={btnRef}
-        onClick={(e) => { e.stopPropagation(); setOpen(!open()); }}
+        disabled={!!props.disabled}
+        onClick={(e) => { e.stopPropagation(); if (!props.disabled) setOpen(!open()); }}
       >
-        <div class="ribbon-btn-icon" ref={el => { if (props.iconSvg) el.innerHTML = props.iconSvg; }}></div>
+        <div class="ribbon-btn-icon" ref={el => { iconEl = el; if (props.iconSvg) el.innerHTML = props.iconSvg; }}></div>
         <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.label}</span>
         <svg class="ribbon-color-dd-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
       </button>

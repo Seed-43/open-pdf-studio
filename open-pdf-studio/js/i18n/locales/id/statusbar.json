@@ -11,6 +11,7 @@
     "box": "Persegi Panjang",
     "polygon": "Poligon",
     "cloud": "Awan",
+    "cloudPolyline": "Polyline Awan",
     "polyline": "Polyline",
     "textbox": "Kotak Teks",
     "callout": "Balon Keterangan",
@@ -27,7 +28,8 @@
     "formTextField": "Bidang Teks Formulir",
     "formCheckbox": "Kotak Centang Formulir",
     "formRadio": "Tombol Radio Formulir",
-    "screenshot": "Tangkapan Layar"
+    "screenshot": "Tangkapan Layar",
+    "pageLabelPick": "Pilih Teks untuk Label Halaman"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Anotasi:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Dokumen ini berisi bidang formulir interaktif. Anda dapat mengisi formulir dan menyimpan data Anda.",
   "enableEditing": "Aktifkan Pengeditan",
   "pdfAConformance": "Dokumen ini mengklaim kesesuaian PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Gagal mengganti nama berkas: {{error}}",
+  "renameInvalidChars": "Nama berkas tidak boleh berisi  / : * ? \" < > |",
+  "renameFileExists": "Berkas dengan nama ini sudah ada.",
+  "engineTitle": "Mesin render yang digunakan untuk tampilan saat ini",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektor)"
+  },
+  "viewSingle": "Satu Halaman",
+  "viewContinuous": "Berkelanjutan",
+  "viewBook": "Dua Halaman",
+  "viewFacing": "Dua Halaman Berdampingan",
   "viewRotatedTitle": "Tampilan diputar {{degrees}}° searah jarum jam; dokumen tidak berubah. Klik untuk mengembalikan tampilan.",
+  "compareTabTitle": "Bandingkan",
   "filledAreaSketch": {
     "undoPoint": "Batalkan titik",
     "undoPointTitle": "Hapus titik terakhir (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "T",
+  "boxSizeHint": "Ketik nilai + Enter — atau klik di luar untuk menerapkan",
   "ocr": {
     "progress": {
       "starting": "Mengenali teks...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Hasil ({{count}})",
   "searchResultPage": "Halaman {{page}}",
   "searchHitsOne": "1 hasil",
-  "searchHitsMany": "{{count}} hasil"
+  "searchHitsMany": "{{count}} hasil",
+  "passwordProtectedBar": "Dilindungi kata sandi: dibuka dalam mode hanya baca."
 }

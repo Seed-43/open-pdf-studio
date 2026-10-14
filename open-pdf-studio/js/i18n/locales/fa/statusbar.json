@@ -11,6 +11,7 @@
     "box": "مستطیل",
     "polygon": "چندضلعی",
     "cloud": "ابر",
+    "cloudPolyline": "چندخطی ابری",
     "polyline": "چندخطی",
     "textbox": "کادر متن",
     "callout": "فراخوان",
@@ -27,7 +28,8 @@
     "formTextField": "فیلد متنی فرم",
     "formCheckbox": "کادر انتخاب فرم",
     "formRadio": "دکمه رادیویی فرم",
-    "screenshot": "تصویر از صفحه"
+    "screenshot": "تصویر از صفحه",
+    "pageLabelPick": "انتخاب متن برای برچسب صفحه"
   },
   "toolLabel": "ابزار:",
   "annotationsLabel": "حاشیه‌نویسی‌ها:",
@@ -36,6 +38,7 @@
   "previousPage": "صفحه قبلی",
   "nextPage": "صفحه بعدی",
   "lastPage": "صفحه آخر",
+  "page": "صفحه",
   "zoomOut": "کوچک‌نمایی",
   "zoomIn": "بزرگ‌نمایی",
   "noDocumentsOpen": "هیچ سندی باز نیست",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "این سند حاوی فیلدهای فرم تعاملی است. می‌توانید فرم را پر کنید و داده‌های خود را ذخیره کنید.",
   "enableEditing": "فعال‌سازی ویرایش",
   "pdfAConformance": "این سند ادعای انطباق با PDF/A را دارد.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "تغییر نام فایل ناموفق بود: {{error}}",
+  "renameInvalidChars": "نام فایل نمی‌تواند شامل  / : * ? \" < > | باشد",
+  "renameFileExists": "فایلی با این نام از قبل وجود دارد.",
+  "engineTitle": "موتور رندر مورد استفاده برای نمای فعلی",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (برداری)"
+  },
+  "viewSingle": "تک صفحه",
+  "viewContinuous": "پیوسته",
+  "viewBook": "دو صفحه",
+  "viewFacing": "دو صفحه کنار هم",
   "viewRotatedTitle": "نما {{degrees}}° در جهت عقربه‌های ساعت چرخیده است؛ سند تغییری نکرده است. برای برگرداندن نما کلیک کنید.",
+  "compareTabTitle": "مقایسه",
   "filledAreaSketch": {
     "undoPoint": "واگرد نقطه",
     "undoPointTitle": "حذف آخرین نقطه (Backspace)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "ع",
   "boxHeightAbbr": "ا",
+  "boxSizeHint": "یک مقدار وارد کنید + Enter — یا برای اعمال، بیرون کلیک کنید",
   "ocr": {
     "progress": {
       "starting": "در حال تشخیص متن...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "نتایج ({{count}})",
   "searchResultPage": "صفحه {{page}}",
   "searchHitsOne": "1 مورد",
-  "searchHitsMany": "{{count}} مورد"
+  "searchHitsMany": "{{count}} مورد",
+  "passwordProtectedBar": "محافظت‌شده با رمز عبور: به‌صورت فقط‌خواندنی باز شد."
 }

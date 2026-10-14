@@ -7,9 +7,11 @@
     "addReply": "Afegeix una resposta",
     "locked": "Blocat",
     "marked": "Marcat",
+    "gridEndLock": "Bloqueja l'extrem de l'eix",
+    "gridEndUnlock": "Desbloqueja l'extrem de l'eix",
     "printable": "Imprimible",
     "status": "Estat",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Mostra per estat",
     "statusNone": "Cap",
     "statusAccepted": "Acceptat",
     "statusCancelled": "Cancel·lat",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Exporta",
     "exportAsImage": "Exporta com a imatge...",
     "addHole": "Afegir obertura",
+    "wallJoinAllow": "Permet la unió (aquest extrem)",
+    "wallJoinDisallow": "No permetis la unió (aquest extrem)",
     "properties": "Propietats...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Edita l'escala de la finestra de visualització",
+    "calibrateFromLine": "Calibra a partir d'aquesta línia...",
+    "setScale": "Defineix l'escala...",
+    "dimChainAdd": "Afegeix punts a la cadena de cotes",
+    "dimChainRemove": "Treu la línia d'extensió de la cadena",
+    "selectRoom": "Selecciona l'espai"
   },
   "multiSelect": {
     "copyAnnotations": "Copia {{count}} anotacions",
@@ -54,6 +63,7 @@
     "centerVertically": "Centra verticalment",
     "distributeHorizontally": "Distribueix horitzontalment",
     "distributeVertically": "Distribueix verticalment",
+    "trimWallCorners": "Retalla les cantonades dels murs",
     "deleteAnnotations": "Suprimeix {{count}} anotacions",
     "deleteConfirm": "Voleu suprimir {{count}} anotacions?",
     "deleteTitle": "Suprimeix anotacions"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Gira a l'esquerra",
     "rotateRight": "Gira a la dreta",
+    "moveUp": "Mou amunt",
+    "moveDown": "Mou avall",
     "insertPages": "Insereix pàgines...",
     "extractPages": "Extreu pàgines...",
     "replacePages": "Substitueix pàgines...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Voleu suprimir la pàgina {{page}}?",
     "deletePageTitle": "Suprimeix la pàgina",
     "properties": "Propietats",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Retalla {{count}} pàgines",
+    "copyPages": "Copia {{count}} pàgines",
+    "rotateLeftPages": "Gira {{count}} pàgines a l'esquerra",
+    "rotateRightPages": "Gira {{count}} pàgines a la dreta",
+    "deletePagesMulti": "Suprimeix {{count}} pàgines",
+    "selectAll": "Selecciona totes les pàgines",
+    "deselectAll": "Desselecciona-ho tot",
+    "insertFromFile": "Insereix des d'un fitxer...",
+    "insertFromFileBefore": "Abans d'aquesta pàgina...",
+    "insertFromFileAfter": "Després d'aquesta pàgina...",
+    "pageLabels": "Etiquetes de pàgina (generador de noms)..."
   },
   "textSelection": {
     "highlightSelection": "Ressalta la selecció",
     "strikethroughSelection": "Ratlla la selecció",
     "underlineSelection": "Subratlla la selecció",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Afegeix una crida corba"
   },
   "deleteAnnotation": {
     "confirmSingle": "Voleu suprimir aquesta anotació?",
     "title": "Suprimeix l'anotació"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Suprimeix el vèrtex",
+    "insertVertex": "Insereix un vèrtex aquí",
+    "convertToArc": "Converteix en arc",
+    "convertToLine": "Converteix en línia"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Mostra a l'Explorador",
+    "mac": "Mostra al Finder",
+    "linux": "Obre la carpeta contenidora"
+  },
+  "gevelelement": {
+    "addMullionHere": "Afegeix un muntant aquí",
+    "removeMullion": "Treu el muntant més proper",
+    "panelItem": "Panell: {{name}}",
+    "placeInWall": "Col·loca al mur (interromp el mur)",
+    "noHostWall": "No s'ha trobat cap mur sota aquest element",
+    "editRefused": "No és possible"
   }
 }

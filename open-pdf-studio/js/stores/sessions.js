@@ -4,17 +4,16 @@ const MAX_SESSIONS = 20;
 import { state } from '../core/state.js';
 import { createTab } from '../ui/chrome/tabs.js';
 import { loadPDFIfNeeded } from '../pdf/loader.js';
+import { leesOpslagJson, schrijfOpslagJson } from '../core/opslag.js';
 
 /**
- * Get all saved sessions from localStorage.
+ * Get all saved sessions from browser storage (core/opslag.js).
  * @returns {Array<{name: string, timestamp: number, files: string[]}>}
  */
 export function getSavedSessions() {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      return JSON.parse(data);
-    }
+    const data = leesOpslagJson(STORAGE_KEY);
+    if (Array.isArray(data)) return data;
   } catch (e) {
     console.warn('Failed to read saved sessions:', e);
   }
@@ -49,7 +48,7 @@ export function saveCurrentSession(name) {
       sessions = sessions.slice(0, MAX_SESSIONS);
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    schrijfOpslagJson(STORAGE_KEY, sessions);
     return true;
   } catch (e) {
     console.warn('Failed to save session:', e);
@@ -65,7 +64,7 @@ export function deleteSession(name) {
   try {
     let sessions = getSavedSessions();
     sessions = sessions.filter(s => s.name !== name);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    schrijfOpslagJson(STORAGE_KEY, sessions);
   } catch (e) {
     console.warn('Failed to delete session:', e);
   }

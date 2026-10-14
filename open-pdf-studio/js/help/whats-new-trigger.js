@@ -15,6 +15,7 @@
 import { getAppVersion } from '../core/platform.js';
 import { state } from '../core/state.js';
 import { fetchReleases, compareVersions } from './release-notes.js';
+import { externeDienstenAan, meldAlleenBureaublad } from '../core/webfuncties.js';
 import { openWhatsNew, setReleases, setLoading, setError } from '../solid/stores/whatsNewStore.js';
 import i18next from 'i18next';
 
@@ -28,6 +29,9 @@ function isPrerelease(version) {
 }
 
 export async function checkForNewReleaseOnStartup() {
+  // De release-notes staan op GitHub; als gast geen verzoek naar een andere
+  // host (#548).
+  if (!externeDienstenAan()) return;
   let currentVersion;
   try {
     currentVersion = await getAppVersion();
@@ -65,6 +69,10 @@ export async function checkForNewReleaseOnStartup() {
 }
 
 export async function openWhatsNewManual() {
+  if (!externeDienstenAan()) {
+    await meldAlleenBureaublad(i18next.t('appMenu:whatsNew.title'));
+    return;
+  }
   setLoading(true);
   setError(null);
   setReleases([]);

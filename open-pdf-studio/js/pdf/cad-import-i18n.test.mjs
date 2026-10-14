@@ -45,9 +45,9 @@ const VENSTER = [
 
 const NOG_NIET_IN_HET_VENSTER = [];
 
-test("all 39 locales have the same DWG/DXF import keys as English, none empty", () => {
+test("all 40 locales have the same DWG/DXF import keys as English, none empty", () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   const en = block("en");
   assert.ok(Object.keys(en).length >= 180);
   for (const locale of locales) {

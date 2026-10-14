@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
 import { bewaar, leegmaken as wisBronnen } from './vector-snippet-store.js';
-import { bereidKnipselsVoorUitvoer, bitmapVoor, leegmaken } from './vector-snippet-preview.js';
+import { readFileSync } from 'node:fs';
+import { bereidKnipselsVoorUitvoer, bitmapVoor, leegmaken, KNIPSEL_UITVOER_FOUT } from './vector-snippet-preview.js';
 
 let calls = [], closed = 0, fail = false;
 // Zoals Tauri: schrijven mag alleen binnen de fs-scope, die allow_fs_scope zet.
@@ -47,4 +48,50 @@ test('schermpreview volgt plaatsingsmaat en gebruikt scherpere cache bij uitzoom
   assert.equal(bitmap.width, 250);
   assert.equal(bitmapVoor(ann, 1), bitmap);
   await new Promise(r => setTimeout(r, 40));
+});
+
+// Uitvoer boven MAX_PIXELS (#511): in tegels, op één canvas samengevoegd.
+const tegels = [];
+globalThis.OffscreenCanvas = class {
+  constructor(width, height) { Object.assign(this, { width, height }); }
+  getContext() { return { putImageData: (img, x, y, dx, dy, dw, dh) => tegels.push({ x, y, dw, dh, w: img.width, h: img.height }) }; }
+};
+
+test('uitvoer groter dan een tegel wordt in tegels gerenderd, op de volle resolutie', async () => {
+  const ann = await annotation(); tegels.length = 0;
+  ann.width = 1000; ann.height = 1000;
+  const result = await bereidKnipselsVoorUitvoer([ann], 6);
+  const bmp = result.get(ann);
+  assert.deepEqual([bmp.width, bmp.height], [6000, 6000]);
+  assert.equal(calls.length, 4);
+  assert.ok(calls.every(c => c.scale === 6 && Math.ceil(c.regionWPt * 6) <= 4097 && Math.ceil(c.regionHPt * 6) <= 4097));
+  assert.deepEqual(tegels.map(t => [t.x, t.y, t.dw, t.dh]),
+    [[0, 0, 4096, 4096], [4096, 0, 1904, 4096], [0, 4096, 4096, 1904], [4096, 4096, 1904, 1904]]);
+  for (const b of result.values()) b.close();
+});
+
+test('samen te grote knipsels gaan evenredig omlaag, binnen het geheugenbudget', async () => {
+  const ann = await annotation();
+  ann.width = 1000; ann.height = 1000;
+  const tweede = { ...ann };
+  const result = await bereidKnipselsVoorUitvoer([ann, tweede], 10);
+  const zijde = result.get(ann).width;
+  assert.equal(result.get(tweede).width, zijde);
+  assert.ok(zijde < 10000 && 2 * zijde * zijde <= 64 * 1024 * 1024 + 2 * 2 * zijde, `${zijde}`);
+  for (const b of result.values()) b.close();
+});
+
+test('een knipsel dat niet in de uitvoer kan, draagt de foutcode voor de melding', async () => {
+  const ann = await annotation(); fail = true;
+  await assert.rejects(bereidKnipselsVoorUitvoer([ann], 1), (err) => err.code === KNIPSEL_UITVOER_FOUT);
+  wisBronnen();
+  await assert.rejects(bereidKnipselsVoorUitvoer([{ ...ann, snippetKey: 'weg' }], 1), (err) => err.code === KNIPSEL_UITVOER_FOUT);
+});
+
+test('afdruk en export tekenen nooit het lege kader van een knipsel', () => {
+  const bron = readFileSync(new URL('./rendering.js', import.meta.url), 'utf8');
+  const tak = bron.slice(bron.indexOf("case 'vectorSnippet': {"), bron.indexOf("case 'image':", bron.indexOf("case 'vectorSnippet': {")));
+  // In de uitvoer nooit de schermcache, en zonder beeld een fout vóór het kader.
+  assert.match(tak, /uitvoer \? null : bitmapVoor\(annotation, zoom\)/);
+  assert.ok(tak.indexOf('throw fout') < tak.indexOf('setLineDash([5'));
 });

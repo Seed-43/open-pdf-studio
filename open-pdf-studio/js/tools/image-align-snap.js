@@ -26,7 +26,7 @@ import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 const GUIDE_EXTENT = 50000;
 
 function _bbox(ann) {
-  return { x: ann.x, y: ann.y, w: ann.width, h: ann.height };
+  return { x: ann.x, y: ann.y, w: ann.width, h: ann.height, rotation: ann.rotation || 0 };
 }
 
 // Reference images on the current page, excluding the one(s) being edited.
@@ -127,6 +127,11 @@ export function snapImageMove(movingBox, refs, tol) {
 //   derived from opts.aspectRatio, so the aspect lock is preserved. The primary
 //   axis is width for the horizontal/corner handles and height for t/b.
 //
+// opts.rotation — draaiing van de afbeelding in graden (om haar midden, zoals
+//   ze getekend wordt). Na de snap gaat het vak om het gedraaide midden
+//   terug, zodat de vaste greep op het scherm blijft staan (#561); de
+//   gelijke-maat-aanduiding draait mee.
+//
 // Returns { box:{x,y,w,h}, guides } — box is the snapped geometry (or the
 // input unchanged), guides describe the equal-size indicator(s).
 export function snapImageResize(box, handleType, refs, tol, opts = {}) {
@@ -175,7 +180,7 @@ export function snapImageResize(box, handleType, refs, tol, opts = {}) {
       out.w = newW; out.h = newH;
       guides.push({ type: primaryIsWidth ? 'equalW' : 'equalH', box: { ...out }, refBox: best.refBox });
     }
-    return { box: out, guides };
+    return _naGedraaid(box, out, guides, h, opts.rotation);
   }
 
   // Equal WIDTH
@@ -212,7 +217,53 @@ export function snapImageResize(box, handleType, refs, tol, opts = {}) {
     }
   }
 
-  return { box: out, guides };
+  return _naGedraaid(box, out, guides, h, opts.rotation);
+}
+
+// Vaste greep tegenover elke maatgreep, als factor op de halve breedte en
+// hoogte vanuit het midden van het vak: slepen aan 'tl' houdt 'br' vast, aan
+// 'r' het midden van de linkerrand. Zo schaalt applyResize ook, met en zonder
+// vaste verhouding.
+const _VASTE_GREEP = {
+  tl: [1, 1], tr: [-1, 1], bl: [1, -1], br: [-1, -1],
+  t: [0, 1], b: [0, -1], l: [1, 0], r: [-1, 0],
+};
+
+/**
+ * Zet een vak met een nieuwe maat zo neer dat de vaste greep (tegenover de
+ * gesleepte) op het scherm blijft staan, bij een vak dat om zijn midden
+ * gedraaid getekend wordt: hetzelfde frame als greepOpScherm in handles.js.
+ * Van `na` tellen alleen w en h; `voor` is het vak waarin de vaste greep
+ * zijn plek heeft. Zonder draaiing of maatgreep komt `na` ongewijzigd terug.
+ * @param {{x:number,y:number,w:number,h:number}} voor
+ * @param {{x:number,y:number,w:number,h:number}} na
+ * @param {string} handleType  de gesleepte greep
+ * @param {number} rotatie  graden, om het midden
+ */
+export function herankerOmGedraaidMidden(voor, na, handleType, rotatie) {
+  const f = _VASTE_GREEP[handleType];
+  if (!f || !Number.isFinite(rotatie) || !rotatie) return { ...na };
+  const rad = rotatie * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  // De vaste greep op de pagina, uit het vak vóór de nieuwe maat.
+  const vx = f[0] * voor.w / 2, vy = f[1] * voor.h / 2;
+  const px = voor.x + voor.w / 2 + vx * cos - vy * sin;
+  const py = voor.y + voor.h / 2 + vx * sin + vy * cos;
+  // Het nieuwe midden ligt zo dat dezelfde greep van het nieuwe vak daar valt.
+  const nx = f[0] * na.w / 2, ny = f[1] * na.h / 2;
+  const cx = px - (nx * cos - ny * sin);
+  const cy = py - (nx * sin + ny * cos);
+  return { x: cx - na.w / 2, y: cy - na.h / 2, w: na.w, h: na.h };
+}
+
+// Bij een gedraaide afbeelding: het gesnapte vak om het gedraaide midden
+// terugzetten en de aanduiding meedraaien. Ongedraaid blijft alles zoals het
+// was.
+function _naGedraaid(voor, out, guides, handleType, rotatie) {
+  if (!Number.isFinite(rotatie) || !rotatie || guides.length === 0) return { box: out, guides };
+  const vak = herankerOmGedraaidMidden(voor, out, handleType, rotatie);
+  const getekend = { ...vak, rotation: rotatie };
+  return { box: vak, guides: guides.map((g) => ({ ...g, box: { ...getekend } })) };
 }
 
 // ─── Rendering ──────────────────────────────────────────────────────────────
@@ -273,6 +324,15 @@ function _drawEqualSize(ctx, g, scale) {
 
   const spans = [g.box, g.refBox];
   for (const b of spans) {
+    // Een gedraaide afbeelding: de maatlijn langs haar eigen (gedraaide)
+    // rand, om haar midden zoals ze getekend wordt.
+    ctx.save();
+    if (b.rotation) {
+      const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(b.rotation * Math.PI / 180);
+      ctx.translate(-cx, -cy);
+    }
     let x1, y1, x2, y2;
     if (isW) {
       const y = b.y - 6 / scale;
@@ -297,14 +357,23 @@ function _drawEqualSize(ctx, g, scale) {
       ctx.moveTo(x2 - cap, y2); ctx.lineTo(x2 + cap, y2);
       ctx.stroke();
     }
+    ctx.restore();
   }
 
   if (state.preferences.showSnapTypeLabel !== false) {
     const fontSize = 9 / scale;
     ctx.font = `${fontSize}px Arial`;
     const tw = ctx.measureText(label).width;
-    const lx = isW ? g.box.x + g.box.w + 4 / scale : g.box.x + 4 / scale;
-    const ly = isW ? g.box.y - 8 / scale : g.box.y - 4 / scale;
+    let lx = isW ? g.box.x + g.box.w + 4 / scale : g.box.x + 4 / scale;
+    let ly = isW ? g.box.y - 8 / scale : g.box.y - 4 / scale;
+    if (g.box.rotation) {
+      // Het label bij dezelfde hoek van de gedraaide afbeelding.
+      const rad = g.box.rotation * Math.PI / 180;
+      const cx = g.box.x + g.box.w / 2, cy = g.box.y + g.box.h / 2;
+      const dx = lx - cx, dy = ly - cy;
+      lx = cx + dx * Math.cos(rad) - dy * Math.sin(rad);
+      ly = cy + dx * Math.sin(rad) + dy * Math.cos(rad);
+    }
     ctx.save();
     // Rechtop op het scherm, ook in een gedraaide weergave (#200).
     zetRechtopRond(ctx, lx, ly);

@@ -11,6 +11,7 @@
     "box": "מלבן",
     "polygon": "מצולע",
     "cloud": "ענן",
+    "cloudPolyline": "קו מרובה ענן",
     "polyline": "קו מרובה",
     "textbox": "תיבת טקסט",
     "callout": "הסבר",
@@ -27,7 +28,8 @@
     "formTextField": "שדה טקסט בטופס",
     "formCheckbox": "תיבת סימון בטופס",
     "formRadio": "לחצן בחירה בטופס",
-    "screenshot": "צילום מסך"
+    "screenshot": "צילום מסך",
+    "pageLabelPick": "בחירת טקסט לתווית עמוד"
   },
   "toolLabel": "כלי:",
   "annotationsLabel": "הערות:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "מסמך זה מכיל שדות טופס אינטראקטיביים. באפשרותך למלא את הטופס ולשמור את הנתונים שלך.",
   "enableEditing": "הפעלת עריכה",
   "pdfAConformance": "מסמך זה מצהיר על תאימות ל-PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "שינוי שם הקובץ נכשל: {{error}}",
+  "renameInvalidChars": "שם הקובץ לא יכול להכיל  / : * ? \" < > |",
+  "renameFileExists": "כבר קיים קובץ בשם זה.",
+  "engineTitle": "מנוע העיבוד המשמש לתצוגה הנוכחית",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (וקטורי)"
+  },
+  "viewSingle": "עמוד בודד",
+  "viewContinuous": "רציף",
+  "viewBook": "שני עמודים",
+  "viewFacing": "שני עמודים זה לצד זה",
   "viewRotatedTitle": "התצוגה מסובבת ב-{{degrees}}° בכיוון השעון; המסמך לא השתנה. לחצו כדי להחזיר את התצוגה.",
+  "compareTabTitle": "השוואה",
   "filledAreaSketch": {
     "undoPoint": "בטל נקודה",
     "undoPointTitle": "הסר את הנקודה האחרונה (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "ר",
   "boxHeightAbbr": "ג",
+  "boxSizeHint": "הקלד ערך + Enter — או לחץ מחוץ לשדה כדי להחיל",
   "ocr": {
     "progress": {
       "starting": "מזהה טקסט...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "תוצאות ({{count}})",
   "searchResultPage": "עמוד {{page}}",
   "searchHitsOne": "תוצאה אחת",
-  "searchHitsMany": "{{count}} תוצאות"
+  "searchHitsMany": "{{count}} תוצאות",
+  "passwordProtectedBar": "מוגן בסיסמה: נפתח לקריאה בלבד."
 }

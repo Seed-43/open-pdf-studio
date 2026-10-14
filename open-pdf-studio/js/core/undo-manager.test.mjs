@@ -254,3 +254,15 @@ test('one undo or redo draws the canvas once', async () => {
   await undo.redo();
   assert.equal(tekeningen() - voor, 1, 'redo van een wijziging');
 });
+
+test('a property panel edit raises the document revision', () => {
+  const doc = openen([vak('p1', 1)]);
+  const voor = undo.documentRevisie(doc);
+  const p1 = doc.annotations[0];
+  undo.recordPropertyChange(p1);
+  p1.color = '#ff0000';
+  undo.flushPropertyChange();
+  assert.equal(doc.undoStack.length, 1, 'the edit is on the undo stack');
+  assert.notEqual(undo.documentRevisie(doc), voor,
+    'a stale revisionContext must no longer match after a property edit');
+});

@@ -19,14 +19,18 @@ import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js
 import { drawSysteemrasterGeom } from '../../annotations/rendering/systeemraster-draw.js';
 import { DRAFTING_LINE_WIDTH } from '../../annotations/drafting.js';
 import { ifcCategoryForAnnotationType } from '../../solid/data/ifcCategoryMap.js';
-import { getSysteemTypeById, getSysteemTypenData } from '../../annotations/systeem-typen-registry.js';
+import {
+  getSysteemTypenData, getToolSysteemTypeId, toolSysteemGeactiveerd, toolSysteemGedeactiveerd,
+} from '../../annotations/systeem-typen-registry.js';
+import { kiesToolType, typeInstanceVelden } from '../../annotations/systeem-typen.js';
 
 // Punten-tot-nu-toe van de contour in aanbouw.
 let _pts = null;
 
-// Actieve variant: 'raster' (stelconplaten 2000×2000) of 'plafond'
-// (systeemplafond 600×600 mét system-datamodel). Wordt gezet door de
-// wrapper-tools onderaan; er is altijd maar één tekentool tegelijk actief.
+// Actieve variant: 'raster' (stelconplaten 2000×2000, zonder type) of
+// 'plafond' (het GETYPEERDE systeem mét system-datamodel; het type komt uit
+// de tool-selectie, standaard het systeemplafond 600×600). Wordt gezet door
+// de wrapper-tools onderaan; er is altijd maar één tekentool tegelijk actief.
 let _variant = 'raster';
 
 const _baseTool = {
@@ -170,11 +174,15 @@ const _baseTool = {
 };
 
 // Annotatie-eigenschappen voor een contour (ook voor het live voorbeeld).
-// Variant 'plafond': systeemplafond — celmaat 600×600 mm, system-datamodel
-// (v1: één laag met paneel-overrides en randprofiel) en IFC-subtype CEILING.
+// Variant 'plafond': het getypeerde systeem — system-datamodel (v1: één laag
+// met paneel-overrides en randprofiel) en een verwijzing naar het type uit de
+// tool-selectie (api.selectSystemTypeForTool, #567), anders het
+// standaardplafond. Celmaat, randprofiel en IFC komen uit het TYPE; de
+// instance draagt alleen contour, oorsprong, hoek en overrides.
 function _annProps(points) {
   const D = SYSTEEMRASTER_DEFAULTS;
   const plafond = _variant === 'plafond';
+  const st = plafond ? kiesToolType(getSysteemTypenData(), getToolSysteemTypeId()) : null;
   const xs = points.map(p => p.x), ys = points.map(p => p.y);
   return {
     type: 'systeemraster',
@@ -185,21 +193,9 @@ function _annProps(points) {
     // Tekenpen van de NL-tekenwerkcomponenten (drafting.js) als terugval;
     // wordt later per IFC-categorie instelbaar via de tekenlaag.
     lineWidth: DRAFTING_LINE_WIDTH,
-    plaatBreedteMm: plafond ? 600 : D.plaatBreedteMm,
-    plaatHoogteMm: plafond ? 600 : D.plaatHoogteMm,
-    ...(plafond ? (() => {
-      // SYSTEEMTYPE: de instance verwijst naar de herbruikbare definitie
-      // uit de registry (celmaat/randprofiel/IFC komen uit het TYPE); de
-      // instance draagt alleen contour, oorsprong, hoek en overrides.
-      const st = getSysteemTypeById('st-plafond-600x600')
-        || getSysteemTypenData().typen[0];
-      return {
-        systeemTypeId: st ? st.id : undefined,
-        system: { type: 'plafond', layers: [{ panels: {}, edge: { profiel: 'geen' } }] },
-        ifcCategory: st?.ifcCategory || ifcCategoryForAnnotationType('systeemraster'),
-        ifcPredefinedType: st?.ifcPredefinedType || 'CEILING',
-      };
-    })() : {}),
+    // Zonder type een vaste plaatmaat; met type neemt de instance de maat
+    // van het type over (een onbevestigde maat blijft weg, zie hieronder).
+    ...(plafond ? {} : { plaatBreedteMm: D.plaatBreedteMm, plaatHoogteMm: D.plaatHoogteMm }),
     originXMm: D.originXMm,
     originYMm: D.originYMm,
     equalizeX: D.equalizeX,
@@ -210,6 +206,12 @@ function _annProps(points) {
     tagTonen: D.tagTonen,
     tagFontSize: D.tagFontSize,
     ifcCategory: ifcCategoryForAnnotationType('systeemraster'),
+    // SYSTEEMTYPE ná de standaardcategorie: de IFC-mapping van het type wint
+    // (vroeger stond dit ervoor en overschreef de vaste categorie het type).
+    ...(plafond ? {
+      system: { type: 'plafond', layers: [{ panels: {}, edge: { profiel: 'geen' } }] },
+      ...(st ? typeInstanceVelden(st) : { ifcPredefinedType: 'CEILING' }),
+    } : {}),
     x: Math.min(...xs),
     y: Math.min(...ys),
     width: Math.max(...xs) - Math.min(...xs),
@@ -237,7 +239,7 @@ function _makeVariantTool(name, variant) {
     _variant = variant;
     return fn.apply(_baseTool, args);
   };
-  return {
+  const tool = {
     name,
     cursor: _baseTool.cursor,
     onPointerDown: wrap(_baseTool.onPointerDown),
@@ -246,6 +248,19 @@ function _makeVariantTool(name, variant) {
     onEscape: wrap(_baseTool.onEscape),
     onDeactivate: wrap(_baseTool.onDeactivate),
   };
+  if (variant === 'plafond') {
+    // TOOL-SESSIE van de typekeuze (#567): de activering die
+    // api.selectSystemTypeForTool zelf start, houdt het gekozen type; elke
+    // andere activering (lint, bibliotheek, app_set_tool) en elke wissel naar
+    // een ander gereedschap zet de tool terug op het standaardtype.
+    const basisDeactiveer = tool.onDeactivate;
+    tool.onActivate = () => toolSysteemGeactiveerd();
+    tool.onDeactivate = (...args) => {
+      toolSysteemGedeactiveerd();
+      return basisDeactiveer(...args);
+    };
+  }
+  return tool;
 }
 
 export const systeemrasterTool = _makeVariantTool('systeemraster', 'raster');

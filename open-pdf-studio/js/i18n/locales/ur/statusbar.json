@@ -11,6 +11,7 @@
     "box": "مستطیل",
     "polygon": "کثیر الاضلاع",
     "cloud": "بادل",
+    "cloudPolyline": "کلاؤڈ پولی لائن",
     "polyline": "پولی لائن",
     "textbox": "متن خانہ",
     "callout": "کال آؤٹ",
@@ -27,7 +28,8 @@
     "formTextField": "فارم ٹیکسٹ فیلڈ",
     "formCheckbox": "فارم چیک باکس",
     "formRadio": "فارم ریڈیو بٹن",
-    "screenshot": "اسکرین شاٹ"
+    "screenshot": "اسکرین شاٹ",
+    "pageLabelPick": "صفحہ لیبل کے لیے متن منتخب کریں"
   },
   "toolLabel": "ٹول:",
   "annotationsLabel": "تشریحات:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "اس دستاویز میں انٹرایکٹو فارم فیلڈز ہیں۔ آپ فارم پُر کر کے اپنا ڈیٹا محفوظ کر سکتے ہیں۔",
   "enableEditing": "ترمیم فعال کریں",
   "pdfAConformance": "یہ دستاویز PDF/A مطابقت کا دعویٰ کرتی ہے۔",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "فائل کا نام تبدیل کرنے میں ناکامی: {{error}}",
+  "renameInvalidChars": "فائل کے نام میں یہ حروف نہیں ہو سکتے:  / : * ? \" < > |",
+  "renameFileExists": "اس نام کی فائل پہلے سے موجود ہے۔",
+  "engineTitle": "موجودہ منظر کے لیے استعمال ہونے والا رینڈرنگ انجن",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (ویکٹر)"
+  },
+  "viewSingle": "ایک صفحہ",
+  "viewContinuous": "مسلسل",
+  "viewBook": "دو صفحات",
+  "viewFacing": "دو صفحات ساتھ ساتھ",
   "viewRotatedTitle": "منظر گھڑی کی سوئیوں کی سمت {{degrees}}° گھمایا گیا ہے؛ دستاویز تبدیل نہیں ہوئی۔ منظر واپس گھمانے کے لیے کلک کریں۔",
+  "compareTabTitle": "موازنہ",
   "filledAreaSketch": {
     "undoPoint": "نقطہ واپس لیں",
     "undoPointTitle": "آخری نقطہ ہٹائیں (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "چ",
   "boxHeightAbbr": "ا",
+  "boxSizeHint": "قدر ٹائپ کریں + Enter — یا لاگو کرنے کے لیے باہر کلک کریں",
   "ocr": {
     "progress": {
       "starting": "متن کی شناخت ہو رہی ہے...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "نتائج ({{count}})",
   "searchResultPage": "صفحہ {{page}}",
   "searchHitsOne": "1 مماثلت",
-  "searchHitsMany": "{{count}} مماثلتیں"
+  "searchHitsMany": "{{count}} مماثلتیں",
+  "passwordProtectedBar": "پاس ورڈ سے محفوظ: صرف پڑھنے کے لیے کھولا گیا۔"
 }

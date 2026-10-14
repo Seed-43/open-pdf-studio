@@ -7,9 +7,11 @@
     "addReply": "Aggiungi risposta",
     "locked": "Bloccato",
     "marked": "Contrassegnato",
+    "gridEndLock": "Blocca estremità della griglia",
+    "gridEndUnlock": "Sblocca estremità della griglia",
     "printable": "Stampabile",
     "status": "Stato",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Mostra per stato",
     "statusNone": "Nessuno",
     "statusAccepted": "Accettato",
     "statusCancelled": "Annullato",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Esporta",
     "exportAsImage": "Esporta come immagine...",
     "addHole": "Aggiungi apertura",
+    "wallJoinAllow": "Consenti unione (questa estremità)",
+    "wallJoinDisallow": "Non consentire unione (questa estremità)",
     "properties": "Proprietà...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Modifica scala della finestra",
+    "calibrateFromLine": "Calibra da questa linea...",
+    "setScale": "Imposta scala...",
+    "dimChainAdd": "Aggiungi punti alla catena di quote",
+    "dimChainRemove": "Rimuovi linea di estensione dalla catena",
+    "selectRoom": "Seleziona locale"
   },
   "multiSelect": {
     "copyAnnotations": "Copia {{count}} annotazioni",
@@ -54,6 +63,7 @@
     "centerVertically": "Centra verticalmente",
     "distributeHorizontally": "Distribuisci orizzontalmente",
     "distributeVertically": "Distribuisci verticalmente",
+    "trimWallCorners": "Taglia angoli dei muri",
     "deleteAnnotations": "Elimina {{count}} annotazioni",
     "deleteConfirm": "Eliminare {{count}} annotazioni?",
     "deleteTitle": "Elimina annotazioni"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Ruota a sinistra",
     "rotateRight": "Ruota a destra",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
     "insertPages": "Inserisci pagine...",
     "extractPages": "Estrai pagine...",
     "replacePages": "Sostituisci pagine...",
@@ -95,10 +107,17 @@
     "deletePageConfirm": "Eliminare la pagina {{page}}?",
     "deletePageTitle": "Elimina pagina",
     "properties": "Proprietà",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Taglia {{count}} pagine",
+    "copyPages": "Copia {{count}} pagine",
+    "rotateLeftPages": "Ruota {{count}} pagine a sinistra",
+    "rotateRightPages": "Ruota {{count}} pagine a destra",
+    "deletePagesMulti": "Elimina {{count}} pagine",
+    "selectAll": "Seleziona tutte le pagine",
+    "deselectAll": "Deseleziona tutto",
+    "insertFromFile": "Inserisci da file...",
+    "insertFromFileBefore": "Prima di questa pagina...",
+    "insertFromFileAfter": "Dopo questa pagina...",
+    "pageLabels": "Etichette di pagina (generatore di nomi)..."
   },
   "textSelection": {
     "highlightSelection": "Evidenzia selezione",
@@ -111,14 +130,22 @@
     "title": "Elimina annotazione"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Elimina vertice",
+    "insertVertex": "Inserisci vertice qui",
+    "convertToArc": "Converti in arco",
+    "convertToLine": "Converti in linea"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Mostra in Esplora risorse",
+    "mac": "Mostra nel Finder",
+    "linux": "Apri cartella contenitore"
+  },
+  "gevelelement": {
+    "addMullionHere": "Aggiungi montante qui",
+    "removeMullion": "Rimuovi il montante più vicino",
+    "panelItem": "Pannello: {{name}}",
+    "placeInWall": "Inserisci nel muro (interrompi il muro)",
+    "noHostWall": "Nessun muro trovato sotto questo elemento",
+    "editRefused": "Non possibile"
   }
 }

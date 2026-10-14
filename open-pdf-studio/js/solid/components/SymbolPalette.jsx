@@ -1,4 +1,5 @@
 import { Show, For, createSignal, createEffect, createMemo } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import { state } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import {
@@ -28,7 +29,8 @@ import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
 import { symboolSchaal, setSymboolSchaal } from '../../symbols/symbol-scale-store.js';
-import { SCHAAL_STAPPEN, schaalLabel } from '../../symbols/symbol-scale.js';
+import { SCHAAL_STAPPEN, schaalLabel, leesSchaalInvoer, volgendeSchaalStap } from '../../symbols/symbol-scale.js';
+import useDropdown from './preferences/useDropdown.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
 
@@ -41,6 +43,8 @@ const isCatalogusFamilie = (sym) =>
 import { registerLineworkCatalog } from '../../symbols/linework-catalog-store.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import { isTauri } from '../../core/platform.js';
+import { knopUit, meldingTekst } from '../../core/webfuncties.js';
 
 const DOCK_SNAP = 60;
 
@@ -122,6 +126,8 @@ function selectSymbol(symbol) {
       wallPattern: symbol.wall.pattern,
       wallDikteMm: symbol.wall.dikteMm || 100,
       ifcCategory: ifcCategoryForSymbol(symbol),
+      // Uit het palet: hoort bij de invoegsessie voor symbolen (#587).
+      symbolInsert: true,
     };
     setTool('wall');
     return;
@@ -146,27 +152,11 @@ function selectSymbol(symbol) {
     // (en de saver/loader-roundtrip) de herkomst kent — zie nenIfcMap.js.
     symbolId: symbol.id,
     ifcPredefinedType: nenIfcForSymbolId(symbol.id)?.ifcPredefinedType,
+    // Invoegmodus voor symbolen (#587): de opmaakwerkbalk stelt de opmaak in
+    // voor de volgende plaatsingen. setTool() start of behoudt de sessie en
+    // bouwt de spookafbeelding onder de cursor (met die opmaak erin).
+    symbolInsert: true,
   };
-  // Pre-cache rasterized preview image for cursor preview
-  const blob = new Blob([effectiveSvg], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    const scale = 2;
-    canvas.width = img.naturalWidth * scale;
-    canvas.height = img.naturalHeight * scale;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    URL.revokeObjectURL(url);
-    const pngImg = new Image();
-    pngImg.onload = () => {
-      if (state.toolOverrides) state.toolOverrides._previewImg = pngImg;
-    };
-    pngImg.src = canvas.toDataURL('image/png');
-  };
-  img.onerror = () => URL.revokeObjectURL(url);
-  img.src = url;
   setTool('stamp');
 }
 
@@ -190,6 +180,80 @@ const closeSvg = `<svg width="8" height="8" viewBox="0 0 10 10"><line x1="2" y1=
 
 const arrowSvg = `<svg viewBox="0 0 10 10" width="10" height="10"><path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+// --- Plaatsingsschaal als ComboBox (issue #357) ---
+// Eén bewerkbaar veld met een uitklaplijst, zoals een Windows-ComboBox: kies
+// een vaste stap of typ een eigen factor ("1,5", "2x", "50%"). De waarde telt
+// pas bij Enter, bij het verlaten van het veld of bij een keuze uit de lijst;
+// onzin zet de geldende schaal terug in plaats van naar 1x te springen.
+function SchaalCombo(props) {
+  const { open, setOpen, dropdownStyle, setWrapperRef, setDropdownRef, toggleDropdown } =
+    useDropdown(SCHAAL_STAPPEN.length);
+  let invoer;
+  const tekst = () => schaalLabel(symboolSchaal());
+
+  function bevestig() {
+    if (!invoer) return;
+    const f = leesSchaalInvoer(invoer.value);
+    if (f != null) setSymboolSchaal(f);
+    invoer.value = tekst();
+  }
+
+  function kies(stap) {
+    setSymboolSchaal(stap);
+    if (invoer) invoer.value = tekst();
+    setOpen(false);
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      bevestig();
+      setOpen(false);
+    } else if (e.key === 'Escape') {
+      invoer.value = tekst();
+      setOpen(false);
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const huidig = leesSchaalInvoer(invoer.value) ?? symboolSchaal();
+      kies(volgendeSchaalStap(huidig, e.key === 'ArrowDown' ? 1 : -1));
+    }
+  }
+
+  return (
+    <div class="pref-combo sp-scale-combo" ref={setWrapperRef}>
+      <input
+        id="sp-scale-input"
+        type="text"
+        class="pref-combo-input"
+        ref={invoer}
+        value={tekst()}
+        title={props.title}
+        spellcheck={false}
+        onBlur={bevestig}
+        onKeyDown={onKeyDown}
+      />
+      <button type="button" class="pref-combo-arrow" tabIndex={-1} onMouseDown={(e) => toggleDropdown(e, false)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <Portal>
+        <div class="pref-combo-dropdown" classList={{ show: open() }} style={dropdownStyle()} ref={setDropdownRef}>
+          <For each={SCHAAL_STAPPEN}>
+            {(stap) => (
+              <div
+                class="pref-combo-option"
+                classList={{ selected: symboolSchaal() === stap }}
+                onMouseDown={(e) => { e.preventDefault(); kies(stap); }}
+              >
+                {schaalLabel(stap)}
+              </div>
+            )}
+          </For>
+        </div>
+      </Portal>
+    </div>
+  );
+}
+
 // --- Inner content (shared between docked and floating) ---
 function SymbolContent() {
   const { t } = useTranslation('ribbon');
@@ -211,24 +275,8 @@ function SymbolContent() {
       {/* Plaatsingsschaal (issue #357): geldt voor VOLGENDE symbolen; wat al
           op de tekening staat verandert niet. */}
       <div class="sp-scale">
-        <label for="sp-scale-select" title={t('drawing.symbolScaleTitle')}>{t('drawing.symbolScale')}</label>
-        <select
-          id="sp-scale-select"
-          value={String(symboolSchaal())}
-          onChange={(e) => setSymboolSchaal(e.target.value)}
-        >
-          <For each={SCHAAL_STAPPEN}>
-            {(stap) => <option value={String(stap)}>{schaalLabel(stap)}</option>}
-          </For>
-        </select>
-        <input
-          type="number"
-          class="sp-scale-eigen"
-          min="0.1" max="10" step="0.05"
-          value={symboolSchaal()}
-          title={t('drawing.symbolScaleCustom')}
-          onChange={(e) => setSymboolSchaal(e.target.value)}
-        />
+        <label for="sp-scale-input" title={t('drawing.symbolScaleTitle')}>{t('drawing.symbolScale')}</label>
+        <SchaalCombo title={t('drawing.symbolScaleCustom')} />
       </div>
 
       {/* Categories */}
@@ -340,7 +388,11 @@ export function FloatingSymbolPalette() {
 
 // --- Settings Dialog ---
 export function SymbolSettingsDialog() {
+  const { t: tCommon } = useTranslation('common');
   const [newGroupName, setNewGroupName] = createSignal('');
+  // De online bibliotheek staat op GitHub: als gast uit (#548).
+  const downloadUit = knopUit('symbol-library-download', { inTauri: isTauri() });
+  const downloadMelding = () => meldingTekst(tCommon, tCommon('onlineSymbolLibrary'));
   let fileInputRef;
   let importGroupInputRef;
 
@@ -495,6 +547,9 @@ export function SymbolSettingsDialog() {
           <Show when={indexStatus() === 'loading'}>
             <div class="sp-settings-download sp-settings-download-note">Online bibliotheek laden…</div>
           </Show>
+          <Show when={indexStatus() === 'uit'}>
+            <div class="sp-settings-download sp-settings-download-note">{downloadMelding()}</div>
+          </Show>
           <Show when={indexStatus() === 'offline'}>
             <div class="sp-settings-download sp-settings-download-note">Online bibliotheek niet bereikbaar — beperkte landenlijst</div>
           </Show>
@@ -510,7 +565,9 @@ export function SymbolSettingsDialog() {
                     ? `${dlInfo().toFetch.length} collectie${dlInfo().toFetch.length === 1 ? '' : 's'} online beschikbaar (${dlInfo().symbolCount} symbolen)`
                     : `${dlInfo().tagOnly.length} gedownloade collectie${dlInfo().tagOnly.length === 1 ? '' : 's'} activeren voor dit land`}
                 </span>
-                <button class="sp-settings-btn-add"
+                <button id="symbol-library-download" class="sp-settings-btn-add"
+                  disabled={downloadUit}
+                  title={downloadUit ? downloadMelding() : undefined}
                   onClick={() => downloadCountrySector(selectedCountry(), selectedIndustry())}>
                   Download
                 </button>

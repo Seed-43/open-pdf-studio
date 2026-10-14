@@ -7,9 +7,11 @@
     "addReply": "Pridať odpoveď",
     "locked": "Zamknuté",
     "marked": "Označené",
+    "gridEndLock": "Zamknúť koniec osi rastra",
+    "gridEndUnlock": "Odomknúť koniec osi rastra",
     "printable": "Tlačiteľné",
     "status": "Stav",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Zobraziť podľa stavu",
     "statusNone": "Žiadny",
     "statusAccepted": "Prijaté",
     "statusCancelled": "Zrušené",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Exportovať",
     "exportAsImage": "Exportovať ako obrázok...",
     "addHole": "Pridať otvor",
+    "wallJoinAllow": "Povoliť napojenie (tento koniec)",
+    "wallJoinDisallow": "Zakázať napojenie (tento koniec)",
     "properties": "Vlastnosti...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Upraviť mierku výrezu",
+    "calibrateFromLine": "Kalibrovať podľa tejto čiary...",
+    "setScale": "Nastaviť mierku...",
+    "dimChainAdd": "Pridať body do reťazca kót",
+    "dimChainRemove": "Odobrať vynášaciu čiaru z reťazca",
+    "selectRoom": "Vybrať miestnosť"
   },
   "multiSelect": {
     "copyAnnotations": "Kopírovať {{count}} anotácií",
@@ -54,6 +63,7 @@
     "centerVertically": "Centrovať zvisle",
     "distributeHorizontally": "Rozmiestniť vodorovne",
     "distributeVertically": "Rozmiestniť zvisle",
+    "trimWallCorners": "Orezať rohy stien",
     "deleteAnnotations": "Odstrániť {{count}} anotácií",
     "deleteConfirm": "Odstrániť {{count}} anotácií?",
     "deleteTitle": "Odstrániť anotácie"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Otočiť doľava",
     "rotateRight": "Otočiť doprava",
+    "moveUp": "Posunúť nahor",
+    "moveDown": "Posunúť nadol",
     "insertPages": "Vložiť strany...",
     "extractPages": "Extrahovať strany...",
     "replacePages": "Nahradiť strany...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Odstrániť stranu {{page}}?",
     "deletePageTitle": "Odstrániť stranu",
     "properties": "Vlastnosti",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Vystrihnúť strany: {{count}}",
+    "copyPages": "Kopírovať strany: {{count}}",
+    "rotateLeftPages": "Otočiť strany doľava: {{count}}",
+    "rotateRightPages": "Otočiť strany doprava: {{count}}",
+    "deletePagesMulti": "Odstrániť strany: {{count}}",
+    "selectAll": "Vybrať všetky strany",
+    "deselectAll": "Zrušiť výber všetkého",
+    "insertFromFile": "Vložiť zo súboru...",
+    "insertFromFileBefore": "Pred túto stranu...",
+    "insertFromFileAfter": "Za túto stranu...",
+    "pageLabels": "Menovky strán (tvorba názvov)..."
   },
   "textSelection": {
     "highlightSelection": "Zvýrazniť výber",
     "strikethroughSelection": "Prečiarknuť výber",
     "underlineSelection": "Podčiarknuť výber",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Pridať zakrivený popisok"
   },
   "deleteAnnotation": {
     "confirmSingle": "Odstrániť túto anotáciu?",
     "title": "Odstrániť anotáciu"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Odstrániť vrchol",
+    "insertVertex": "Vložiť vrchol sem",
+    "convertToArc": "Previesť na oblúk",
+    "convertToLine": "Previesť na čiaru"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Zobraziť v Prieskumníkovi",
+    "mac": "Zobraziť vo Finderi",
+    "linux": "Otvoriť nadradený priečinok"
+  },
+  "gevelelement": {
+    "addMullionHere": "Pridať stĺpik sem",
+    "removeMullion": "Odobrať najbližší stĺpik",
+    "panelItem": "Výplň: {{name}}",
+    "placeInWall": "Umiestniť do steny (prerušiť stenu)",
+    "noHostWall": "Pod týmto prvkom sa nenašla žiadna stena",
+    "editRefused": "Nie je možné"
   }
 }

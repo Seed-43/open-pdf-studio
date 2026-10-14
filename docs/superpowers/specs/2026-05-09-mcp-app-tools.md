@@ -119,23 +119,46 @@ curl -s -X POST http://127.0.0.1:9224/mcp -H "Content-Type: application/json" \
 
 ### `app_screenshot_view`
 
-Composite the current page view (`#pdf-canvas` + `#text-highlight-canvas`
-+ `#annotation-canvas`) into a PNG and return it as base64.
+Capture the live app as a PNG and return it as base64. With the default
+`scope: "document"` it composites the current page view (`#pdf-canvas` +
+`#text-highlight-canvas` + `#annotation-canvas`).
 
-| param   | type    | required | default |
-|---------|---------|----------|---------|
-| `width` | integer | no       | `2000`  |
+| param      | type    | required | default      |
+|------------|---------|----------|--------------|
+| `width`    | integer | no       | `2000`       |
+| `scope`    | string  | no       | `"document"` |
+| `selector` | string  | with `element` | — |
 
-`width` is the maximum longer-side pixel size of the composite — the
-output is scaled down (preserving aspect) when the live canvas is larger.
-Note: this captures the **canvas** only, not the surrounding chrome
-(toolbars, panels). For a full-window grab use OS-level screenshotting.
+`width` is the maximum longer-side pixel size of the PNG — the output is
+scaled down (preserving aspect) when the capture is larger.
+
+`scope` (#583):
+
+- `document` — the canvases only, not the surrounding chrome. Works on every
+  platform.
+- `window` — a native capture of the whole web view (WebView2
+  `CapturePreview` through the Tauri command `capture_webview_png`): title
+  bar, ribbon including extension tabs, side panels, document view and status
+  bar.
+- `element` — the window capture cropped to `selector`
+  (`getBoundingClientRect`, limited to the window). A selector without a scope
+  means `element`.
+
+`window` and `element` are Windows-only for now; elsewhere they return
+`{ ok: false, error: "... not supported on this platform yet ..." }`. The crop
+and downscale rules are in `js/core/mcp-schermafdruk.js`.
 
 Returns:
 
 ```json
-{ "ok": true, "png_base64": "<no-prefix-base64>", "width": <int>, "height": <int> }
+{ "ok": true, "scope": "document", "png_base64": "<no-prefix-base64>", "width": <int>, "height": <int>,
+  "bounds": { "x": <css px>, "y": <css px>, "width": <css px>, "height": <css px> }, "devicePixelRatio": <number> }
 ```
+
+`bounds` is the captured area in CSS pixels (for `document` the page canvas).
+`element` also returns `elementBounds` (the element's full rectangle), and
+`window`/`element` return `capture` (the size of the native capture in
+physical pixels).
 
 ```bash
 curl -s -X POST http://127.0.0.1:9224/mcp -H "Content-Type: application/json" \

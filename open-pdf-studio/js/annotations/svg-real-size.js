@@ -11,6 +11,7 @@
 // Alleen ECHTE lengte-eenheden. `px` en eenheidloze waarden zijn schermmaten,
 // geen werkelijke maat, en tellen dus bewust niet mee.
 import { schaalMaat } from '../symbols/symbol-scale.js';
+import { OVERRIDE_STAMP_DEFAULT_HEIGHT } from './stamp-defaults.js';
 
 const UNIT_TO_MM = {
   mm: 1,
@@ -77,6 +78,28 @@ export function stampPlacementSize({ mm, pxPerMm, aspect, defaultWidth, defaultH
   // UITKOMST, niet op de werkelijke maat: een symbool met een echte maat in mm
   // hoort ook op 2x geplaatst te kunnen worden.
   return schaalMaat(maat, schaal);
+}
+
+/**
+ * Plaatsingsmaat van een stempel uit de gereedschapsinstellingen (een symbool
+ * uit het palet of van een extensie). EEN bron voor zowel de spookafbeelding
+ * onder de cursor als de echte plaatsing (issue #357): eerder rekende het
+ * voorbeeld zonder de gekozen symboolschaal en met een andere terugvalhoogte,
+ * waardoor het voorbeeld een andere maat had dan wat er daarna op de tekening
+ * kwam.
+ *
+ * @param {{stampSvg?:string, stampWidth?:number, stampHeight?:number}} ov
+ * @param {{pxPerMm?:number, aspect?:number, schaal?:number}} [context]
+ */
+export function overrideStampMaat(ov, { pxPerMm, aspect, schaal } = {}) {
+  return stampPlacementSize({
+    mm: svgRealSizeMm(ov?.stampSvg),
+    pxPerMm,
+    aspect,
+    defaultWidth: ov?.stampWidth,
+    defaultHeight: ov?.stampHeight || OVERRIDE_STAMP_DEFAULT_HEIGHT,
+    schaal,
+  });
 }
 
 function _basismaat({ mm, pxPerMm, aspect, defaultWidth, defaultHeight }) {

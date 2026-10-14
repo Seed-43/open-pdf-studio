@@ -33,9 +33,9 @@ const SAME_AS_ENGLISH = {
   sv: ["Format:", "Version:", "DXF (text)"],
 };
 
-test("all 39 locales have the same DXF/DWG export keys as English, none empty", () => {
+test("all 40 locales have the same DXF/DWG export keys as English, none empty", () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   const en = block("en");
   assert.ok(Object.keys(en).length >= 80);
   for (const locale of locales) {

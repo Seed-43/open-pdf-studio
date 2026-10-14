@@ -28,7 +28,8 @@
     "formTextField": "Form Text Field",
     "formCheckbox": "Form Checkbox",
     "formRadio": "Form Radio Button",
-    "screenshot": "Screenshot"
+    "screenshot": "Screenshot",
+    "pageLabelPick": "Pick Text for Page Label"
   },
   "toolLabel": "Tool:",
   "annotationsLabel": "Annotations:",
@@ -90,6 +91,7 @@
   },
   "boxWidthAbbr": "W",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Type a value + Enter — or click away to apply",
   "ocr": {
     "progress": {
       "starting": "Recognizing text...",
@@ -105,5 +107,6 @@
   "searchResultsTitle": "Results ({{count}})",
   "searchResultPage": "Page {{page}}",
   "searchHitsOne": "1 match",
-  "searchHitsMany": "{{count}} matches"
+  "searchHitsMany": "{{count}} matches",
+  "passwordProtectedBar": "Protected with a password: opened read-only."
 }

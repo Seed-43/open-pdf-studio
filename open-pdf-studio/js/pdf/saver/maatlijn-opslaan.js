@@ -26,6 +26,7 @@ import { attachVectorAP } from './vector-ap.js';
 import { maatlijnTekst, maatLabelRuimte } from '../../annotations/maat-label.js';
 import { maatlijnGeometrie, maatlijnVelden, papierMmNaarPt } from '../../annotations/maatlijn-geometrie.js';
 import { inlineMaatlijn, helveticaBreedte } from '../../annotations/maatlijn-inline.js';
+import { SPOT_COORD } from '../../annotations/spot-coord.js';
 
 /** Een maat met opmaak uit een ander programma (zie de kop van dit bestand). */
 export function heeftOvergenomenOpmaak(ann) {
@@ -140,6 +141,8 @@ export function maatlijnAnnotatie({ ann, context, convertX, convertY, opacity, b
   // Save custom properties for exact round-trip
   if (ann.headSize && ann.headSize !== 12) mdDict.OPS_HeadSize = ann.headSize;
   if (ann.measurePrecision != null && ann.measurePrecision !== 2) mdDict.OPS_Precision = ann.measurePrecision;
+  // Spot Coord: het label is een coördinaat, geen lengte (spot-coord.js).
+  if (ann.dimKind === SPOT_COORD) mdDict.OPS_DimKind = PDFName.of('SpotCoord');
   // User-dragged text position: offset from the dimension-line
   // midpoint, stored in the same visual frame as the annotation
   // (loader reads it back verbatim — no coordinate conversion).

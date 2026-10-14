@@ -1,5 +1,6 @@
 import { Show } from 'solid-js';
 import { state, getActiveDocument } from '../../core/state.js';
+import { labelVan, heeftEigenLabel } from '../../pdf/pagina-labels.js';
 import { useTranslation, localizeNumber } from '../../i18n/useTranslation.js';
 
 // All page navigation goes through goToPage() so the side effects
@@ -102,7 +103,7 @@ async function handleZoomInput(e) {
       // Vector viewport mode is the source of truth — setZoom() handles
       // the dispatch (viewport.setZoomAtPoint vs legacy doc.scale path).
       const { setZoom } = await import('../../pdf/renderer.js');
-      await setZoom(pct / 100);
+      await setZoom(percentToScale(pct));
     }
   }
   e.target.blur();
@@ -113,13 +114,14 @@ async function handleZoomBlur(e) {
   let pct = parseInt(val, 10);
   if (isNaN(pct) || pct < 10 || pct > 500) {
     const doc = state.documents[state.activeDocumentIndex];
-    e.target.value = Math.round((doc ? doc.scale : 1.5) * 100) + '%';
+    e.target.value = scaleToPercent(doc ? doc.scale : 1.5) + '%';
   } else if (!e.target.value.includes('%')) {
     e.target.value = pct + '%';
   }
 }
 
 import { engineFor } from '../stores/engineStatusStore.js';
+import { scaleToPercent, percentToScale } from '../../core/zoom-display.js';
 
 export default function StatusBar() {
   const { t } = useTranslation('statusbar');
@@ -133,11 +135,11 @@ export default function StatusBar() {
     const doc = state.documents[state.activeDocumentIndex];
     return doc ? doc.currentPage : 1;
   };
-  // Sheet name of the current page, when the document has page labels.
+  // Bladnaam van de huidige pagina, als het document paginalabels heeft (#580).
   const currentLabel = () => {
     const doc = state.documents[state.activeDocumentIndex];
-    const l = doc?.pageLabels?.[(doc?.currentPage || 1) - 1];
-    return l && l !== String(doc.currentPage) ? l : '';
+    const page = doc?.currentPage || 1;
+    return heeftEigenLabel(doc?.pageLabels, page) ? labelVan(doc.pageLabels, page) : '';
   };
   const totalPages = () => {
     const doc = state.documents[state.activeDocumentIndex];
@@ -145,7 +147,10 @@ export default function StatusBar() {
   };
   const zoomText = () => {
     const doc = state.documents[state.activeDocumentIndex];
-    return localizeNumber(Math.round((doc ? doc.scale : 1.5) * 100)) + '%';
+    // 100% is the effective dpi (zoom-display.js): the screen calibration
+    // (#520) when this screen has one, else the zoomDpi preference. Both are
+    // read from state.preferences inside this call, so the label follows them.
+    return localizeNumber(scaleToPercent(doc ? doc.scale : 1.5)) + '%';
   };
   const viewMode = () => state.documents[state.activeDocumentIndex]?.viewMode || 'single';
   const viewRotation = () => {

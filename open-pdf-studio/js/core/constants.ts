@@ -234,6 +234,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   measureAreaDimScale: 1,
   measureAreaDimUnit: 'mm',
   measureAreaDimPrecision: 2,
+  // Lengte van elke rechte zijde tonen (#536); standaard uit.
+  measureAreaShowEdgeLengths: false,
 
   // Filled Area defaults (user-drawn contour with arcs + holes, solid + hatch fill)
   filledAreaStrokeColor: '#000000',
@@ -290,6 +292,15 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // multi-proces worker-pool: parallelle eerste render (sneller), geen
   // zwart scherm, hoofdthread blijft vrij. Uitzetbaar in Voorkeuren.
   progressiveRender: true,
+  // Schermkalibratie voor Werkelijke grootte (#520): CSS-pixels per inch per
+  // schermschaal ({ "1.25": 120.5 }). Gekalibreerd scherm: 100% is de echte
+  // papiermaat. Leeg = niet gekalibreerd, dan bepaalt zoomDpi wat 100% is.
+  screenCalibration: {},
+  // Screen resolution (dpi) that defines 100% zoom on a screen without a
+  // calibration (screenCalibration wins when this screen has one).
+  zoomDpi: 110,
+  // Page text sharpening 0-4 (0 = as rendered).
+  pageSharpen: 2,
 
   // Panels
   propertiesPanelVisible: true,
@@ -337,5 +348,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // CAD export/import (#400) — last used settings (null = dialog defaults)
   cadExportSettings: null,
   cadImportSettings: null,
-  cadImportPresets: null
+  cadImportPresets: null,
+
+  // PDF/X export (#422) — last chosen output profile and rendering intent
+  // (null = sRGB without conversion, relative colorimetric)
+  pdfxSettings: null
 };

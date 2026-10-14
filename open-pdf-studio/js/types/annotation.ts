@@ -196,6 +196,8 @@ export type Annotation = AnnotationBase & {
   measureScale?: number;
   measurePrecision?: number;
   measureName?: string;
+  // Meetvlak: de lengte van elke rechte zijde tonen (#536)
+  measureShowEdgeLengths?: boolean;
   // Label position override (absolute coords; defaults to centroid if unset)
   labelX?: number;
   labelY?: number;

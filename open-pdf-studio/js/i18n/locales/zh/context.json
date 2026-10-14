@@ -7,9 +7,11 @@
     "addReply": "添加回复",
     "locked": "已锁定",
     "marked": "已标记",
+    "gridEndLock": "锁定轴线端点",
+    "gridEndUnlock": "解锁轴线端点",
     "printable": "可打印",
     "status": "状态",
-    "showByStatus": "Show by Status",
+    "showByStatus": "按状态显示",
     "statusNone": "无",
     "statusAccepted": "已接受",
     "statusCancelled": "已取消",
@@ -38,8 +40,15 @@
     "exportSubmenu": "导出",
     "exportAsImage": "导出为图像...",
     "addHole": "添加孔洞",
+    "wallJoinAllow": "允许连接（此端）",
+    "wallJoinDisallow": "禁止连接（此端）",
     "properties": "属性...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "编辑视口比例",
+    "calibrateFromLine": "根据此线校准...",
+    "setScale": "设置比例...",
+    "dimChainAdd": "向尺寸链添加点",
+    "dimChainRemove": "从尺寸链中移除尺寸界线",
+    "selectRoom": "选择房间"
   },
   "multiSelect": {
     "copyAnnotations": "复制 {{count}} 个批注",
@@ -54,6 +63,7 @@
     "centerVertically": "垂直居中",
     "distributeHorizontally": "水平分布",
     "distributeVertically": "垂直分布",
+    "trimWallCorners": "修剪墙角",
     "deleteAnnotations": "删除 {{count}} 个批注",
     "deleteConfirm": "删除 {{count}} 个批注？",
     "deleteTitle": "删除批注"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "向左旋转",
     "rotateRight": "向右旋转",
+    "moveUp": "上移",
+    "moveDown": "下移",
     "insertPages": "插入页面...",
     "extractPages": "提取页面...",
     "replacePages": "替换页面...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "删除第 {{page}} 页？",
     "deletePageTitle": "删除页面",
     "properties": "属性",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "剪切 {{count}} 页",
+    "copyPages": "复制 {{count}} 页",
+    "rotateLeftPages": "向左旋转 {{count}} 页",
+    "rotateRightPages": "向右旋转 {{count}} 页",
+    "deletePagesMulti": "删除 {{count}} 页",
+    "selectAll": "选择所有页面",
+    "deselectAll": "取消全选",
+    "insertFromFile": "从文件插入...",
+    "insertFromFileBefore": "在此页之前...",
+    "insertFromFileAfter": "在此页之后...",
+    "pageLabels": "页面标签（名称生成器）..."
   },
   "textSelection": {
     "highlightSelection": "高亮选择",
     "strikethroughSelection": "删除线选择",
     "underlineSelection": "下划线选择",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "添加曲线标注"
   },
   "deleteAnnotation": {
     "confirmSingle": "删除此批注？",
     "title": "删除批注"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "删除顶点",
+    "insertVertex": "在此处插入顶点",
+    "convertToArc": "转换为圆弧",
+    "convertToLine": "转换为直线"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "在资源管理器中显示",
+    "mac": "在 Finder 中显示",
+    "linux": "打开所在文件夹"
+  },
+  "gevelelement": {
+    "addMullionHere": "在此处添加竖梃",
+    "removeMullion": "移除最近的竖梃",
+    "panelItem": "面板：{{name}}",
+    "placeInWall": "放入墙中（打断墙体）",
+    "noHostWall": "此构件下方未找到墙",
+    "editRefused": "无法执行"
   }
 }

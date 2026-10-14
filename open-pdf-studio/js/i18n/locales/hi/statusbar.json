@@ -11,6 +11,7 @@
     "box": "आयत",
     "polygon": "बहुभुज",
     "cloud": "बादल",
+    "cloudPolyline": "क्लाउड पॉलीलाइन",
     "polyline": "पॉलीलाइन",
     "textbox": "टेक्स्ट बॉक्स",
     "callout": "कॉलआउट",
@@ -27,7 +28,8 @@
     "formTextField": "फॉर्म टेक्स्ट फ़ील्ड",
     "formCheckbox": "फॉर्म चेकबॉक्स",
     "formRadio": "फॉर्म रेडियो बटन",
-    "screenshot": "स्क्रीनशॉट"
+    "screenshot": "स्क्रीनशॉट",
+    "pageLabelPick": "पृष्ठ लेबल के लिए टेक्स्ट चुनें"
   },
   "toolLabel": "उपकरण:",
   "annotationsLabel": "एनोटेशन:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "इस दस्तावेज़ में इंटरैक्टिव फॉर्म फ़ील्ड हैं। आप फॉर्म भर सकते हैं और अपना डेटा सहेज सकते हैं।",
   "enableEditing": "संपादन सक्षम करें",
   "pdfAConformance": "यह दस्तावेज़ PDF/A अनुरूपता का दावा करता है।",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "फ़ाइल का नाम बदलने में विफल: {{error}}",
+  "renameInvalidChars": "फ़ाइल नाम में ये वर्ण नहीं हो सकते:  / : * ? \" < > |",
+  "renameFileExists": "इस नाम की फ़ाइल पहले से मौजूद है।",
+  "engineTitle": "वर्तमान दृश्य के लिए उपयोग किया गया रेंडरिंग इंजन",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (वेक्टर)"
+  },
+  "viewSingle": "एकल पृष्ठ",
+  "viewContinuous": "सतत",
+  "viewBook": "दो पृष्ठ",
+  "viewFacing": "दो पृष्ठ अगल-बगल",
   "viewRotatedTitle": "दृश्य दक्षिणावर्त {{degrees}}° घुमाया गया है; दस्तावेज़ अपरिवर्तित है। दृश्य वापस घुमाने के लिए क्लिक करें।",
+  "compareTabTitle": "तुलना",
   "filledAreaSketch": {
     "undoPoint": "बिंदु पूर्ववत करें",
     "undoPointTitle": "अंतिम बिंदु हटाएं (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "च",
   "boxHeightAbbr": "ऊ",
+  "boxSizeHint": "मान टाइप करें + Enter — या लागू करने के लिए बाहर क्लिक करें",
   "ocr": {
     "progress": {
       "starting": "टेक्स्ट पहचाना जा रहा है...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "परिणाम ({{count}})",
   "searchResultPage": "पृष्ठ {{page}}",
   "searchHitsOne": "1 मिलान",
-  "searchHitsMany": "{{count}} मिलान"
+  "searchHitsMany": "{{count}} मिलान",
+  "passwordProtectedBar": "पासवर्ड से सुरक्षित: केवल पढ़ने के लिए खोला गया।"
 }

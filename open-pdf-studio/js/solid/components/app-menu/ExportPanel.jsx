@@ -1,13 +1,28 @@
-import { createSignal, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import { closeAppMenu } from '../../stores/appMenuStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { exportAsImages, exportAsRasterPdf, parsePageRange } from '../../../pdf/exporter.js';
 import { exportAsPdfX } from '../../../pdf/pdfx-export.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { showMessage, openDialog } from '../../stores/dialogStore.js';
-import { isTauri } from '../../../core/platform.js';
+import { isTauri, invoke, openFileDialog, isNietInBrowser } from '../../../core/platform.js';
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import { savePreferences } from '../../../core/preferences.js';
+import {
+  herstelPdfxInstellingen, listCmykProfiles, inspectCmykProfile, profileErrorMessage, INTENTS,
+} from '../../../pdf/pdfx-cmyk.js';
 import i18next from '../../../i18n/config.js';
+
+// Exports naar bewerkbare kantoorbestanden (office-export.js).
+const OFFICE_CARDS = [
+  { type: 'odt', title: 'exportPanel.exportOdt', desc: 'exportPanel.exportOdtDesc' },
+  { type: 'docx', title: 'exportPanel.exportDocx', desc: 'exportPanel.exportDocxDesc' },
+  { type: 'xlsx', title: 'exportPanel.exportExcel', desc: 'exportPanel.exportExcelDesc' },
+];
+
+// Waarden in de profielkeuzelijst die geen pad zijn.
+const SRGB = 'srgb';
+const KIES_BESTAND = '__browse__';
 
 export default function ExportPanel() {
   const { t } = useTranslation('appMenu');
@@ -22,8 +37,25 @@ export default function ExportPanel() {
   const [includeImages, setIncludeImages] = createSignal(false);
   const [includeAnnotations, setIncludeAnnotations] = createSignal(true);
   const [decimal, setDecimal] = createSignal((i18next.language || '').startsWith('nl') ? ',' : '.');
-  const office = () => ['odt', 'xlsx'].includes(exportType());
+  const office = () => OFFICE_CARDS.some(card => card.type === exportType());
   const [pdfxConformance, setPdfxConformance] = createSignal('X-3');
+  // Uitvoerprofiel voor PDF/X (#422): null = sRGB zonder omzetting, anders
+  // { path, name } van een CMYK-drukprofiel. De laatste keuze staat in de
+  // voorkeuren.
+  const pdfxOnthouden = herstelPdfxInstellingen(state.preferences?.pdfxSettings);
+  const [pdfxProfile, setPdfxProfile] = createSignal(
+    pdfxOnthouden.profilePath ? { path: pdfxOnthouden.profilePath, name: pdfxOnthouden.profileName } : null,
+  );
+  const [pdfxIntent, setPdfxIntent] = createSignal(pdfxOnthouden.intent);
+  const [systemProfiles, setSystemProfiles] = createSignal([]);
+  const [profilesLoaded, setProfilesLoaded] = createSignal(false);
+  // De systeemlijst plus een eerder of zelf gekozen profiel dat er niet in staat.
+  const profileOptions = () => {
+    const list = systemProfiles();
+    const chosen = pdfxProfile();
+    return chosen && !list.some((p) => p.path === chosen.path) ? [...list, chosen] : list;
+  };
+  const profileValue = () => pdfxProfile()?.path ?? SRGB;
   // PDF/X en CAD-uitvoer lopen over de Rust-kant en bestaan in de webversie
   // niet; ze gaven daar stil `false` terug (#456).
   const uit = (id) => knopUitInBrowser(id, isTauri());
@@ -52,6 +84,54 @@ export default function ExportPanel() {
     openDialog('cad-export');
   };
 
+  const loadProfiles = async () => {
+    if (profilesLoaded()) return;
+    try {
+      setSystemProfiles(await listCmykProfiles(invoke));
+    } catch (e) {
+      if (!isNietInBrowser(e)) console.warn('CMYK profiles could not be listed:', e);
+    }
+    setProfilesLoaded(true);
+  };
+
+  const handleProfileChange = async (e) => {
+    const value = e.target.value;
+    if (value === SRGB) {
+      setPdfxProfile(null);
+      return;
+    }
+    if (value !== KIES_BESTAND) {
+      const found = profileOptions().find((p) => p.path === value);
+      if (found) setPdfxProfile(found);
+      return;
+    }
+    // "Bestand kiezen…" is geen keuze op zich: de lijst toont de vorige keuze
+    // tot er een geldig profiel is gekozen.
+    e.target.value = profileValue();
+    const path = await openFileDialog(['icc', 'icm']);
+    if (!path || Array.isArray(path)) return;
+    try {
+      setPdfxProfile(await inspectCmykProfile(invoke, path));
+    } catch (err) {
+      if (isNietInBrowser(err)) return;
+      const file = String(path).split(/[\\/]/).pop();
+      showMessage(profileErrorMessage(i18next.t.bind(i18next), String(err), file));
+    }
+  };
+
+  // Gevlakte kopie om te delen: annotaties worden deel van de pagina.
+  const handleFlattenedCopy = async () => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) {
+      showMessage(tCommon('noDocumentOpen'));
+      return;
+    }
+    closeAppMenu();
+    const { maakGevlakteKopie } = await import('../../../pdf/flattened-copy.js');
+    const r = await maakGevlakteKopie();
+    if (!r.ok && r.reden === 'doel-is-geopend') showMessage(i18next.t('dialogs:print.targetIsOpenFile'));
+  };
+
   const handleCardClick = (type) => {
     setExportType(type);
     setShowOptions(true);
@@ -60,6 +140,7 @@ export default function ExportPanel() {
     setFormat('png');
     setQuality(92);
     setDpi(type === 'raster' ? 300 : 150);
+    if (type === 'pdfx') loadProfiles();
   };
 
   const handleExport = async () => {
@@ -91,7 +172,14 @@ export default function ExportPanel() {
       const { exportOffice } = await import('../../../pdf/office-export.js');
       await exportOffice({ format: exportType(), pages, includeImages: includeImages(), decimal: decimal(), doc });
     } else if (exportType() === 'pdfx') {
-      await exportAsPdfX({ conformance: pdfxConformance() });
+      const profile = pdfxProfile();
+      state.preferences.pdfxSettings = {
+        profilePath: profile?.path ?? null,
+        profileName: profile?.name ?? '',
+        intent: pdfxIntent(),
+      };
+      savePreferences();
+      await exportAsPdfX({ conformance: pdfxConformance(), profilePath: profile?.path ?? null, intent: pdfxIntent() });
     } else if (exportType() === 'raster') {
       await exportAsRasterPdf({ dpi: dpi(), pages, doc });
     } else {
@@ -104,12 +192,12 @@ export default function ExportPanel() {
       <h2 class="bs-export-title">{t('exportPanel.title')}</h2>
 
       <div class="bs-export-cards">
-        {['odt', 'xlsx'].map(type => (
+        {OFFICE_CARDS.map(({ type, title, desc }) => (
           <button type="button" class={`bs-export-card${showOptions() && exportType() === type ? ' active' : ''}`} onClick={() => handleCardClick(type)}>
             <div class="bs-export-card-icon" aria-hidden="true"><strong>{type.toUpperCase()}</strong></div>
             <div class="bs-export-card-info">
-              <h3>{t(type === 'odt' ? 'exportPanel.exportOdt' : 'exportPanel.exportExcel')}</h3>
-              <p>{t(type === 'odt' ? 'exportPanel.exportOdtDesc' : 'exportPanel.exportExcelDesc')}</p>
+              <h3>{t(title)}</h3>
+              <p>{t(desc)}</p>
             </div>
           </button>
         ))}
@@ -139,6 +227,20 @@ export default function ExportPanel() {
           <div class="bs-export-card-info">
             <h3>{t('exportPanel.exportRaster')}</h3>
             <p>{t('exportPanel.exportRasterDesc')}</p>
+          </div>
+        </div>
+
+        <div class="bs-export-card" onClick={handleFlattenedCopy}>
+          <div class="bs-export-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M8 17l3-6 3 4 2-3"/>
+            </svg>
+          </div>
+          <div class="bs-export-card-info">
+            <h3>{t('exportPanel.exportFlat')}</h3>
+            <p>{t('exportPanel.exportFlatDesc')}</p>
           </div>
         </div>
 
@@ -244,7 +346,7 @@ export default function ExportPanel() {
           <Show when={office()}>
             <p class="bs-export-note">{t('exportPanel.officeNote')}</p>
           </Show>
-          <Show when={exportType() === 'odt'}>
+          <Show when={exportType() === 'odt' || exportType() === 'docx'}>
             <label class="bs-export-radio"><input type="checkbox" checked={includeImages()} onChange={e => setIncludeImages(e.target.checked)} /> {t('exportPanel.officeImages')}</label>
           </Show>
           <Show when={exportType() === 'xlsx'}>
@@ -263,6 +365,34 @@ export default function ExportPanel() {
                 <option value="X-4">PDF/X-4</option>
               </select>
             </div>
+            <div class="bs-export-option-group">
+              <label class="bs-export-option-label">{t('pdfxCmyk.profile')}</label>
+              <select class="bs-export-select" value={profileValue()} onChange={handleProfileChange}>
+                <option value={SRGB}>{t('pdfxCmyk.srgb')}</option>
+                <For each={profileOptions()}>
+                  {(p) => <option value={p.path} title={p.path}>{p.name}</option>}
+                </For>
+                <Show when={profilesLoaded() && systemProfiles().length === 0}>
+                  <option value="" disabled>{t('pdfxCmyk.noneFound')}</option>
+                </Show>
+                <option value={KIES_BESTAND}>{t('pdfxCmyk.browse')}</option>
+              </select>
+              <p class="bs-export-note">{t('pdfxCmyk.help')}</p>
+            </div>
+            <Show when={pdfxProfile()}>
+              <div class="bs-export-option-group">
+                <label class="bs-export-option-label">{t('pdfxCmyk.intent')}</label>
+                <select class="bs-export-select" value={pdfxIntent()} onChange={(e) => setPdfxIntent(e.target.value)}>
+                  <For each={INTENTS}>
+                    {(intent) => (
+                      <option value={intent}>
+                        {t(intent === 'perceptual' ? 'pdfxCmyk.intentPerceptual' : 'pdfxCmyk.intentRelative')}
+                      </option>
+                    )}
+                  </For>
+                </select>
+              </div>
+            </Show>
             <p class="bs-export-note">{t('exportPanel.pdfxNote')}</p>
           </Show>
 

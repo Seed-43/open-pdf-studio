@@ -13,6 +13,7 @@
 
 import { PDFDocument, PDFName, PDFString, PDFHexString } from 'pdf-lib';
 import { buildMeasureDistanceAP, HELV_FONT_NAME } from '../../js/pdf/saver/appearance-vectors.js';
+import { pdfTextString } from '../../js/pdf/saver/pdf-text.js';
 
 export const SOORTEN = Object.freeze(['measureDistance', 'note', 'square']);
 
@@ -36,11 +37,16 @@ export function meetWoordenboekVelden(schaal) {
   return { C: c, D: 1, U: eenheid, R: `1 pt = ${c} ${eenheid}` };
 }
 
-/** Tekst die ook buiten ASCII overleeft: hex-string als het nodig is. */
+/**
+ * Tekst die ook buiten ASCII overleeft: hex-string als het nodig is.
+ * Afdrukbare ASCII gaat via pdfTextString, dat ook losse haakjes en een
+ * backslash voor een haakje of aan het eind als hex schrijft: PDFString.of
+ * escapet niets en '/Contents (1) a)' brak de annotatie (#555).
+ */
 function pdfTekst(s) {
   const t = String(s ?? '');
   // eslint-disable-next-line no-control-regex
-  return /^[\x20-\x7e]*$/.test(t) ? PDFString.of(t) : PDFHexString.fromText(t);
+  return /^[\x20-\x7e]*$/.test(t) ? pdfTextString(t) : PDFHexString.fromText(t);
 }
 
 /** Het omhullende vak van een annotatie in PDF-coordinaten, met marge. */

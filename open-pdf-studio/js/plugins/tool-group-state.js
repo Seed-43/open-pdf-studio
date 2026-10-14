@@ -78,6 +78,45 @@ export function clearAllToolGroups() {
 }
 
 /**
+ * Wis alleen de opgegeven groepen: die van één extensie (#550). Een extensie
+ * die uitgaat of herlaadt, laat de keuzes in de paletten van andere
+ * extensies staan.
+ *
+ * @param {Iterable<string>} groupIds
+ */
+export function clearToolGroups(groupIds) {
+  const ids = new Set(groupIds);
+  if (!ids.size) return;
+  setGroupState(prev => {
+    if (![...ids].some(id => prev.has(id))) return prev;
+    const next = new Map(prev);
+    for (const id of ids) next.delete(id);
+    return next;
+  });
+}
+
+/**
+ * De id's van de gereedschapsgroepen (ToolDefinitions met `subTools`) in de
+ * opgegeven paletbeschrijvingen, ook geneste.
+ *
+ * @param {Array<{ tools?: object[] } | null | undefined>} palettes
+ * @returns {string[]}
+ */
+export function toolGroupIdsOf(palettes) {
+  const ids = [];
+  const walk = (tools) => {
+    for (const tool of tools || []) {
+      if (Array.isArray(tool?.subTools) && tool.subTools.length) {
+        if (typeof tool.id === 'string') ids.push(tool.id);
+        walk(tool.subTools);
+      }
+    }
+  };
+  for (const palette of palettes || []) walk(palette?.tools);
+  return ids;
+}
+
+/**
  * Direct access to the underlying signal getter for consumers that need
  * the full Map (e.g. devtools, debug panels). Most callers should use
  * `getActiveSubToolId` / `getActiveSubTool` instead.

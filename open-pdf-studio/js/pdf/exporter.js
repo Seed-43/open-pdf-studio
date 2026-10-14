@@ -1,5 +1,5 @@
 import { isAnnotationHiddenInOutput } from '../annotations/view-filters.js';
-import { bereidKnipselsVoorUitvoer } from '../annotations/vector-snippet-preview.js';
+import { bereidKnipselsVoorUitvoer, KNIPSEL_UITVOER_FOUT } from '../annotations/vector-snippet-preview.js';
 import { state, getActiveDocument, getAnnotationBounds } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { isTauri, writeBinaryFileAtomic, saveFileDialog, openFolderDialog } from '../core/platform.js';
@@ -130,6 +130,7 @@ export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport,
   const pdf = doc.pdfDoc;
   const snippetBitmaps = markeringen
     ? await bereidKnipselsVoorUitvoer(doc.annotations.filter(a => a.page === pageNum && !isAnnotationHiddenInOutput(a)), exportScale)
+      .catch((err) => { throw alsKnipselMelding(err); })
     : new Map();
   if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) {
     for (const bmp of snippetBitmaps.values()) bmp.close();
@@ -148,6 +149,8 @@ export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport,
       renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
         undefined, undefined, lagen);
     }
+  } catch (err) {
+    throw alsKnipselMelding(err);
   } finally {
     // Restore original scale
     doc.scale = savedScale;
@@ -190,6 +193,15 @@ function getPdfBaseName(doc = getActiveDocument()) {
   if (!doc) return 'document';
   const fileName = doc.fileName || 'document';
   return fileName.replace(/\.pdf$/i, '');
+}
+
+// Een vectorknipsel dat niet in de uitvoer kan: de uitvoer stopt met een
+// melding voor de gebruiker, nooit met een leeg kader op papier (#511).
+function alsKnipselMelding(err) {
+  if (err?.code !== KNIPSEL_UITVOER_FOUT) return err;
+  return new Error(i18next.t('snippetOutputFailed', {
+    defaultValue: 'A vector snippet could not be rendered, so nothing was written. Try again.',
+  }), { cause: err });
 }
 
 function exportChanged() {
@@ -389,12 +401,28 @@ export async function exportAnnotationAsImage(annotation) {
   // Transparent background
   ctx.clearRect(0, 0, canvasW, canvasH);
 
+  // Een vectorknipsel komt uit zijn vectorinhoud op de exportresolutie, niet
+  // uit de schermcache (#511).
+  let snippetBitmaps = null;
+  if (annotation.type === 'vectorSnippet') {
+    try {
+      snippetBitmaps = await bereidKnipselsVoorUitvoer([annotation], exportScale);
+    } catch (err) {
+      showMessage(alsKnipselMelding(err).message);
+      return;
+    }
+  }
+
   // Scale and translate so the annotation draws at the correct position
   ctx.save();
   ctx.scale(exportScale, exportScale);
   ctx.translate(-(x - extra), -(y - extra));
 
-  drawAnnotation(ctx, annotation);
+  try {
+    drawAnnotation(ctx, annotation, snippetBitmaps);
+  } finally {
+    for (const bmp of snippetBitmaps?.values() || []) bmp.close();
+  }
 
   ctx.restore();
   ctx.globalAlpha = 1;

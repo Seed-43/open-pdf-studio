@@ -11,6 +11,7 @@
     "box": "Ορθογώνιο",
     "polygon": "Πολύγωνο",
     "cloud": "Σύννεφο",
+    "cloudPolyline": "Πολυγραμμή σύννεφου",
     "polyline": "Πολυγραμμή",
     "textbox": "Πλαίσιο κειμένου",
     "callout": "Επεξήγηση",
@@ -27,7 +28,8 @@
     "formTextField": "Πεδίο κειμένου φόρμας",
     "formCheckbox": "Πλαίσιο ελέγχου φόρμας",
     "formRadio": "Κουμπί επιλογής φόρμας",
-    "screenshot": "Στιγμιότυπο οθόνης"
+    "screenshot": "Στιγμιότυπο οθόνης",
+    "pageLabelPick": "Επιλογή κειμένου για ετικέτα σελίδας"
   },
   "toolLabel": "Εργαλείο:",
   "annotationsLabel": "Σχολιασμοί:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Αυτό το έγγραφο περιέχει διαδραστικά πεδία φόρμας. Μπορείτε να συμπληρώσετε τη φόρμα και να αποθηκεύσετε τα δεδομένα σας.",
   "enableEditing": "Ενεργοποίηση επεξεργασίας",
   "pdfAConformance": "Αυτό το έγγραφο δηλώνει συμμόρφωση με PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Η μετονομασία του αρχείου απέτυχε: {{error}}",
+  "renameInvalidChars": "Το όνομα αρχείου δεν μπορεί να περιέχει  / : * ? \" < > |",
+  "renameFileExists": "Υπάρχει ήδη αρχείο με αυτό το όνομα.",
+  "engineTitle": "Μηχανή απόδοσης για την τρέχουσα προβολή",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (διανυσματικό)"
+  },
+  "viewSingle": "Μονή σελίδα",
+  "viewContinuous": "Συνεχής",
+  "viewBook": "Δύο σελίδες",
+  "viewFacing": "Δύο σελίδες δίπλα-δίπλα",
   "viewRotatedTitle": "Η προβολή είναι περιστραμμένη κατά {{degrees}}° δεξιόστροφα· το έγγραφο δεν έχει αλλάξει. Κάντε κλικ για να επαναφέρετε την προβολή.",
+  "compareTabTitle": "Σύγκριση",
   "filledAreaSketch": {
     "undoPoint": "Αναίρεση σημείου",
     "undoPointTitle": "Αφαίρεση τελευταίου σημείου (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Π",
   "boxHeightAbbr": "Υ",
+  "boxSizeHint": "Πληκτρολογήστε τιμή + Enter — ή κάντε κλικ αλλού για εφαρμογή",
   "ocr": {
     "progress": {
       "starting": "Αναγνώριση κειμένου...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Αποτελέσματα ({{count}})",
   "searchResultPage": "Σελίδα {{page}}",
   "searchHitsOne": "1 αποτέλεσμα",
-  "searchHitsMany": "{{count}} αποτελέσματα"
+  "searchHitsMany": "{{count}} αποτελέσματα",
+  "passwordProtectedBar": "Προστατεύεται με κωδικό πρόσβασης: άνοιξε μόνο για ανάγνωση."
 }

@@ -1,5 +1,5 @@
 // Namen van proefleescorrecties (#508) in de annotatielijst en het paneel:
-// aanwezig en vertaald in alle 39 talen. De lijst toont een vervanging,
+// aanwezig en vertaald in alle 40 talen. De lijst toont een vervanging,
 // invoeging of schrapping bij deze naam in plaats van de kale typenaam.
 
 import assert from 'node:assert/strict';
@@ -15,9 +15,9 @@ const ENGELS = { caret: 'Inserted Text', replaceText: 'Replace Text', crossOut: 
 const types = (locale) => JSON.parse(readFileSync(join(LOCALES, locale, 'properties.json'), 'utf8')).types || {};
 const plekhouders = (tekst) => (String(tekst).match(/\{\{\s*\w+\s*\}\}/g) || []).map((p) => p.replace(/\s/g, '')).sort();
 
-test('alle 39 talen hebben de namen van de correcties', () => {
+test('alle 40 talen hebben de namen van de correcties', () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   for (const locale of locales) {
     const t = types(locale);
     for (const key of KEYS) {

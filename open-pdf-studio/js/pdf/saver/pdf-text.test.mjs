@@ -9,7 +9,7 @@ import test from 'node:test';
 import { PDFDocument, PDFName, PDFString, PDFHexString } from 'pdf-lib';
 
 import {
-  pdfTextString, decodePdfTextObject, toWinAnsiText, winAnsiLiteral, asciiPdfName,
+  heeftNietWinAnsi, pdfTextString, decodePdfTextObject, toWinAnsiText, winAnsiLiteral, asciiPdfName,
 } from './pdf-text.js';
 import { tokenizeContentStream } from '../../text/content-stream-text.js';
 import { extractAnnotationColors } from '../loader/color-extraction.js';
@@ -28,7 +28,7 @@ async function rondgang(waarden) {
   const pagina = doc.addPage([200, 200]);
   const annot = doc.context.obj({ Type: 'Annot', Subtype: 'Square', Rect: [0, 0, 10, 10], ...waarden });
   pagina.node.set(PDFName.of('Annots'), doc.context.obj([doc.context.register(annot)]));
-  const heropend = await PDFDocument.load(await doc.save());
+  const heropend = await PDFDocument.load(await doc.save(), { throwOnInvalidObject: true });
   const annots = heropend.getPage(0).node.lookup(PDFName.of('Annots'));
   const terug = heropend.context.lookup(annots.get(0));
   return (sleutel) => terug.get(PDFName.of(sleutel));
@@ -42,6 +42,45 @@ test('ASCII blijft een PDFString met dezelfde bytes als PDFString.of', () => {
     assert.ok(obj instanceof PDFString, `geen PDFString voor ${JSON.stringify(tekst)}`);
     assert.equal(geschreven(obj), geschreven(PDFString.of(tekst)));
   }
+});
+
+test('gebalanceerde haakjes en losse backslashes blijven dezelfde literal string', () => {
+  for (const tekst of ['f(x) = (a)', '((a)(b))', 'C:\\map\\bestand', 'a\\nb', 'regel 1\nregel 2']) {
+    const obj = pdfTextString(tekst);
+    assert.ok(obj instanceof PDFString, `geen PDFString voor ${JSON.stringify(tekst)}`);
+    assert.equal(geschreven(obj), geschreven(PDFString.of(tekst)));
+  }
+});
+
+test('losse haakjes of een backslash voor een haakje of aan het eind worden hex (#555)', () => {
+  // Als literal string zou de lezer de string te vroeg (')') of te laat ('(',
+  // '\)') sluiten en de rest van het object kwijtraken.
+  const gevallen = [
+    '1) eerste', '1) a\n\n2) b', '(concept', ')(', 'a (b', 'a) (b',
+    'a\\(b)', 'a(b\\)', 'eindigt op \\', 'C:\\', '\\', '(', ')',
+  ];
+  for (const tekst of gevallen) {
+    const obj = pdfTextString(tekst);
+    assert.ok(obj instanceof PDFHexString, `geen hex voor ${JSON.stringify(tekst)}`);
+    assert.equal(obj.decodeText(), tekst);
+    assert.equal(decodePdfTextObject(obj), tekst);
+  }
+  assert.equal(geschreven(pdfTextString('1) a')), '<FEFF0031002900200061>');
+});
+
+test('tekst met losse haakjes overleeft opslaan en heropenen, ook de buren (#555)', async () => {
+  const lees = await rondgang({
+    Contents: pdfTextString('1) a\n\n2) b'),
+    T: pdfTextString('Piet (PL'),
+    Subj: pdfTextString('pad C:\\'),
+    OPS_Label: pdfTextString('a\\(b'),
+    OPS_Unit: pdfTextString('mm'),
+  });
+  assert.equal(decodePdfTextObject(lees('Contents')), '1) a\n\n2) b');
+  assert.equal(decodePdfTextObject(lees('T')), 'Piet (PL');
+  assert.equal(decodePdfTextObject(lees('Subj')), 'pad C:\\');
+  assert.equal(decodePdfTextObject(lees('OPS_Label')), 'a\\(b');
+  assert.equal(decodePdfTextObject(lees('OPS_Unit')), 'mm');
 });
 
 test('niet-strings worden eerst tekst', () => {
@@ -252,4 +291,11 @@ test('asciiPdfName laat ASCII staan en valt terug zonder bruikbare tekens', () =
   assert.equal(asciiPdfName('Prijs € 22', 'Draft'), 'Prijs  22');
   assert.equal(asciiPdfName('中文', 'Draft'), 'Draft');
   assert.equal(asciiPdfName(undefined, 'Image'), 'Image');
+});
+
+test('heeftNietWinAnsi: Chinees ja, Latijn en euroteken nee', () => {
+  assert.equal(heeftNietWinAnsi('圖則不按實際比例'), true);
+  assert.equal(heeftNietWinAnsi('DD104 Lot 3676 € é'), false);
+  assert.equal(heeftNietWinAnsi(''), false);
+  assert.equal(heeftNietWinAnsi(undefined), false);
 });

@@ -328,7 +328,11 @@ export function hasOpenDocuments(): boolean {
 }
 
 export function findDocumentByPath(filePath: string): number {
-  return state.documents.findIndex(doc => doc.filePath === filePath);
+  // Een met een wachtwoord geopende PDF rendert uit een werkkopie; hij hoort
+  // ook bij zijn originele pad (js/pdf/wachtwoord-pdf.js), zodat het origineel
+  // nogmaals openen het bestaande tabblad toont.
+  return state.documents.findIndex(doc => doc.filePath === filePath
+    || (!!doc.originalFilePath && doc.originalFilePath === filePath));
 }
 
 export function getPageRotation(pageNum: number): number {

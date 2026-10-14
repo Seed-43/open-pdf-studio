@@ -19,9 +19,9 @@ function lees(taal) {
 
 const plaatshouders = (tekst) => (String(tekst).match(/\{\{\w+\}\}/g) || []).sort();
 
-test('39 locales met identieke handtekeningsleutels en plaatshouders', () => {
+test('40 locales met identieke handtekeningsleutels en plaatshouders', () => {
   const talen = readdirSync(MAP);
-  assert.equal(talen.length, 39);
+  assert.equal(talen.length, 40);
   const en = lees('en');
   assert.equal(Object.keys(en).length, 90);
   for (const taal of talen) {

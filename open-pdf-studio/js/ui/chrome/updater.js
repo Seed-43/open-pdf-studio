@@ -6,6 +6,7 @@
 import { isTauri } from '../../core/platform.js';
 import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
+import { leesOpslag } from '../../core/opslag.js';
 
 let checking = false;
 
@@ -21,7 +22,7 @@ export async function checkForUpdates(silent = true) {
     const update = await check();
 
     if (update) {
-      const skipVersion = localStorage.getItem('openpdfstudio-skip-version');
+      const skipVersion = leesOpslag('openpdfstudio-skip-version');
       if (silent && skipVersion === update.version) {
         return;
       }

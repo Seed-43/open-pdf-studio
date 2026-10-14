@@ -36,10 +36,12 @@ import WhatsNewDialog from './dialogs/WhatsNewDialog.jsx';
 import ShortcutsDialog from './dialogs/ShortcutsDialog.jsx';
 import ExtensionsDialog from './dialogs/ExtensionsDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
+import PasswordDialog from './dialogs/PasswordDialog.jsx';
 import HandtekeningDetailDialog from './dialogs/HandtekeningDetailDialog.jsx';
 import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
 import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
 import MeasuredLengthDialog from './dialogs/MeasuredLengthDialog.jsx';
+import ScreenCalibrationDialog from './dialogs/ScreenCalibrationDialog.jsx';
 import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
 import CompareDialog from './compare/CompareDialog.jsx';
 import CadExportDialog from './dialogs/CadExportDialog.jsx';
@@ -80,7 +82,7 @@ const DIALOG_MAP = {
   'text-annotation': TextAnnotationDialog,
   'update': UpdateDialog,
   'bookmark': BookmarkDialog,
-  'pageLabels': PageLabelsDialog,
+  'page-labels': PageLabelsDialog,
   'form-validation': FormValidationDialog,
   'stamp-picker': StampPickerDialog,
   'calibration': CalibrationDialog,
@@ -103,10 +105,12 @@ const DIALOG_MAP = {
   'viewport-scale': ViewportScaleDialog,
   'scale-region': ScaleRegionDialog,
   'measured-length': MeasuredLengthDialog,
+  'screen-calibration': ScreenCalibrationDialog,
   'compare': CompareDialog,
   'cad-export': CadExportDialog,
   'cad-import': CadImportDialog,
   'annotation-layer-delete': AnnotationLayerDeleteDialog,
+  'pdf-password': PasswordDialog,
 };
 
 export default function DialogHost() {

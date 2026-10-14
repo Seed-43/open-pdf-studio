@@ -15,6 +15,7 @@ import { getCachedPdfBytes } from '../pdf/loader.js';
 import { drawHighlights } from './overlay-renderer.js';
 import { detectChanges } from './change-detector.js';
 import { setChanges, setCompareDetecting } from './compare-store.js';
+import { pdfjsBronnen } from '../core/basis-url.js';
 
 // Cap detection resolution to keep CPU bounded on huge pages.
 const DETECTION_MAX_DIM = 1600;
@@ -74,10 +75,7 @@ async function _getDoc(filePath) {
   if (!bytes) throw new Error('Compare: no cached bytes for ' + filePath);
   const doc = await pdfjsLib.getDocument({
     data: bytes.slice(), // pdf.js transfers the buffer — must clone
-    cMapUrl: '/pdfjs/web/cmaps/',
-    cMapPacked: true,
-    standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+    ...pdfjsBronnen(),
     isEvalSupported: false,
     verbosity: 0,
   }).promise;

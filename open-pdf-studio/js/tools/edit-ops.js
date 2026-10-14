@@ -33,6 +33,13 @@ import { isTextAnchored } from '../annotations/corrections/model.js';
 // #508) — excluded from move/copy targets.
 const isNonEditable = (a) => isTextAnchored(a);
 
+/** May an edit operation change this annotation? The getEditTargets() rule:
+ *  not locked and not text-anchored. Shared with the CAD tools (Stretch,
+ *  Enlarge, Fillet, Chamfer) that pick their own targets. */
+export function isEditableTarget(a) {
+  return !!a && !a.locked && !isNonEditable(a);
+}
+
 function _redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
   else redrawAnnotations();

@@ -2,26 +2,34 @@
 // geselecteerde systeemtype en RECHTS de instellingen + typenlijst.
 //
 // TYPE ≠ INSTANCE (zie annotations/systeem-typen.js): hier bewerk je de
-// herbruikbare definities. De dialoog werkt op een KOPIE van de
-// registry-data: OK/Toepassen schrijft naar de registry (en redrawt alle
-// instanties); Annuleren of sluiten gooit niet-toegepaste wijzigingen weg.
-// Verwijderen van een in-gebruik type waarschuwt en biedt omzetten aan.
+// herbruikbare definities van de bibliotheek (die geldt voor de hele app).
+// Alle sessielogica — werkkopie en basis, bewerken met controle van de
+// maten, de omzet-wachtrij, Toepassen (alleen het VERSCHIL, via de ene commit
+// van de registry), Annuleren en focus — staat in de sessie
+// (stores/systeemtypenEditorSessie.js, getest onder node:test). Deze
+// component toont alleen wat de sessie bijhoudt en geeft klikken door.
+// Annuleren, Escape en de sluitknop gooien werkkopie en wachtrij weg:
+// registry, documenten en tool-keuze blijven ongemoeid en er gaat geen
+// melding uit (#567).
+//
+// Openen met een type: props.data.typeId is de beginselectie. Staat de
+// dialoog al open, dan zet systeemtypenEditorStore een focussignaal en
+// verandert alleen de selectie (onbevestigde wijzigingen blijven staan).
 //
 // Vensterstijl: het gedeelde Dialog.jsx-patroon (Windows-stijl, rechte
 // hoeken, titelbalkverloop, rode sluitknop-hover, versleepbaar, sluit
 // niet bij buiten-klik) — zelfde als TekeninstellingenDialog.
 // NL-labels hardgecodeerd (conventie van deze componentfamilie).
-import { createSignal, createEffect, For, Show } from 'solid-js';
+import { createSignal, createEffect, untrack, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
+import { systeemtypenFocus } from '../../stores/systeemtypenEditorStore.js';
+import { maakEditorSessie } from '../../stores/systeemtypenEditorSessie.js';
 import { state, getActiveDocument } from '../../../core/state.js';
+import { newPaneelTypeId } from '../../../annotations/systeem-typen.js';
+import { eigenaarLabel, beheerdDoorTekst } from '../../../annotations/systeem-typen-contract.js';
 import {
-  migrateSysteemTypen, findSysteemType, normalizeSysteemType,
-  duplicateSysteemType, removeSysteemTypeFrom, typeUsageCount,
-  reassignSysteemType, newSysteemTypeId, newPaneelTypeId,
-} from '../../../annotations/systeem-typen.js';
-import {
-  getSysteemTypenData, saveSysteemTypen,
+  getSysteemTypenData, commitSysteemTypen, isExtensieGeladen,
 } from '../../../annotations/systeem-typen-registry.js';
 import { buildSysteemraster } from '../../../annotations/systeemraster.js';
 import { drawSysteemrasterGeom } from '../../../annotations/rendering/systeemraster-draw.js';
@@ -33,22 +41,17 @@ function redraw() {
   else redrawAnnotations();
 }
 
-// Alle annotaties van alle open documenten (voor in-gebruik-detectie).
-function alleAnnotaties() {
-  const out = [];
-  for (const doc of state.documents || []) {
-    for (const a of doc?.annotations || []) out.push(a);
-  }
-  return out;
-}
-
 const FIELD_STYLE = 'width:100%;box-sizing:border-box';
 const NUM_STYLE = 'width:80px;box-sizing:border-box;text-align:right';
+
+// Getal uit een invoerveld; leeg = onbevestigd (geen standaardmaat).
+const maatUitVeld = (v) => (v === '' || v == null ? undefined : parseFloat(v));
 
 // Preview: voorbeeldcontour 3,6 × 2,4 m, passend in het canvas getekend via
 // de ÉCHTE geometrie- en tekenroutines (buildSysteemraster +
 // drawSysteemrasterGeom) — geen aparte nep-preview. Vaste paneel-mix zodat
-// ventilatie- en lichtpanelen (en dus de celmaat) direct zichtbaar zijn.
+// ventilatie- en lichtpanelen (en dus de celmaat) direct zichtbaar zijn. Een
+// type met een onbevestigde maat toont alleen de contour met het label.
 const PREVIEW_W = 340;
 const PREVIEW_H = 240;
 const CONTOUR_MM = { b: 3600, h: 2400 };
@@ -87,96 +90,56 @@ function tekenPreview(canvas, typeDef) {
   }
 }
 
-export default function SysteemtypenDialog() {
-  // KOPIE van de registry-data — pas bij OK/Toepassen naar de registry.
-  const [werk, setWerk] = createSignal(
-    migrateSysteemTypen(JSON.parse(JSON.stringify(getSysteemTypenData()))));
+export default function SysteemtypenDialog(props) {
+  // De sessie: BASIS (registrystand) en WERKKOPIE, pas bij OK/Toepassen naar
+  // de registry, en dan alleen het verschil.
+  const sessie = maakEditorSessie({
+    host: {
+      registry: { getSysteemTypenData, commitSysteemTypen },
+      documenten: () => state.documents || [],
+      redraw,
+    },
+    typeId: props.data?.typeId,
+  });
   const [rev, setRev] = createSignal(0);
-  const [selectedId, setSelectedId] = createSignal(werk().typen[0]?.id || '');
-  // Verwijder-flow: null of { id, count, doelId }.
-  const [verwijderVraag, setVerwijderVraag] = createSignal(null);
+  sessie.luister(() => setRev(r => r + 1));
 
-  const typen = () => { rev(); return werk().typen; };
-  const current = () => { rev(); return findSysteemType(werk(), selectedId()) || werk().typen[0]; };
+  // Focusverzoeken (api.openSystemTypeEditor / MCP) terwijl de dialoog open
+  // is: alleen de selectie verandert. Verzoeken van vóór het openen tellen
+  // niet — de beginselectie komt uit props.data.
+  const startVolgnummer = untrack(() => systeemtypenFocus()?.volgnummer ?? 0);
+  createEffect(() => {
+    const f = systeemtypenFocus();
+    if (!f || f.volgnummer <= startVolgnummer) return;
+    untrack(() => sessie.focus(f.typeId));
+  });
+
+  const typen = () => { rev(); return sessie.typen(); };
+  const current = () => { rev(); return sessie.huidig(); };
+  const verwijderVraag = () => { rev(); return sessie.verwijderVraag(); };
+  const melding = () => { rev(); return sessie.melding(); };
 
   let canvasRef;
   createEffect(() => {
-    rev();
     const t = current();
     // Buiten de reactieve read om tekenen (canvas is geen Solid-state).
     requestAnimationFrame(() => tekenPreview(canvasRef, t));
   });
 
-  function muteer(patch) {
-    const t = current();
-    if (!t) return;
-    const idx = werk().typen.findIndex(x => x.id === t.id);
-    if (idx < 0) return;
-    werk().typen[idx] = normalizeSysteemType({ ...t, ...patch, id: t.id });
-    setRev(rev() + 1);
+  // Bewerken: een geweigerde waarde (buiten het bereik) komt niet in de
+  // werkkopie; het veld toont dan weer de waarde uit de werkkopie.
+  function muteer(patch, veld, terug) {
+    if (!sessie.muteer(patch) && veld) veld.value = terug ?? '';
   }
 
-  function toepassen() {
-    saveSysteemTypen(migrateSysteemTypen(JSON.parse(JSON.stringify(werk()))));
-    redraw(); // alle instanties met deze typen tekenen direct opnieuw
-  }
-
-  function handleNieuw() {
-    const basis = current() || normalizeSysteemType({
-      id: newSysteemTypeId(), naam: 'Systeemtype', celXMm: 600, celYMm: 600,
-    });
-    const copy = duplicateSysteemType(basis, 'Nieuw systeemtype');
-    werk().typen.push(copy);
-    setSelectedId(copy.id);
-    setRev(rev() + 1);
-  }
-
-  function handleDupliceer() {
-    const t = current();
-    if (!t) return;
-    const copy = duplicateSysteemType(t);
-    werk().typen.push(copy);
-    setSelectedId(copy.id);
-    setRev(rev() + 1);
-  }
-
-  function handleVerwijder() {
-    const t = current();
-    if (!t || werk().typen.length <= 1) return;
-    const count = typeUsageCount(alleAnnotaties(), t.id);
-    if (count > 0) {
-      // In gebruik: niet stilletjes weg — vraag om omzetten of annuleren.
-      const doel = werk().typen.find(x => x.id !== t.id);
-      setVerwijderVraag({ id: t.id, count, doelId: doel?.id || '' });
-      return;
-    }
-    _verwijder(t.id);
-  }
-
-  function _verwijder(id) {
-    setWerk(removeSysteemTypeFrom(werk(), id));
-    setSelectedId(werk().typen[0]?.id || '');
-    setVerwijderVraag(null);
-    setRev(rev() + 1);
-  }
-
-  function handleOmzettenEnVerwijderen() {
-    const v = verwijderVraag();
-    const doel = v ? findSysteemType(werk(), v.doelId) : null;
-    if (!v || !doel) return;
-    // Instanties omzetten raakt de DOCUMENTEN direct (met redraw); de
-    // type-verwijdering zelf blijft in de werkkopie tot OK/Toepassen.
-    reassignSysteemType(alleAnnotaties(), v.id, doel);
-    for (const doc of state.documents || []) { if (doc) doc.modified = true; }
-    redraw();
-    _verwijder(v.id);
-  }
+  const toepassen = () => sessie.toepassen();
+  const annuleren = () => { sessie.annuleren(); closeDialog('systeemtypen'); };
 
   return (
     <Dialog
       title="Systeemtypen beheren"
       dialogClass="systeemtypen-dialog"
-      onClose={() => closeDialog('systeemtypen')}
+      onClose={annuleren}
       footer={
         <div style="display:flex;gap:6px;justify-content:flex-end;width:100%">
           <button class="ai-plan-btn" style="width:auto;padding:5px 16px" id="st-btn-ok"
@@ -184,7 +147,7 @@ export default function SysteemtypenDialog() {
           <button class="ai-plan-btn" style="width:auto;padding:5px 16px" id="st-btn-toepassen"
             onClick={toepassen}>Toepassen</button>
           <button class="ai-plan-btn" style="width:auto;padding:5px 16px" id="st-btn-annuleren"
-            onClick={() => closeDialog('systeemtypen')}>Annuleren</button>
+            onClick={annuleren}>Annuleren</button>
         </div>
       }
     >
@@ -200,22 +163,26 @@ export default function SysteemtypenDialog() {
         {/* RECHTS: typenlijst + instellingen van het geselecteerde type */}
         <div style="min-width:300px;display:flex;flex-direction:column;gap:8px;overflow-y:auto">
           <div class="ai-login-field">
-            <label>Typen in dit document</label>
+            <label>Systeemtypen (bibliotheek)</label>
             <select size="5" id="st-typen-lijst" style={FIELD_STYLE}
               value={current()?.id || ''}
-              onChange={(e) => { setSelectedId(e.target.value); setVerwijderVraag(null); }}>
+              onChange={(e) => sessie.selecteer(e.target.value)}>
               <For each={typen()}>
-                {(t) => <option value={t.id} selected={t.id === current()?.id}>{t.naam}</option>}
+                {(t) => (
+                  <option value={t.id} selected={t.id === current()?.id}>
+                    {t.naam}{eigenaarLabel(t, isExtensieGeladen)}
+                  </option>
+                )}
               </For>
             </select>
             <div style="display:flex;gap:4px;margin-top:4px">
               <button class="ai-plan-btn" style="width:auto;padding:4px 8px" id="st-btn-nieuw"
-                onClick={handleNieuw}>Nieuw</button>
+                onClick={() => sessie.nieuw()}>Nieuw</button>
               <button class="ai-plan-btn" style="width:auto;padding:4px 8px" id="st-btn-dupliceer"
-                onClick={handleDupliceer}>Dupliceren</button>
+                onClick={() => sessie.dupliceer()}>Dupliceren</button>
               <button class="ai-plan-btn" style="width:auto;padding:4px 8px" id="st-btn-verwijder"
                 disabled={typen().length <= 1}
-                onClick={handleVerwijder}>Verwijderen</button>
+                onClick={() => sessie.verwijder()}>Verwijderen</button>
             </div>
           </div>
 
@@ -228,20 +195,30 @@ export default function SysteemtypenDialog() {
               <div style="display:flex;gap:4px;align-items:center">
                 <select style="flex:1" id="st-omzet-doel"
                   value={verwijderVraag().doelId}
-                  onChange={(e) => setVerwijderVraag({ ...verwijderVraag(), doelId: e.target.value })}>
+                  onChange={(e) => sessie.zetOmzetDoel(e.target.value)}>
                   <For each={typen().filter(t => t.id !== verwijderVraag().id)}>
                     {(t) => <option value={t.id}>{t.naam}</option>}
                   </For>
                 </select>
                 <button class="ai-plan-btn" style="width:auto;padding:4px 8px" id="st-btn-omzetten"
-                  onClick={handleOmzettenEnVerwijderen}>Omzetten en verwijderen</button>
+                  onClick={() => sessie.bevestigOmzetten()}>Omzetten en verwijderen</button>
                 <button class="ai-plan-btn" style="width:auto;padding:4px 8px"
-                  onClick={() => setVerwijderVraag(null)}>Annuleren</button>
+                  onClick={() => sessie.annuleerVerwijderVraag()}>Annuleren</button>
               </div>
             </div>
           </Show>
 
+          <Show when={melding()}>
+            <div id="st-melding" style="border:1px solid #d4a017;background:#fff8e1;padding:6px">
+              {melding()}
+            </div>
+          </Show>
+
           <Show when={current()}>
+            <Show when={beheerdDoorTekst(current())}>
+              <div id="st-beheerd-door" style="opacity:.75">{beheerdDoorTekst(current())}</div>
+            </Show>
+
             <div class="ai-login-field">
               <label>Naam</label>
               <input type="text" class="ribbon-input" id="st-naam" style={FIELD_STYLE}
@@ -297,6 +274,9 @@ export default function SysteemtypenDialog() {
               </select>
             </div>
 
+            {/* Maten: een leeg veld is ONBEVESTIGD — er wordt geen
+                standaardmaat ingevuld; het systeem toont dan alleen de
+                contour met "maat onbevestigd". */}
             <Show when={(current().layout || 'raster') === 'strook'}
               fallback={
                 <div class="ai-login-field">
@@ -304,21 +284,31 @@ export default function SysteemtypenDialog() {
                   <div style="display:flex;gap:8px;align-items:center">
                     <span>X</span>
                     <input type="number" class="ribbon-input" id="st-cel-x" style={NUM_STYLE}
-                      min="50" max="20000" step="50" value={current().celXMm}
-                      onChange={(e) => muteer({ celXMm: e.target.value })} />
+                      min="50" max="20000" step="50" value={current().celXMm ?? ''}
+                      placeholder="onbevestigd"
+                      onChange={(e) => muteer({ celXMm: maatUitVeld(e.target.value) }, e.target, current().celXMm)} />
                     <span>Y</span>
                     <input type="number" class="ribbon-input" id="st-cel-y" style={NUM_STYLE}
-                      min="50" max="20000" step="50" value={current().celYMm}
-                      onChange={(e) => muteer({ celYMm: e.target.value })} />
+                      min="50" max="20000" step="50" value={current().celYMm ?? ''}
+                      placeholder="onbevestigd"
+                      onChange={(e) => muteer({ celYMm: maatUitVeld(e.target.value) }, e.target, current().celYMm)} />
                   </div>
                 </div>
               }>
               <div class="ai-login-field">
                 <label>Strookbreedte (mm)</label>
                 <input type="number" class="ribbon-input" id="st-strook-b" style={NUM_STYLE}
-                  min="50" max="20000" step="50" value={current().strookBreedteMm}
-                  onChange={(e) => muteer({ strookBreedteMm: e.target.value,
-                    celXMm: e.target.value })} />
+                  min="50" max="20000" step="50" value={current().strookBreedteMm ?? ''}
+                  placeholder="onbevestigd"
+                  onChange={(e) => muteer({ strookBreedteMm: maatUitVeld(e.target.value),
+                    celXMm: maatUitVeld(e.target.value) }, e.target, current().strookBreedteMm)} />
+              </div>
+              <div class="ai-login-field">
+                <label>Celmaat Y (mm)</label>
+                <input type="number" class="ribbon-input" id="st-strook-y" style={NUM_STYLE}
+                  min="50" max="20000" step="50" value={current().celYMm ?? ''}
+                  placeholder="onbevestigd"
+                  onChange={(e) => muteer({ celYMm: maatUitVeld(e.target.value) }, e.target, current().celYMm)} />
               </div>
             </Show>
 
@@ -327,22 +317,25 @@ export default function SysteemtypenDialog() {
               <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <span>klein t/m</span>
                 <input type="number" class="ribbon-input" id="st-sparing-klein" style={NUM_STYLE}
-                  min="10" step="50"
-                  value={current().sparingRegels?.kleineSparingMaxMm ?? 400}
+                  min="10" max="20000" step="50"
+                  value={current().sparingRegels?.kleineSparingMaxMm ?? ''}
+                  placeholder="onbevestigd"
                   onChange={(e) => muteer({ sparingRegels: {
                     ...current().sparingRegels,
-                    kleineSparingMaxMm: parseFloat(e.target.value),
-                  } })} />
+                    kleineSparingMaxMm: maatUitVeld(e.target.value),
+                  } }, e.target, current().sparingRegels?.kleineSparingMaxMm)} />
                 <span>raveel vanaf</span>
                 <input type="number" class="ribbon-input" id="st-sparing-raveel" style={NUM_STYLE}
-                  min="10" step="50"
-                  value={current().sparingRegels?.raveelVanafMm ?? 800}
+                  min="10" max="20000" step="50"
+                  value={current().sparingRegels?.raveelVanafMm ?? ''}
+                  placeholder="onbevestigd"
                   onChange={(e) => muteer({ sparingRegels: {
                     ...current().sparingRegels,
-                    raveelVanafMm: parseFloat(e.target.value),
-                  } })} />
+                    raveelVanafMm: maatUitVeld(e.target.value),
+                  } }, e.target, current().sparingRegels?.raveelVanafMm)} />
               </div>
-              <div style="opacity:.7;margin-top:2px">Tussenmaten krijgen een verzwaarde randlijn.</div>
+              <div style="opacity:.7;margin-top:2px">Tussenmaten krijgen een verzwaarde randlijn.
+                Zonder beide drempels is elke sparing een gewoon gat.</div>
             </div>
 
             <div class="ai-login-field">

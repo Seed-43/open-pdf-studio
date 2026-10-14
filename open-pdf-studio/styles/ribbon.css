@@ -1175,17 +1175,21 @@
   border-color: var(--theme-border, #ccc);
 }
 
-.measure-status-success {
+/* De statustinten van extensietabbladen (#551) gebruiken dezelfde kleuren. */
+.measure-status-success,
+.ribbon-ext-tone-success {
   font-size: 9px;
   color: #16a34a;
 }
 
-.measure-status-error {
+.measure-status-error,
+.ribbon-ext-tone-error {
   font-size: 9px;
   color: #dc2626;
 }
 
-.measure-status-warning {
+.measure-status-warning,
+.ribbon-ext-tone-warning {
   font-size: 9px;
   color: var(--theme-accent, #d97706);
 }
@@ -1492,3 +1496,124 @@
   flex: 0 0 auto;
 }
 .ribbon-checkbox-option span { cursor: pointer; }
+
+/* ─── Linttabbladen van extensies (#551) ───────────────────────────────────
+   De host tekent extensietabbladen met de bestaande lintklassen; hier alleen
+   de aanvullingen. Uitsluitend themavariabelen, geen eigen kleuren. */
+
+.ribbon-ext-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.ribbon-ext-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  max-width: 120px;
+}
+.ribbon-ext-tab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ribbon-ext-tab-icon {
+  display: inline-flex;
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+}
+.ribbon-ext-tab-icon svg { width: 12px; height: 12px; }
+.ribbon-ext-tab-verborgen { display: none !important; }
+
+.ribbon-ext-more {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0 1px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--theme-ribbon-text);
+}
+.ribbon-ext-more:hover,
+.ribbon-ext-more.open {
+  background: var(--theme-ribbon-btn-hover);
+  border-color: var(--theme-ribbon-btn-hover-border);
+}
+
+.ribbon-ext-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  min-width: 140px;
+}
+.ribbon-ext-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+  padding: 3px 8px;
+  font-size: 12px;
+  text-align: start;
+  white-space: nowrap;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--theme-ribbon-text);
+}
+.ribbon-ext-menu-item:hover,
+.ribbon-ext-menu-item:focus-visible {
+  background: var(--theme-ribbon-btn-hover);
+  border-color: var(--theme-ribbon-btn-hover-border);
+  outline: none;
+}
+.ribbon-ext-menu-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ribbon-ext-kolom {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  gap: 2px;
+  padding: 0 2px;
+}
+.ribbon-ext-row { height: 22px; }
+.ribbon-ext-status-text {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+/* De andere tinten staan bij .measure-status-* hierboven. */
+.ribbon-ext-tone-neutral { color: var(--theme-ribbon-input-text); }
+.ribbon-ext-fout {
+  align-self: center;
+  padding: 0 12px;
+  font-size: 11px;
+  color: var(--theme-ribbon-text);
+}
+
+/* Toetsenbordfocus in de tabstrook en op extensie-items. */
+.ribbon-tabs .ribbon-tab:focus-visible,
+.ribbon-ext-more:focus-visible,
+.ribbon-ext-content .ribbon-btn:focus-visible,
+.ribbon-ext-content .ribbon-form-select:focus-visible {
+  outline: 1px solid var(--theme-ribbon-tab-active-border);
+  outline-offset: -1px;
+}

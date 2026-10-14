@@ -617,6 +617,8 @@ export default function CompareView() {
       }
       const tag = e.target?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      // Ctrl+PageUp/PageDown is de tabwissel (#539), geen paginapaar.
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === 'PageDown') {
         e.preventDefault();
         e.stopPropagation();

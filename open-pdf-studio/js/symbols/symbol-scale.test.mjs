@@ -5,6 +5,7 @@ import test from 'node:test';
 
 import {
   normaliseerSchaal, schaalMaat, schaalVakOmMidden, schaalLabel,
+  leesSchaalInvoer, volgendeSchaalStap,
   STANDAARD_SCHAAL, MIN_SCHAAL, MAX_SCHAAL, SCHAAL_STAPPEN,
 } from './symbol-scale.js';
 
@@ -91,4 +92,41 @@ test('een klein symbool houdt bij schalen zijn verhouding en wordt nooit nul', (
   const uit = schaalVakOmMidden({ x: 10, y: 10, width: 0.02, height: 0.02 }, 0.1);
   assert.ok(uit.width > 0 && uit.height > 0);
   assert.equal(uit.x + uit.width / 2, 10.01);
+});
+
+test('het schaalveld begrijpt factoren, komma, x en procenten', () => {
+  assert.equal(leesSchaalInvoer('2'), 2);
+  assert.equal(leesSchaalInvoer('1,5'), 1.5);
+  assert.equal(leesSchaalInvoer(' 0.5x '), 0.5);
+  assert.equal(leesSchaalInvoer('0,25X'), 0.25);
+  assert.equal(leesSchaalInvoer('50%'), 0.5);
+  assert.equal(leesSchaalInvoer(schaalLabel(0.75)), 0.75, 'het eigen label leest terug');
+});
+
+test('onzin in het schaalveld geeft null (de geldende schaal blijft staan)', () => {
+  assert.equal(leesSchaalInvoer(''), null);
+  assert.equal(leesSchaalInvoer('abc'), null);
+  assert.equal(leesSchaalInvoer('0'), null);
+  assert.equal(leesSchaalInvoer('-2'), null);
+  assert.equal(leesSchaalInvoer('2xx'), null);
+  assert.equal(leesSchaalInvoer(null), null);
+});
+
+test('een te grote of te kleine invoer wordt afgekapt', () => {
+  assert.equal(leesSchaalInvoer('500'), MAX_SCHAAL);
+  assert.equal(leesSchaalInvoer('1%'), MIN_SCHAAL);
+});
+
+test('de pijltjestoetsen lopen langs de vaste stappen', () => {
+  assert.equal(volgendeSchaalStap(1, 1), 1.5);
+  assert.equal(volgendeSchaalStap(1, -1), 0.75);
+  // Eigen waarde tussen twee stappen: naar de dichtstbijzijnde in die richting.
+  assert.equal(volgendeSchaalStap(1.2, 1), 1.5);
+  assert.equal(volgendeSchaalStap(1.2, -1), 1);
+  // Voorbij de laatste stap blijft de schaal staan.
+  assert.equal(volgendeSchaalStap(5, 1), 5);
+  assert.equal(volgendeSchaalStap(0.25, -1), 0.25);
+  assert.equal(volgendeSchaalStap(MAX_SCHAAL, 1), MAX_SCHAAL);
+  assert.equal(volgendeSchaalStap(MIN_SCHAAL, -1), MIN_SCHAAL);
+  assert.equal(volgendeSchaalStap(8, -1), 5);
 });

@@ -52,7 +52,7 @@ function mul(A, B) {
 }
 
 // Resolve an entry that may be inherited from a Pages parent (Resources).
-function getInherited(node, key, context) {
+export function getInherited(node, key, context) {
   let cur = node;
   const seen = new Set();
   while (cur) {

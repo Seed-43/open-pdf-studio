@@ -31,6 +31,7 @@
 // back to a single localStorage entry per file path — same trade-off
 // browsers already have for any other per-site storage.
 import { isTauri, readBinaryFile, writeBinaryFile } from './platform.js';
+import { leesOpslagJson, schrijfOpslagJson, verwijderOpslag } from './opslag.js';
 
 const SIDECAR_SUFFIX = '.readerpos.json';
 const LOCAL_STORAGE_PREFIX = 'readerModePosition:';
@@ -58,8 +59,7 @@ export async function getReaderPosition(filePath) {
     }
   }
   try {
-    const s = localStorage.getItem(LOCAL_STORAGE_PREFIX + filePath);
-    return s ? JSON.parse(s) : null;
+    return leesOpslagJson(LOCAL_STORAGE_PREFIX + filePath);
   } catch (e) {
     return null;
   }
@@ -87,7 +87,7 @@ export async function saveReaderPosition(filePath, position) {
     }
   }
   try {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + filePath, JSON.stringify(data));
+    schrijfOpslagJson(LOCAL_STORAGE_PREFIX + filePath, data);
     return true;
   } catch (e) {
     console.warn('Failed to save reader-mode position:', e);
@@ -117,11 +117,6 @@ export async function clearReaderPosition(filePath) {
       return false;
     }
   }
-  try {
-    localStorage.removeItem(LOCAL_STORAGE_PREFIX + filePath);
-    return true;
-  } catch (e) {
-    console.warn('Failed to remove reader-mode position:', e);
-    return false;
-  }
+  verwijderOpslag(LOCAL_STORAGE_PREFIX + filePath);
+  return true;
 }

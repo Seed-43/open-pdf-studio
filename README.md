@@ -262,7 +262,7 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 ### Customization
 - **5 themes:** Dark, Light, Blue, High Contrast, System (auto-detect)
 - **39 languages** including RTL support:
-  [Arabic](https://en.wikipedia.org/wiki/Arabic_language), [Bengali](https://en.wikipedia.org/wiki/Bengali_language), [Bulgarian](https://en.wikipedia.org/wiki/Bulgarian_language), [Catalan](https://en.wikipedia.org/wiki/Catalan_language), [Chinese](https://en.wikipedia.org/wiki/Chinese_language), [Croatian](https://en.wikipedia.org/wiki/Croatian_language), [Czech](https://en.wikipedia.org/wiki/Czech_language), [Danish](https://en.wikipedia.org/wiki/Danish_language), [Dutch](https://en.wikipedia.org/wiki/Dutch_language), [English](https://en.wikipedia.org/wiki/English_language), [Finnish](https://en.wikipedia.org/wiki/Finnish_language), [French](https://en.wikipedia.org/wiki/French_language), [German](https://en.wikipedia.org/wiki/German_language), [Greek](https://en.wikipedia.org/wiki/Greek_language), [Hebrew](https://en.wikipedia.org/wiki/Hebrew_language), [Hindi](https://en.wikipedia.org/wiki/Hindi), [Hungarian](https://en.wikipedia.org/wiki/Hungarian_language), [Indonesian](https://en.wikipedia.org/wiki/Indonesian_language), [Italian](https://en.wikipedia.org/wiki/Italian_language), [Japanese](https://en.wikipedia.org/wiki/Japanese_language), [Korean](https://en.wikipedia.org/wiki/Korean_language), [Malay](https://en.wikipedia.org/wiki/Malay_language), [Norwegian](https://en.wikipedia.org/wiki/Norwegian_language), [Farsi (Persian)](https://en.wikipedia.org/wiki/Persian_language), [Polish](https://en.wikipedia.org/wiki/Polish_language), [Portuguese](https://en.wikipedia.org/wiki/Portuguese_language), [Romanian](https://en.wikipedia.org/wiki/Romanian_language), [Russian](https://en.wikipedia.org/wiki/Russian_language), [Serbian](https://en.wikipedia.org/wiki/Serbian_language), [Slovak](https://en.wikipedia.org/wiki/Slovak_language), [Spanish](https://en.wikipedia.org/wiki/Spanish_language), [Swahili](https://en.wikipedia.org/wiki/Swahili_language), [Swedish](https://en.wikipedia.org/wiki/Swedish_language), [Tamil](https://en.wikipedia.org/wiki/Tamil_language), [Thai](https://en.wikipedia.org/wiki/Thai_language), [Turkish](https://en.wikipedia.org/wiki/Turkish_language), [Ukrainian](https://en.wikipedia.org/wiki/Ukrainian_language), [Urdu](https://en.wikipedia.org/wiki/Urdu), [Vietnamese](https://en.wikipedia.org/wiki/Vietnamese_language)
+  [Arabic](https://en.wikipedia.org/wiki/Arabic_language), [Bengali](https://en.wikipedia.org/wiki/Bengali_language), [Bulgarian](https://en.wikipedia.org/wiki/Bulgarian_language), [Catalan](https://en.wikipedia.org/wiki/Catalan_language), [Chinese](https://en.wikipedia.org/wiki/Chinese_language), [Croatian](https://en.wikipedia.org/wiki/Croatian_language), [Czech](https://en.wikipedia.org/wiki/Czech_language), [Danish](https://en.wikipedia.org/wiki/Danish_language), [Dutch](https://en.wikipedia.org/wiki/Dutch_language), [English](https://en.wikipedia.org/wiki/English_language), [Finnish](https://en.wikipedia.org/wiki/Finnish_language), [French](https://en.wikipedia.org/wiki/French_language), [German](https://en.wikipedia.org/wiki/German_language), [Greek](https://en.wikipedia.org/wiki/Greek_language), [Hebrew](https://en.wikipedia.org/wiki/Hebrew_language), [Hindi](https://en.wikipedia.org/wiki/Hindi), [Hungarian](https://en.wikipedia.org/wiki/Hungarian_language), [Indonesian](https://en.wikipedia.org/wiki/Indonesian_language), [Italian](https://en.wikipedia.org/wiki/Italian_language), [Japanese](https://en.wikipedia.org/wiki/Japanese_language), [Korean](https://en.wikipedia.org/wiki/Korean_language),[Lao](https://en.wikipedia.org/wiki/Lao_language), [Malay](https://en.wikipedia.org/wiki/Malay_language), [Norwegian](https://en.wikipedia.org/wiki/Norwegian_language), [Farsi (Persian)](https://en.wikipedia.org/wiki/Persian_language), [Polish](https://en.wikipedia.org/wiki/Polish_language), [Portuguese](https://en.wikipedia.org/wiki/Portuguese_language), [Romanian](https://en.wikipedia.org/wiki/Romanian_language), [Russian](https://en.wikipedia.org/wiki/Russian_language), [Serbian](https://en.wikipedia.org/wiki/Serbian_language), [Slovak](https://en.wikipedia.org/wiki/Slovak_language), [Spanish](https://en.wikipedia.org/wiki/Spanish_language), [Swahili](https://en.wikipedia.org/wiki/Swahili_language), [Swedish](https://en.wikipedia.org/wiki/Swedish_language), [Tamil](https://en.wikipedia.org/wiki/Tamil_language), [Thai](https://en.wikipedia.org/wiki/Thai_language), [Turkish](https://en.wikipedia.org/wiki/Turkish_language), [Ukrainian](https://en.wikipedia.org/wiki/Ukrainian_language), [Urdu](https://en.wikipedia.org/wiki/Urdu), [Vietnamese](https://en.wikipedia.org/wiki/Vietnamese_language)
 - Configurable preferences dialog
 
 ### Undo/Redo
@@ -292,12 +292,14 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 | `Delete` | Delete selected annotation(s) |
 | `Ctrl+D` | Document properties |
 | `Ctrl+W` | Close active tab |
+| `Ctrl+Tab` / `Ctrl+PgDn` | Next tab (wraps around) |
+| `Ctrl+Shift+Tab` / `Ctrl+PgUp` | Previous tab (wraps around) |
 | `V` | Select tool |
 | `H` | Hand tool |
 | `T` | Text box tool |
 | `N` | Sticky note tool |
 | `Ctrl+=` / `Ctrl+-` | Zoom in / Zoom out |
-| `Ctrl+0` | Actual size |
+| `Ctrl+0` | Actual size (physical paper size once the display is calibrated in Preferences > Page Display) |
 | `Ctrl+1` | Fit width |
 | `Ctrl+2` | Fit page |
 | `F9` | Toggle navigation panel |
@@ -336,6 +338,38 @@ sudo dpkg -i open-pdf-studio_*.deb
 chmod +x open-pdf-studio_*.AppImage
 ./open-pdf-studio_*.AppImage
 ```
+
+**Nix / NixOS (x86_64):**
+
+The repository is a Nix flake. It wraps the released Linux AppImage with
+`appimageTools.wrapType2`, so nothing is compiled and no cargo or npm hashes are
+involved.
+
+```bash
+# Run once without installing
+nix run github:OpenAEC-Foundation/open-pdf-studio
+
+# Install into your user profile (adds the menu entry and icons)
+nix profile install github:OpenAEC-Foundation/open-pdf-studio
+```
+
+On NixOS you can also add it to your system configuration:
+
+```nix
+# flake.nix of your system
+inputs.open-pdf-studio.url = "github:OpenAEC-Foundation/open-pdf-studio";
+
+# configuration.nix (with `inputs` passed through specialArgs)
+environment.systemPackages = [ inputs.open-pdf-studio.packages.x86_64-linux.default ];
+```
+
+Notes:
+- Only `x86_64-linux` is packaged, because releases ship an amd64 AppImage only.
+- The flake points at a fixed release. After publishing a release, update its
+  version and hash with `node open-pdf-studio/scripts/nix-flake-bijwerken.mjs`
+  (it reads the AppImage checksum from the GitHub release; no download needed).
+- If the window stays blank with some GPU drivers, start it with
+  `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
 
 ### Android
 Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).

@@ -7,9 +7,11 @@
     "addReply": "பதிலைச் சேர்",
     "locked": "பூட்டப்பட்டது",
     "marked": "குறிக்கப்பட்டது",
+    "gridEndLock": "அச்சு முனையைப் பூட்டு",
+    "gridEndUnlock": "அச்சு முனையைத் திற",
     "printable": "அச்சிடக்கூடியது",
     "status": "நிலை",
-    "showByStatus": "Show by Status",
+    "showByStatus": "நிலையின்படி காட்டு",
     "statusNone": "எதுவுமில்லை",
     "statusAccepted": "ஏற்றுக்கொள்ளப்பட்டது",
     "statusCancelled": "ரத்துசெய்யப்பட்டது",
@@ -38,8 +40,15 @@
     "exportSubmenu": "ஏற்றுமதி",
     "exportAsImage": "படமாக ஏற்றுமதி செய்...",
     "addHole": "துளை சேர்",
+    "wallJoinAllow": "இணைப்பை அனுமதி (இந்த முனை)",
+    "wallJoinDisallow": "இணைப்பைத் தடு (இந்த முனை)",
     "properties": "பண்புகள்...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "காட்சிச் சாளர அளவுகோலைத் திருத்து",
+    "calibrateFromLine": "இந்தக் கோட்டிலிருந்து அளவீடு செய்...",
+    "setScale": "அளவுகோலை அமை...",
+    "dimChainAdd": "பரிமாணச் சங்கிலியில் புள்ளிகளைச் சேர்",
+    "dimChainRemove": "சங்கிலியிலிருந்து நீட்டிப்புக் கோட்டை அகற்று",
+    "selectRoom": "அறையைத் தேர்ந்தெடு"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} குறிப்புரைகளை நகலெடு",
@@ -54,6 +63,7 @@
     "centerVertically": "நிலையாக நடுவில் வை",
     "distributeHorizontally": "கிடையாகப் பரவலாக்கு",
     "distributeVertically": "நிலையாகப் பரவலாக்கு",
+    "trimWallCorners": "சுவர் மூலைகளை நறுக்கு",
     "deleteAnnotations": "{{count}} குறிப்புரைகளை நீக்கு",
     "deleteConfirm": "{{count}} குறிப்புரைகளை நீக்கவா?",
     "deleteTitle": "குறிப்புரைகளை நீக்கு"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "இடமாகச் சுழற்று",
     "rotateRight": "வலமாகச் சுழற்று",
+    "moveUp": "மேலே நகர்த்து",
+    "moveDown": "கீழே நகர்த்து",
     "insertPages": "பக்கங்களைச் செருகு...",
     "extractPages": "பக்கங்களைப் பிரித்தெடு...",
     "replacePages": "பக்கங்களை மாற்று...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "பக்கம் {{page}} நீக்கவா?",
     "deletePageTitle": "பக்கத்தை நீக்கு",
     "properties": "பண்புகள்",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}} பக்கங்களை வெட்டு",
+    "copyPages": "{{count}} பக்கங்களை நகலெடு",
+    "rotateLeftPages": "{{count}} பக்கங்களை இடப்புறம் சுழற்று",
+    "rotateRightPages": "{{count}} பக்கங்களை வலப்புறம் சுழற்று",
+    "deletePagesMulti": "{{count}} பக்கங்களை நீக்கு",
+    "selectAll": "எல்லாப் பக்கங்களையும் தேர்ந்தெடு",
+    "deselectAll": "அனைத்தையும் தேர்வுநீக்கு",
+    "insertFromFile": "கோப்பிலிருந்து செருகு...",
+    "insertFromFileBefore": "இந்தப் பக்கத்திற்கு முன்...",
+    "insertFromFileAfter": "இந்தப் பக்கத்திற்குப் பின்...",
+    "pageLabels": "பக்க லேபிள்கள் (பெயர் உருவாக்கி)..."
   },
   "textSelection": {
     "highlightSelection": "தேர்வை முன்னிலைப்படுத்து",
     "strikethroughSelection": "தேர்வுக்கு நடுக்கோடு இடு",
     "underlineSelection": "தேர்வுக்கு அடிக்கோடு இடு",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "வளைந்த அழைப்புக்குறிப்பைச் சேர்"
   },
   "deleteAnnotation": {
     "confirmSingle": "இந்தக் குறிப்புரையை நீக்கவா?",
     "title": "குறிப்புரையை நீக்கு"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "முனையை நீக்கு",
+    "insertVertex": "இங்கே முனையைச் செருகு",
+    "convertToArc": "வில்லாக மாற்று",
+    "convertToLine": "கோடாக மாற்று"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Explorer-இல் காட்டு",
+    "mac": "Finder-இல் காட்டு",
+    "linux": "கொண்டுள்ள கோப்புறையைத் திற"
+  },
+  "gevelelement": {
+    "addMullionHere": "இங்கே செங்குத்துச் சட்டத்தைச் சேர்",
+    "removeMullion": "அருகிலுள்ள செங்குத்துச் சட்டத்தை அகற்று",
+    "panelItem": "பலகம்: {{name}}",
+    "placeInWall": "சுவரில் வை (சுவரை இடைமறி)",
+    "noHostWall": "இந்த உறுப்பின் கீழ் சுவர் எதுவும் இல்லை",
+    "editRefused": "சாத்தியமில்லை"
   }
 }

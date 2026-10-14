@@ -11,6 +11,7 @@
     "box": "Правоъгълник",
     "polygon": "Многоъгълник",
     "cloud": "Облак",
+    "cloudPolyline": "Облачна полилиния",
     "polyline": "Полилиния",
     "textbox": "Текстово поле",
     "callout": "Износка",
@@ -27,7 +28,8 @@
     "formTextField": "Текстово поле на формуляр",
     "formCheckbox": "Отметка на формуляр",
     "formRadio": "Радио бутон на формуляр",
-    "screenshot": "Екранна снимка"
+    "screenshot": "Екранна снимка",
+    "pageLabelPick": "Избор на текст за етикет на страница"
   },
   "toolLabel": "Инструмент:",
   "annotationsLabel": "Анотации:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Този документ съдържа интерактивни полета на формуляр. Можете да попълните формуляра и да запазите данните си.",
   "enableEditing": "Активиране на редактирането",
   "pdfAConformance": "Този документ заявява съответствие с PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Преименуването на файла е неуспешно: {{error}}",
+  "renameInvalidChars": "Името на файла не може да съдържа  / : * ? \" < > |",
+  "renameFileExists": "Вече съществува файл с това име.",
+  "engineTitle": "Механизъм за изобразяване, използван за текущия изглед",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (векторен)"
+  },
+  "viewSingle": "Единична страница",
+  "viewContinuous": "Непрекъснато",
+  "viewBook": "Две страници",
+  "viewFacing": "Две страници една до друга",
   "viewRotatedTitle": "Изгледът е завъртян на {{degrees}}° по часовниковата стрелка; документът не е променен. Щракнете, за да върнете изгледа.",
+  "compareTabTitle": "Сравняване",
   "filledAreaSketch": {
     "undoPoint": "Отмяна на точка",
     "undoPointTitle": "Премахни последната точка (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В",
+  "boxSizeHint": "Въведете стойност + Enter — или щракнете извън полето за прилагане",
   "ocr": {
     "progress": {
       "starting": "Разпознаване на текст...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Резултати ({{count}})",
   "searchResultPage": "Страница {{page}}",
   "searchHitsOne": "1 съвпадение",
-  "searchHitsMany": "{{count}} съвпадения"
+  "searchHitsMany": "{{count}} съвпадения",
+  "passwordProtectedBar": "Защитен с парола: отворен само за четене."
 }

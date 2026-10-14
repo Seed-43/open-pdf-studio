@@ -7,9 +7,11 @@
     "addReply": "إضافة رد",
     "locked": "مقفل",
     "marked": "مُعلَّم",
+    "gridEndLock": "قفل طرف المحور",
+    "gridEndUnlock": "إلغاء قفل طرف المحور",
     "printable": "قابل للطباعة",
     "status": "الحالة",
-    "showByStatus": "Show by Status",
+    "showByStatus": "عرض حسب الحالة",
     "statusNone": "بلا",
     "statusAccepted": "مقبول",
     "statusCancelled": "ملغي",
@@ -38,8 +40,15 @@
     "exportSubmenu": "تصدير",
     "exportAsImage": "تصدير كصورة...",
     "addHole": "إضافة فتحة",
+    "wallJoinAllow": "السماح بالوصل (هذا الطرف)",
+    "wallJoinDisallow": "منع الوصل (هذا الطرف)",
     "properties": "الخصائص...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "تحرير مقياس إطار العرض",
+    "calibrateFromLine": "المعايرة من هذا الخط...",
+    "setScale": "تعيين المقياس...",
+    "dimChainAdd": "إضافة نقاط إلى سلسلة الأبعاد",
+    "dimChainRemove": "إزالة خط الامتداد من السلسلة",
+    "selectRoom": "تحديد الغرفة"
   },
   "multiSelect": {
     "copyAnnotations": "نسخ {{count}} تعليق",
@@ -54,6 +63,7 @@
     "centerVertically": "توسيط عمودي",
     "distributeHorizontally": "توزيع أفقي",
     "distributeVertically": "توزيع عمودي",
+    "trimWallCorners": "تشذيب زوايا الجدران",
     "deleteAnnotations": "حذف {{count}} تعليق",
     "deleteConfirm": "هل تريد حذف {{count}} تعليقات؟",
     "deleteTitle": "حذف التعليقات"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "تدوير لليسار",
     "rotateRight": "تدوير لليمين",
+    "moveUp": "نقل لأعلى",
+    "moveDown": "نقل لأسفل",
     "insertPages": "إدراج صفحات...",
     "extractPages": "استخراج صفحات...",
     "replacePages": "استبدال صفحات...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "هل تريد حذف الصفحة {{page}}؟",
     "deletePageTitle": "حذف صفحة",
     "properties": "الخصائص",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "قص الصفحات ({{count}})",
+    "copyPages": "نسخ الصفحات ({{count}})",
+    "rotateLeftPages": "تدوير الصفحات لليسار ({{count}})",
+    "rotateRightPages": "تدوير الصفحات لليمين ({{count}})",
+    "deletePagesMulti": "حذف الصفحات ({{count}})",
+    "selectAll": "تحديد كل الصفحات",
+    "deselectAll": "إلغاء تحديد الكل",
+    "insertFromFile": "إدراج من ملف...",
+    "insertFromFileBefore": "قبل هذه الصفحة...",
+    "insertFromFileAfter": "بعد هذه الصفحة...",
+    "pageLabels": "تسميات الصفحات (منشئ الأسماء)..."
   },
   "textSelection": {
     "highlightSelection": "تمييز التحديد",
     "strikethroughSelection": "يتوسطه خط للتحديد",
     "underlineSelection": "تسطير التحديد",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "إضافة وسيلة شرح منحنية"
   },
   "deleteAnnotation": {
     "confirmSingle": "هل تريد حذف هذا التعليق؟",
     "title": "حذف التعليق"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "حذف الرأس",
+    "insertVertex": "إدراج رأس هنا",
+    "convertToArc": "تحويل إلى قوس",
+    "convertToLine": "تحويل إلى خط"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "إظهار في المستكشف",
+    "mac": "إظهار في Finder",
+    "linux": "فتح المجلد المحتوي"
+  },
+  "gevelelement": {
+    "addMullionHere": "إضافة قائم فاصل هنا",
+    "removeMullion": "إزالة أقرب قائم فاصل",
+    "panelItem": "اللوح: {{name}}",
+    "placeInWall": "وضع في الجدار (قطع الجدار)",
+    "noHostWall": "لم يتم العثور على جدار أسفل هذا العنصر",
+    "editRefused": "غير ممكن"
   }
 }

@@ -5,6 +5,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getAppVersion, buildUserAgent } from '../../../core/platform.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
+import { externeDienstenAan, meldAlleenBureaublad } from '../../../core/webfuncties.js';
 
 const API_URL = 'https://open-feedback-studio.pages.dev/api/feedback';
 const APP_ID = 'open-pdf-studio';
@@ -15,6 +16,7 @@ const MIN_MESSAGE = 10;
 
 export default function FeedbackDialog() {
   const { t } = useTranslation('dialogs');
+  const { t: tCommon } = useTranslation('common');
 
   const [email, setEmail] = createSignal('');
   const [fullName, setFullName] = createSignal('');
@@ -100,6 +102,12 @@ export default function FeedbackDialog() {
 
   async function handleSubmit() {
     if (!canSubmit()) return;
+    // Als gast praat het gereedschap alleen met zijn eigen site (#548); de
+    // knop staat daar al uit, dit vangt elke andere weg naar dit venster.
+    if (!externeDienstenAan()) {
+      await meldAlleenBureaublad(tCommon('sendFeedback'));
+      return;
+    }
 
     setStatus('submitting');
     setErrorMsg('');

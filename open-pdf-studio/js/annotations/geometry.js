@@ -643,6 +643,7 @@ export function findAnnotationAt(x, y, pageNum = null) {
       case 'textHighlight':
       case 'textStrikethrough':
       case 'textUnderline':
+      case 'textSquiggly':
         // Check if clicking inside any of the text rects
         if (ann.rects && ann.rects.length > 0) {
           for (const rect of ann.rects) {
@@ -861,6 +862,7 @@ export function isPointInsideAnnotation(x, y, annotation) {
     case 'textHighlight':
     case 'textStrikethrough':
     case 'textUnderline':
+    case 'textSquiggly':
       // Check if inside any of the text rects
       if (annotation.rects && annotation.rects.length > 0) {
         for (const rect of annotation.rects) {

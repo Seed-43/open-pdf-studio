@@ -11,6 +11,7 @@
     "box": "Obdĺžnik",
     "polygon": "Mnohouholník",
     "cloud": "Oblak",
+    "cloudPolyline": "Oblaková lomená čiara",
     "polyline": "Lomená čiara",
     "textbox": "Textové pole",
     "callout": "Popisok",
@@ -27,7 +28,8 @@
     "formTextField": "Textové pole formulára",
     "formCheckbox": "Zaškrtávacie políčko formulára",
     "formRadio": "Prepínač formulára",
-    "screenshot": "Snímka obrazovky"
+    "screenshot": "Snímka obrazovky",
+    "pageLabelPick": "Výber textu pre menovku strany"
   },
   "toolLabel": "Nástroj:",
   "annotationsLabel": "Anotácie:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Tento dokument obsahuje interaktívne polia formulára. Môžete vyplniť formulár a uložiť svoje údaje.",
   "enableEditing": "Povoliť úpravy",
   "pdfAConformance": "Tento dokument deklaruje zhodu s PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Premenovanie súboru zlyhalo: {{error}}",
+  "renameInvalidChars": "Názov súboru nesmie obsahovať  / : * ? \" < > |",
+  "renameFileExists": "Súbor s týmto názvom už existuje.",
+  "engineTitle": "Vykresľovacie jadro použité pre aktuálne zobrazenie",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektor)"
+  },
+  "viewSingle": "Jedna strana",
+  "viewContinuous": "Súvisle",
+  "viewBook": "Dve strany",
+  "viewFacing": "Dve strany vedľa seba",
   "viewRotatedTitle": "Zobrazenie je otočené o {{degrees}}° v smere hodinových ručičiek; dokument sa nezmenil. Kliknutím zobrazenie vrátite.",
+  "compareTabTitle": "Porovnanie",
   "filledAreaSketch": {
     "undoPoint": "Spať bod",
     "undoPointTitle": "Odobrať posledný bod (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V",
+  "boxSizeHint": "Zadajte hodnotu + Enter — alebo kliknite mimo na použitie",
   "ocr": {
     "progress": {
       "starting": "Rozpoznávanie textu...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Výsledky ({{count}})",
   "searchResultPage": "Strana {{page}}",
   "searchHitsOne": "1 zhoda",
-  "searchHitsMany": "Zhôd: {{count}}"
+  "searchHitsMany": "Zhôd: {{count}}",
+  "passwordProtectedBar": "Chránené heslom: otvorené iba na čítanie."
 }

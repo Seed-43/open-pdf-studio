@@ -10,15 +10,16 @@ import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../../../ui/chrome/dialogs.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
 import { closeWindow, isTauri } from '../../../core/platform.js';
-import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
 import i18next from '../../../i18n/config.js';
 import { persistAllReaderPositions } from '../../../pdf/reader-mode-view.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 function MenuItem(props) {
   // Zelfde regel als bij de lintknoppen: wat de webversie niet kan staat uit
-  // en draagt de ene melding (#456). Zie js/core/webfuncties.js.
-  const geenWebvariant = () => knopUitInBrowser(props.id, isTauri());
+  // en draagt de ene melding (#456); als gast ook wat een andere host
+  // aanspreekt (#548). Zie js/core/webfuncties.js.
+  const geenWebvariant = () => knopUit(props.id, { inTauri: isTauri() });
   return (
     <button
       class={`app-menu-item${props.active ? ' active' : ''}`}
@@ -131,7 +132,7 @@ export default function AppMenu() {
             <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut="Ctrl+," onClick={() => actionAndClose(showPreferencesDialog)} />
             <Divider />
             <MenuItem icon={ICONS.about} label={t('about')} onClick={() => actionAndClose(() => openDialog('about'))} />
-            <MenuItem icon={ICONS.about} label={t('whatsNew.title')} onClick={() => actionAndClose(() => import('../../../help/whats-new-trigger.js').then(m => m.openWhatsNewManual()))} />
+            <MenuItem id="menu-whats-new" icon={ICONS.about} label={t('whatsNew.title')} onClick={() => actionAndClose(() => import('../../../help/whats-new-trigger.js').then(m => m.openWhatsNewManual()))} />
             <Divider />
             <MenuItem icon={ICONS.exit} label={t('exit')} shortcut="Alt+F4" onClick={handleExit} />
           </div>

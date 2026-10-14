@@ -122,6 +122,15 @@
   outline: none;
 }
 
+/* Bladnaam van de huidige pagina naast het paginavak (#580). */
+.status-page-label {
+  margin-inline-start: 4px;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .status-page-input:focus {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);

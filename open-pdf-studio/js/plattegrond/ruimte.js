@@ -122,10 +122,48 @@ function eenheid(dx, dy) {
 }
 
 /**
+ * Raakt de wand `w` het INWENDIGE van het gat vanaf `p` langs `gat` (eenheid
+ * met lengte)? Drie gevallen blokkeren een brug (#552):
+ *   - een wandstuk dat in het verlengde ligt en het gat (deels) vult: daar
+ *     is massieve wand, geen opening;
+ *   - een wand die midden in het gat eindigt (een T-aansluiting in de
+ *     opening);
+ *   - een wand die het gat dwars doorkruist.
+ * Wanden die alleen een eindpunt van het gat raken (de dagkanten, een
+ * binnenwand die precies naast de deur aansluit) blokkeren niet.
+ */
+function blokkeertGat(w, p, gat, tol) {
+  const lokaal = (x, y) => {
+    const rx = x - p.x, ry = y - p.y;
+    return { t: rx * gat.x + ry * gat.y, d: rx * -gat.y + ry * gat.x };
+  };
+  const a = lokaal(w.startX, w.startY);
+  const b = lokaal(w.endX, w.endY);
+  const binnen = (t) => t > tol && t < gat.len - tol;
+  const opLijn = (q) => Math.abs(q.d) <= tol;
+  if (opLijn(a) && opLijn(b)) {
+    // In het verlengde: overlapt het wandstuk het open deel van het gat?
+    const lo = Math.min(a.t, b.t), hi = Math.max(a.t, b.t);
+    return hi > tol && lo < gat.len - tol;
+  }
+  if ((opLijn(a) && binnen(a.t)) || (opLijn(b) && binnen(b.t))) return true;
+  // Kruist de wand de gatlijn binnen het open deel?
+  if ((a.d > tol && b.d < -tol) || (a.d < -tol && b.d > tol)) {
+    return binnen(a.t + ((b.t - a.t) * a.d) / (a.d - b.d));
+  }
+  return false;
+}
+
+/**
  * Gaten overbruggen die door een sparing zijn ontstaan: twee wandstukken die
  * in elkaars verlengde liggen (richting binnen `hoekTol` radialen) met een
  * vrij uiteinde tegenover elkaar en een gat van hooguit `maxGatPt`. Het gat
  * krijgt een virtuele ribbe met de dikte van de wand ernaast.
+ *
+ * Een brug ligt alleen in een ECHTE opening: geen ander wandstuk mag het gat
+ * vullen, erin eindigen of het doorkruisen (#552). Zonder die eis koppelde de
+ * zoeker ook uiteinden over een kort tussenliggend wandstuk of een
+ * T-aansluiting heen, en die overlappende ribben braken de vlakdoorloop.
  *
  * `maxGatPt` is een MAAT OP HET BLAD en hangt dus van de schaal af;
  * `ruimtenUitWanden` rekent hem uit `maxGatMm` (standaard 3000 mm — breder
@@ -136,9 +174,11 @@ export function overbrugSparingen(wanden, opties = {}) {
   const tol = opties.tolerantie ?? 1.5;
   const hoekTol = opties.hoekTol ?? 0.05;
   const uiteinden = [];
+  const geldig = [];
   for (const w of wanden) {
     const u = eenheid(w.endX - w.startX, w.endY - w.startY);
     if (!u) continue;
+    geldig.push(w);
     uiteinden.push({ wand: w, u, punt: { x: w.startX, y: w.startY }, naarBuiten: { x: -u.x, y: -u.y } });
     uiteinden.push({ wand: w, u, punt: { x: w.endX, y: w.endY }, naarBuiten: { x: u.x, y: u.y } });
   }
@@ -153,6 +193,8 @@ export function overbrugSparingen(wanden, opties = {}) {
       // in elkaars verlengde liggen.
       if (a.naarBuiten.x * gat.x + a.naarBuiten.y * gat.y < 1 - hoekTol) continue;
       if (b.naarBuiten.x * -gat.x + b.naarBuiten.y * -gat.y < 1 - hoekTol) continue;
+      if (geldig.some((w) => w !== a.wand && w !== b.wand
+        && blokkeertGat(w, a.punt, gat, tol))) continue;
       bruggen.push({
         id: `brug:${a.wand.id}:${b.wand.id}`,
         startX: a.punt.x, startY: a.punt.y, endX: b.punt.x, endY: b.punt.y,
@@ -216,11 +258,26 @@ function bouwGraaf(ribben, tol) {
     return knopen.length - 1;
   };
   const halve = [];
+  // Twee ribben tussen dezelfde knopen (een dubbel getekende wand, of een
+  // meegegeven brug over een wandstuk) zijn één ribbe: dubbele ribben maken
+  // in de vlakdoorloop lege tweehoeken en breken de omringende vlakken
+  // (#552). Een echte wand wint van een brug.
+  const paar = new Map();
   for (const r of ribben) {
     const a = sleutel({ x: r.startX, y: r.startY });
     const b = sleutel({ x: r.endX, y: r.endY });
     if (a === b) continue;                              // lus op één knoop
+    const k = a < b ? `${a}:${b}` : `${b}:${a}`;
+    const eerder = paar.get(k);
+    if (eerder !== undefined) {
+      if (halve[eerder].ribbe.brug && !r.brug) {
+        halve[eerder].ribbe = r;
+        halve[eerder + 1].ribbe = r;
+      }
+      continue;
+    }
     const i = halve.length;
+    paar.set(k, i);
     halve.push({ van: a, naar: b, ribbe: r, omgekeerd: i + 1, index: i });
     halve.push({ van: b, naar: a, ribbe: r, omgekeerd: i, index: i + 1 });
   }

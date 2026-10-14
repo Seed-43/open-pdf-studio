@@ -117,6 +117,37 @@ test('tekst buiten ASCII overleeft als hexstring', async () => {
   assert.equal(a.get(PDFName.of('Contents')).decodeText(), 'Hoogte ± 3 µm — pas op');
 });
 
+test('tekst met losse haakjes of een backslash aan het eind maakt de annotatie niet stuk (#555)', async () => {
+  // PDFString.of escapet niets: '/Contents (1) a)' sloot na '1' en de lezer
+  // raakte de hele annotatie kwijt.
+  const uit = await schrijfAnnotaties(await leegDocument(), [
+    { type: 'note', page: 1, x: 10, y: 10, contents: 'gewoon' },
+    { type: 'note', page: 1, x: 10, y: 40, contents: '1) a' },
+    { type: 'note', page: 1, x: 10, y: 70, contents: 'pad C:\\', author: 'Piet (PL' },
+    { type: 'square', page: 1, x: 10, y: 100, breedte: 20, hoogte: 20, contents: ')( omgekeerd' },
+    { type: 'note', page: 1, x: 10, y: 130, contents: 'f(x) = (a)' },
+  ]);
+  await PDFDocument.load(uit, { throwOnInvalidObject: true });
+
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const doc = await pdfjs.getDocument({ data: uit.slice(), isEvalSupported: false, verbosity: 0 }).promise;
+  const annots = await (await doc.getPage(1)).getAnnotations();
+  await doc.loadingTask.destroy();
+  assert.deepEqual(
+    annots.map((a) => [a.subtype, a.contentsObj?.str, a.titleObj?.str]),
+    [
+      ['Text', 'gewoon', 'User'],
+      ['Text', '1) a', 'User'],
+      ['Text', 'pad C:\\', 'Piet (PL'],
+      ['Square', ')( omgekeerd', 'User'],
+      ['Text', 'f(x) = (a)', 'User'],
+    ],
+  );
+  // Gebalanceerde tekst blijft dezelfde literal string als voorheen.
+  const laatste = (await annotatiesUit(uit))[4];
+  assert.ok(laatste.get(PDFName.of('Contents')) instanceof PDFString);
+});
+
 test('een vlak wordt een /Square met rand en eventueel vulling', async () => {
   const uit = await schrijfAnnotaties(await leegDocument(), [{
     type: 'square', page: 1, x: 10, y: 20, breedte: 100, hoogte: 50,

@@ -594,7 +594,7 @@ test('alle locales melden afsnijden en de onbedrukbare rand, vertaald en zonder 
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8'));
   const en = lees('en').print;
   const talen = readdirSync(map);
-  assert.equal(talen.length, 39);
+  assert.equal(talen.length, 40);
   for (const taal of talen) {
     for (const sleutel of ['pageClipped', 'pageOutsidePrintable']) {
       const tekst = lees(taal).print?.[sleutel];

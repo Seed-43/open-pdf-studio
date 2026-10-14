@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   schaalOpPunt, schaalOpPuntUitBronnen, schaalgebiedenOpPagina, verzamelSchaalBronnen,
+  documentHeeftSchaal,
 } from "./schaal-op-punt.js";
 import { viewportOp } from "../pdf/pdf-viewports.js";
 
@@ -199,4 +200,48 @@ test("a page number that is NaN matches nothing, like a strict comparison", () =
   assert.deepEqual(schaalOpPunt(doc, NaN, 10, 10), { pixelsPerUnit: PPU(20), unit: "mm", method: "scaleBar" });
   assert.deepEqual(oudeSchaalOpPunt(doc, NaN, 10, 10), { pixelsPerUnit: PPU(20), unit: "mm", method: "scaleBar" });
   assert.deepEqual(schaalgebiedenOpPagina(verzamelSchaalBronnen({ annotations: [{ type: "scaleRegion", page: NaN, width: 1, height: 1 }] }), NaN), []);
+});
+
+// ── Heeft het document een schaalbron? (#554) ───────────────────────────────
+//
+// Een nieuw meetgereedschap kiest daarmee tussen de schaal van het document en
+// de handmatige voorkeursschaal. De kalibratie (doc.measureScale) en de
+// viewports uit de PDF tellen net zo goed mee als de schaal-annotaties.
+
+test("the document scale, the PDF viewports and the scale annotations are all a scale source", () => {
+  assert.equal(documentHeeftSchaal({ measureScale: { pixelsPerUnit: PPU(100), unit: "mm", method: "scale-ratio" } }), true);
+  assert.equal(documentHeeftSchaal({ pdfViewports: { 2: [detail] } }), true, "ook een viewport op een andere pagina");
+  for (const type of ["scaleRegion", "scaleBar", "viewport"]) {
+    assert.equal(documentHeeftSchaal({ annotations: [{ type: "box" }, { type, page: 3 }] }), true, type);
+  }
+});
+
+test("a document without any scale source has none", () => {
+  assert.equal(documentHeeftSchaal(null), false);
+  assert.equal(documentHeeftSchaal(undefined), false);
+  assert.equal(documentHeeftSchaal({}), false);
+  assert.equal(documentHeeftSchaal({ annotations: [{ type: "box" }, { type: "measureDistance" }] }), false);
+  // Een gewiste of lege kalibratie en een lege viewportlijst tellen niet.
+  assert.equal(documentHeeftSchaal({ measureScale: null }), false);
+  assert.equal(documentHeeftSchaal({ measureScale: { pixelsPerUnit: 0, unit: "mm" } }), false);
+  assert.equal(documentHeeftSchaal({ pdfViewports: {} }), false);
+  assert.equal(documentHeeftSchaal({ pdfViewports: { 1: [] } }), false);
+});
+
+test("without a scale source no point of the document has a scale", () => {
+  const r = toeval(554);
+  let zonder = 0;
+  for (let d = 0; d < 300; d++) {
+    const doc = willekeurigDocument(r);
+    if (documentHeeftSchaal(doc)) continue;
+    zonder++;
+    const bronnen = verzamelSchaalBronnen(doc);
+    for (const pagina of PAGINAS) {
+      assert.deepEqual(schaalgebiedenOpPagina(bronnen, pagina), []);
+      for (let p = 0; p < 10; p++) {
+        assert.equal(schaalOpPunt(doc, pagina, Math.floor(r() * 320) - 10, Math.floor(r() * 320) - 10), null);
+      }
+    }
+  }
+  assert.ok(zonder > 0, "er zitten documenten zonder bron tussen");
 });

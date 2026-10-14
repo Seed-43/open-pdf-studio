@@ -2,11 +2,26 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import { pdfjsAssets } from './scripts/pdfjs-assets.mjs';
 import { readFileSync } from 'fs';
+import { themaVoorafScript } from './js/core/opslag.js';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
+// Het thema-script vóór de app-boot staat inline in de pagina (geen extra
+// verzoek, en het volgt zo vanzelf de bouwbasis). De tekst komt uit
+// js/core/opslag.js, de enige module die de browseropslag aanraakt (#547).
+const THEMA_PLEK = '<!-- opds:thema-vooraf -->';
+function themaVooraf() {
+  return {
+    name: 'opds-thema-vooraf',
+    transformIndexHtml(html) {
+      if (!html.includes(THEMA_PLEK)) throw new Error(`index.html mist ${THEMA_PLEK}`);
+      return html.replace(THEMA_PLEK, `<script>${themaVoorafScript()}</script>`);
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [solidPlugin(), pdfjsAssets()],
+  plugins: [solidPlugin(), pdfjsAssets(), themaVooraf()],
   resolve: {
     alias: [
       // PDF.js 6's modern build calls Map.prototype.getOrInsertComputed and

@@ -12,6 +12,7 @@
  */
 
 import { createSignal, onMount, onCleanup, For, Show, createEffect } from 'solid-js';
+import { leesOpslag, schrijfOpslag } from '../../core/opslag.js';
 
 const MAX_VISIBLE = 30;
 const POLL_MS = 200;
@@ -50,17 +51,13 @@ function fmtTime(t) {
 }
 
 function readStoredBool(key, dflt) {
-  try {
-    const v = localStorage.getItem(key);
-    if (v === null) return dflt;
-    return v === '1' || v === 'true';
-  } catch {
-    return dflt;
-  }
+  const v = leesOpslag(key);
+  if (v === null) return dflt;
+  return v === '1' || v === 'true';
 }
 
 function writeStoredBool(key, v) {
-  try { localStorage.setItem(key, v ? '1' : '0'); } catch { /* noop */ }
+  try { schrijfOpslag(key, v ? '1' : '0'); } catch { /* noop */ }
 }
 
 export default function MiniLog() {

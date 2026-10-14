@@ -7,9 +7,11 @@
     "addReply": "Tambah Balasan",
     "locked": "Dikunci",
     "marked": "Ditandakan",
+    "gridEndLock": "Kunci Hujung Grid",
+    "gridEndUnlock": "Buka Kunci Hujung Grid",
     "printable": "Boleh Dicetak",
     "status": "Status",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Tunjukkan mengikut Status",
     "statusNone": "Tiada",
     "statusAccepted": "Diterima",
     "statusCancelled": "Dibatalkan",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Eksport",
     "exportAsImage": "Eksport sebagai Imej...",
     "addHole": "Tambah lubang",
+    "wallJoinAllow": "Benarkan Cantuman (Hujung Ini)",
+    "wallJoinDisallow": "Larang Cantuman (Hujung Ini)",
     "properties": "Sifat...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Sunting Skala Port Pandangan",
+    "calibrateFromLine": "Tentukur daripada Garisan Ini...",
+    "setScale": "Tetapkan Skala...",
+    "dimChainAdd": "Tambah Titik ke Rantai Dimensi",
+    "dimChainRemove": "Buang Garis Unjuran daripada Rantai",
+    "selectRoom": "Pilih Bilik"
   },
   "multiSelect": {
     "copyAnnotations": "Salin {{count}} Anotasi",
@@ -54,6 +63,7 @@
     "centerVertically": "Tengah Menegak",
     "distributeHorizontally": "Agih Mendatar",
     "distributeVertically": "Agih Menegak",
+    "trimWallCorners": "Pangkas Sudut Dinding",
     "deleteAnnotations": "Padam {{count}} Anotasi",
     "deleteConfirm": "Padam {{count}} anotasi?",
     "deleteTitle": "Padam Anotasi"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Putar Kiri",
     "rotateRight": "Putar Kanan",
+    "moveUp": "Alih ke Atas",
+    "moveDown": "Alih ke Bawah",
     "insertPages": "Sisip Halaman...",
     "extractPages": "Ekstrak Halaman...",
     "replacePages": "Ganti Halaman...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Padam halaman {{page}}?",
     "deletePageTitle": "Padam Halaman",
     "properties": "Sifat",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Potong {{count}} Halaman",
+    "copyPages": "Salin {{count}} Halaman",
+    "rotateLeftPages": "Putar {{count}} Halaman ke Kiri",
+    "rotateRightPages": "Putar {{count}} Halaman ke Kanan",
+    "deletePagesMulti": "Padam {{count}} Halaman",
+    "selectAll": "Pilih Semua Halaman",
+    "deselectAll": "Nyahpilih Semua",
+    "insertFromFile": "Sisipkan daripada Fail...",
+    "insertFromFileBefore": "Sebelum Halaman Ini...",
+    "insertFromFileAfter": "Selepas Halaman Ini...",
+    "pageLabels": "Label Halaman (Pembina Nama)..."
   },
   "textSelection": {
     "highlightSelection": "Sorot Pilihan",
     "strikethroughSelection": "Garis Potong Pilihan",
     "underlineSelection": "Garis Bawah Pilihan",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Tambah Panggilan Melengkung"
   },
   "deleteAnnotation": {
     "confirmSingle": "Padam anotasi ini?",
     "title": "Padam Anotasi"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Padam bucu",
+    "insertVertex": "Sisipkan bucu di sini",
+    "convertToArc": "Tukar kepada lengkok",
+    "convertToLine": "Tukar kepada garisan"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Tunjukkan dalam Explorer",
+    "mac": "Tunjukkan dalam Finder",
+    "linux": "Buka folder yang mengandungi"
+  },
+  "gevelelement": {
+    "addMullionHere": "Tambah tiang jendela di sini",
+    "removeMullion": "Buang tiang jendela terdekat",
+    "panelItem": "Panel: {{name}}",
+    "placeInWall": "Letak dalam dinding (memotong dinding)",
+    "noHostWall": "Tiada dinding ditemui di bawah elemen ini",
+    "editRefused": "Tidak boleh"
   }
 }

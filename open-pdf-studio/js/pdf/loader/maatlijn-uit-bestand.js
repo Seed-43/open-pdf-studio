@@ -25,6 +25,7 @@ import { PDFName, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { pdfNum, pdfColorToHex } from './pdf-helpers.js';
 import { plattegrondUitExtra } from './plattegrond-meta.js';
+import { SPOT_COORD } from '../../annotations/spot-coord.js';
 
 const PT_NAAR_MM = 25.4 / 72;
 
@@ -108,6 +109,8 @@ export function leesLijnSleutels(annotDict, context) {
     const hex = pdfColorToHex(kleur, context);
     if (hex) uit.opsLabelColor = hex.toLowerCase();
   }
+  const soort = opzoeken(context, get('OPS_DimKind'));
+  if (soort !== undefined) uit.opsDimKind = naam(soort);
   return uit;
 }
 
@@ -244,6 +247,8 @@ export function maatlijnUitBestand({ annot, extra = {}, convertPoint }) {
   }
   Object.assign(mdProps, meetlijnKoppenUitBestand(extraColors, mdProps.lineWidth));
   if (extraColors.opsPrecision != null) mdProps.measurePrecision = extraColors.opsPrecision;
+  // Spot Coord-label (saver/maatlijn-opslaan.js, OPS_DimKind /SpotCoord).
+  if (extraColors.lijn?.opsDimKind === 'SpotCoord') mdProps.dimKind = SPOT_COORD;
   // User-dragged text offset (relative to dimension-line midpoint) —
   // written verbatim by the saver, read back verbatim here.
   if (extraColors.opsTextOffsetX != null) mdProps.textOffsetX = extraColors.opsTextOffsetX;

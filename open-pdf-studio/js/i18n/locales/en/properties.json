@@ -157,6 +157,7 @@
     "extension": "Extension",
     "showUnit": "Show unit",
     "showLabel": "Show label",
+    "showEdgeLengths": "Show edge lengths",
     "lineOvershoot": "Dimension line overshoot (mm)",
     "extGap": "Extension line gap (mm)",
     "extOvershoot": "Extension line overshoot (mm)",
@@ -333,6 +334,8 @@
     "addChildBookmark": "Add child bookmark",
     "editBookmark": "Edit bookmark",
     "deleteBookmark": "Delete bookmark",
+    "findBookmark": "Find...",
+    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Add attachment",
     "openAttachment": "Open attachment",
     "saveAttachment": "Save attachment",
@@ -380,9 +383,7 @@
     "annotationsMenu": "Menu",
     "schedules": "Schedules",
     "addPage": "Add page",
-    "namePages": "Name pages from title block (OCR)",
-    "findBookmark": "Find...",
-    "findBookmarkTip": "Type to jump to a bookmark. Enter opens it, Enter again goes to the next match."
+    "pageLabels": "Page labels (name builder)"
   },
   "schedules": {
     "title": "Schedules",
@@ -679,5 +680,9 @@
     "refused": "Not possible: {{reason}}",
     "reasonTooNarrow": "a field would become too narrow",
     "reasonFrame": "the outer frame cannot be moved or removed"
+  },
+  "scopedPanel": {
+    "stale": "This object was changed elsewhere. The form shows the current values; your changes were not applied.",
+    "failed": "Could not apply the changes: {{error}}"
   }
 }

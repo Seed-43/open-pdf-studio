@@ -11,6 +11,7 @@
     "box": "Прямокутник",
     "polygon": "Багатокутник",
     "cloud": "Хмара",
+    "cloudPolyline": "Хмарна полілінія",
     "polyline": "Полілінія",
     "textbox": "Текстове поле",
     "callout": "Виноска",
@@ -27,7 +28,8 @@
     "formTextField": "Текстове поле форми",
     "formCheckbox": "Прапорець форми",
     "formRadio": "Перемикач форми",
-    "screenshot": "Знімок екрана"
+    "screenshot": "Знімок екрана",
+    "pageLabelPick": "Вибір тексту для мітки сторінки"
   },
   "toolLabel": "Інструмент:",
   "annotationsLabel": "Анотації:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Цей документ містить інтерактивні поля форми. Ви можете заповнити форму та зберегти дані.",
   "enableEditing": "Увімкнути редагування",
   "pdfAConformance": "Цей документ заявляє про відповідність PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Не вдалося перейменувати файл: {{error}}",
+  "renameInvalidChars": "Ім'я файлу не може містити  / : * ? \" < > |",
+  "renameFileExists": "Файл із такою назвою вже існує.",
+  "engineTitle": "Рушій візуалізації для поточного перегляду",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (вектор)"
+  },
+  "viewSingle": "Одна сторінка",
+  "viewContinuous": "Безперервний",
+  "viewBook": "Дві сторінки",
+  "viewFacing": "Дві сторінки поруч",
   "viewRotatedTitle": "Вигляд повернуто на {{degrees}}° за годинниковою стрілкою; документ не змінено. Натисніть, щоб повернути вигляд.",
+  "compareTabTitle": "Порівняння",
   "filledAreaSketch": {
     "undoPoint": "Скасувати точку",
     "undoPointTitle": "Видалити останню точку (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В",
+  "boxSizeHint": "Введіть значення + Enter — або клацніть поза полем, щоб застосувати",
   "ocr": {
     "progress": {
       "starting": "Розпізнавання тексту...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Результати ({{count}})",
   "searchResultPage": "Сторінка {{page}}",
   "searchHitsOne": "1 збіг",
-  "searchHitsMany": "Збігів: {{count}}"
+  "searchHitsMany": "Збігів: {{count}}",
+  "passwordProtectedBar": "Захищено паролем: відкрито лише для читання."
 }

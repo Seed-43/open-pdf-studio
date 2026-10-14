@@ -7,9 +7,11 @@
     "addReply": "Добавяне на отговор",
     "locked": "Заключено",
     "marked": "Маркирано",
+    "gridEndLock": "Заключване на края на оста",
+    "gridEndUnlock": "Отключване на края на оста",
     "printable": "За печат",
     "status": "Състояние",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Показване по състояние",
     "statusNone": "Няма",
     "statusAccepted": "Прието",
     "statusCancelled": "Отменено",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Експортиране",
     "exportAsImage": "Експортиране като изображение...",
     "addHole": "Добавяне на отвор",
+    "wallJoinAllow": "Разрешаване на връзка (този край)",
+    "wallJoinDisallow": "Забраняване на връзка (този край)",
     "properties": "Свойства...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Редактиране на мащаба на изгледа",
+    "calibrateFromLine": "Калибриране по тази линия...",
+    "setScale": "Задаване на мащаб...",
+    "dimChainAdd": "Добавяне на точки към оразмерителната верига",
+    "dimChainRemove": "Премахване на изнесената линия от веригата",
+    "selectRoom": "Избор на помещение"
   },
   "multiSelect": {
     "copyAnnotations": "Копиране на {{count}} анотации",
@@ -54,6 +63,7 @@
     "centerVertically": "Центриране вертикално",
     "distributeHorizontally": "Разпределяне хоризонтално",
     "distributeVertically": "Разпределяне вертикално",
+    "trimWallCorners": "Подрязване на ъглите на стените",
     "deleteAnnotations": "Изтриване на {{count}} анотации",
     "deleteConfirm": "Изтриване на {{count}} анотации?",
     "deleteTitle": "Изтриване на анотации"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Завъртане наляво",
     "rotateRight": "Завъртане надясно",
+    "moveUp": "Преместване нагоре",
+    "moveDown": "Преместване надолу",
     "insertPages": "Вмъкване на страници...",
     "extractPages": "Извличане на страници...",
     "replacePages": "Замяна на страници...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Изтриване на страница {{page}}?",
     "deletePageTitle": "Изтриване на страница",
     "properties": "Свойства",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Изрязване на страници: {{count}}",
+    "copyPages": "Копиране на страници: {{count}}",
+    "rotateLeftPages": "Завъртане на страници наляво: {{count}}",
+    "rotateRightPages": "Завъртане на страници надясно: {{count}}",
+    "deletePagesMulti": "Изтриване на страници: {{count}}",
+    "selectAll": "Избиране на всички страници",
+    "deselectAll": "Премахване на целия избор",
+    "insertFromFile": "Вмъкване от файл...",
+    "insertFromFileBefore": "Преди тази страница...",
+    "insertFromFileAfter": "След тази страница...",
+    "pageLabels": "Етикети на страници (създаване на имена)..."
   },
   "textSelection": {
     "highlightSelection": "Маркиране на избраното",
     "strikethroughSelection": "Зачеркване на избраното",
     "underlineSelection": "Подчертаване на избраното",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Добавяне на извита износка"
   },
   "deleteAnnotation": {
     "confirmSingle": "Изтриване на тази анотация?",
     "title": "Изтриване на анотация"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Изтриване на връх",
+    "insertVertex": "Вмъкване на връх тук",
+    "convertToArc": "Преобразуване в дъга",
+    "convertToLine": "Преобразуване в линия"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Показване във Файловия мениджър",
+    "mac": "Показване във Finder",
+    "linux": "Отваряне на съдържащата папка"
+  },
+  "gevelelement": {
+    "addMullionHere": "Добавяне на импост тук",
+    "removeMullion": "Премахване на най-близкия импост",
+    "panelItem": "Пълнеж: {{name}}",
+    "placeInWall": "Поставяне в стена (прекъсване на стената)",
+    "noHostWall": "Под този елемент не е намерена стена",
+    "editRefused": "Не е възможно"
   }
 }

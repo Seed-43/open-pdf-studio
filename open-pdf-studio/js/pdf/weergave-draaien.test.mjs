@@ -112,9 +112,9 @@ const LOCALES = join(HIER, '../i18n/locales');
 const lees = (locale, ns) => JSON.parse(readFileSync(join(LOCALES, locale, `${ns}.json`), 'utf8'));
 const LINT = ['rotateViewLeft', 'rotateViewRight', 'rotateViewLeftTitle', 'rotateViewRightTitle'];
 
-test('alle 39 talen hebben de teksten voor weergave draaien', () => {
+test('alle 40 talen hebben de teksten voor weergave draaien', () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   for (const locale of locales) {
     const view = lees(locale, 'ribbon').view || {};
     for (const key of LINT) {
@@ -164,9 +164,13 @@ test('aanwijzer → pagina, voorbeelden en viewport gaan via de weergave-omreken
 test('de doorlopende weergave rendert in de gedraaide stand, opslaan en miniaturen niet', () => {
   const renderer = bron('./renderer.js');
   assert.match(renderer, /function beeldRotatie\(pageNum\)/);
-  // Alle paginarenders van de doorlopende weergave (pagina, wrapper, herrender,
-  // voorbeeld) gebruiken de beeldrotatie.
-  assert.ok((renderer.match(/beeldRotatie\(pageNum\)/g) || []).length >= 5);
+  // Alle paginarenders van de doorlopende weergave (pagina, wrapper, herrender)
+  // gebruiken de beeldrotatie; de voorvertoning dezelfde stand, maar van het
+  // document dat ze rendert (#506).
+  assert.ok((renderer.match(/beeldRotatie\(pageNum\)/g) || []).length >= 3);
+  assert.match(renderer, /const extraRotation = voorvertoningRotatie\(doc, pageNum\);/);
+  assert.match(bron('./voorvertoning-sleutel.js'),
+    /normaliseerRotatie\(\(Number\(doc\?\.pageRotations\?\.\[pageNum\]\) \|\| 0\)\s+\+ normaliseerRotatie\(doc\?\.viewRotation\)\)/);
   // rotatePage() blijft een documentbewerking op de eigen paginarotatie.
   assert.match(renderer, /const current = getPageRotation\(pageNum\);/);
 });

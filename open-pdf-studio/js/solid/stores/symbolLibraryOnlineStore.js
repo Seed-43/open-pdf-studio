@@ -28,6 +28,7 @@ import { parseSteelSectionCatalog, steelCatalogToGroup } from '../../symbols/ste
 import { parseLineworkCatalog, lineworkCatalogToGroup } from '../../symbols/linework-catalog.js';
 import { registerSteelCatalog } from '../../symbols/steel-catalog-store.js';
 import { registerLineworkCatalog } from '../../symbols/linework-catalog-store.js';
+import { externeDienstenAan } from '../../core/webfuncties.js';
 
 const INDEX_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 dag; daarna stille refresh
 const FETCH_TIMEOUT_MS = 20000;
@@ -36,6 +37,7 @@ const PARALLEL_FETCHES = 6;
 // --- State ---
 const [indexData, setIndexData] = createSignal(null); // geparste index of null
 // 'idle' | 'loading' | 'ready' | 'offline' (fetch faalde én geen cache)
+// | 'uit' (als gast: de bibliotheek staat op GitHub, een andere host — #548)
 const [indexStatus, setIndexStatus] = createSignal('idle');
 const [downloadBusy, setDownloadBusy] = createSignal(false);
 const [downloadProgress, setDownloadProgress] = createSignal(null); // {done,total,label}
@@ -80,6 +82,10 @@ async function refreshIndexFromNetwork() {
 // Zonder cache én zonder netwerk valt de UI terug op de statische
 // INDUSTRIES/COUNTRIES-lijst (status 'offline').
 export function ensureLibraryIndex() {
+  if (!externeDienstenAan()) {
+    setIndexStatus('uit');
+    return;
+  }
   // Al geladen of verse cache: toon die direct, maar ververs ALTIJD stil op
   // de achtergrond. De TTL bleek in de praktijk te grof: nieuw gepubliceerde
   // collecties (of nieuwe metadata zoals parametrische catalogi) waren tot
@@ -244,7 +250,7 @@ async function downloadCollection(collectionId, indexMeta, lang) {
 
 // --- Alles voor land+sector downloaden ---
 export async function downloadCountrySector(countryId, sectorId) {
-  if (downloadBusy()) return;
+  if (downloadBusy() || !externeDienstenAan()) return;
   setDownloadError('');
   setDownloadBusy(true);
   const lang = language();

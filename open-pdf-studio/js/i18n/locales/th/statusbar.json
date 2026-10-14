@@ -11,6 +11,7 @@
     "box": "สี่เหลี่ยม",
     "polygon": "รูปหลายเหลี่ยม",
     "cloud": "เมฆ",
+    "cloudPolyline": "เส้นหลายจุดแบบเมฆ",
     "polyline": "เส้นหลายจุด",
     "textbox": "กล่องข้อความ",
     "callout": "คำบรรยาย",
@@ -27,7 +28,8 @@
     "formTextField": "ฟิลด์ข้อความแบบฟอร์ม",
     "formCheckbox": "ช่องทำเครื่องหมายแบบฟอร์ม",
     "formRadio": "ปุ่มตัวเลือกแบบฟอร์ม",
-    "screenshot": "จับภาพหน้าจอ"
+    "screenshot": "จับภาพหน้าจอ",
+    "pageLabelPick": "เลือกข้อความสำหรับป้ายชื่อหน้า"
   },
   "toolLabel": "เครื่องมือ:",
   "annotationsLabel": "คำอธิบายประกอบ:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "เอกสารนี้มีฟิลด์แบบฟอร์มแบบโต้ตอบ คุณสามารถกรอกแบบฟอร์มและบันทึกข้อมูลของคุณได้",
   "enableEditing": "เปิดใช้การแก้ไข",
   "pdfAConformance": "เอกสารนี้ระบุว่าสอดคล้องกับ PDF/A",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "เปลี่ยนชื่อไฟล์ไม่สำเร็จ: {{error}}",
+  "renameInvalidChars": "ชื่อไฟล์ต้องไม่มีอักขระ  / : * ? \" < > |",
+  "renameFileExists": "มีไฟล์ชื่อนี้อยู่แล้ว",
+  "engineTitle": "เอนจินเรนเดอร์ที่ใช้สำหรับมุมมองปัจจุบัน",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (เวกเตอร์)"
+  },
+  "viewSingle": "หน้าเดียว",
+  "viewContinuous": "ต่อเนื่อง",
+  "viewBook": "สองหน้า",
+  "viewFacing": "สองหน้าเคียงกัน",
   "viewRotatedTitle": "มุมมองถูกหมุน {{degrees}}° ตามเข็มนาฬิกา เอกสารไม่มีการเปลี่ยนแปลง คลิกเพื่อหมุนมุมมองกลับ",
+  "compareTabTitle": "เปรียบเทียบ",
   "filledAreaSketch": {
     "undoPoint": "เลิกทำจุด",
     "undoPointTitle": "ลบจุดล่าสุด (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "ก",
   "boxHeightAbbr": "ส",
+  "boxSizeHint": "พิมพ์ค่า + Enter — หรือคลิกที่อื่นเพื่อใช้",
   "ocr": {
     "progress": {
       "starting": "กำลังจดจำข้อความ...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "ผลลัพธ์ ({{count}})",
   "searchResultPage": "หน้า {{page}}",
   "searchHitsOne": "1 รายการ",
-  "searchHitsMany": "{{count}} รายการ"
+  "searchHitsMany": "{{count}} รายการ",
+  "passwordProtectedBar": "ป้องกันด้วยรหัสผ่าน: เปิดแบบอ่านอย่างเดียว"
 }

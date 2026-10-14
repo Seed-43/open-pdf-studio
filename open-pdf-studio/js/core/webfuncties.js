@@ -9,11 +9,17 @@
 //  2. Een knop zonder webvariant staat uit en draagt ÉÉN melding, hier
 //     vastgelegd, zodat elke plek dezelfde zin toont.
 //
+// Als gast in de OpenAEC-site (#544) komt er een tweede tabel bij: diensten
+// op een ándere host (feedback, de AI-assistent, de online symboolbibliotheek,
+// de release-notes). Daar praat het gereedschap alleen met zijn eigen site,
+// dus staan die knoppen uit, met dezelfde ene melding (#548).
+//
 // Deze module is met opzet vrij van DOM- en i18n-imports: de tabel en de
 // beslisregel zijn los te testen, de melding haalt zijn afhankelijkheden pas
 // op wanneer hij echt getoond wordt.
 
 import { isNietInBrowser } from './platform.js';
+import { isGehost } from './gehost.js';
 
 /** Vertaalsleutel van de ene melding. Verwacht `{{feature}}`. */
 export const MELDING_SLEUTEL = 'desktopOnly';
@@ -64,6 +70,43 @@ export function bureaubladFunctie(id) {
  */
 export function knopUitInBrowser(id, inTauri) {
   return !inTauri && bureaubladFunctie(id) !== null;
+}
+
+/**
+ * Element-id → naam van een dienst op een andere host. Als gast staan deze
+ * uit (#548); op het bureaublad en in de losse webversie (eigen oorsprong)
+ * gewoon aan. Wie een nieuwe dienst op een andere host aanroept, zet zijn
+ * knop hier en vraagt vóór het verzoek externeDienstenAan()
+ * (webfuncties.test.mjs zoekt naar zulke verzoeken zonder die vraag).
+ */
+export const EXTERNE_DIENSTEN = Object.freeze({
+  'send-feedback': 'feedback', // feedbackdienst
+  'assistant-launcher': 'assistant', // AI-dienst met een persoonlijke sleutel
+  'symbol-library-download': 'symbolLibrary', // GitHub: index en collecties
+  'ribbon-whats-new': 'whatsNew', // GitHub: release-notes
+  'menu-whats-new': 'whatsNew',
+});
+
+/** Welke dienst op een andere host hangt achter deze knop? `null` = geen. */
+export function externeDienst(id) {
+  if (!id) return null;
+  return Object.prototype.hasOwnProperty.call(EXTERNE_DIENSTEN, id)
+    ? EXTERNE_DIENSTEN[id]
+    : null;
+}
+
+/** Mag de app hier andere hosts aanspreken? Als gast niet. */
+export function externeDienstenAan(gehost = isGehost()) {
+  return !gehost;
+}
+
+/**
+ * Eén vraag voor elke knop: staat hij hier uit? Alleen-bureaublad in de
+ * browser, of een dienst op een andere host als gast.
+ */
+export function knopUit(id, { inTauri, gehost = isGehost() } = {}) {
+  return knopUitInBrowser(id, inTauri)
+    || (!externeDienstenAan(gehost) && externeDienst(id) !== null);
 }
 
 /** De ene melding, met de naam die de gebruiker op de knop leest. */

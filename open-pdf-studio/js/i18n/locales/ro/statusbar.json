@@ -11,6 +11,7 @@
     "box": "Dreptunghi",
     "polygon": "Poligon",
     "cloud": "Nor",
+    "cloudPolyline": "Polilinie nor",
     "polyline": "Polilinie",
     "textbox": "Caseta de text",
     "callout": "Explicatie",
@@ -27,7 +28,8 @@
     "formTextField": "Camp text formular",
     "formCheckbox": "Caseta de bifat formular",
     "formRadio": "Buton radio formular",
-    "screenshot": "Captura de ecran"
+    "screenshot": "Captura de ecran",
+    "pageLabelPick": "Alegeți textul pentru eticheta paginii"
   },
   "toolLabel": "Instrument:",
   "annotationsLabel": "Adnotari:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Acest document contine campuri de formular interactive. Puteti completa formularul si salva datele.",
   "enableEditing": "Activare editare",
   "pdfAConformance": "Acest document pretinde conformitate PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Redenumirea fișierului a eșuat: {{error}}",
+  "renameInvalidChars": "Numele fișierului nu poate conține:  / : * ? \" < > |",
+  "renameFileExists": "Există deja un fișier cu acest nume.",
+  "engineTitle": "Motorul de randare folosit pentru vizualizarea curentă",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vectorial)"
+  },
+  "viewSingle": "O singură pagină",
+  "viewContinuous": "Continuu",
+  "viewBook": "Două pagini",
+  "viewFacing": "Două pagini alăturate",
   "viewRotatedTitle": "Vizualizarea este rotită cu {{degrees}}° în sensul acelor de ceasornic; documentul nu s-a modificat. Faceți clic pentru a readuce vizualizarea.",
+  "compareTabTitle": "Comparare",
   "filledAreaSketch": {
     "undoPoint": "Anulează punctul",
     "undoPointTitle": "Elimină ultimul punct (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Tastați o valoare + Enter — sau faceți clic în afară pentru aplicare",
   "ocr": {
     "progress": {
       "starting": "Se recunoaște textul...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Rezultate ({{count}})",
   "searchResultPage": "Pagina {{page}}",
   "searchHitsOne": "1 potrivire",
-  "searchHitsMany": "Potriviri: {{count}}"
+  "searchHitsMany": "Potriviri: {{count}}",
+  "passwordProtectedBar": "Protejat cu parolă: deschis doar în citire."
 }

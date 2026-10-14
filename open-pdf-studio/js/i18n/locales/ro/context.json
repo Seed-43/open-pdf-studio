@@ -7,9 +7,11 @@
     "addReply": "Adaugare raspuns",
     "locked": "Blocat",
     "marked": "Marcat",
+    "gridEndLock": "Blocare capăt de ax",
+    "gridEndUnlock": "Deblocare capăt de ax",
     "printable": "Imprimabil",
     "status": "Stare",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Afișare după stare",
     "statusNone": "Niciunul",
     "statusAccepted": "Acceptat",
     "statusCancelled": "Anulat",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Export",
     "exportAsImage": "Export ca imagine...",
     "addHole": "Adaugă deschidere",
+    "wallJoinAllow": "Permitere îmbinare (acest capăt)",
+    "wallJoinDisallow": "Interzicere îmbinare (acest capăt)",
     "properties": "Proprietati...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Editare scară fereastră de vizualizare",
+    "calibrateFromLine": "Calibrare din această linie...",
+    "setScale": "Setare scară...",
+    "dimChainAdd": "Adăugare puncte la lanțul de cote",
+    "dimChainRemove": "Eliminare linie ajutătoare din lanț",
+    "selectRoom": "Selectare încăpere"
   },
   "multiSelect": {
     "copyAnnotations": "Copiere {{count}} adnotari",
@@ -54,6 +63,7 @@
     "centerVertically": "Centrare verticala",
     "distributeHorizontally": "Distribuire orizontala",
     "distributeVertically": "Distribuire verticala",
+    "trimWallCorners": "Retezare colțuri pereți",
     "deleteAnnotations": "Stergere {{count}} adnotari",
     "deleteConfirm": "Stergeti {{count}} adnotari?",
     "deleteTitle": "Stergere adnotari"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Rotire la stanga",
     "rotateRight": "Rotire la dreapta",
+    "moveUp": "Mutare în sus",
+    "moveDown": "Mutare în jos",
     "insertPages": "Inserare pagini...",
     "extractPages": "Extragere pagini...",
     "replacePages": "Inlocuire pagini...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Stergeti pagina {{page}}?",
     "deletePageTitle": "Stergere pagina",
     "properties": "Proprietati",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Decupare {{count}} pagini",
+    "copyPages": "Copiere {{count}} pagini",
+    "rotateLeftPages": "Rotire {{count}} pagini la stânga",
+    "rotateRightPages": "Rotire {{count}} pagini la dreapta",
+    "deletePagesMulti": "Ștergere {{count}} pagini",
+    "selectAll": "Selectare toate paginile",
+    "deselectAll": "Deselectare totală",
+    "insertFromFile": "Inserare din fișier...",
+    "insertFromFileBefore": "Înainte de această pagină...",
+    "insertFromFileAfter": "După această pagină...",
+    "pageLabels": "Etichete de pagină (generator de nume)..."
   },
   "textSelection": {
     "highlightSelection": "Evidentiare selectie",
     "strikethroughSelection": "Barare selectie",
     "underlineSelection": "Subliniere selectie",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Adăugare explicație curbată"
   },
   "deleteAnnotation": {
     "confirmSingle": "Stergeti aceasta adnotare?",
     "title": "Stergere adnotare"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Ștergere vârf",
+    "insertVertex": "Inserare vârf aici",
+    "convertToArc": "Conversie în arc",
+    "convertToLine": "Conversie în linie"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Afișare în Explorer",
+    "mac": "Afișare în Finder",
+    "linux": "Deschidere folder părinte"
+  },
+  "gevelelement": {
+    "addMullionHere": "Adăugare montant aici",
+    "removeMullion": "Eliminare cel mai apropiat montant",
+    "panelItem": "Panou: {{name}}",
+    "placeInWall": "Plasare în perete (întrerupe peretele)",
+    "noHostWall": "Nu s-a găsit niciun perete sub acest element",
+    "editRefused": "Nu este posibil"
   }
 }

@@ -9,6 +9,7 @@ import { cacheWebFile, isTauri } from '../core/platform.js';
 import { openGesleepteBestanden } from './setup/gesleept-bestand.js';
 import { createTab } from './chrome/tabs.js';
 import { addImageFromFile } from '../annotations/image-drop.js';
+import { maxPaneelBreedte } from './panels/miniatuur-maat.js';
 
 // Sub-module imports
 import { setupWheelZoom } from './setup/navigation-events.js';
@@ -163,8 +164,8 @@ function setupPanelResize() {
         if (leftPanel.classList.contains('collapsed')) return;
         const isRtl = document.documentElement.dir === 'rtl';
         const delta = e.clientX - startX;
-        // Up to 60% of the window, so the thumbnails can wrap to several columns.
-        const maxWidth = Math.max(500, Math.round(window.innerWidth * 0.6));
+        // Tot 60% van het venster, zodat de miniaturen in kolommen passen (#579).
+        const maxWidth = maxPaneelBreedte(window.innerWidth);
         const newWidth = Math.max(120, Math.min(maxWidth, startWidth + (isRtl ? -delta : delta)));
         leftPanel.style.width = newWidth + 'px';
       };

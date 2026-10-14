@@ -11,6 +11,7 @@
     "box": "Rechteck",
     "polygon": "Polygon",
     "cloud": "Wolke",
+    "cloudPolyline": "Wolken-Polylinie",
     "polyline": "Polylinie",
     "textbox": "Textfeld",
     "callout": "Legende",
@@ -27,7 +28,8 @@
     "formTextField": "Formular-Textfeld",
     "formCheckbox": "Formular-Kontrollkästchen",
     "formRadio": "Formular-Optionsschaltfläche",
-    "screenshot": "Bildschirmfoto"
+    "screenshot": "Bildschirmfoto",
+    "pageLabelPick": "Text für Seitenbeschriftung wählen"
   },
   "toolLabel": "Werkzeug:",
   "annotationsLabel": "Anmerkungen:",
@@ -36,6 +38,7 @@
   "previousPage": "Vorherige Seite",
   "nextPage": "Nächste Seite",
   "lastPage": "Letzte Seite",
+  "page": "Seite",
   "zoomOut": "Verkleinern",
   "zoomIn": "Vergrößern",
   "noDocumentsOpen": "Keine Dokumente geöffnet",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "Dieses Dokument enthält interaktive Formularfelder. Sie können das Formular ausfüllen und Ihre Daten speichern.",
   "enableEditing": "Bearbeitung aktivieren",
   "pdfAConformance": "Dieses Dokument entspricht der PDF/A-Norm.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Datei konnte nicht umbenannt werden: {{error}}",
+  "renameInvalidChars": "Der Dateiname darf folgende Zeichen nicht enthalten:  / : * ? \" < > |",
+  "renameFileExists": "Eine Datei mit diesem Namen existiert bereits.",
+  "engineTitle": "Für die aktuelle Ansicht verwendete Rendering-Engine",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (Vektor)"
+  },
+  "viewSingle": "Einzelseite",
+  "viewContinuous": "Fortlaufend",
+  "viewBook": "Zwei Seiten",
+  "viewFacing": "Zwei Seiten nebeneinander",
   "viewRotatedTitle": "Die Ansicht ist um {{degrees}}° im Uhrzeigersinn gedreht; das Dokument ist unverändert. Klicken, um die Ansicht zurückzudrehen.",
+  "compareTabTitle": "Vergleichen",
   "filledAreaSketch": {
     "undoPoint": "Punkt zurücknehmen",
     "undoPointTitle": "Letzten Punkt entfernen (Rücktaste)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Wert eingeben + Enter — oder zum Übernehmen daneben klicken",
   "ocr": {
     "progress": {
       "starting": "Text wird erkannt...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "Ergebnisse ({{count}})",
   "searchResultPage": "Seite {{page}}",
   "searchHitsOne": "1 Treffer",
-  "searchHitsMany": "{{count}} Treffer"
+  "searchHitsMany": "{{count}} Treffer",
+  "passwordProtectedBar": "Mit Kennwort geschützt: schreibgeschützt geöffnet."
 }

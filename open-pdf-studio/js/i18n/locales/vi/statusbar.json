@@ -11,6 +11,7 @@
     "box": "Hình chữ nhật",
     "polygon": "Đa giác",
     "cloud": "Đám mây",
+    "cloudPolyline": "Đường gấp khúc đám mây",
     "polyline": "Đường gấp khúc",
     "textbox": "Hộp Văn bản",
     "callout": "Chú thích",
@@ -27,7 +28,8 @@
     "formTextField": "Trường Văn bản Biểu mẫu",
     "formCheckbox": "Hộp kiểm Biểu mẫu",
     "formRadio": "Nút chọn Biểu mẫu",
-    "screenshot": "Chụp màn hình"
+    "screenshot": "Chụp màn hình",
+    "pageLabelPick": "Chọn văn bản cho nhãn trang"
   },
   "toolLabel": "Công cụ:",
   "annotationsLabel": "Chú thích:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Tài liệu này chứa các trường biểu mẫu tương tác. Bạn có thể điền biểu mẫu và lưu dữ liệu.",
   "enableEditing": "Bật Chỉnh sửa",
   "pdfAConformance": "Tài liệu này tuân thủ tiêu chuẩn PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Đổi tên tệp thất bại: {{error}}",
+  "renameInvalidChars": "Tên tệp không được chứa  / : * ? \" < > |",
+  "renameFileExists": "Đã có tệp trùng tên.",
+  "engineTitle": "Bộ máy kết xuất dùng cho chế độ xem hiện tại",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vectơ)"
+  },
+  "viewSingle": "Trang đơn",
+  "viewContinuous": "Liên tục",
+  "viewBook": "Hai trang",
+  "viewFacing": "Hai trang cạnh nhau",
   "viewRotatedTitle": "Chế độ xem đang xoay {{degrees}}° theo chiều kim đồng hồ; tài liệu không thay đổi. Nhấp để xoay chế độ xem trở lại.",
+  "compareTabTitle": "So sánh",
   "filledAreaSketch": {
     "undoPoint": "Hoàn tác điểm",
     "undoPointTitle": "Xóa điểm cuối cùng (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "R",
   "boxHeightAbbr": "C",
+  "boxSizeHint": "Nhập giá trị + Enter — hoặc nhấp ra ngoài để áp dụng",
   "ocr": {
     "progress": {
       "starting": "Đang nhận dạng văn bản...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Kết quả ({{count}})",
   "searchResultPage": "Trang {{page}}",
   "searchHitsOne": "1 kết quả",
-  "searchHitsMany": "{{count}} kết quả"
+  "searchHitsMany": "{{count}} kết quả",
+  "passwordProtectedBar": "Được bảo vệ bằng mật khẩu: đã mở ở chế độ chỉ đọc."
 }

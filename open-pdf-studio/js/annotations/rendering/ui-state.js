@@ -4,6 +4,7 @@ import {
   ribbonActiveTab, setRibbonActiveTab,
 } from '../../bridge.js';
 import { getMeasureScale } from '../measurement.js';
+import { checkSymbolInsertActive } from '../../symbols/symbol-insert-format-store.js';
 
 // No-op: TitleBar.jsx now derives button states from reactive state
 export function updateQuickAccessButtons() {}
@@ -22,6 +23,11 @@ let _lastNormalTab = 'home';
 // fight any manual tab switch. null = "no selection".
 let _prevSelSig = null;
 
+// Vaste handtekening voor de invoegmodus van symbolen (#587): het Opmaak-
+// tabblad gaat één keer open bij het begin van de sessie, niet bij elk
+// geplaatst (en automatisch geselecteerd) symbool.
+const SYMBOL_INSERT_SIG = 'symbol-insert';
+
 function selectionSignature(sel) {
   if (!sel || sel.length === 0) return null;
   // id + type of every selected annotation, order-independent per redraw.
@@ -33,15 +39,19 @@ export function updateContextualTabs() {
   const _uiDoc = getActiveDocument();
   const _uiSel = _uiDoc ? _uiDoc.selectedAnnotations : [];
   const hasSelection = _uiSel.length > 0;
-  setContextualTabsVisible(hasSelection);
-  if (hasSelection) {
+  // Tijdens het invoegen van symbolen toont het Opmaak-tabblad de opmaak voor
+  // de volgende plaatsingen, ook zonder selectie (#587). syncFormatStore leest
+  // dan de invoegsessie in plaats van de selectie.
+  const symbolInsert = checkSymbolInsertActive();
+  setContextualTabsVisible(hasSelection || symbolInsert);
+  if (hasSelection || symbolInsert) {
     syncFormatStore(_uiSel);
   }
   // Contextual "Afbeelding" tab: visible only for a single image selection.
   syncImageEditTab(_uiSel);
 
   // Auto-activate the right contextual tab on a *real* selection change only.
-  autoActivateContextualTab(_uiSel);
+  autoActivateContextualTab(_uiSel, symbolInsert);
 }
 
 // Automatically switch to the contextual tab that matches the current
@@ -49,8 +59,8 @@ export function updateContextualTabs() {
 // selection, and back to the last non-contextual tab when nothing is selected.
 // Only acts when the selection actually changed since the last call so it never
 // overrides a manual tab switch on subsequent redraws.
-function autoActivateContextualTab(sel) {
-  const sig = selectionSignature(sel);
+function autoActivateContextualTab(sel, symbolInsert = false) {
+  const sig = symbolInsert ? SYMBOL_INSERT_SIG : selectionSignature(sel);
   if (sig === _prevSelSig) return; // no real selection change → leave tabs alone
   _prevSelSig = sig;
 
@@ -71,7 +81,7 @@ function autoActivateContextualTab(sel) {
     _lastNormalTab = cur;
   }
 
-  const isSingleImage = sel.length === 1 && sel[0].type === 'image';
+  const isSingleImage = !symbolInsert && sel.length === 1 && sel[0].type === 'image';
   setRibbonActiveTab(isSingleImage ? 'image' : 'format');
 }
 

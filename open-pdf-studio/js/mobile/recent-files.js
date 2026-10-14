@@ -1,16 +1,16 @@
+import { leesOpslagJson, schrijfOpslagJson, verwijderOpslag } from '../core/opslag.js';
+
 const STORAGE_KEY = 'recentFiles';
 const MAX_ENTRIES = 50;
 
 /**
- * Get the list of recent files from localStorage.
+ * Get the list of recent files from browser storage (core/opslag.js).
  * @returns {Array<{path: string, name: string, timestamp: number, pinned?: boolean}>}
  */
 export function getRecentFiles() {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      return JSON.parse(data);
-    }
+    const data = leesOpslagJson(STORAGE_KEY);
+    if (Array.isArray(data)) return data;
   } catch (e) {
     console.warn('Failed to read recent files:', e);
   }
@@ -50,7 +50,7 @@ export function addRecentFile(path, name) {
       files = [...pinned, ...unpinned.slice(0, Math.max(0, MAX_ENTRIES - pinned.length))];
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+    schrijfOpslagJson(STORAGE_KEY, files);
   } catch (e) {
     console.warn('Failed to save recent file:', e);
   }
@@ -64,7 +64,7 @@ export function removeRecentFile(path) {
   try {
     let files = getRecentFiles();
     files = files.filter(f => f.path !== path);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+    schrijfOpslagJson(STORAGE_KEY, files);
   } catch (e) {
     console.warn('Failed to remove recent file:', e);
   }
@@ -80,7 +80,7 @@ export function pinRecentFile(path) {
     const entry = files.find(f => f.path === path);
     if (entry) {
       entry.pinned = true;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+      schrijfOpslagJson(STORAGE_KEY, files);
     }
   } catch (e) {
     console.warn('Failed to pin recent file:', e);
@@ -97,7 +97,7 @@ export function unpinRecentFile(path) {
     const entry = files.find(f => f.path === path);
     if (entry) {
       entry.pinned = false;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+      schrijfOpslagJson(STORAGE_KEY, files);
     }
   } catch (e) {
     console.warn('Failed to unpin recent file:', e);
@@ -109,7 +109,7 @@ export function unpinRecentFile(path) {
  */
 export function clearRecentFiles() {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    verwijderOpslag(STORAGE_KEY);
   } catch (e) {
     console.warn('Failed to clear recent files:', e);
   }

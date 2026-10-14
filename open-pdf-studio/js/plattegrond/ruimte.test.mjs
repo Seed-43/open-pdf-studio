@@ -221,3 +221,115 @@ test('de labeltekst is naam plus netto oppervlakte', () => {
   assert.equal(ruimteLabel('', 8), '8.0 m²');
   assert.equal(ruimteLabel('Hal', 4.25, 2), 'Hal\n4.25 m²');
 });
+
+// #552: twee omsloten kamers met twee deuren en een T-aansluiting in de
+// onderste gevel. De zoeker mocht uiteinden niet over een kort wandstuk of
+// door de T-aansluiting heen koppelen; die overlappende bruggen braken de
+// vlakdoorloop en beide ruimten verdwenen.
+function tweeKamersMetDeuren() {
+  const wand = (id, startX, startY, endX, endY) => ({ id, startX, startY, endX, endY, dikteMm: 160 });
+  return [
+    wand('links', 0, 0, 0, 140),
+    wand('boven', 0, 0, 220, 0),
+    wand('rechts', 220, 0, 220, 140),
+    wand('tussen', 100, 0, 100, 140),
+    wand('onder-links', 0, 140, 40, 140),
+    wand('onder-midden-links', 60, 140, 100, 140),
+    wand('onder-midden-rechts', 100, 140, 130, 140),
+    wand('onder-rechts', 150, 140, 220, 140),
+  ];
+}
+
+test('#552: bruggen liggen alleen in echte openingen, niet over massieve wand', () => {
+  const pxPerMm = 0.025;
+  const bruggen = overbrugSparingen(tweeKamersMetDeuren(), { maxGatPt: 3000 * pxPerMm });
+  assert.deepEqual(bruggen.map((b) => [b.startX, b.endX]).sort((p, q) => p[0] - q[0]),
+    [[40, 60], [130, 150]], 'alleen de twee deuropeningen');
+});
+
+test('#552: twee kamers met deuren en een T-aansluiting blijven twee ruimten', () => {
+  const pxPerMm = 0.025;
+  const wanden = tweeKamersMetDeuren();
+  const deuren = [
+    { id: 'deur-l', startX: 40, startY: 140, endX: 60, endY: 140, dikteMm: 160, brug: true },
+    { id: 'deur-r', startX: 130, startY: 140, endX: 150, endY: 140, dikteMm: 160, brug: true },
+  ];
+  const controle = ruimtenUitWanden(wanden, { pxPerMm, bruggen: deuren });
+  assert.equal(controle.ruimten.length, 2, 'controle met alleen de echte deuren');
+  const auto = ruimtenUitWanden(wanden, { pxPerMm });
+  assert.equal(auto.ruimten.length, 2);
+  assert.deepEqual(auto.losseEinden, []);
+  for (let i = 0; i < 2; i++) {
+    bijna(auto.ruimten[i].oppervlakteM2, controle.ruimten[i].oppervlakteM2, 1e-9, `ruimte ${i}`);
+  }
+});
+
+test('#552: een deur breder dan het korte wandstuk ernaast wordt nog overbrugd', () => {
+  // Onderste gevel: [0,40] deur 60 [100,115] deur 60 [175,220]. Het korte
+  // stuk van 15 ligt tussen twee deuren die elk breder zijn dan dat stuk.
+  const wand = (id, startX, startY, endX, endY) => ({ id, startX, startY, endX, endY, dikteMm: 100 });
+  const wanden = [
+    wand('links', 0, 0, 0, 140),
+    wand('boven', 0, 0, 220, 0),
+    wand('rechts', 220, 0, 220, 140),
+    wand('onder-a', 0, 140, 40, 140),
+    wand('onder-b', 100, 140, 115, 140),
+    wand('onder-c', 175, 140, 220, 140),
+  ];
+  const bruggen = overbrugSparingen(wanden, { maxGatPt: 3000 });
+  assert.deepEqual(bruggen.map((b) => [b.startX, b.endX]).sort((p, q) => p[0] - q[0]),
+    [[40, 100], [115, 175]]);
+  const { ruimten, losseEinden } = ruimtenUitWanden(wanden, { pxPerMm: 0.025 });
+  assert.equal(ruimten.length, 1);
+  assert.equal(losseEinden.length, 0);
+});
+
+test('#552: een deur direct naast een T-aansluiting wordt overbrugd', () => {
+  // De binnenwand sluit precies aan op de dagkant van de deur [40,100].
+  const wand = (id, startX, startY, endX, endY) => ({ id, startX, startY, endX, endY, dikteMm: 100 });
+  const wanden = [
+    wand('links', 0, 0, 0, 140),
+    wand('boven', 0, 0, 220, 0),
+    wand('rechts', 220, 0, 220, 140),
+    wand('tussen', 100, 0, 100, 140),
+    wand('onder-a', 0, 140, 40, 140),
+    wand('onder-b', 100, 140, 220, 140),
+  ];
+  const bruggen = overbrugSparingen(wanden, { maxGatPt: 3000 });
+  assert.deepEqual(bruggen.map((b) => [b.startX, b.endX]), [[40, 100]]);
+  assert.equal(ruimtenUitWanden(wanden, { pxPerMm: 0.025 }).ruimten.length, 2);
+});
+
+test('#552: een wand die midden in een gat eindigt of het doorkruist blokkeert de brug', () => {
+  const wand = (id, startX, startY, endX, endY) => ({ id, startX, startY, endX, endY, dikteMm: 100 });
+  const gevel = [wand('a', 0, 0, 40, 0), wand('b', 100, 0, 140, 0)];
+  assert.equal(overbrugSparingen(gevel, { maxGatPt: 3000 }).length, 1);
+  assert.equal(overbrugSparingen([...gevel, wand('t', 70, 0, 70, 50)], { maxGatPt: 3000 }).length, 0,
+    'T-aansluiting in de opening');
+  assert.equal(overbrugSparingen([...gevel, wand('x', 70, -50, 70, 50)], { maxGatPt: 3000 }).length, 0,
+    'een wand dwars door de opening');
+  assert.equal(overbrugSparingen([...gevel, wand('k', 55, 0, 85, 0)], { maxGatPt: 3000 }).length, 2,
+    'een los stuk in het verlengde: twee kleinere openingen');
+});
+
+test('#552: een dubbel getekende of overlappende ribbe breekt de vlakdoorloop niet', () => {
+  // Een meegegeven brug die over een bestaand wandstuk ligt: de echte wand
+  // wint, de ruimten blijven.
+  const pxPerMm = 0.025;
+  const wanden = tweeKamersMetDeuren();
+  const bruggen = [
+    { id: 'b1', startX: 40, startY: 140, endX: 100, endY: 140, dikteMm: 160, brug: true },
+    { id: 'b2', startX: 100, startY: 140, endX: 150, endY: 140, dikteMm: 160, brug: true },
+    { id: 'b3', startX: 40, startY: 140, endX: 60, endY: 140, dikteMm: 160, brug: true },
+    { id: 'b4', startX: 130, startY: 140, endX: 150, endY: 140, dikteMm: 160, brug: true },
+  ];
+  const { ruimten } = ruimtenUitWanden(wanden, { pxPerMm, bruggen });
+  assert.equal(ruimten.length, 2);
+  for (const r of ruimten) {
+    assert.ok(!r.wandIds.some((id) => bruggen.some((b) => b.id === id)), 'bruggen tellen niet als wand');
+  }
+  assert.ok(ruimten.some((r) => r.wandIds.includes('onder-midden-links')),
+    'de echte wand vervangt de brug die eroverheen lag');
+  const dubbel = ruimtenUitWanden([...doos(5000, 4000), ...doos(5000, 4000, 300, 'kopie')], { pxPerMm: K });
+  assert.equal(dubbel.ruimten.length, 1, 'een dubbel getekende doos is één ruimte');
+});

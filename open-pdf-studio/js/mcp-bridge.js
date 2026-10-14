@@ -97,8 +97,9 @@ async function waitForActiveLoad(targetDoc, timeoutMs = 30000) {
  *  PNG and return it as a base64 string (no `data:` prefix).
  *
  *  We deliberately do NOT capture the surrounding chrome (toolbars, panels)
- *  — the regression-test harness only cares about the page view. For a
- *  full-window grab the caller can use OS-level screenshotting. */
+ *  — the regression-test harness only cares about the page view. For the
+ *  full window (ribbon, panels, status bar) see `captureWindowView` below
+ *  (app_screenshot_view scope 'window' / 'element', #583). */
 async function compositeCurrentView(maxWidth = 2000) {
   const { getActiveDocument } = await import('./core/state.js');
   const doc = getActiveDocument();
@@ -145,7 +146,65 @@ async function compositeCurrentView(maxWidth = 2000) {
   // Strip the `data:image/png;base64,` prefix so the returned string is
   // pure base64 (matches the existing `screenshot_page` tool's shape).
   const b64 = dataURL.startsWith('data:') ? dataURL.split(',', 2)[1] : dataURL;
-  return { png_base64: b64, width: outW, height: outH };
+  const { rechthoek } = await import('./core/mcp-schermafdruk.js');
+  return {
+    png_base64: b64, width: outW, height: outH,
+    bounds: rechthoek(pdfCanvas.getBoundingClientRect()),
+    devicePixelRatio: window.devicePixelRatio || 1,
+  };
+}
+
+/** Capture the whole window natively (the Tauri command
+ *  `capture_webview_png`, WebView2 CapturePreview on Windows) and crop it
+ *  to `bounds`. The crop and downscale rules live in
+ *  core/mcp-schermafdruk.js; here only the DOM, the canvas and the PNG. */
+async function captureWindowView({ scope, selector, width }) {
+  const { berekenUitsnede, rechthoek } = await import('./core/mcp-schermafdruk.js');
+  const viewport = { width: window.innerWidth, height: window.innerHeight };
+  let bounds = { x: 0, y: 0, width: viewport.width, height: viewport.height };
+  let elementBounds = null;
+  if (scope === 'element') {
+    let el;
+    try {
+      el = document.querySelector(selector);
+    } catch (e) {
+      throw new Error(`invalid selector: ${e?.message ?? e}`);
+    }
+    if (!el) throw new Error(`no element matches: ${selector}`);
+    elementBounds = rechthoek(el.getBoundingClientRect());
+    bounds = elementBounds;
+  }
+  const invoke = tauriInvoke();
+  if (!invoke) throw new Error('window capture needs the desktop app');
+  let png;
+  try {
+    png = await invoke('capture_webview_png');
+  } catch (e) {
+    throw new Error(`${e?.message ?? e}`);
+  }
+  const bytes = png instanceof ArrayBuffer ? png : (Array.isArray(png) ? new Uint8Array(png) : png);
+  const beeld = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
+  try {
+    const u = berekenUitsnede({ bounds, viewport, beeld: { width: beeld.width, height: beeld.height }, maxBreedte: width });
+    if (u.error) throw new Error(u.error);
+    const out = document.createElement('canvas');
+    out.width = u.outW;
+    out.height = u.outH;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(beeld, u.sx, u.sy, u.sw, u.sh, 0, 0, u.outW, u.outH);
+    const dataURL = out.toDataURL('image/png');
+    const b64 = dataURL.startsWith('data:') ? dataURL.split(',', 2)[1] : dataURL;
+    return {
+      png_base64: b64, width: u.outW, height: u.outH,
+      bounds: u.bounds,
+      ...(elementBounds ? { elementBounds } : {}),
+      devicePixelRatio: window.devicePixelRatio || 1,
+      capture: { width: beeld.width, height: beeld.height },
+    };
+  } finally {
+    beeld.close?.();
+  }
 }
 
 // ─── Per-event handlers ─────────────────────────────────────────────────
@@ -177,10 +236,29 @@ async function handleOpenPdf(params) {
   tabsMod.switchToTab(tabIndex);
   const doc = stateMod.state.documents[tabIndex];
   if (!doc.pdfDoc) {
+    // A PDF with an open password shows the password dialog and waits for
+    // the user; the bridge answers right away instead of blocking until a
+    // timeout. The load continues in the app once the password is entered.
+    const pwStore = await import('./solid/stores/wachtwoordDialoogStore.js');
+    let stopListening = () => {};
+    const passwordAsked = new Promise((resolve) => {
+      stopListening = pwStore.bijWachtwoordVraag(() => resolve('password'));
+    });
+    const loading = loaderMod.loadPDF(path, tabIndex).then(() => 'loaded');
+    let first;
     try {
-      await loaderMod.loadPDF(path, tabIndex);
+      first = await Promise.race([loading, passwordAsked]);
     } catch (e) {
       return { ok: false, error: `loadPDF: ${e?.message ?? e}` };
+    } finally {
+      stopListening();
+    }
+    if (first === 'password') {
+      loading.catch(() => {});
+      return { ok: true, dialog: 'pdf-password', file_path: path, tab_id: tabIndex };
+    }
+    if (!stateMod.state.documents.includes(doc)) {
+      return { ok: false, error: 'the document was closed while loading', file_path: path };
     }
   }
   const ready = await waitForActiveLoad(doc, 30000);
@@ -229,15 +307,25 @@ async function handleZoomOut() {
 }
 
 async function handleScreenshotView(params) {
-  const width = Number(params?.width) > 0 ? Number(params.width) : 2000;
+  const { leesSchermafdrukArgumenten } = await import('./core/mcp-schermafdruk.js');
+  const args = leesSchermafdrukArgumenten(params);
+  if (args.error) return { ok: false, error: args.error };
   // Yield one frame so any pending zoom / paint has a chance to land.
   await new Promise((r) => requestAnimationFrame(() => r()));
   await new Promise((r) => requestAnimationFrame(() => r()));
+  if (args.scope === 'document') {
+    try {
+      const out = await compositeCurrentView(args.width);
+      return { ok: true, scope: 'document', ...out };
+    } catch (e) {
+      return { ok: false, scope: 'document', error: `compositeCurrentView: ${e?.message ?? e}` };
+    }
+  }
   try {
-    const out = await compositeCurrentView(width);
-    return { ok: true, ...out };
+    const out = await captureWindowView(args);
+    return { ok: true, scope: args.scope, ...out };
   } catch (e) {
-    return { ok: false, error: `compositeCurrentView: ${e?.message ?? e}` };
+    return { ok: false, scope: args.scope, error: `${e?.message ?? e}` };
   }
 }
 
@@ -1061,7 +1149,8 @@ function _recomputeMeasureFields(ann, meas, userProps = {}) {
     ann.measurePixels = d.pixels;
     if (!keepText) ann.measureText = meas.formatMeasurement(d);
   } else if (ann.type === 'measureArea') {
-    const a = meas.calculateArea(ann.points, ann.holes, ann.page);
+    // Met de eigen schaal van het vlak als die er is (#536).
+    const a = meas.vlakMeting(ann);
     ann.measureValue = a.value;
     ann.measureUnit = a.unit;
     if (!keepText) ann.measureText = meas.formatMeasurement(a);
@@ -1868,6 +1957,10 @@ async function handleListTabs() {
       pageCount: d.pdfDoc?.numPages ?? 0,
       isUntitled: !!d.isUntitled,
       currentPage: d.currentPage ?? null,
+      // Opened with a password: read-only; filePath is then the decrypted
+      // working copy and originalFilePath the user's file.
+      passwordProtected: !!d.passwordProtected,
+      originalFilePath: d.originalFilePath ?? null,
       annotationCount: (d.annotations || []).length,
     })),
   };
@@ -1953,6 +2046,11 @@ async function handleSavePdf(params) {
   const stateMod = await import('./core/state.js');
   const doc = stateMod.getActiveDocument();
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+  // Opened with a password: read-only, never saved (not even as a copy).
+  const pwMod = await import('./pdf/wachtwoord-pdf.js');
+  if (pwMod.opslaanGeweigerd(doc)) {
+    return { ok: false, error: 'document is read-only: it was opened with a password and cannot be saved', readOnly: true };
+  }
   if (!path && (!doc.filePath || doc.isUntitled)) {
     // savePDF() without a real path falls through to the Save As file picker
     // — never acceptable on a headless bridge. The caller must supply a path.
@@ -2048,6 +2146,11 @@ async function handleGetPageText(params) {
 async function handleReplaceText(params) {
   const textTools = await import('./text/mcp-text-tools.js');
   return textTools.replaceTextForMcp(params);
+}
+
+async function handleTranslatePage(params) {
+  const textTools = await import('./text/mcp-text-tools.js');
+  return textTools.translatePageForMcp(params);
 }
 
 async function handleSetMeasureScale(params) {
@@ -2188,8 +2291,11 @@ async function handleFacadeElement(params) {
 async function handleAiComplete(params) {
   const prompt = params?.prompt;
   if (typeof prompt !== 'string' || !prompt) return { ok: false, error: 'missing params.prompt' };
-  let key = '';
-  try { key = localStorage.getItem('opds-anthropic-key') || ''; } catch { /* no localStorage */ }
+  // Als gast praat de app niet met andere hosts en staat de sleutel nergens (#548).
+  const { externeDienstenAan } = await import('./core/webfuncties.js');
+  if (!externeDienstenAan()) return { ok: false, error: 'AI service is off when hosted' };
+  const { leesAiSleutel } = await import('./core/ai-sleutel.js');
+  const key = leesAiSleutel();
   // Claude (Anthropic) direct — uses the personal key set via the 🔑 button.
   if (!key) return { ok: false, error: 'geen Claude-key gezet (🔑)' };
   const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2475,11 +2581,12 @@ async function handleStructuralLayout(params) {
 // button that lives on an inactive tab simply does not exist in the DOM.
 // `_findElementAcrossTabs` therefore walks the ribbon tab strip (clicking
 // each tab button and giving Solid ~150 ms to mount the content) until the
-// selector matches. Contextual tabs (Opmaak/Schikken/Afbeelding) only have
-// a tab button while a matching selection exists — otherwise their content
-// is unreachable and the element is reported as not found.
-
-const RIBBON_TAB_ORDER = ['home', 'view', 'drawing', 'comment', 'organize', 'arrange', 'format', 'image', 'help'];
+// selector matches: first the built-in tabs, then the extension tabs (#551)
+// and tab buttons an extension put into the DOM itself (#584). Contextual
+// tabs (Opmaak/Schikken/Afbeelding) only have a tab button while a matching
+// selection exists — otherwise their content is unreachable and the element
+// is reported as not found. The tab rules (command ids, order, activatedTab)
+// live in core/mcp-lint-opdrachten.js.
 
 function _isElementDisabled(el) {
   return el.disabled === true ||
@@ -2487,32 +2594,101 @@ function _isElementDisabled(el) {
          el.classList?.contains('disabled') === true;
 }
 
+const _wacht = (ms) => new Promise((r) => setTimeout(r, ms));
+// Loaded once; the sync tab helpers below run after the first await of it.
+let _lintRegelsModule = null;
+const _lintRegels = async () => (_lintRegelsModule ??= await import('./core/mcp-lint-opdrachten.js'));
+
+/** The tab name of a tab button: data-tab, `#<id>` or its aria-controls panel. */
+function _naamVanTabKnop(el) {
+  return _lintRegelsModule.tabNaam({
+    dataTab: el.getAttribute('data-tab') || '', id: el.id || '', ariaControls: el.getAttribute('aria-controls') || '',
+  });
+}
+
+/** The ribbon tab on screen. The DOM wins over the ribbon store: a tab button
+ *  an extension put into the DOM itself shows its tab outside the store. */
+async function _actiefTabblad() {
+  let storeTab = null;
+  try {
+    const store = await import('./solid/stores/ribbonStore.js');
+    storeTab = store.activeTab();
+  } catch {
+    // store unavailable
+  }
+  try {
+    const { actiefTabblad } = await _lintRegels();
+    const knoppen = _lintTabKnoppen().map(({ tab, el }) => ({
+      tab, actief: el.classList.contains('active') || el.getAttribute('aria-selected') === 'true',
+    }));
+    return actiefTabblad(knoppen, storeTab);
+  } catch {
+    return storeTab;
+  }
+}
+
+/** Every tab button of the ribbon in DOM order: built-in tabs, extension
+ *  tabs (#551) and tab buttons an extension put into the DOM itself. A tab is
+ *  named by its data-tab, else `#<id>`, else the panel in aria-controls
+ *  (`tab-<name>` gives `<name>`); File is not a tab. */
+function _lintTabKnoppen() {
+  const uit = [];
+  const gezien = new Set();
+  for (const el of document.querySelectorAll('.ribbon-tab')) {
+    if (el.classList.contains('file-tab')) continue;
+    const tab = _naamVanTabKnop(el);
+    if (!tab || gezien.has(tab)) continue;
+    gezien.add(tab);
+    uit.push({ tab, el });
+  }
+  return uit;
+}
+
+function _tabKnop(tab) {
+  return _lintTabKnoppen().find((t) => t.tab === tab)?.el ?? null;
+}
+
+/** The tab of a tab button (or of an element inside one), or null. */
+function _tabVanKnop(el) {
+  const knop = el?.closest?.('.ribbon-tab');
+  if (!knop || knop.classList.contains('file-tab')) return null;
+  return _naamVanTabKnop(knop);
+}
+
+/** Click the tab button and give Solid time to mount the content. */
+async function _activeerTab(tab) {
+  const knop = _tabKnop(tab);
+  if (!knop) return false;
+  knop.click();
+  await _wacht(150);
+  return true;
+}
+
+/** The extension tabs from the registry (#551): [{ id, extId, label, ... }]. */
+async function _extensieTabbladen() {
+  try {
+    const { lintRegister } = await import('./plugins/ribbon-tab-registry.js');
+    const i18n = (await import('./i18n/config.js')).default;
+    return lintRegister.tabbladen(i18n.language);
+  } catch {
+    return [];
+  }
+}
+
 async function _findElementAcrossTabs(selector, searchTabs = true) {
   let el = document.querySelector(selector);
   if (el) return { el, activatedTab: null };
   if (!searchTabs) return { el: null, activatedTab: null };
 
-  let originalTab = null;
-  try {
-    const store = await import('./solid/stores/ribbonStore.js');
-    originalTab = store.activeTab();
-  } catch { /* store unavailable — still try the tab buttons below */ }
-
-  const wait = (ms) => new Promise(r => setTimeout(r, ms));
-  for (const tab of RIBBON_TAB_ORDER) {
-    if (tab === originalTab) continue;
-    const btn = document.querySelector(`.ribbon-tab[data-tab="${tab}"]`);
-    if (!btn) continue; // contextual tab without matching selection
-    btn.click();
-    await wait(150);
+  const { tabVolgorde } = await _lintRegels();
+  const originalTab = await _actiefTabblad();
+  for (const tab of tabVolgorde(_lintTabKnoppen().map((t) => t.tab), originalTab)) {
+    if (!(await _activeerTab(tab))) continue; // tab button gone in the meantime
     el = document.querySelector(selector);
     if (el) return { el, activatedTab: tab };
   }
   // Not found anywhere — restore the original tab so the sweep is side-effect-free.
-  if (originalTab) {
-    const back = document.querySelector(`.ribbon-tab[data-tab="${originalTab}"]`);
-    if (back) { back.click(); await wait(150); }
-  }
+  if (originalTab) await _activeerTab(originalTab);
   return { el: null, activatedTab: null };
 }
 
@@ -2532,13 +2708,24 @@ async function handleClickElement(params) {
     return { ok: false, found: false, disabled: false, error: `no element matches: ${selector}` };
   }
   const disabled = _isElementDisabled(el);
-  if (!disabled) el.click();
+  let activatedTab = found.activatedTab;
+  if (!disabled) {
+    // A click on a tab button (also one an extension put into the DOM itself)
+    // or a click that switches the ribbon tab reports that tab (#584).
+    const { geactiveerdTabblad } = await _lintRegels();
+    const voor = await _actiefTabblad();
+    el.click();
+    activatedTab = geactiveerdTabblad({
+      gezocht: found.activatedTab, voor, na: await _actiefTabblad(), tabKnop: _tabVanKnop(el),
+    });
+  }
   return {
     ok: true,
     found: true,
     disabled,
     clicked: !disabled,
-    activatedTab: found.activatedTab,
+    activatedTab,
+    activeTab: await _actiefTabblad(),
   };
 }
 
@@ -2583,70 +2770,109 @@ async function handleUiState(params) {
 // app_list_commands somt op wat er IS, app_run_command voert het uit. Een AI
 // die niet weet hoe iets heet, vraagt eerst de lijst op.
 //
-// Commando-ids:
+// Commando-ids (de lintregels staan in core/mcp-lint-opdrachten.js):
+//   ribbon-tab:<tab>      een linttabblad activeren: ingebouwd, van een
+//                         extensie, of door een extensie zelf in de DOM gezet (#584)
 //   ribbon:#<id>          lintknop met een vaste id (stabiel tussen versies)
 //   ribbon:<tab>:<n>      lintknop zonder id, n-de knop op dat tabblad
 //                         (alleen stabiel binnen dezelfde versie)
 //   tool:<naam>           een gereedschap uit het register
+//   ext:<extId>:<item>    een actie van een extensie, ext:<extId>:<item>=<keuze>
+//                         een keuze van haar keuzelijst (#551)
 
 // Elke lintknop (RibbonButton, ook in een RibbonButtonStack) zit in een
 // RibbonGroup. List en run gebruiken dezelfde selector, zodat een positioneel
 // commando (ribbon:tab:n) altijd naar dezelfde knop wijst.
-const LINT_KNOP_SELECTOR = '.ribbon-group .ribbon-btn';
+// Knoppen van extensies (#551) staan als `ext:`-opdracht in het register en
+// tellen hier niet mee, zodat de nummering van ingebouwde knoppen niet verschuift.
+const LINT_KNOP_SELECTOR = '.ribbon-group .ribbon-btn:not([data-ext-command])';
 
 function _knopLabel(el) {
   const lbl = el.querySelector('.ribbon-btn-label');
   return ((lbl && lbl.textContent) || el.getAttribute('title') || el.getAttribute('aria-label') || '').trim();
 }
 
+const _heeftMaat = (el) => { const r = el.getBoundingClientRect(); return Boolean(r.width || r.height); };
+
+/** De knoppen van het tabblad dat nu getoond wordt, in de volgorde die list en
+ *  run delen. Ingebouwd: de vaste knopselector. Een tabblad dat een extensie
+ *  zelf in de DOM zette: elke zichtbare knop in zijn zichtbare inhoud. */
+function _knoppenOpTab(tab, soort) {
+  if (soort === 'builtin') {
+    return [...new Set(document.querySelectorAll(LINT_KNOP_SELECTOR))].filter(_heeftMaat);
+  }
+  const paneelId = _tabKnop(tab)?.getAttribute('aria-controls') || (tab.startsWith('#') ? '' : `tab-${tab}`);
+  let panelen = paneelId ? [document.getElementById(paneelId)].filter((p) => p && _heeftMaat(p)) : [];
+  if (!panelen.length) {
+    panelen = [...document.querySelectorAll('.ribbon-container [role="tabpanel"], .ribbon-container .ribbon-content')]
+      .filter(_heeftMaat);
+  }
+  const knoppen = panelen.flatMap((p) => [...p.querySelectorAll('button, [role="button"]')]);
+  return [...new Set(knoppen)].filter((el) =>
+    !el.hasAttribute('data-ext-command') && !el.closest('.ribbon-tab') && _heeftMaat(el));
+}
+
 async function _lintKnoppenPerTab() {
-  let origineel = null;
-  try {
-    const store = await import('./solid/stores/ribbonStore.js');
-    origineel = store.activeTab();
-  } catch { /* geen store — toch proberen */ }
-  const wacht = (ms) => new Promise((r) => setTimeout(r, ms));
+  const { tabVolgorde, tabSoort, knopOpdrachtId } = await _lintRegels();
+  const extensieTabs = (await _extensieTabbladen()).map((t) => t.id);
+  const origineel = await _actiefTabblad();
   const uit = [];
-  for (const tab of RIBBON_TAB_ORDER) {
-    const tabKnop = document.querySelector(`.ribbon-tab[data-tab="${tab}"]`);
-    if (!tabKnop) continue; // contextueel tabblad zonder selectie
-    tabKnop.click();
-    await wacht(150);
-    const knoppen = [...document.querySelectorAll(LINT_KNOP_SELECTOR)];
-    const gezien = new Set();
+  for (const tab of tabVolgorde(_lintTabKnoppen().map((t) => t.tab))) {
+    const soort = tabSoort(tab, extensieTabs);
+    if (soort === 'extension') continue; // uit het register, ook bij een ingeklapt lint (#551)
+    if (!(await _activeerTab(tab))) continue; // contextueel tabblad zonder selectie
     let n = 0;
-    for (const el of knoppen) {
-      if (gezien.has(el)) continue;
-      gezien.add(el);
-      const r = el.getBoundingClientRect();
-      if (!r.width && !r.height) continue; // verborgen
+    for (const el of _knoppenOpTab(tab, soort)) {
       uit.push({
-        command: el.id ? `ribbon:#${el.id}` : `ribbon:${tab}:${n}`,
+        command: knopOpdrachtId(tab, { id: el.id, n }),
         tab,
-        label: _knopLabel(el),
+        label: soort === 'dom' ? (_knopLabel(el) || (el.textContent || '').replace(/\s+/g, ' ').trim()) : _knopLabel(el),
         title: el.getAttribute('title') || '',
         disabled: _isElementDisabled(el),
         active: el.classList.contains('active'),
         stableId: !!el.id,
+        ...(soort === 'dom' ? { kind: 'button' } : {}),
       });
       n++;
     }
   }
-  if (origineel) {
-    const terug = document.querySelector(`.ribbon-tab[data-tab="${origineel}"]`);
-    if (terug) { terug.click(); await wacht(150); }
-  }
+  if (origineel) await _activeerTab(origineel);
   return uit;
+}
+
+/** Elk linttabblad als `ribbon-tab:`-opdracht, met het tab-id van de extensie. */
+async function _tabOpdrachten() {
+  const { tabOpdrachten } = await _lintRegels();
+  const perId = new Map((await _extensieTabbladen()).map((t) => [t.id, t]));
+  const tabs = _lintTabKnoppen().map(({ tab, el }) => {
+    const reg = perId.get(tab);
+    const label = reg?.label || (el.querySelector('.ribbon-ext-tab-label')?.textContent || el.textContent || '')
+      .replace(/\s+/g, ' ').trim();
+    return {
+      tab, label, title: el.getAttribute('title') || '', extension: reg?.extId ?? null,
+      active: el.classList.contains('active') || el.getAttribute('aria-selected') === 'true',
+    };
+  });
+  return tabOpdrachten(tabs, await _actiefTabblad());
+}
+
+async function _extensieOpdrachten() {
+  const { extensieOpdrachten } = await import('./plugins/extension-commands.js');
+  const i18n = (await import('./i18n/config.js')).default;
+  return extensieOpdrachten.lijst(i18n.language);
 }
 
 async function handleListCommands(params) {
   const filter = typeof params?.filter === 'string' ? params.filter.toLowerCase() : '';
+  const tabbladen = await _tabOpdrachten();
   const lint = await _lintKnoppenPerTab();
   const registryMod = await import('./tools/tool-registry.js');
   const gereedschap = registryMod.listToolNames().map((naam) => ({
     command: `tool:${naam}`, tab: null, label: naam, title: '', disabled: false, active: false, stableId: true,
   }));
-  let alles = [...lint, ...gereedschap];
+  // Extensieopdrachten komen uit het register, ook bij een ingeklapt lint (#551).
+  const extensie = await _extensieOpdrachten();
+  let alles = [...tabbladen, ...lint, ...gereedschap, ...extensie];
   if (filter) {
     alles = alles.filter((c) =>
       (c.command + ' ' + c.label + ' ' + c.title + ' ' + (c.tab || '')).toLowerCase().includes(filter));
@@ -2654,9 +2880,12 @@ async function handleListCommands(params) {
   return {
     ok: true,
     count: alles.length,
+    tabCommands: tabbladen.length,
     ribbonCommands: lint.length,
     toolCommands: gereedschap.length,
+    extensionCommands: extensie.length,
     withoutStableId: lint.filter((c) => !c.stableId).length,
+    activeTab: await _actiefTabblad(),
     commands: alles,
   };
 }
@@ -2667,31 +2896,123 @@ async function handleRunCommand(params) {
     return { ok: false, error: 'missing or invalid params.command — see app_list_commands' };
   }
 
+  if (command.startsWith('ext:')) {
+    const { voerExtensieOpdrachtUit } = await import('./plugins/extension-commands.js');
+    return voerExtensieOpdrachtUit(command, { source: 'mcp' });
+  }
+
   if (command.startsWith('tool:')) {
     return handleSetTool({ tool: command.slice(5) });
   }
 
-  if (command.startsWith('ribbon:#')) {
-    return handleClickElement({ selector: `#${CSS.escape(command.slice(8))}` });
+  const { leesLintOpdracht, tabSoort } = await _lintRegels();
+  const lint = leesLintOpdracht(command);
+
+  if (lint?.soort === 'tab') {
+    const knop = _tabKnop(lint.tab);
+    if (!knop) return { ok: false, error: `tab not available: ${lint.tab} — see app_list_commands` };
+    if (_isElementDisabled(knop)) return { ok: false, found: true, disabled: true, error: 'tab is disabled' };
+    knop.click();
+    await _wacht(150);
+    return { ok: true, clicked: true, command, activatedTab: lint.tab, activeTab: await _actiefTabblad() };
   }
 
-  const m = command.match(/^ribbon:([a-z]+):(\d+)$/);
-  if (m) {
-    const [, tab, nr] = m;
-    const tabKnop = document.querySelector(`.ribbon-tab[data-tab="${tab}"]`);
-    if (!tabKnop) return { ok: false, error: `tab not available: ${tab}` };
-    tabKnop.click();
-    await new Promise((r) => setTimeout(r, 150));
-    const zichtbaar = [...new Set(document.querySelectorAll(LINT_KNOP_SELECTOR))]
-      .filter((el) => { const r = el.getBoundingClientRect(); return r.width || r.height; });
-    const el = zichtbaar[Number(nr)];
-    if (!el) return { ok: false, error: `no button #${nr} on tab ${tab} — list again, ids without a stable id shift between versions` };
+  if (lint?.soort === 'id') {
+    return handleClickElement({ selector: `#${CSS.escape(lint.id)}` });
+  }
+
+  if (lint?.soort === 'positie') {
+    const { tab, n } = lint;
+    const soort = tabSoort(tab, (await _extensieTabbladen()).map((t) => t.id));
+    if (soort === 'extension') {
+      return { ok: false, error: `buttons on extension tab ${tab} run as ext: commands — see app_list_commands` };
+    }
+    if (!(await _activeerTab(tab))) return { ok: false, error: `tab not available: ${tab}` };
+    const el = _knoppenOpTab(tab, soort)[n];
+    if (!el) return { ok: false, error: `no button #${n} on tab ${tab} — list again, ids without a stable id shift between versions` };
     if (_isElementDisabled(el)) return { ok: false, found: true, disabled: true, error: 'button is disabled' };
     el.click();
-    return { ok: true, clicked: true, command, label: _knopLabel(el) };
+    return { ok: true, clicked: true, command, label: _knopLabel(el) || (el.textContent || '').trim(), activatedTab: tab };
   }
 
   return { ok: false, error: `unknown command format: ${command}` };
+}
+
+// ─── Interface lezen (#584) ───────────────────────────────────────────────
+//
+// app_read_ui: een toegankelijkheidsachtige boom (rol, naam, staat) van het
+// lint, de zijpanelen, de balken boven het document, zwevende paletten, open
+// dialogen en de statusbalk, of van wat een selector aanwijst. Alleen lezen:
+// er wordt geen tabblad gewisseld. De regels staan in core/mcp-ui-boom.js.
+
+const UI_MAX_WORTELS = 50;
+
+function _isZichtbaar(el) {
+  try {
+    if (typeof el.checkVisibility === 'function') return el.checkVisibility({ checkVisibilityCSS: true });
+    if (!_heeftMaat(el)) return false;
+    const cs = getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden';
+  } catch {
+    return true;
+  }
+}
+
+/** De standaardgebieden, elk met de zichtbare elementen die iets bevatten. */
+function _standaardUiGebieden() {
+  const bruikbaar = (lijst) => lijst.filter((el) =>
+    el && _isZichtbaar(el) && (el.childElementCount > 0 || (el.textContent || '').trim()));
+  const inhoud = document.querySelector('.content');
+  const hoofd = inhoud?.querySelector(':scope > .main-view') ?? null;
+  return [
+    { region: 'ribbon', elements: bruikbaar([document.querySelector('.ribbon-container')]) },
+    { region: 'sidePanels', elements: bruikbaar([...(inhoud?.children ?? [])].filter((el) => el !== hoofd)) },
+    { region: 'documentArea', elements: bruikbaar([...(hoofd?.children ?? [])].filter((el) => el.id !== 'pdf-container')) },
+    { region: 'floatingPanels', elements: bruikbaar([...document.querySelectorAll('.tp-float')]) },
+    { region: 'dialogs', elements: bruikbaar([...document.querySelectorAll('[role="dialog"], [role="alertdialog"]')]) },
+    { region: 'statusBar', elements: bruikbaar([document.querySelector('.status-bar')]) },
+  ].filter((g) => g.elements.length);
+}
+
+async function handleReadUi(params) {
+  const { leesUiArgumenten, bouwUiBoom } = await import('./core/mcp-ui-boom.js');
+  const args = leesUiArgumenten(params);
+  if (args.error) return { ok: false, error: args.error };
+  let gebieden;
+  let gevonden = null;
+  if (args.selector) {
+    let lijst;
+    try {
+      lijst = [...document.querySelectorAll(args.selector)];
+    } catch (e) {
+      return { ok: false, error: `invalid selector: ${e?.message ?? e}` };
+    }
+    gevonden = lijst.length;
+    if (!lijst.length) {
+      return { ok: true, found: false, selector: args.selector, matches: 0, regions: [], nodeCount: 0, truncated: false };
+    }
+    gebieden = [{ region: 'selector', elements: lijst.slice(0, UI_MAX_WORTELS) }];
+  } else {
+    gebieden = _standaardUiGebieden();
+  }
+  const boom = bouwUiBoom(gebieden, {
+    maxDepth: args.maxDepth,
+    maxNodes: args.maxNodes,
+    maxText: args.maxText,
+    includeHidden: args.includeHidden,
+    isZichtbaar: _isZichtbaar,
+    zoekOpId: (id) => document.getElementById(id),
+    actiefElement: document.activeElement,
+  });
+  return {
+    ok: true,
+    ...(args.selector ? { found: true, selector: args.selector, matches: gevonden } : {}),
+    activeTab: await _actiefTabblad(),
+    regions: boom.regions,
+    nodeCount: boom.nodeCount,
+    truncated: boom.truncated || (gevonden ?? 0) > UI_MAX_WORTELS,
+    limits: { maxDepth: args.maxDepth, maxNodes: args.maxNodes, maxText: args.maxText },
+  };
 }
 
 // ─── Vectorknipsel ────────────────────────────────────────────────────────
@@ -3255,6 +3576,58 @@ async function handleSetLayer(params) {
   return r;
 }
 
+// ─── Systeemtypen (#567) ──────────────────────────────────────────────────
+// De regels staan puur in annotations/systeem-typen-mcp.js; hier alleen de
+// host: de registry (één commit-pad met opslaan, hertekenen en melding), de
+// native editor en de geometrie van een systeem in het actieve document.
+// Geen GUI-automatisering, geen preferences-bestand.
+async function _systeemTypenMcp() {
+  const [regels, registry, editor, geometrie] = await Promise.all([
+    import('./annotations/systeem-typen-mcp.js'),
+    import('./annotations/systeem-typen-registry.js'),
+    import('./solid/stores/systeemtypenEditorStore.js'),
+    import('./annotations/systeem-geometrie-app.js'),
+  ]);
+  return {
+    regels,
+    host: {
+      ...registry,
+      openEditor: editor.openSysteemtypenEditor,
+      systeemInstanceGeometrie: geometrie.systeemInstanceGeometrie,
+    },
+  };
+}
+
+/** app_list_system_types — de systeemtypen van de bibliotheek, of één op id. */
+async function handleListSystemTypes(params) {
+  const { regels, host } = await _systeemTypenMcp();
+  return regels.mcpLijstSysteemTypen(params ?? {}, host);
+}
+
+/** app_register_system_type — een type onder mcp:<key> registreren. */
+async function handleRegisterSystemType(params) {
+  const { regels, host } = await _systeemTypenMcp();
+  return regels.mcpRegistreerSysteemType(params ?? {}, host);
+}
+
+/** app_update_system_type — een MCP-type bijwerken met revisiecontrole. */
+async function handleUpdateSystemType(params) {
+  const { regels, host } = await _systeemTypenMcp();
+  return regels.mcpWerkSysteemTypeBij(params ?? {}, host);
+}
+
+/** app_open_system_type_editor — de native editor met dit type geselecteerd. */
+async function handleOpenSystemTypeEditor(params) {
+  const { regels, host } = await _systeemTypenMcp();
+  return regels.mcpOpenSysteemTypeEditor(params ?? {}, host);
+}
+
+/** app_get_system_geometry — de geometrie van één systeem in het actieve document. */
+async function handleGetSystemGeometry(params) {
+  const { regels, host } = await _systeemTypenMcp();
+  return regels.mcpSysteemGeometrie(params ?? {}, host);
+}
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -3302,6 +3675,7 @@ const HANDLERS = {
   'mcp:get-page-count':     handleGetPageCount,
   'mcp:get-page-text':      handleGetPageText,
   'mcp:replace-text':       handleReplaceText,
+  'mcp:translate-page':     handleTranslatePage,
   // App control: measurement scale
   'mcp:set-measure-scale':  handleSetMeasureScale,
   // Plattegrond: sparingen, ruimten en verankerde maatvoering
@@ -3315,6 +3689,8 @@ const HANDLERS = {
   // Commandolaag: elke lintknop en elk gereedschap
   'mcp:list-commands':      handleListCommands,
   'mcp:run-command':        handleRunCommand,
+  // Interface lezen (#584)
+  'mcp:read-ui':            handleReadUi,
   // Vectorknipsel, symboolschaal, bladhoofd
   'mcp:snippet-cut':        handleSnippetCut,
   'mcp:snippet-paste':      handleSnippetPaste,
@@ -3332,6 +3708,19 @@ const HANDLERS = {
   'mcp:list-layers':        handleListLayers,
   'mcp:create-layer':       handleCreateLayer,
   'mcp:set-layer':          handleSetLayer,
+  // Systeemtypen (#567)
+  'mcp:list-system-types':       handleListSystemTypes,
+  'mcp:register-system-type':    handleRegisterSystemType,
+  'mcp:update-system-type':      handleUpdateSystemType,
+  'mcp:open-system-type-editor': handleOpenSystemTypeEditor,
+  'mcp:get-system-geometry':     handleGetSystemGeometry,
+  // Extensies beheren zonder dialoog (#550); de regels staan in plugins/extension-mcp.js
+  'mcp:list-extensions':    (p) => import('./plugins/extension-mcp.js').then((m) => m.handleListExtensions(p)),
+  'mcp:install-extension':  (p) => import('./plugins/extension-mcp.js').then((m) => m.handleInstallExtension(p)),
+  'mcp:reload-extension':   (p) => import('./plugins/extension-mcp.js').then((m) => m.handleReloadExtension(p)),
+  // Gestructureerde opdrachten van extensies (#575); de regels staan in plugins/structured-commands.js
+  'mcp:call-extension-command':   (p) => import('./plugins/structured-commands.js').then((m) => m.handleCallExtensionCommand(p)),
+  'mcp:cancel-extension-command': (p) => import('./plugins/structured-commands.js').then((m) => m.handleCancelExtensionCommand(p)),
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)
@@ -3342,7 +3731,37 @@ const HANDLERS = {
   'mcp:assistant-pending':  handleAssistantPending,
   'mcp:assistant-answer':   handleAssistantAnswer,
   'mcp:assistant-history':  handleAssistantHistory,
+  // Agenttaken van extensies (#556): zonder assistentvenster; de regels staan in plugins/agent-tasks.js
+  'mcp:agent-task-pending': (p) => import('./plugins/agent-tasks.js').then((m) => m.handleAgentTaskPending(p)),
+  'mcp:agent-task-result':  (p) => import('./plugins/agent-tasks.js').then((m) => m.handleAgentTaskResult(p)),
 };
+
+/**
+ * Gestructureerde opdrachten van extensies (#575) staan in tools/list van de
+ * MCP-server: na elke wijziging gaat de hele lijst naar Rust
+ * (mcp_set_extension_tools). Het volgnummer loopt ook over een herlading van
+ * de WebView door, zodat Rust een oudere lijst die later aankomt negeert.
+ */
+async function synchroniseerExtensieTools(invoke) {
+  const { gestructureerdeOpdrachten } = await import('./plugins/structured-commands.js');
+  let gepland = false;
+  let teller = 0;
+  const stuur = () => {
+    if (gepland) return;
+    gepland = true;
+    queueMicrotask(async () => {
+      gepland = false;
+      const seq = Math.floor((performance.timeOrigin + performance.now()) * 1000) + (++teller % 1000);
+      try {
+        await invoke('mcp_set_extension_tools', { tools: gestructureerdeOpdrachten.mcpTools(), seq });
+      } catch (e) {
+        console.warn('[mcp-bridge] extension commands not passed to the MCP server:', e);
+      }
+    });
+  };
+  gestructureerdeOpdrachten.abonneer(stuur);
+  stuur();
+}
 
 /** Wire up all `mcp:*` listeners. Safe to call once at startup. Becomes
  *  a no-op when Tauri isn't present (browser dev mode). */
@@ -3391,6 +3810,8 @@ export async function initMcpBridge() {
   }
   window.__mcpBridgeReady = true;
   window.__mcpBridgeEvents = wired;
+  synchroniseerExtensieTools(window.__TAURI__.core.invoke)
+    .catch((e) => console.warn('[mcp-bridge] extension commands unavailable:', e));
   console.log('[mcp-bridge] ready, events:', wired);
   // Notify the Rust side so we can confirm wire-up from outside the WebView
   // (devtools console isn't visible when launched headless).

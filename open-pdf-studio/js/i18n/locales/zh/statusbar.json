@@ -11,6 +11,7 @@
     "box": "矩形",
     "polygon": "多边形",
     "cloud": "云形",
+    "cloudPolyline": "云形折线",
     "polyline": "折线",
     "textbox": "文本框",
     "callout": "标注",
@@ -27,7 +28,8 @@
     "formTextField": "表单文本字段",
     "formCheckbox": "表单复选框",
     "formRadio": "表单单选按钮",
-    "screenshot": "截图"
+    "screenshot": "截图",
+    "pageLabelPick": "选择页面标签文字"
   },
   "toolLabel": "工具：",
   "annotationsLabel": "批注：",
@@ -36,6 +38,7 @@
   "previousPage": "上一页",
   "nextPage": "下一页",
   "lastPage": "最后一页",
+  "page": "页",
   "zoomOut": "缩小",
   "zoomIn": "放大",
   "noDocumentsOpen": "没有打开的文档",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "此文档包含交互式表单字段。您可以填写表单并保存数据。",
   "enableEditing": "启用编辑",
   "pdfAConformance": "此文档声明符合 PDF/A 标准。",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "重命名文件失败：{{error}}",
+  "renameInvalidChars": "文件名不能包含  / : * ? \" < > |",
+  "renameFileExists": "已存在同名文件。",
+  "engineTitle": "当前视图使用的渲染引擎",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1（矢量）"
+  },
+  "viewSingle": "单页",
+  "viewContinuous": "连续",
+  "viewBook": "双页",
+  "viewFacing": "两页并排",
   "viewRotatedTitle": "视图已顺时针旋转 {{degrees}}°；文档未更改。单击可将视图转回。",
+  "compareTabTitle": "比较",
   "filledAreaSketch": {
     "undoPoint": "撤销点",
     "undoPointTitle": "删除最后一个点（退格键）",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "宽",
   "boxHeightAbbr": "高",
+  "boxSizeHint": "输入数值 + Enter，或单击别处以应用",
   "ocr": {
     "progress": {
       "starting": "正在識別文字...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "结果 ({{count}})",
   "searchResultPage": "第 {{page}} 页",
   "searchHitsOne": "1 处匹配",
-  "searchHitsMany": "{{count}} 处匹配"
+  "searchHitsMany": "{{count}} 处匹配",
+  "passwordProtectedBar": "受密码保护：已以只读方式打开。"
 }

@@ -16,33 +16,50 @@ import {
   setLeftPanelCollapsed as setCollapsed,
   setThumbnailPageCount as setPageCount, setThumbnailActivePage as setActivePage,
   setThumbnailPlaceholderSize as setPlaceholderSize,
-  setThumbnailImage, clearAllThumbnails, removeThumbnailImage,
+  setThumbnailImage, clearAllThumbnails,
   getThumbnailContainerRef as getContainerRef,
   thumbnailSelectedPages, selectThumbnailPage,
 } from '../../bridge.js';
+import { renderBreedteVoorLijst, halveerStappen, MIN_RENDER } from './miniatuur-maat.js';
 
-// Thumbnails are rendered THUMB_PX wide whatever the page size, and the
-// panel scales them to its column width (CSS grid in layout.css). 280 px
-// keeps them sharp when the left panel is widened or wraps to columns.
-const THUMB_PX = 280;
-const thumbScaleFor = (widthPt) => THUMB_PX / (widthPt || 595);
+// Renderbreedte van nieuwe miniaturen in apparaatpixels (#579): de getoonde
+// kolombreedte maal devicePixelRatio, minstens 280 px, zodat ze scherp blijven
+// als het paneel breder wordt of in kolommen overloopt. Bijgewerkt door
+// werkDoelBreedteBij() als de lijst van breedte verandert.
+let doelPx = MIN_RENDER;
 
-// Shrink a large page bitmap to thumbnail size in halving steps. A single
-// drawImage from a full-page bitmap (often 4000+ px) down to THUMB_PX skips
-// most source pixels, so thin CAD linework breaks up into dots.
-function drawDownscaled(ctx, src, srcW, srcH, w, h) {
-  let cur = src, cw = srcW, ch = srcH;
-  while (cw / 2 > w && ch / 2 > h) {
-    const nw = Math.max(w, Math.round(cw / 2)), nh = Math.max(h, Math.round(ch / 2));
-    const step = document.createElement('canvas');
-    step.width = nw; step.height = nh;
-    const sctx = step.getContext('2d');
-    sctx.imageSmoothingEnabled = true; sctx.imageSmoothingQuality = 'high';
-    sctx.drawImage(cur, 0, 0, cw, ch, 0, 0, nw, nh);
-    cur = step; cw = nw; ch = nh;
+// Is deze miniatuur scherp genoeg voor de huidige breedte? Een kleinere wordt
+// opnieuw gemaakt zodra hij in beeld staat; tot dan blijft hij gewoon staan.
+function isScherpGenoeg(entry) {
+  return !!entry && (entry.px || 0) >= doelPx;
+}
+
+// Verklein een (grote) bitmap naar w x h in halveringsstappen met
+// hoogwaardige interpolatie. Eén drawImage van een volledige paginabitmap
+// (vaak 4000+ px) naar miniatuurmaat slaat de meeste bronpixels over: dun
+// CAD-lijnwerk valt dan uiteen in losse stippen. Daardoor zagen bezochte
+// (en dus vaak gemarkeerde) bladen er slechter uit dan onbezochte.
+function tekenVerkleind(ctx, bron, bronW, bronH, w, h) {
+  let huidig = bron;
+  let cw = bronW;
+  let ch = bronH;
+  const stappen = halveerStappen(bronW, bronH, w, h);
+  for (let i = 0; i < stappen.length - 1; i++) {
+    const [nw, nh] = stappen[i];
+    const tussen = document.createElement('canvas');
+    tussen.width = nw;
+    tussen.height = nh;
+    const tctx = tussen.getContext('2d');
+    tctx.imageSmoothingEnabled = true;
+    tctx.imageSmoothingQuality = 'high';
+    tctx.drawImage(huidig, 0, 0, cw, ch, 0, 0, nw, nh);
+    huidig = tussen;
+    cw = nw;
+    ch = nh;
   }
-  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(cur, 0, 0, cw, ch, 0, 0, w, h);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(huidig, 0, 0, cw, ch, 0, 0, w, h);
 }
 
 // Cache for thumbnail data per document: Map<docId, Map<pageNum, imageDataURL>>
@@ -86,6 +103,12 @@ let scrollDebounceTimer = null;
 // Track if scroll listener is attached
 let scrollListenerAttached = false;
 
+// Breedte van de miniaturenlijst volgen (#579)
+let lijstWaarnemer = null;
+let waargenomenLijst = null;
+let breedteTimer = null;
+let vensterLuistert = false;
+
 // Initialize left panel
 export function initLeftPanel() {
   attachScrollListener();
@@ -98,10 +121,50 @@ function attachScrollListener() {
   if (tc) {
     tc.addEventListener('scroll', handleThumbnailScroll);
     scrollListenerAttached = true;
+    volgLijstBreedte(tc);
   } else {
     // Retry until SolidJS sets the ref
     setTimeout(attachScrollListener, 100);
   }
+}
+
+// Paneel breder of smaller, ander scherm (devicePixelRatio): kies opnieuw de
+// renderbreedte. Ook het tevoorschijn komen van een verborgen lijst telt.
+function volgLijstBreedte(tc) {
+  if (waargenomenLijst === tc) return;
+  if (typeof ResizeObserver !== 'undefined') {
+    if (lijstWaarnemer) lijstWaarnemer.disconnect();
+    lijstWaarnemer = new ResizeObserver(planBreedteCheck);
+    lijstWaarnemer.observe(tc);
+  }
+  waargenomenLijst = tc;
+  if (!vensterLuistert && typeof window !== 'undefined') {
+    window.addEventListener('resize', planBreedteCheck);
+    vensterLuistert = true;
+  }
+  planBreedteCheck();
+}
+
+function planBreedteCheck() {
+  if (breedteTimer) clearTimeout(breedteTimer);
+  breedteTimer = setTimeout(werkDoelBreedteBij, 200);
+}
+
+// Wordt de renderbreedte groter, dan worden de miniaturen in beeld opnieuw
+// (scherper) gemaakt en de rest zodra hij in beeld komt; het oude beeld blijft
+// staan tot het nieuwe klaar is. Kleiner: alleen nieuwe miniaturen worden
+// kleiner gemaakt, de bestaande zijn scherp genoeg.
+function werkDoelBreedteBij() {
+  breedteTimer = null;
+  const tc = getContainerRef();
+  if (!tc || !tc.clientWidth) return; // verborgen paneel of tabblad: niets te meten
+  const cs = getComputedStyle(tc);
+  const binnen = tc.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+  const nieuw = renderBreedteVoorLijst(binnen, window.devicePixelRatio || 1);
+  if (nieuw === doelPx) return;
+  const groter = nieuw > doelPx;
+  doelPx = nieuw;
+  if (groter) updateVisiblePriorities();
 }
 
 // Handle scroll in thumbnails container - debounced
@@ -150,7 +213,8 @@ function updateVisiblePriorities() {
         firstVisiblePage = pageNum;
       }
 
-      if (!docCache.has(pageNum)) {
+      // Ontbreekt, of gemaakt voor een smaller paneel: (opnieuw) maken.
+      if (!isScherpGenoeg(docCache.get(pageNum))) {
         priorityPages.add(pageNum);
       }
     }
@@ -230,13 +294,14 @@ export async function generateThumbnails() {
   const docId = activeDoc.id;
   const numPages = pdfDoc.numPages;
 
-  // Get first page dimensions for placeholder sizing
+  // Get first page dimensions for placeholder sizing. Alleen de verhouding
+  // telt: de plaatshouder vult de kolombreedte (aspect-ratio).
   let placeholderWidth = 150;
   let placeholderHeight = Math.round(150 * 1.414);
   try {
     const firstPage = await pdfDoc.getPage(1);
     const extraRot = getPageRotation(1);
-    const thOpts = { scale: thumbScaleFor(firstPage.view[2] - firstPage.view[0]) };
+    const thOpts = { scale: 1 };
     if (extraRot) thOpts.rotation = (firstPage.rotate + extraRot) % 360;
     const viewport = firstPage.getViewport(thOpts);
     placeholderWidth = Math.round(viewport.width);
@@ -409,7 +474,7 @@ async function processPriorityThumbnail(docId) {
   const pageNum = priorityPages.values().next().value;
   priorityPages.delete(pageNum);
 
-  if (docCache.has(pageNum)) {
+  if (isScherpGenoeg(docCache.get(pageNum))) {
     return priorityPages.size > 0;
   }
 
@@ -538,6 +603,15 @@ async function overlayAnnotationsOnDataURL(dataURL, pageNum, width, height, scal
 // Rust backend, then PDF.js. Reusing the cache avoids re-parsing the PDF
 // content stream + IPC + JPEG encode + base64 round-trip.
 async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
+  // De breedte bij de START van de render: verandert het paneel intussen, dan
+  // ziet isScherpGenoeg() dat deze miniatuur te klein is en volgt een nieuwe.
+  const doel = doelPx;
+  const res = await renderMiniatuur(pdfDoc, pageNum, doc, doel);
+  return res ? { ...res, px: doel } : res;
+}
+
+// Maak één miniatuur van `doel` apparaatpixels breed.
+async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
   if (!pdfDoc || !Number.isInteger(pageNum) || pageNum < 1 || pageNum > pdfDoc.numPages) return null;
   const _th0 = performance.now();
 
@@ -560,12 +634,9 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         const dims = vr.getCachedPageDimensions(doc.filePath, pageNum, rotation);
         console.log(`[thumb] p${pageNum} JS-replay: dims=`, dims, `rotation=${rotation}`);
         if (dims && dims.w > 0 && dims.h > 0) {
-          // Target 200 px wide thumbnail (matches Rust path).
-          // For LANDSCAPE pages (w > h), 200 px wide stays under common UI
-          // limits. For PORTRAIT pages (h > w), 200 px wide may produce a
-          // thumbnail taller than the panel — but downstream layout handles
-          // that. The original sizing is preserved here for compatibility.
-          const targetW = THUMB_PX;
+          // Breedte-gericht, net als het Rust-pad: elke miniatuur is `doel`
+          // px breed, staand of liggend; het paneel schaalt hem naar de kolom.
+          const targetW = doel;
           const scale = targetW / dims.w;
           const w = Math.max(1, Math.round(dims.w * scale));
           const h = Math.max(1, Math.round(dims.h * scale));
@@ -637,7 +708,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
         const best = pbc.getBestAvailableBitmap(doc.filePath, pageNum, rotation, 1);
         if (best && best.bitmap) {
-          const targetW = THUMB_PX;
+          const targetW = doel;
           const s = targetW / best.w;
           const w = Math.max(1, Math.round(best.w * s));
           const h = Math.max(1, Math.round(best.h * s));
@@ -647,7 +718,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
           const ctx = canvas.getContext('2d');
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, w, h);
-          drawDownscaled(ctx, best.bitmap, best.bitmap.width || best.w, best.bitmap.height || best.h, w, h);
+          tekenVerkleind(ctx, best.bitmap, best.bitmap.width || best.w, best.bitmap.height || best.h, w, h);
           const dataURL = canvas.toDataURL('image/jpeg', 0.7);
           const widthPt = doc.pageDims?.[pageNum]?.widthPt;
           const overlayScale = widthPt ? w / widthPt : null;
@@ -668,9 +739,11 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
         try {
           const widthPt = doc.pageDims?.[pageNum]?.widthPt || 2000;
           // Render op ~2x thumbnailbreedte (scherpe AA op dun lijnwerk), daarna
-          // downschalen naar THUMB_PX.
-          const renderW = THUMB_PX * 2;
-          const thumbScale = Math.max(0.008, Math.min(0.5, renderW / widthPt));
+          // in stappen downschalen naar `doel` px.
+          // Bovengrens 2: een klein blad (A4, 595 pt) haalt zo de 2x van een
+          // brede miniatuur; met de oude grens 0,5 werd die opgeblazen.
+          const renderW = doel * 2;
+          const thumbScale = Math.max(0.008, Math.min(2, renderW / widthPt));
           const { renderPdfPage } = await import('../../pdf/engine-router.js');
           const raw = await renderPdfPage({ path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation });
           const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
@@ -682,7 +755,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
               const src = document.createElement('canvas');
               src.width = rw; src.height = rh;
               src.getContext('2d').putImageData(new ImageData(rgba, rw, rh), 0, 0);
-              const targetW = THUMB_PX;
+              const targetW = doel;
               const s = targetW / rw;
               const w = Math.max(1, Math.round(rw * s));
               const h = Math.max(1, Math.round(rh * s));
@@ -690,7 +763,7 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
-              drawDownscaled(ctx, src, rw, rh, w, h);
+              tekenVerkleind(ctx, src, rw, rh, w, h);
               const dataURL = canvas.toDataURL('image/jpeg', 0.7);
               const oScale = doc.pageDims?.[pageNum]?.widthPt ? w / doc.pageDims[pageNum].widthPt : null;
               if (oScale) {
@@ -724,10 +797,22 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
       // rotation was baked into the PDF (save + reload) — the other thumbnail
       // paths (vector replay, prog-bitmap, PDF.js fallback) already rotate.
       const extraRot = getPageRotation(pageNum);
+      // maxWidth geldt voor de breedte van het blad zonder de extra draaiing;
+      // bij een kwartslag de breedte zo kiezen dat het gedraaide beeld `doel`
+      // px breed wordt (anders wordt het in de kolom opgeblazen).
+      let maxWidth = doel;
+      if (extraRot && extraRot % 180 !== 0) {
+        try {
+          const pg = await pdfDoc.getPage(pageNum);
+          const basis = pg.getViewport({ scale: 1 });
+          const gedraaid = pg.getViewport({ scale: 1, rotation: (pg.rotate + extraRot) % 360 });
+          if (basis.width > 0 && gedraaid.width > 0) maxWidth = Math.round(doel * basis.width / gedraaid.width);
+        } catch { /* dan gewoon `doel` */ }
+      }
       const result = await invoke('render_thumbnail', {
         path: doc.filePath,
         pageIndex: pageNum - 1,
-        maxWidth: THUMB_PX,
+        maxWidth,
         rotation: extraRot || 0,
         skipImages: true,
       });
@@ -764,9 +849,11 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
     const renderPromise = (async () => {
       const page = await pdfDoc.getPage(pageNum);
       const extraRot = getPageRotation(pageNum);
-      const thumbScale = thumbScaleFor(page.view[2] - page.view[0]);
-      const trOpts = { scale: thumbScale };
+      const trOpts = { scale: 1 };
       if (extraRot) trOpts.rotation = (page.rotate + extraRot) % 360;
+      // Schaal zo dat de (eventueel gedraaide) pagina `doel` px breed wordt.
+      const thumbScale = doel / (page.getViewport(trOpts).width || 595);
+      trOpts.scale = thumbScale;
       const viewport = page.getViewport(trOpts);
 
       const canvas = document.createElement('canvas');
@@ -862,8 +949,8 @@ export function invalidateThumbnail(pageNum) {
   // Bump generation: any in-flight render for this page will discard its
   // result on completion (see pageGenMatches in process*Thumbnail).
   bumpPageGen(activeDoc.id, pageNum);
-  // Remove from Solid store so component shows loading spinner
-  removeThumbnailImage(pageNum);
+  // Het oude beeld blijft in de Solid-store staan tot het nieuwe klaar is:
+  // geen flits naar de laadcirkel na elke markering (#579).
   // Re-add to priority queue and restart processor
   priorityPages.add(pageNum);
   startProcessor();
@@ -881,7 +968,7 @@ export function invalidateThumbnails(pageNums) {
     if (!Number.isInteger(pageNum) || pageNum < 1) continue;
     if (docCache) docCache.delete(pageNum);
     bumpPageGen(activeDoc.id, pageNum);
-    removeThumbnailImage(pageNum);
+    // Oud beeld laten staan tot het nieuwe klaar is (zie invalidateThumbnail).
     priorityPages.add(pageNum);
     any = true;
   }

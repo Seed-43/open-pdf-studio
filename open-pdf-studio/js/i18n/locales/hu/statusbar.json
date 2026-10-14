@@ -11,6 +11,7 @@
     "box": "Téglalap",
     "polygon": "Sokszög",
     "cloud": "Felhő",
+    "cloudPolyline": "Felhő töröttvonal",
     "polyline": "Töröttvonal",
     "textbox": "Szövegdoboz",
     "callout": "Kihivás",
@@ -27,7 +28,8 @@
     "formTextField": "Űrlap szövegmező",
     "formCheckbox": "Űrlap jelölőnégyzet",
     "formRadio": "Űrlap rádiógomb",
-    "screenshot": "Képernyőkép"
+    "screenshot": "Képernyőkép",
+    "pageLabelPick": "Szöveg kiválasztása oldalcímkéhez"
   },
   "toolLabel": "Eszköz:",
   "annotationsLabel": "Annotációk:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Ez a dokumentum interaktív űrlapmezőket tartalmaz. Kitöltheti az űrlapot és mentheti az adatokat.",
   "enableEditing": "Szerkesztés engedélyezése",
   "pdfAConformance": "Ez a dokumentum PDF/A megfelelőséget állít.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "A fájl átnevezése sikertelen: {{error}}",
+  "renameInvalidChars": "A fájlnév nem tartalmazhatja a következőket:  / : * ? \" < > |",
+  "renameFileExists": "Már létezik ilyen nevű fájl.",
+  "engineTitle": "Az aktuális nézethez használt renderelőmotor",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektoros)"
+  },
+  "viewSingle": "Egyetlen oldal",
+  "viewContinuous": "Folyamatos",
+  "viewBook": "Két oldal",
+  "viewFacing": "Két oldal egymás mellett",
   "viewRotatedTitle": "A nézet {{degrees}}°-kal el van forgatva az óramutató járásával megegyezően; a dokumentum változatlan. Kattintson a nézet visszaforgatásához.",
+  "compareTabTitle": "Összehasonlítás",
   "filledAreaSketch": {
     "undoPoint": "Pont visszavonása",
     "undoPointTitle": "Utolsó pont eltávolítása (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Sz",
   "boxHeightAbbr": "M",
+  "boxSizeHint": "Írjon be egy értéket + Enter — vagy kattintson máshová az alkalmazáshoz",
   "ocr": {
     "progress": {
       "starting": "Szöveg felismerése...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Találatok ({{count}})",
   "searchResultPage": "{{page}}. oldal",
   "searchHitsOne": "1 találat",
-  "searchHitsMany": "{{count}} találat"
+  "searchHitsMany": "{{count}} találat",
+  "passwordProtectedBar": "Jelszóval védett: csak olvasásra megnyitva."
 }

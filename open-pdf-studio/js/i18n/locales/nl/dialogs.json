@@ -70,6 +70,19 @@
     "shrinkToPrintable": "Verkleinen tot afdrukbaar gebied",
     "customScale": "Aangepaste schaal",
     "pageZoom": "Paginazoom:",
+    "pagesPerSheet": "Pagina's per vel",
+    "pagesPerSheetLabel": "Pagina's per vel:",
+    "perSheetOne": "1 (normaal)",
+    "perSheetCustom": "Aangepast...",
+    "perSheetGrid": "Kolommen bij rijen:",
+    "perSheetBy": "bij",
+    "pageOrder": "Paginavolgorde:",
+    "orderHorizontal": "Horizontaal",
+    "orderHorizontalReversed": "Horizontaal omgekeerd",
+    "orderVertical": "Verticaal",
+    "orderVerticalReversed": "Verticaal omgekeerd",
+    "pageBorder": "Paginarand afdrukken",
+    "perSheetNote": "Elke pagina wordt passend gemaakt voor zijn cel, dus de paginaschaal hierboven geldt niet.",
     "autoRotate": "Automatisch draaien",
     "autoCenter": "Automatisch centreren",
     "advancedOptions": "Geavanceerde afdrukopties",
@@ -224,7 +237,13 @@
     "allPages": "Alle pagina's",
     "firstPageOnly": "Alleen eerste pagina",
     "range": "Bereik:",
-    "rangePlaceholder": "bijv. 1-5, 8"
+    "rangePlaceholder": "bijv. 1-5, 8",
+    "bates": "Bates-nummering:",
+    "batesHint": "Nummert de pagina's met {bates}: voorvoegsel, nummer met voorloopnullen, achtervoegsel",
+    "batesPrefix": "Voorvoegsel",
+    "batesStart": "Begin",
+    "batesDigits": "Cijfers",
+    "batesSuffix": "Achtervoegsel"
   },
   "manageWatermarks": {
     "title": "Watermerken beheren",
@@ -293,8 +312,8 @@
   "calibration": {
     "title": "Schaalcalibratie",
     "helpText": "Teken een meetlijn van bekende lengte en voer vervolgens de werkelijke afstand hier in.",
-    "knownDistance": "Known distance:",
-    "measuredPixels": "Measured pixels:",
+    "knownDistance": "Bekende afstand:",
+    "measuredPixels": "Gemeten pixels:",
     "methodReference": "Referentielijn",
     "methodRatio": "Schaalverhouding",
     "referenceHelp": "Voer de werkelijke afstand in voor een bekende meetlijn.",
@@ -496,7 +515,7 @@
   },
   "parametricSymbolPicker": {
     "title": "Parametrisch symbool kiezen",
-    "cancel": "Cancel"
+    "cancel": "Annuleren"
   },
   "ocrLanguage": {
     "title": "Tekst herkennen (OCR)",
@@ -935,33 +954,22 @@
   },
   "pageLabels": {
     "title": "Paginalabels",
-    "intro": "Geef elke pagina een naam uit het stempelveld. Teken op één pagina een kader om het bladnummer en de bladtitel; dezelfde gebieden worden op elke pagina gelezen. Tip: dubbelklik op het label van een miniatuur om één pagina te hernoemen.",
-    "number": "Bladnummer",
-    "titleRegion": "Bladtitel",
-    "pick": "Aanwijzen op pagina",
-    "pickNumberHint": "Sleep een kader om het BLADNUMMER op deze pagina. Esc om te annuleren.",
-    "pickTitleHint": "Sleep een kader om de BLADTITEL op deze pagina. Esc om te annuleren.",
-    "regionSet": "Ingesteld op pagina {{page}}",
-    "regionNotSet": "Niet ingesteld",
-    "template": "Naamopmaak",
-    "templateHint": "Gebruik {number}, {title} en {page}",
-    "useOcr": "OCR gebruiken waar de pagina geen tekst heeft (gescande bladen, trager)",
+    "intro": "Typ de paginanaam in het veld. „{{select}}” neemt tekst van de pagina over: die komt erin als {OCR1}, {OCR2}… en wordt op elke pagina op dezelfde plek gelezen. Voorbeeld: {OCR1} - {OCR2}",
+    "name": "Paginanaam:",
+    "pickHint": "Sleep een vak om de tekst die u wilt gebruiken, bijvoorbeeld het tekeningnummer. Esc breekt af.",
+    "noText": "(geen tekst gevonden)",
+    "example": "Voorbeeld:",
+    "useOcr": "OCR gebruiken waar een vak geen tekst heeft (gescande bladen, langzamer)",
     "read": "Alle pagina's lezen",
     "reading": "Pagina {{done}} van {{total}} lezen...",
-    "colPage": "Pagina",
     "colLabel": "Paginalabel",
-    "legend": "Rijen die met OCR zijn gelezen zijn gemarkeerd; controleer ze voor het toepassen.",
-    "reset": "Terug naar paginanummers",
-    "apply": "Toepassen",
-    "intro2": "Bouw de paginanaam op uit delen. \"Selecteren\" pakt tekst op de pagina (op elke pagina van dezelfde plek gelezen); \"Tekst\" voegt eigen tekst toe, zoals \" - \". Tip: dubbelklik op de naam van een miniatuur om één pagina te hernoemen.",
-    "emptyRow": "Voeg delen toe met Selecteren en Tekst hieronder",
-    "chipTitle": "Geselecteerd op pagina {{page}}",
-    "noText": "(geen tekst gevonden)",
-    "remove": "Verwijderen",
-    "select": "Selecteren",
-    "text": "Tekst",
-    "example": "Voorbeeld",
-    "pickHint": "Sleep een kader om de tekst die je wilt gebruiken (bv. het bladnummer). Esc om te annuleren.",
-    "intro3": "Typ de paginanaam in het veld. Druk op Selecteren om tekst op de pagina aan te wijzen: die wordt ingevoegd als {OCR1}, {OCR2}... en op elke pagina van dezelfde plek gelezen. Voorbeeld: {OCR1} - {OCR2}"
+    "ocrLegend": "Pagina's met OCR zijn met tekstherkenning gelezen; controleer ze voordat u toepast.",
+    "reset": "Terug naar paginanummers"
+  },
+  "pdfPassword": {
+    "title": "Wachtwoord vereist",
+    "message": "\"{{fileName}}\" is beveiligd met een wachtwoord. Voer het wachtwoord in om het alleen-lezen te openen.",
+    "label": "Wachtwoord:",
+    "wrong": "Onjuist wachtwoord, probeer het opnieuw."
   }
 }

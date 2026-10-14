@@ -7,6 +7,9 @@ import { parsePageRange } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
 import { runPrintJob, slaPrintOpAlsPdf, renderPrintBeeld } from '../../../pdf/print-job.js';
+import {
+  rasterVan, isMeerPerBlad, voorbeeldMeerPerBlad, aantalVellen, paginasOpVel,
+} from '../../../pdf/print-meerperblad.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
 import { printArgumenten, overstemdeStand } from '../../../pdf/print-pagina-instelling.js';
@@ -60,11 +63,29 @@ export default function PrintDialog(props) {
   const [autoCenter, setAutoCenter] = createSignal(bewaard.autoCenter);
   const [printContent, setPrintContent] = createSignal(bewaard.content);
   const [printAsImage, setPrintAsImage] = createSignal(bewaard.asImage);
+  const [perSheet, setPerSheet] = createSignal(bewaard.perSheet);
+  const [sheetCols, setSheetCols] = createSignal(bewaard.sheetCols);
+  const [sheetRows, setSheetRows] = createSignal(bewaard.sheetRows);
+  const [sheetOrder, setSheetOrder] = createSignal(bewaard.sheetOrder);
+  const [sheetBorder, setSheetBorder] = createSignal(bewaard.sheetBorder);
+  // Meerdere pagina's per vel, of null bij één per vel. Een memo met
+  // waardevergelijking: het voorbeeld tekent alleen opnieuw als de keuze echt
+  // verandert.
+  const meerPerBlad = createMemo(() => {
+    const raster = rasterVan({ perBlad: perSheet(), kolommen: sheetCols(), rijen: sheetRows() });
+    return isMeerPerBlad(raster) ? { ...raster, volgorde: sheetOrder(), rand: sheetBorder() } : null;
+  }, undefined, { equals: zelfdeKeuzes });
+  // Het getoonde vel bij meerdere pagina's per vel (voorbeeldMeerPerBlad), of
+  // null: dan toont het voorbeeld één pagina op het vel.
+  const [meerVoorbeeld, setMeerVoorbeeld] = createSignal(null);
   const [statusMessage, setStatusMessage] = createSignal('');
   const [statusType, setStatusType] = createSignal('');
   const [printDisabled, setPrintDisabled] = createSignal(false);
   const [previewPages, setPreviewPages] = createSignal([]);
   const [previewIndex, setPreviewIndex] = createSignal(0);
+  // Hoeveel het voorbeeld er doorbladert: pagina's, of vellen bij meerdere
+  // pagina's per vel.
+  const voorbeeldTotaal = createMemo(() => aantalVellen(previewPages().length, meerPerBlad()));
   // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
   const [paginaMaat, setPaginaMaat] = createSignal(null);
   // Steekt de voorbeeldpagina buiten het vel of buiten het bedrukbare gebied
@@ -171,13 +192,20 @@ export default function PrintDialog(props) {
       canvasRef.style.height = '';
       ctx.clearRect(0, 0, VOORBEELD_BREEDTE, VOORBEELD_HOOGTE);
       setPaginaMaat(null);
+      setMeerVoorbeeld(null);
       setAfsnijMelding('');
       return;
     }
 
-    const pageNum = pages[Math.min(previewIndex(), pages.length - 1)];
     const keuzes = plaatsingKeuzes();
     const markeringen = printContent() === 'doc-and-markups';
+    const raster = meerPerBlad();
+    if (raster) {
+      await renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen);
+      return;
+    }
+    setMeerVoorbeeld(null);
+    const pageNum = pages[Math.min(previewIndex(), pages.length - 1)];
 
     try {
       const page = await doc.pdfDoc.getPage(pageNum);
@@ -190,17 +218,8 @@ export default function PrintDialog(props) {
       });
       if (!plaatsing) return;
 
-      // CSS-pixels per mm op het vel, en schermpixels voor een scherp beeld.
-      const cssPerMm = Math.min(
-        VOORBEELD_BREEDTE / plaatsing.vel.breedteMm, VOORBEELD_HOOGTE / plaatsing.vel.hoogteMm,
-      );
-      const dpr = window.devicePixelRatio || 1;
-      const cssBreedte = Math.max(1, Math.round(plaatsing.vel.breedteMm * cssPerMm));
-      const cssHoogte = Math.max(1, Math.round(plaatsing.vel.hoogteMm * cssPerMm));
-      const breedte = Math.max(1, Math.round(cssBreedte * dpr));
-      const hoogte = Math.max(1, Math.round(cssHoogte * dpr));
-      const pxPerMm = breedte / plaatsing.vel.breedteMm;
-      const pxPerPt = plaatsing.schaal * MM_PER_PT * pxPerMm;
+      const vak = canvasVak(plaatsing.vel);
+      const pxPerPt = plaatsing.schaal * MM_PER_PT * vak.pxPerMm;
 
       // Hetzelfde beeld als de printopdracht, inclusief de kwartslag voor een
       // pagina die haaks op het vel staat.
@@ -210,41 +229,9 @@ export default function PrintDialog(props) {
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
-      canvasRef.width = breedte;
-      canvasRef.height = hoogte;
-      canvasRef.style.width = `${cssBreedte}px`;
-      canvasRef.style.height = `${cssHoogte}px`;
-      const ctx = canvasRef.getContext('2d');
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, breedte, hoogte);
-      if (beeld) {
-        const r = deel.opVel;
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(beeld, r.x * pxPerMm, r.y * pxPerMm, r.breedte * pxPerMm, r.hoogte * pxPerMm);
-      }
-      if (plaatsing.bekend) {
-        const lijn = Math.max(1, Math.round(dpr));
-        // Het bedrukbare gebied van de printer: dunne stippellijn.
-        const g = plaatsing.bedrukbaar;
-        const marge = plaatsing.marges;
-        if (marge.links || marge.boven || marge.rechts || marge.onder) {
-          ctx.save();
-          ctx.strokeStyle = '#9a9a9a';
-          ctx.lineWidth = lijn;
-          ctx.setLineDash([3 * lijn, 3 * lijn]);
-          ctx.strokeRect(
-            g.x * pxPerMm + lijn / 2, g.y * pxPerMm + lijn / 2,
-            Math.max(lijn, g.breedte * pxPerMm - lijn), Math.max(lijn, g.hoogte * pxPerMm - lijn),
-          );
-          ctx.restore();
-        }
-        // Dunne rand om het vel (één CSS-pixel).
-        ctx.strokeStyle = '#8c8c8c';
-        ctx.lineWidth = lijn;
-        ctx.strokeRect(lijn / 2, lijn / 2, breedte - lijn, hoogte - lijn);
-      }
+      const ctx = begin(vak);
+      if (beeld) tekenBeeld(ctx, beeld, deel.opVel, vak.pxPerMm);
+      if (plaatsing.bekend) tekenVel(ctx, vak, plaatsing);
       // Buiten het vel weegt zwaarder dan buiten het bedrukbare gebied.
       setAfsnijMelding(!plaatsing.bekend ? ''
         : plaatsing.afgesneden ? t('print.pageClipped')
@@ -254,12 +241,130 @@ export default function PrintDialog(props) {
     }
   }
 
+  // Meerdere pagina's per vel: het getoonde vel met al zijn pagina's, zoals
+  // de printopdracht het bouwt (voorbeeldMeerPerBlad in print-meerperblad.js,
+  // dezelfde regels als maakMeerPerBlad). De navigatie loopt dan per vel.
+  async function renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen) {
+    try {
+      const velIndex = Math.min(previewIndex(), aantalVellen(pages.length, raster) - 1);
+      const opVel = paginasOpVel(pages, velIndex, raster);
+      const maatVan = async (pageNum) => {
+        const page = await doc.pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
+        return { breedtePt: viewport.width, hoogtePt: viewport.height };
+      };
+      // Het vel volgt de eerste pagina van de hele afdruk (kiesBlad).
+      const eerstePagina = await maatVan(pages[0]);
+      const maten = [];
+      for (const pageNum of opVel) maten.push(await maatVan(pageNum));
+      if (beurt !== voorbeeldBeurt) return;
+      zetPaginaMaat(maten[0].breedtePt, maten[0].hoogtePt);
+      const v = voorbeeldMeerPerBlad({ meerPerBlad: raster, keuzes, eerstePagina, paginas: maten });
+      setMeerVoorbeeld(v);
+      setAfsnijMelding('');
+      if (!v) return;
+
+      const vak = canvasVak(v.vel);
+      // Eerst alle paginabeelden, dan in één keer tekenen: geen half vel in beeld.
+      const beelden = [];
+      for (const cel of v.cellen) {
+        const pxPerPt = cel.plaatsing.schaal * cel.schaal * MM_PER_PT * vak.pxPerMm;
+        const deel = renderDeel(cel.plaatsing, pxPerPt);
+        const beeld = deel
+          ? await renderPrintBeeld(opVel[cel.k], pxPerPt, cel.plaatsing, deel, { markeringen })
+          : null;
+        if (beurt !== voorbeeldBeurt) return;
+        beelden.push({ cel, deel, beeld });
+      }
+
+      const ctx = begin(vak);
+      for (const { cel, deel, beeld } of beelden) {
+        if (!beeld) continue;
+        // Het deel staat in mm op de printpagina van de cel; die komt verkleind
+        // (cel.schaal) op haar plek op het vel.
+        const r = deel.opVel;
+        tekenBeeld(ctx, beeld, {
+          x: cel.opVel.x + r.x * cel.schaal,
+          y: cel.opVel.y + r.y * cel.schaal,
+          breedte: r.breedte * cel.schaal,
+          hoogte: r.hoogte * cel.schaal,
+        }, vak.pxPerMm);
+      }
+      if (v.rand) {
+        // Zoals maakMeerPerBlad: een rand van 0,5 pt om elke printpagina.
+        ctx.save();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = Math.max(1, 0.5 * MM_PER_PT * vak.pxPerMm);
+        for (const { cel } of beelden) {
+          const r = cel.opVel;
+          ctx.strokeRect(r.x * vak.pxPerMm, r.y * vak.pxPerMm, r.breedte * vak.pxPerMm, r.hoogte * vak.pxPerMm);
+        }
+        ctx.restore();
+      }
+      if (v.bekend) tekenVel(ctx, vak, v);
+    } catch (e) {
+      console.error('Preview render error:', e);
+    }
+  }
+
+  // Canvasmaat voor een vel (mm): passend in het voorbeeldvak, scherp op de
+  // pixeldichtheid van het scherm.
+  function canvasVak(vel) {
+    const cssPerMm = Math.min(VOORBEELD_BREEDTE / vel.breedteMm, VOORBEELD_HOOGTE / vel.hoogteMm);
+    const dpr = window.devicePixelRatio || 1;
+    const cssBreedte = Math.max(1, Math.round(vel.breedteMm * cssPerMm));
+    const cssHoogte = Math.max(1, Math.round(vel.hoogteMm * cssPerMm));
+    const breedte = Math.max(1, Math.round(cssBreedte * dpr));
+    const hoogte = Math.max(1, Math.round(cssHoogte * dpr));
+    return { cssBreedte, cssHoogte, breedte, hoogte, dpr, pxPerMm: breedte / vel.breedteMm };
+  }
+
+  // Het canvas op de maat van het vel, wit.
+  function begin(vak) {
+    canvasRef.width = vak.breedte;
+    canvasRef.height = vak.hoogte;
+    canvasRef.style.width = `${vak.cssBreedte}px`;
+    canvasRef.style.height = `${vak.cssHoogte}px`;
+    const ctx = canvasRef.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, vak.breedte, vak.hoogte);
+    return ctx;
+  }
+
+  function tekenBeeld(ctx, beeld, r, pxPerMm) {
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(beeld, r.x * pxPerMm, r.y * pxPerMm, r.breedte * pxPerMm, r.hoogte * pxPerMm);
+  }
+
+  // Het bedrukbare gebied van de printer (stippellijn) en de rand van het vel.
+  function tekenVel(ctx, vak, { bedrukbaar: g, marges: marge }) {
+    const { pxPerMm, breedte, hoogte } = vak;
+    const lijn = Math.max(1, Math.round(vak.dpr));
+    if (marge.links || marge.boven || marge.rechts || marge.onder) {
+      ctx.save();
+      ctx.strokeStyle = '#9a9a9a';
+      ctx.lineWidth = lijn;
+      ctx.setLineDash([3 * lijn, 3 * lijn]);
+      ctx.strokeRect(
+        g.x * pxPerMm + lijn / 2, g.y * pxPerMm + lijn / 2,
+        Math.max(lijn, g.breedte * pxPerMm - lijn), Math.max(lijn, g.hoogte * pxPerMm - lijn),
+      );
+      ctx.restore();
+    }
+    // Dunne rand om het vel (één CSS-pixel).
+    ctx.strokeStyle = '#8c8c8c';
+    ctx.lineWidth = lijn;
+    ctx.strokeRect(lijn / 2, lijn / 2, breedte - lijn, hoogte - lijn);
+  }
+
   function prevPreview() {
     if (previewIndex() > 0) setPreviewIndex(previewIndex() - 1);
   }
 
   function nextPreview() {
-    if (previewIndex() < previewPages().length - 1) setPreviewIndex(previewIndex() + 1);
+    if (previewIndex() < voorbeeldTotaal() - 1) setPreviewIndex(previewIndex() + 1);
   }
 
   function onRangeChange(range) {
@@ -485,10 +590,16 @@ export default function PrintDialog(props) {
       autoCenter: autoCenter(),
       content: printContent(),
       asImage: printAsImage(),
+      perSheet: perSheet(),
+      sheetCols: sheetCols(),
+      sheetRows: sheetRows(),
+      sheetOrder: sheetOrder(),
+      sheetBorder: sheetBorder(),
     };
     // Schaal en plek zoals het voorbeeld ze toont (vóór close(): de keuzes
     // komen uit de signalen van deze dialoog).
     const keuzes = plaatsingKeuzes();
+    const meerBlad = meerPerBlad();
     savePreferences();
     close();
     // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
@@ -507,6 +618,7 @@ export default function PrintDialog(props) {
         schaling: keuzes.schaling,
         zoom: keuzes.zoom,
         centreren: keuzes.centreren,
+        meerPerBlad: meerBlad,
         inhoud: printContent(),
         openen: openOpgeslagen,
       });
@@ -522,6 +634,7 @@ export default function PrintDialog(props) {
       schaling: keuzes.schaling,
       zoom: keuzes.zoom,
       centreren: keuzes.centreren,
+      meerPerBlad: meerBlad,
       // "Afdrukken: Document" laat de markeringen ook echt weg.
       inhoud: printContent(),
     });
@@ -610,8 +723,11 @@ export default function PrintDialog(props) {
 
   // De plaatsing van de getoonde voorbeeldpagina: het vel zoals het uit de
   // printer komt of in het bestand komt te liggen (dezelfde regel als het
-  // voorbeeld en de opdracht).
+  // voorbeeld en de opdracht). Bij meerdere pagina's per vel het vel met het
+  // raster: zijn stand en maten, en de schaal van de pagina op het papier.
   const voorbeeldPlaatsing = createMemo(() => {
+    const meer = meerVoorbeeld();
+    if (meerPerBlad() && meer) return meer;
     const maat = paginaMaat();
     return maat ? berekenPlaatsing({ ...plaatsingKeuzes(), pagina: maat }) : null;
   });
@@ -667,10 +783,17 @@ export default function PrintDialog(props) {
   });
 
   // Voorbeeld opnieuw tekenen bij elke wijziging van de pagina's, de getoonde
-  // pagina, de inhoud (met of zonder markeringen) of de plaatsing: schaaltype,
-  // zoom, centreren, automatisch draaien, Pagina-instelling en printerpapier.
-  createEffect(on([previewPages, previewIndex, printContent, plaatsingKeuzes], () => {
+  // pagina, de inhoud (met of zonder markeringen), de plaatsing (schaaltype,
+  // zoom, centreren, automatisch draaien, Pagina-instelling en printerpapier)
+  // of de pagina's per vel (aantal, raster, volgorde, rand).
+  createEffect(on([previewPages, previewIndex, printContent, plaatsingKeuzes, meerPerBlad], () => {
     renderPreview();
+  }, { defer: true }));
+
+  // Een ander aantal per vel: het voorbeeld begint weer bij het eerste vel
+  // (de nummering van pagina's en vellen loopt dan niet meer gelijk).
+  createEffect(on(meerPerBlad, (nieuw, oud) => {
+    if ((nieuw ? nieuw.kolommen * nieuw.rijen : 1) !== (oud ? oud.kolommen * oud.rijen : 1)) setPreviewIndex(0);
   }, { defer: true }));
 
   const paginaKop = createMemo(() => {
@@ -869,6 +992,7 @@ export default function PrintDialog(props) {
             <select
               class="print-select"
               value={scaling()}
+              disabled={!!meerPerBlad()}
               onChange={(e) => setScaling(e.target.value)}
             >
               <option value="fit">{t('print.fit')}</option>
@@ -885,7 +1009,7 @@ export default function PrintDialog(props) {
               min={ZOOM_MIN}
               max={ZOOM_MAX}
               value={zoom()}
-              disabled={scaling() !== 'custom-scale'}
+              disabled={!!meerPerBlad() || scaling() !== 'custom-scale'}
               onInput={onZoomInput}
               onChange={onZoomChange}
             />
@@ -909,6 +1033,74 @@ export default function PrintDialog(props) {
               /> {t('print.autoCenter')}
             </label>
           </div>
+        </fieldset>
+
+        {/* Pages per sheet */}
+        <fieldset class="print-group">
+          <legend>{t('print.pagesPerSheet')}</legend>
+          <div class="print-row">
+            <label class="print-label">{t('print.pagesPerSheetLabel')}</label>
+            <select
+              class="print-select"
+              value={perSheet()}
+              onChange={(e) => setPerSheet(e.target.value)}
+            >
+              <option value="1">{t('print.perSheetOne')}</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+              <option value="6">6</option>
+              <option value="9">9</option>
+              <option value="16">16</option>
+              <option value="custom">{t('print.perSheetCustom')}</option>
+            </select>
+          </div>
+          <Show when={perSheet() === 'custom'}>
+            <div class="print-row print-zoom-row">
+              <label class="print-label">{t('print.perSheetGrid')}</label>
+              <input
+                type="number"
+                class="print-input"
+                min="1"
+                max="10"
+                value={sheetCols()}
+                onChange={(e) => setSheetCols(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+              />
+              <span>{t('print.perSheetBy')}</span>
+              <input
+                type="number"
+                class="print-input"
+                min="1"
+                max="10"
+                value={sheetRows()}
+                onChange={(e) => setSheetRows(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+              />
+            </div>
+          </Show>
+          <Show when={meerPerBlad()}>
+            <div class="print-row">
+              <label class="print-label">{t('print.pageOrder')}</label>
+              <select
+                class="print-select"
+                value={sheetOrder()}
+                onChange={(e) => setSheetOrder(e.target.value)}
+              >
+                <option value="horizontal">{t('print.orderHorizontal')}</option>
+                <option value="horizontal-reversed">{t('print.orderHorizontalReversed')}</option>
+                <option value="vertical">{t('print.orderVertical')}</option>
+                <option value="vertical-reversed">{t('print.orderVerticalReversed')}</option>
+              </select>
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={sheetBorder()}
+                  onChange={(e) => setSheetBorder(e.target.checked)}
+                /> {t('print.pageBorder')}
+              </label>
+            </div>
+            <div class="print-row print-note">{t('print.perSheetNote')}</div>
+          </Show>
         </fieldset>
 
         {/* Advanced Print Options */}
@@ -966,8 +1158,8 @@ export default function PrintDialog(props) {
         </Show>
         <div class="print-preview-footer">
           <span>
-            {previewPages().length > 0
-              ? t('print.pageOf', { current: previewIndex() + 1, total: previewPages().length })
+            {voorbeeldTotaal() > 0
+              ? t('print.pageOf', { current: previewIndex() + 1, total: voorbeeldTotaal() })
               : t('print.noPages')}
           </span>
           <div class="print-preview-nav">
@@ -985,14 +1177,14 @@ export default function PrintDialog(props) {
             ><svg width="10" height="10" viewBox="0 0 10 10"><polygon points="9,1 9,9 1,5" fill="currentColor"/></svg></button>
             <button
               class="print-preview-nav-btn"
-              disabled={previewIndex() >= previewPages().length - 1}
+              disabled={previewIndex() >= voorbeeldTotaal() - 1}
               onClick={nextPreview}
               title={t('print.nextPage')}
             ><svg width="10" height="10" viewBox="0 0 10 10"><polygon points="1,1 1,9 9,5" fill="currentColor"/></svg></button>
             <button
               class="print-preview-nav-btn"
-              disabled={previewIndex() >= previewPages().length - 1}
-              onClick={() => setPreviewIndex(previewPages().length - 1)}
+              disabled={previewIndex() >= voorbeeldTotaal() - 1}
+              onClick={() => setPreviewIndex(voorbeeldTotaal() - 1)}
               title={t('print.lastPage')}
             ><svg width="10" height="10" viewBox="0 0 10 10"><polygon points="1,1 1,9 7,5" fill="currentColor"/><rect x="7" y="1" width="2" height="8" fill="currentColor"/></svg></button>
           </div>

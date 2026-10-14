@@ -7,9 +7,11 @@
     "addReply": "Antwort hinzufügen",
     "locked": "Gesperrt",
     "marked": "Markiert",
+    "gridEndLock": "Rasterlinienende sperren",
+    "gridEndUnlock": "Rasterlinienende entsperren",
     "printable": "Druckbar",
     "status": "Status",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Nach Status anzeigen",
     "statusNone": "Keiner",
     "statusAccepted": "Akzeptiert",
     "statusCancelled": "Abgebrochen",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Exportieren",
     "exportAsImage": "Als Bild exportieren...",
     "addHole": "Aussparung hinzufügen",
+    "wallJoinAllow": "Verbindung zulassen (dieses Ende)",
+    "wallJoinDisallow": "Verbindung nicht zulassen (dieses Ende)",
     "properties": "Eigenschaften...",
-    "calibrateFromLine": "Von dieser Linie kalibrieren..."
+    "editViewportScale": "Ansichtsfenster-Maßstab bearbeiten",
+    "calibrateFromLine": "Von dieser Linie kalibrieren...",
+    "setScale": "Maßstab festlegen...",
+    "dimChainAdd": "Punkte zur Maßkette hinzufügen",
+    "dimChainRemove": "Maßhilfslinie aus der Kette entfernen",
+    "selectRoom": "Raum auswählen"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} Anmerkungen kopieren",
@@ -54,6 +63,7 @@
     "centerVertically": "Vertikal zentrieren",
     "distributeHorizontally": "Horizontal verteilen",
     "distributeVertically": "Vertikal verteilen",
+    "trimWallCorners": "Wandecken stutzen",
     "deleteAnnotations": "{{count}} Anmerkungen löschen",
     "deleteConfirm": "{{count}} Anmerkungen löschen?",
     "deleteTitle": "Anmerkungen löschen"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Links drehen",
     "rotateRight": "Rechts drehen",
+    "moveUp": "Nach oben verschieben",
+    "moveDown": "Nach unten verschieben",
     "insertPages": "Seiten einfügen...",
     "extractPages": "Seiten extrahieren...",
     "replacePages": "Seiten ersetzen...",
@@ -95,10 +107,17 @@
     "deletePageConfirm": "Seite {{page}} löschen?",
     "deletePageTitle": "Seite löschen",
     "properties": "Eigenschaften",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}} Seiten ausschneiden",
+    "copyPages": "{{count}} Seiten kopieren",
+    "rotateLeftPages": "{{count}} Seiten nach links drehen",
+    "rotateRightPages": "{{count}} Seiten nach rechts drehen",
+    "deletePagesMulti": "{{count}} Seiten löschen",
+    "selectAll": "Alle Seiten auswählen",
+    "deselectAll": "Auswahl aufheben",
+    "insertFromFile": "Aus Datei einfügen...",
+    "insertFromFileBefore": "Vor dieser Seite...",
+    "insertFromFileAfter": "Nach dieser Seite...",
+    "pageLabels": "Seitenbeschriftungen (Namensgenerator)..."
   },
   "textSelection": {
     "highlightSelection": "Auswahl hervorheben",
@@ -111,14 +130,22 @@
     "title": "Anmerkung löschen"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Scheitelpunkt löschen",
+    "insertVertex": "Scheitelpunkt hier einfügen",
+    "convertToArc": "In Bogen umwandeln",
+    "convertToLine": "In Linie umwandeln"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Im Explorer anzeigen",
+    "mac": "Im Finder anzeigen",
+    "linux": "Enthaltenden Ordner öffnen"
+  },
+  "gevelelement": {
+    "addMullionHere": "Pfosten hier hinzufügen",
+    "removeMullion": "Nächstgelegenen Pfosten entfernen",
+    "panelItem": "Paneel: {{name}}",
+    "placeInWall": "In Wand platzieren (Wand unterbrechen)",
+    "noHostWall": "Keine Wand unter diesem Element gefunden",
+    "editRefused": "Nicht möglich"
   }
 }

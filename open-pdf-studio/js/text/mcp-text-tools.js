@@ -1,10 +1,11 @@
 import { OPS } from 'pdfjs-dist';
-import { PDFDocument } from 'pdf-lib';
 import { state, getActiveDocument } from '../core/state.js';
-import { applyInPlaceTextEdits } from '../pdf/saver/text-edit-inplace.js';
 import { pageTextSpans } from './mcp-page-text.js';
 import { textItemColors } from './mcp-text-color.js';
 import { embedMcpTextFont } from './mcp-text-font.js';
+import {
+  MAX_VERVANGINGEN, parseSpanId, vervangingVormFout, planVervanging, proefOpKopie,
+} from './mcp-text-plan.js';
 
 const failure = error => ({ ok: false, error });
 const sourceCurrent = (doc, pdf, path) => state.documents.includes(doc) && doc.pdfDoc === pdf && doc.filePath === path;
@@ -30,92 +31,29 @@ export async function getPageTextForMcp({ page } = {}) {
   };
 }
 
-function fallbackFamily(span) {
-  const name = `${span.fontFamily} ${span.fontName}`.toLowerCase();
-  const base = /courier|mono|consolas/.test(name) ? 'Courier'
-    : /times|serif|garamond|georgia|palatino/.test(name) ? 'TimesRoman' : 'Helvetica';
-  const bold = /bold|black|heavy/.test(name), italic = /italic|oblique/.test(name);
-  if (base === 'Courier') return `${base}${bold ? '-Bold' : ''}${italic ? (bold ? 'Oblique' : '-Oblique') : ''}`;
-  if (base === 'TimesRoman') return `${base}${bold ? '-Bold' : ''}${italic ? (bold ? 'Italic' : '-Italic') : ''}`;
-  return `${base}${bold ? '-Bold' : ''}${italic ? (bold ? 'Oblique' : '-Oblique') : ''}`;
-}
-
-function newRecord(span, page, newText, color) {
-  const fontSize = span.fontSize;
-  const x = span.pdfAnchor.x, y = span.pdfAnchor.y;
-  return {
-    id: `mcp-text-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    mcpStrict: true, mcpSpanId: span.id,
-    page, originalText: span.text, newText,
-    pdfX: x, pdfY: y, pdfWidth: span.pdfWidth,
-    fontSize, lineSpacing: fontSize * 1.2, numOriginalLines: 1,
-    fontFamily: fallbackFamily(span), loadedFontName: span.fontName,
-    pdfFontName: span.fontName, color, textAngle: span.rotation,
-    originalLineInfo: [{ x, y, width: span.pdfWidth, fontSize, angle: span.rotation, text: span.text }],
-    originalSpanTexts: [[span.text]],
-  };
-}
-
-export async function replaceTextForMcp({ spanId, expectedText, newText, color } = {}) {
-  if (typeof spanId !== 'string' || !spanId || typeof expectedText !== 'string' || typeof newText !== 'string') {
-    return failure('spanId, expectedText and newText are required strings');
-  }
-  if (newText.includes('\n') || newText.includes('\r')) return failure('replace one line at a time; newText cannot contain line breaks');
-  const match = /^(.+):p(\d+):i(\d+)-(\d+)$/.exec(spanId);
-  if (!match) return failure('invalid spanId');
-  const page = Number(match[2]);
-  const read = await getPageTextForMcp({ page });
-  if (!read.ok) return read;
-  if (read.documentId !== match[1]) return failure('spanId belongs to a different document');
-  const span = read.spans.find(entry => entry.id === spanId);
-  if (!span || span.text !== expectedText) return failure('span changed; call app_get_page_text again');
-  if (newText === expectedText) return { ok: true, changed: false, spanId };
-  const doc = getActiveDocument();
-  if (!doc || String(doc.id) !== read.documentId) return failure('active document changed; call app_get_page_text again');
-  const pdf = doc.pdfDoc, path = doc.filePath;
-  if (!span.color && !color) return failure('source text colour could not be determined; provide color as #RRGGBB');
-  const textColor = color || span.color;
-  if (!/^#[0-9a-f]{6}$/i.test(textColor)) return failure('color must be #RRGGBB');
-  if ((doc.textEdits || []).some(edit => !edit.baked && edit.page === page
-      && (edit.mcpSpanId === spanId || (Math.abs((edit.pdfX || 0) - span.pdfAnchor.x) < span.fontSize
-        && Math.abs((edit.pdfY || 0) - span.pdfAnchor.y) < span.fontSize)))) {
-    return failure('this source span already has an unsaved text edit');
-  }
-
-  const record = newRecord(span, page, newText, textColor);
-  // Preflight on a throwaway PDF copy. A conservative in-place match is
-  // mandatory: a white cover rectangle would damage images/vector artwork.
+// De proef op een kopie van de bron-PDF (mcp-text-plan.js).
+async function proef(path, plannen) {
   const { getCachedPdfBytes } = await import('../pdf/loader.js');
   const sourceBytes = getCachedPdfBytes(path);
   if (!sourceBytes) return failure('source PDF bytes unavailable');
-  const copy = await PDFDocument.load(sourceBytes.slice(), { ignoreEncryption: true });
-  const inPlace = applyInPlaceTextEdits(copy, copy.getPages(), [record]).get(record);
-  if (!inPlace) return failure('source text cannot be removed safely in place');
+  await proefOpKopie(sourceBytes, plannen, { embedFont: embedMcpTextFont });
+  return null;
+}
 
-  let fontUsed = span.fontName, fontFallback = false;
-  const originalSize = record.fontSize;
-  let naturalWidth = 0;
-  if (newText) {
-    const bold = /bold/i.test(record.fontFamily), italic = /italic|oblique/i.test(record.fontFamily);
-    const encoded = inPlace.encodeRun(newText, 0, originalSize, { bold, italic, baseBold: bold, baseItalic: italic });
-    if (encoded) naturalWidth = encoded.width;
-    else {
-      const picked = await embedMcpTextFont(copy, newText, { bold, italic });
-      naturalWidth = picked.font.widthOfTextAtSize(newText, originalSize);
-      fontUsed = picked.name; fontFallback = true;
-    }
-    if (!(naturalWidth > 0) || !(span.pdfWidth > 0)) return failure('replacement width cannot be measured');
-    const fitted = originalSize * Math.min(1, span.pdfWidth * 0.98 / naturalWidth);
-    if (fitted < Math.max(3, originalSize * 0.25)) return failure('replacement does not fit the original text box legibly');
-    record.fontSize = fitted;
-  }
-  const { execute } = await import('../core/undo-manager.js');
+// De goedgekeurde bewerkingen in het document zetten: één ongedaan-stap,
+// het document gewijzigd, en de pagina opnieuw tekenen als die voor staat.
+async function pasToe(doc, page, records) {
+  const { execute, beginUndoTransaction, endUndoTransaction } = await import('../core/undo-manager.js');
   const { markDocumentModified } = await import('../ui/chrome/tabs.js');
-  if (!sourceCurrent(doc, pdf, path) || getActiveDocument() !== doc) {
-    return failure('active document changed during text replacement');
+  beginUndoTransaction();
+  try {
+    for (const record of records) {
+      doc.textEdits.push(record);
+      execute({ type: 'addTextEdit', textEdit: { ...record } });
+    }
+  } finally {
+    endUndoTransaction();
   }
-  doc.textEdits.push(record);
-  execute({ type: 'addTextEdit', textEdit: { ...record } });
   markDocumentModified(doc);
   if (getActiveDocument() === doc && doc.currentPage === page) {
     try {
@@ -124,9 +62,100 @@ export async function replaceTextForMcp({ spanId, expectedText, newText, color }
     }
     catch (error) { console.warn('[mcp-text] preview refresh failed:', error); }
   }
-  return { ok: true, changed: true, saved: false, spanId, editId: record.id,
-    originalText: span.text, newText, fontUsed, fontFallback, fontSize: record.fontSize,
+}
+
+function verslag(plan) {
+  const { span, record, textColor } = plan;
+  return { spanId: span.id, editId: record.id, originalText: span.text, newText: record.newText,
+    fontUsed: plan.fontUsed, fontFallback: plan.fontFallback, fontSize: record.fontSize,
     color: textColor, bbox: span.bbox,
-    ...(inPlace.needsCover ? { rasterBackgroundOverlap: true,
+    ...(plan.needsCover ? { rasterBackgroundOverlap: true,
       warning: 'An image overlaps this text. The vector glyphs will be removed without covering the image; text already baked into image pixels may remain visible.' } : {}) };
+}
+
+export async function replaceTextForMcp({ spanId, expectedText, newText, color } = {}) {
+  const item = { spanId, expectedText, newText, color };
+  const vorm = vervangingVormFout(item);
+  if (vorm) return failure(vorm);
+  const read = await getPageTextForMcp({ page: parseSpanId(spanId).page });
+  if (!read.ok) return read;
+  const doc = getActiveDocument();
+  if (read.documentId !== parseSpanId(spanId).documentId) return failure('spanId belongs to a different document');
+  if (!doc || String(doc.id) !== read.documentId) return failure('active document changed; call app_get_page_text again');
+  const plan = planVervanging(read, item, doc.textEdits);
+  if (plan.error) return failure(plan.error);
+  if (plan.unchanged) return { ok: true, changed: false, spanId };
+  const pdf = doc.pdfDoc, path = doc.filePath;
+
+  const proefFout = await proef(path, [plan]);
+  if (proefFout) return proefFout;
+  if (plan.error) return failure(plan.error);
+  if (!sourceCurrent(doc, pdf, path) || getActiveDocument() !== doc) {
+    return failure('active document changed during text replacement');
+  }
+  await pasToe(doc, read.page, [plan.record]);
+  return { ok: true, changed: true, saved: false, ...verslag(plan) };
+}
+
+/**
+ * Meerdere regels van één pagina in één keer vervangen (#507), bijvoorbeeld
+ * een vertaling. Alles of niets: faalt één vervanging, dan verandert er
+ * niets en meldt het antwoord per regel wat er mis is. De proef op de kopie
+ * gebeurt één keer voor alle regels samen, zoals de saver ze samen toepast,
+ * en het geheel is één ongedaan-stap.
+ */
+export async function translatePageForMcp({ page, replacements } = {}) {
+  if (!Array.isArray(replacements) || replacements.length === 0 || replacements.length > MAX_VERVANGINGEN) {
+    return failure(`replacements must be a non-empty array of at most ${MAX_VERVANGINGEN} items`);
+  }
+  const results = replacements.map(item => ({ spanId: typeof item?.spanId === 'string' ? item.spanId : null }));
+  replacements.forEach((item, i) => {
+    const vorm = vervangingVormFout(item);
+    if (vorm) results[i].error = vorm;
+  });
+  const geldig = replacements.map((item, i) => (results[i].error ? null : parseSpanId(item.spanId)));
+  const pageNumber = page == null ? geldig.find(Boolean)?.page : Number(page);
+  if (pageNumber == null) {
+    return { ...failure('no valid replacement; nothing was changed'),
+      results: results.map(r => ({ spanId: r.spanId, ok: false, error: r.error })) };
+  }
+  const read = await getPageTextForMcp({ page: pageNumber });
+  if (!read.ok) return read;
+  const doc = getActiveDocument();
+  if (!doc || String(doc.id) !== read.documentId) return failure('active document changed; call app_get_page_text again');
+  const pdf = doc.pdfDoc, path = doc.filePath;
+
+  const plannen = [];
+  const gezien = new Set();
+  replacements.forEach((item, i) => {
+    if (results[i].error) return;
+    if (gezien.has(item.spanId)) { results[i].error = 'duplicate spanId in this request'; return; }
+    gezien.add(item.spanId);
+    const plan = planVervanging(read, item, doc.textEdits);
+    if (plan.error) results[i].error = plan.error;
+    else if (plan.unchanged) results[i].changed = false;
+    else { plan.index = i; plannen.push(plan); }
+  });
+  if (plannen.length) {
+    const proefFout = await proef(path, plannen);
+    if (proefFout) return proefFout;
+    for (const plan of plannen) {
+      if (plan.error) results[plan.index].error = plan.error;
+      else Object.assign(results[plan.index], { changed: true, ...verslag(plan) });
+    }
+  }
+  const mislukt = results.filter(r => r.error).length;
+  if (mislukt) {
+    return { ...failure(`${mislukt} of ${replacements.length} replacements failed; nothing was changed`),
+      page: pageNumber, results: results.map(r => (r.error ? { spanId: r.spanId, ok: false, error: r.error }
+        : { spanId: r.spanId, ok: true })) };
+  }
+  if (plannen.length) {
+    if (!sourceCurrent(doc, pdf, path) || getActiveDocument() !== doc) {
+      return failure('active document changed during text replacement');
+    }
+    await pasToe(doc, pageNumber, plannen.map(plan => plan.record));
+  }
+  return { ok: true, saved: false, page: pageNumber, changed: plannen.length,
+    unchanged: replacements.length - plannen.length, results: results.map(r => ({ ok: true, ...r })) };
 }

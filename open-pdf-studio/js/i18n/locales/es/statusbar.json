@@ -11,6 +11,7 @@
     "box": "Rectángulo",
     "polygon": "Polígono",
     "cloud": "Nube",
+    "cloudPolyline": "Polilínea de nube",
     "polyline": "Polílínea",
     "textbox": "Cuadro de texto",
     "callout": "Llamada",
@@ -27,7 +28,8 @@
     "formTextField": "Campo de texto de formulario",
     "formCheckbox": "Casilla de verificación de formulario",
     "formRadio": "Botón de opción de formulario",
-    "screenshot": "Captura de pantalla"
+    "screenshot": "Captura de pantalla",
+    "pageLabelPick": "Elegir texto para la etiqueta de página"
   },
   "toolLabel": "Herramienta:",
   "annotationsLabel": "Anotaciones:",
@@ -36,6 +38,7 @@
   "previousPage": "Página anterior",
   "nextPage": "Página siguiente",
   "lastPage": "Última página",
+  "page": "Página",
   "zoomOut": "Alejar",
   "zoomIn": "Acercar",
   "noDocumentsOpen": "No hay documentos abiertos",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "Este documento contiene campos de formulario interactivos. Puede completar el formulario y guardar sus datos.",
   "enableEditing": "Habilitar edición",
   "pdfAConformance": "Este documento declara conformidad con PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "No se pudo cambiar el nombre del archivo: {{error}}",
+  "renameInvalidChars": "El nombre de archivo no puede contener:  / : * ? \" < > |",
+  "renameFileExists": "Ya existe un archivo con este nombre.",
+  "engineTitle": "Motor de renderizado usado para la vista actual",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vectorial)"
+  },
+  "viewSingle": "Página única",
+  "viewContinuous": "Continua",
+  "viewBook": "Dos páginas",
+  "viewFacing": "Dos páginas una al lado de la otra",
   "viewRotatedTitle": "La vista está girada {{degrees}}° en sentido horario; el documento no ha cambiado. Haga clic para devolver la vista a su posición.",
+  "compareTabTitle": "Comparar",
   "filledAreaSketch": {
     "undoPoint": "Deshacer punto",
     "undoPointTitle": "Eliminar el último punto (Retroceso)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al",
+  "boxSizeHint": "Escriba un valor + Enter — o haga clic fuera para aplicar",
   "ocr": {
     "progress": {
       "starting": "Reconociendo texto...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "Resultados ({{count}})",
   "searchResultPage": "Página {{page}}",
   "searchHitsOne": "1 coincidencia",
-  "searchHitsMany": "{{count}} coincidencias"
+  "searchHitsMany": "{{count}} coincidencias",
+  "passwordProtectedBar": "Protegido con contraseña: abierto en modo de solo lectura."
 }

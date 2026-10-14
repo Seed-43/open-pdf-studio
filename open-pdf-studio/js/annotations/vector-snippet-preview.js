@@ -111,21 +111,55 @@ export async function wachtOpKnipselPreviews(annotaties, zoom) {
   }
 }
 
+/** Foutcode van een knipsel dat niet in de uitvoer kan; exporter.js maakt er
+ *  een melding voor de gebruiker van. */
+export const KNIPSEL_UITVOER_FOUT = 'KNIPSEL_UITVOER';
+
+function uitvoerFout(tekst, oorzaak) {
+  const fout = oorzaak
+    ? new Error(`${tekst}: ${oorzaak?.message || oorzaak}`, { cause: oorzaak })
+    : new Error(tekst);
+  fout.code = KNIPSEL_UITVOER_FOUT;
+  return fout;
+}
+
+/** Beeldpunten voor alle knipsels van één uitvoerpagina samen (256 MB RGBA). */
+const UITVOER_BUDGET = 64 * 1024 * 1024;
+/** Langste zijde van een uitvoerbeeld: de grens van een canvas. */
+const UITVOER_MAX_ZIJDE = 16384;
+
 /** Uitvoer wacht onafhankelijk van schermzoom/RAF op alle benodigde knipsels.
  * De aanroeper sluit de tijdelijke bitmaps na het tekenen. Mislukken breekt
- * de uitvoer af: nooit ongemerkt een placeholder afdrukken.
+ * de uitvoer af: nooit ongemerkt een placeholder afdrukken (#511).
+ *
+ * Anders dan het scherm is de uitvoer niet begrensd op MAX_PIXELS: een knipsel
+ * wordt gerenderd op de resolutie van de uitvoer, in tegels die elk in het
+ * gedeelde geheugen van de worker passen. Alleen als alle knipsels van de
+ * pagina samen meer dan UITVOER_BUDGET beeldpunten zouden vragen, gaan ze naar
+ * evenredig omlaag.
  */
 export async function bereidKnipselsVoorUitvoer(annotaties, schaal) {
   const beelden = new Map();
   try {
+    const plan = [];
     for (const ann of annotaties) {
       if (ann.type !== 'vectorSnippet' || ann.hidden) continue;
       const blad = await bladVan(ann.snippetKey);
-      if (!blad) throw new Error('Vectorknipsel: bron ontbreekt');
+      if (!blad) throw uitvoerFout('Vectorknipsel: bron ontbreekt');
       const regio = weergaveVak(ann.srcBox, blad.cropBox, blad.rotatie);
-      const niveau = schaal * Math.max(ann.width / regio.width, ann.height / regio.height);
-      const bmp = await render(ann, niveau);
-      if (!bmp) throw new Error('Vectorknipsel kon niet worden gerenderd');
+      if (!(regio.width > 0) || !(regio.height > 0)) throw uitvoerFout('Vectorknipsel: leeg gebied');
+      plan.push({ ann, regio, niveau: schaal * Math.max(ann.width / regio.width, ann.height / regio.height) });
+    }
+    const gevraagd = plan.reduce((n, p) => n + p.regio.width * p.regio.height * p.niveau ** 2, 0);
+    const factor = gevraagd > UITVOER_BUDGET ? Math.sqrt(UITVOER_BUDGET / gevraagd) : 1;
+    for (const { ann, regio, niveau } of plan) {
+      let bmp;
+      try {
+        bmp = await renderVoorUitvoer(ann, regio, niveau * factor);
+      } catch (err) {
+        throw uitvoerFout('Vectorknipsel kon niet worden gerenderd', err);
+      }
+      if (!bmp) throw uitvoerFout('Vectorknipsel kon niet worden gerenderd');
       beelden.set(ann, bmp);
     }
     return beelden;
@@ -133,6 +167,37 @@ export async function bereidKnipselsVoorUitvoer(annotaties, schaal) {
     for (const bmp of beelden.values()) bmp.close();
     throw err;
   }
+}
+
+/**
+ * Het knipsel op schaal `niveau` (beeldpunten per punt). Past het in één tegel
+ * van MAX_PIXELS, dan in één keer; anders in tegels, samengevoegd op één canvas.
+ * @returns {Promise<ImageBitmap|null>}
+ */
+async function renderVoorUitvoer(ann, regio, niveau) {
+  const pad = await padVan(ann.snippetKey, schrijfNaarTijdelijkeMap);
+  if (!pad) return null;
+  const s = Math.min(niveau, UITVOER_MAX_ZIJDE / Math.max(regio.width, regio.height));
+  if (!(s > 0)) return null;
+  const breedte = Math.ceil(regio.width * s);
+  const hoogte = Math.ceil(regio.height * s);
+  if (breedte <= MAX_PIXELS && hoogte <= MAX_PIXELS) {
+    return rasterVanPad(pad, { x: regio.x, y: regio.y, width: regio.width, height: regio.height }, s);
+  }
+  const canvas = new OffscreenCanvas(breedte, hoogte);
+  const ctx = canvas.getContext('2d');
+  for (let ty = 0; ty < hoogte; ty += MAX_PIXELS) {
+    for (let tx = 0; tx < breedte; tx += MAX_PIXELS) {
+      const tb = Math.min(MAX_PIXELS, breedte - tx);
+      const th = Math.min(MAX_PIXELS, hoogte - ty);
+      const tegel = await rasterBytesVanPad(pad, { x: regio.x + tx / s, y: regio.y + ty / s, width: tb / s, height: th / s }, s);
+      if (!tegel) return null;
+      // De worker rondt de tegelmaat naar boven af: het teveel valt buiten het vak.
+      ctx.putImageData(new ImageData(tegel.rgba, tegel.breedte, tegel.hoogte), tx, ty,
+        0, 0, Math.min(tb, tegel.breedte), Math.min(th, tegel.hoogte));
+    }
+  }
+  return await createImageBitmap(canvas);
 }
 
 async function schrijfNaarTijdelijkeMap(sleutel, bytes) {

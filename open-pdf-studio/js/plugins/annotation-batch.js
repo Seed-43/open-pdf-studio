@@ -1,4 +1,7 @@
-function assertSerializable(value, path = 'annotation', seen = new Set()) {
+/** Gooit een TypeError als `value` iets anders bevat dan JSON-zuivere data
+ *  (platte objecten, arrays, eindige getallen, tekst, booleans, null).
+ *  Ook gebruikt door het systeemtypen-contract (#567). */
+export function assertSerializable(value, path = 'annotation', seen = new Set()) {
   if (value === null || value === undefined || typeof value === 'string' || typeof value === 'boolean') return;
   if (typeof value === 'number' && Number.isFinite(value)) return;
   if (typeof value !== 'object' || seen.has(value)) {

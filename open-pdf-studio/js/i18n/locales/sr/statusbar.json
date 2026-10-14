@@ -11,6 +11,7 @@
     "box": "Правоугаоник",
     "polygon": "Полигон",
     "cloud": "Облак",
+    "cloudPolyline": "Облак-полилинија",
     "polyline": "Полилинија",
     "textbox": "Текстуално поље",
     "callout": "Облачић",
@@ -27,7 +28,8 @@
     "formTextField": "Текстуално поље обрасца",
     "formCheckbox": "Поље за потврду обрасца",
     "formRadio": "Радио дугме обрасца",
-    "screenshot": "Снимак екрана"
+    "screenshot": "Снимак екрана",
+    "pageLabelPick": "Избор текста за ознаку странице"
   },
   "toolLabel": "Алатка:",
   "annotationsLabel": "Анотације:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Овај документ садржи интерактивна поља обрасца. Можете попунити образац и сачувати податке.",
   "enableEditing": "Омогући уређивање",
   "pdfAConformance": "Овај документ тврди да је у складу са PDF/A стандардом.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Преименовање датотеке није успело: {{error}}",
+  "renameInvalidChars": "Назив датотеке не сме да садржи  / : * ? \" < > |",
+  "renameFileExists": "Датотека са тим називом већ постоји.",
+  "engineTitle": "Механизам исцртавања коришћен за тренутни приказ",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (векторски)"
+  },
+  "viewSingle": "Једна страница",
+  "viewContinuous": "Континуирано",
+  "viewBook": "Две странице",
+  "viewFacing": "Две странице једна поред друге",
   "viewRotatedTitle": "Приказ је ротиран за {{degrees}}° у смеру казаљке на сату; документ није промењен. Кликните да бисте вратили приказ.",
+  "compareTabTitle": "Поређење",
   "filledAreaSketch": {
     "undoPoint": "Опозови тачку",
     "undoPointTitle": "Уклони последњу тачку (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В",
+  "boxSizeHint": "Унесите вредност + Enter — или кликните ван поља за примену",
   "ocr": {
     "progress": {
       "starting": "Препознавање текста...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Резултати ({{count}})",
   "searchResultPage": "Страница {{page}}",
   "searchHitsOne": "1 подударање",
-  "searchHitsMany": "Подударања: {{count}}"
+  "searchHitsMany": "Подударања: {{count}}",
+  "passwordProtectedBar": "Заштићено лозинком: отворено само за читање."
 }

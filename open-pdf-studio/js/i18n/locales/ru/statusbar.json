@@ -11,6 +11,7 @@
     "box": "Прямоугольник",
     "polygon": "Многоугольник",
     "cloud": "Облако",
+    "cloudPolyline": "Облачная полилиния",
     "polyline": "Полилиния",
     "textbox": "Текстовое поле",
     "callout": "Выноска",
@@ -27,7 +28,8 @@
     "formTextField": "Текстовое поле формы",
     "formCheckbox": "Флажок формы",
     "formRadio": "Переключатель формы",
-    "screenshot": "Снимок экрана"
+    "screenshot": "Снимок экрана",
+    "pageLabelPick": "Выбор текста для метки страницы"
   },
   "toolLabel": "Инструмент:",
   "annotationsLabel": "Аннотации:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Этот документ содержит интерактивные поля формы. Вы можете заполнить форму и сохранить данные.",
   "enableEditing": "Включить редактирование",
   "pdfAConformance": "Этот документ заявляет соответствие PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Не удалось переименовать файл: {{error}}",
+  "renameInvalidChars": "Имя файла не может содержать  / : * ? \" < > |",
+  "renameFileExists": "Файл с таким именем уже существует.",
+  "engineTitle": "Движок отрисовки, используемый для текущего вида",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (векторный)"
+  },
+  "viewSingle": "Одна страница",
+  "viewContinuous": "Непрерывно",
+  "viewBook": "Две страницы",
+  "viewFacing": "Две страницы рядом",
   "viewRotatedTitle": "Вид повёрнут на {{degrees}}° по часовой стрелке; документ не изменён. Нажмите, чтобы вернуть вид.",
+  "compareTabTitle": "Сравнение",
   "filledAreaSketch": {
     "undoPoint": "Отменить точку",
     "undoPointTitle": "Удалить последнюю точку (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В",
+  "boxSizeHint": "Введите значение + Enter — или щёлкните вне поля, чтобы применить",
   "ocr": {
     "progress": {
       "starting": "Распознавание текста...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Результаты ({{count}})",
   "searchResultPage": "Страница {{page}}",
   "searchHitsOne": "1 совпадение",
-  "searchHitsMany": "Совпадений: {{count}}"
+  "searchHitsMany": "Совпадений: {{count}}",
+  "passwordProtectedBar": "Защищён паролем: открыт только для чтения."
 }

@@ -7,9 +7,11 @@
     "addReply": "उत्तर जोड़ें",
     "locked": "लॉक",
     "marked": "चिह्नित",
+    "gridEndLock": "ग्रिड सिरा लॉक करें",
+    "gridEndUnlock": "ग्रिड सिरा अनलॉक करें",
     "printable": "प्रिंट करने योग्य",
     "status": "स्थिति",
-    "showByStatus": "Show by Status",
+    "showByStatus": "स्थिति के अनुसार दिखाएं",
     "statusNone": "कोई नहीं",
     "statusAccepted": "स्वीकृत",
     "statusCancelled": "रद्द",
@@ -38,8 +40,15 @@
     "exportSubmenu": "निर्यात करें",
     "exportAsImage": "छवि के रूप में निर्यात करें...",
     "addHole": "छेद जोड़ें",
+    "wallJoinAllow": "जोड़ की अनुमति दें (यह सिरा)",
+    "wallJoinDisallow": "जोड़ की अनुमति न दें (यह सिरा)",
     "properties": "गुण...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "व्यूपोर्ट स्केल संपादित करें",
+    "calibrateFromLine": "इस रेखा से कैलिब्रेट करें...",
+    "setScale": "स्केल सेट करें...",
+    "dimChainAdd": "डायमेंशन श्रृंखला में बिंदु जोड़ें",
+    "dimChainRemove": "श्रृंखला से एक्सटेंशन लाइन हटाएं",
+    "selectRoom": "कमरा चुनें"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} एनोटेशन कॉपी करें",
@@ -54,6 +63,7 @@
     "centerVertically": "लंबवत रूप से केंद्रित करें",
     "distributeHorizontally": "क्षैतिज रूप से वितरित करें",
     "distributeVertically": "लंबवत रूप से वितरित करें",
+    "trimWallCorners": "दीवार के कोने ट्रिम करें",
     "deleteAnnotations": "{{count}} एनोटेशन हटाएं",
     "deleteConfirm": "{{count}} एनोटेशन हटाएं?",
     "deleteTitle": "एनोटेशन हटाएं"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "बाएं घुमाएं",
     "rotateRight": "दाएं घुमाएं",
+    "moveUp": "ऊपर ले जाएं",
+    "moveDown": "नीचे ले जाएं",
     "insertPages": "पृष्ठ सम्मिलित करें...",
     "extractPages": "पृष्ठ निकालें...",
     "replacePages": "पृष्ठ बदलें...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "पृष्ठ {{page}} हटाएं?",
     "deletePageTitle": "पृष्ठ हटाएं",
     "properties": "गुण",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}} पृष्ठ कट करें",
+    "copyPages": "{{count}} पृष्ठ कॉपी करें",
+    "rotateLeftPages": "{{count}} पृष्ठ बाएं घुमाएं",
+    "rotateRightPages": "{{count}} पृष्ठ दाएं घुमाएं",
+    "deletePagesMulti": "{{count}} पृष्ठ हटाएं",
+    "selectAll": "सभी पृष्ठ चुनें",
+    "deselectAll": "सभी का चयन हटाएं",
+    "insertFromFile": "फ़ाइल से डालें...",
+    "insertFromFileBefore": "इस पृष्ठ से पहले...",
+    "insertFromFileAfter": "इस पृष्ठ के बाद...",
+    "pageLabels": "पृष्ठ लेबल (नाम निर्माता)..."
   },
   "textSelection": {
     "highlightSelection": "चयन हाइलाइट करें",
     "strikethroughSelection": "चयन स्ट्राइकथ्रू करें",
     "underlineSelection": "चयन रेखांकित करें",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "घुमावदार कॉलआउट जोड़ें"
   },
   "deleteAnnotation": {
     "confirmSingle": "यह एनोटेशन हटाएं?",
     "title": "एनोटेशन हटाएं"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "शीर्ष हटाएं",
+    "insertVertex": "यहां शीर्ष डालें",
+    "convertToArc": "चाप में बदलें",
+    "convertToLine": "रेखा में बदलें"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Explorer में दिखाएं",
+    "mac": "Finder में दिखाएं",
+    "linux": "संबंधित फ़ोल्डर खोलें"
+  },
+  "gevelelement": {
+    "addMullionHere": "यहां मलियन जोड़ें",
+    "removeMullion": "निकटतम मलियन हटाएं",
+    "panelItem": "पैनल: {{name}}",
+    "placeInWall": "दीवार में रखें (दीवार को बाधित करें)",
+    "noHostWall": "इस तत्व के नीचे कोई दीवार नहीं मिली",
+    "editRefused": "संभव नहीं"
   }
 }

@@ -51,6 +51,26 @@ fn main() {
         println!("cargo:rustc-link-lib=mapi32");
     }
 
+    // Windows met de GNU-toolchain: test.res (gecompileerd uit test.rc en
+    // test.manifest) geeft de testbinaries van dit pakket een manifest. Zonder
+    // manifest past Windows XP-compatibiliteitsshims toe die de doorverwijzing
+    // van de WinRT-API-sets breken, en laadt comctl32 v6 niet. Dit stond als
+    // absoluut pad van één ontwikkelmachine in src-tauri/.cargo/config.toml;
+    // op elke andere machine faalde daardoor elke link, ook die van de
+    // build-scripts van alle afhankelijkheden (#582). Hier geldt het alleen
+    // voor dit pakket, met een pad vanaf CARGO_MANIFEST_DIR. De MSVC-builds
+    // (CI en releases) raakt dit niet.
+    if target == "x86_64-pc-windows-gnu" {
+        let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|_| std::path::PathBuf::from("."));
+        let test_res = manifest_dir.join("test.res");
+        if test_res.exists() {
+            println!("cargo:rerun-if-changed={}", test_res.display());
+            println!("cargo:rustc-link-arg={}", test_res.display());
+        }
+    }
+
     // tauri.conf.json lists resources/tessdata and resources/fonts as bundle
     // resources (OCR trained-data + the CJK embed font). Those directories are
     // gitignored and only populated by `npm run prepare:ocr-runtime`

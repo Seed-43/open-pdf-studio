@@ -1,7 +1,8 @@
 import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10 } from './measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10, herberekenVlakMaat, syncSpotCoord } from './measurement.js';
+import { isSpotCoord } from './spot-coord.js';
 import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
 import { getTemplate } from '../symbols/registry.js';
 import { systeemrasterPxPerMm, systeemrasterBuildOpts } from './systeemraster-scale.js';
@@ -41,6 +42,8 @@ function computeDimensionText(ann) {
 // (recalculateAllMeasurements trusts measurePixels when recomputing on a
 // scale change) and measureText reflects the new length × scale.
 function syncDimensionMeasurement(ann) {
+  // A Spot Coord label shows the coordinates of its start point, not a length.
+  if (isSpotCoord(ann)) { syncSpotCoord(ann); return; }
   const dx = ann.endX - ann.startX;
   const dy = ann.endY - ann.startY;
   const pixelDist = Math.sqrt(dx * dx + dy * dy);
@@ -51,6 +54,26 @@ function syncDimensionMeasurement(ann) {
     ann.measureValue = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page).value;
   }
   ann.measureText = computeDimensionText(ann);
+}
+
+/**
+ * Bring the stored measurement fields of a measuring annotation in line with
+ * its geometry after an edit tool (Stretch, Enlarge, Fillet, Chamfer) changed
+ * it, the same way a grip edit does. Other types are left alone.
+ */
+export function syncMeasurementAfterEdit(ann) {
+  if (!ann) return;
+  if (ann.type === 'measureDistance') {
+    syncDimensionMeasurement(ann);
+  } else if (ann.type === 'measureArea' && Array.isArray(ann.points) && ann.points.length >= 3) {
+    // Same routine as a grip edit, so an area with its own scale keeps it (#536).
+    herberekenVlakMaat(ann);
+  } else if (ann.type === 'measurePerimeter' && Array.isArray(ann.points) && ann.points.length >= 2) {
+    const r = calculatePerimeter(ann.points, ann.page);
+    ann.measureValue = r.value;
+    ann.measureUnit = r.unit;
+    ann.measureText = formatMeasurement(r);
+  }
 }
 
 // Recalculate callout leader line geometry from box position and arrow tip.
@@ -747,8 +770,10 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
                 return keepArc(p, nx, ny);
               });
             });
-            // Recalculate measurement text with holes
-            annotation.measureText = formatMeasurement(calculateArea(annotation.points, annotation.holes, annotation.page));
+            // Recalculate measurement text with holes; een meetvlak met zijn
+            // eigen schaal als die er is (#536).
+            if (annotation.type === 'measureArea') herberekenVlakMaat(annotation);
+            else annotation.measureText = formatMeasurement(calculateArea(annotation.points, annotation.holes, annotation.page));
           }
         } else {
           // Regular outer node drag
@@ -801,7 +826,8 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
             annotation.height = Math.max(...ys) - annotation.y;
             // Recalculate measurement text (with holes if present)
             if (annotation.type === 'measureArea') {
-              annotation.measureText = formatMeasurement(calculateArea(annotation.points, annotation.holes, annotation.page));
+              // Tekst, waarde en eenheid, met de eigen schaal als die er is (#536).
+              herberekenVlakMaat(annotation);
             } else if (annotation.type === 'measurePerimeter') {
               annotation.measureText = formatMeasurement(calculatePerimeter(annotation.points, annotation.page));
             }

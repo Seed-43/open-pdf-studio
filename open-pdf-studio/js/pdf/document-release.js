@@ -120,16 +120,20 @@ export function sleutelsMetPad(sleutels, pad) {
 
 /** Haalt alles wat per bestandspad gecachet staat weg, in de webview en in Rust. */
 async function geefPadVrij(pad) {
-  const [loader, vector, bitmaps, progressief] = await Promise.all([
+  const [loader, vector, bitmaps, progressief, weergave] = await Promise.all([
     import('./loader.js'),
     import('./vector-renderer.js'),
     import('./page-bitmap-cache.js'),
     import('./progressive-render.js'),
+    import('./weergave-per-document.js'),
   ]);
   loader.clearCachedPdfBytes(pad);
   vector.invalidateDocumentCache(pad);
   bitmaps.invalidateDocumentBitmaps(pad);
   progressief.forgetContentBytes(pad);
+  // Bewaarde zoom/uitsnede van de tabwissel (#539): opnieuw openen begint
+  // gewoon passend.
+  weergave.vergeetWeergaveStand(pad);
   try {
     const { isTauri, invoke } = await import('../core/platform.js');
     if (isTauri()) await invoke('release_pdf_document', { path: pad });

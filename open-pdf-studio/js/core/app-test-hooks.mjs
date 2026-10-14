@@ -51,6 +51,8 @@ const STUBS = [
   '/js/ui/panels/left-panel.js',
   '/js/ui/panels/bookmarks.js',
   '/js/annotations/stamp-line-width.js',
+  '/js/tools/tool-context.js',
+  '/js/tools/manager.js',
 ];
 
 const pad = (url) => fileURLToPath(url).split('\\').join('/');

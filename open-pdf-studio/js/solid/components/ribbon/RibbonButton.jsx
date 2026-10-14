@@ -1,6 +1,7 @@
+import { createRenderEffect } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
 import { isTauri } from '../../../core/platform.js';
-import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function RibbonButton(props) {
@@ -9,7 +10,8 @@ export default function RibbonButton(props) {
   // IFC, plug-ins, de bijwerker) hebben in de webversie geen equivalent. Ze
   // stonden daar aan en deden niets; nu staan ze uit en draagt de tooltip
   // dezelfde melding als overal. Eén tabel: js/core/webfuncties.js (#456).
-  const geenWebvariant = () => knopUitInBrowser(props.id, isTauri());
+  // Als gast geldt hetzelfde voor diensten op een andere host (#548).
+  const geenWebvariant = () => knopUit(props.id, { inTauri: isTauri() });
   const titel = () => (geenWebvariant()
     ? meldingTekst(t, props.label || props.title || props.id)
     : props.title);
@@ -18,12 +20,15 @@ export default function RibbonButton(props) {
     <button
       class={`ribbon-btn${props.size === 'small' ? ' small' : ''}${props.size === 'medium' ? ' medium' : ''}${props.active ? ' active' : ''}${props.iconOnly ? ' icon-only' : ''}${props.extraClass ? ' ' + props.extraClass : ''}`}
       id={props.id}
+      data-ext-command={props.extCommand}
+      aria-pressed={props.pressed}
       title={titel()}
       disabled={props.disabled || geenWebvariant()}
       onClick={props.onClick}
       style={props.style}
     >
-      <div class="ribbon-btn-icon" style={props.iconStyle} ref={el => { if (props.icon) el.innerHTML = props.icon; }}>
+      {/* Het pictogram volgt de prop: een extensie kan het via update() wisselen (#551). */}
+      <div class="ribbon-btn-icon" style={props.iconStyle} ref={el => createRenderEffect(() => { if (props.icon || el.innerHTML) el.innerHTML = props.icon || ''; })}>
       </div>
       {!props.iconOnly && (
         <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.label}</span>

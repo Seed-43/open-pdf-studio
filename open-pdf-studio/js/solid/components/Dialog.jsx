@@ -5,7 +5,13 @@ let lastFocusTime = 0;
 function onWindowFocus() { lastFocusTime = Date.now(); }
 window.addEventListener('focus', onWindowFocus);
 
+// Open dialogen in volgorde van openen. Escape sluit alleen de bovenste: een
+// dialoog die vanuit een andere geopend is (bv. de schermkalibratie vanuit de
+// voorkeuren) nam anders bij Escape het venster eronder mee.
+const openDialogen = [];
+
 export default function Dialog(props) {
+  const eigen = {};
   let overlayRef;
   let dialogRef;
   let isDragging = false;
@@ -60,6 +66,11 @@ export default function Dialog(props) {
 
   function onKeyDown(e) {
     if (e.key === 'Escape') {
+      // Eén Escape sluit één dialoog, ook als het sluiten de volgende
+      // dialoog tijdens dezelfde toetsaanslag bovenaan zet.
+      if (e.__dialoogGesloten) return;
+      if (openDialogen[openDialogen.length - 1] !== eigen) return;
+      e.__dialoogGesloten = true;
       props.onClose?.();
     }
   }
@@ -101,6 +112,7 @@ export default function Dialog(props) {
   }
 
   onMount(() => {
+    openDialogen.push(eigen);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
     document.addEventListener('keydown', onKeyDown);
@@ -110,6 +122,8 @@ export default function Dialog(props) {
   });
 
   onCleanup(() => {
+    const i = openDialogen.indexOf(eigen);
+    if (i >= 0) openDialogen.splice(i, 1);
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
     document.removeEventListener('keydown', onKeyDown);

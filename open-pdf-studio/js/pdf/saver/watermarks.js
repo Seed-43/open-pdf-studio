@@ -1,11 +1,40 @@
 import { getActiveDocument } from '../../core/state.js';
 import { StandardFonts, degrees, rgb } from 'pdf-lib';
 import { parsePageRange } from '../exporter.js';
+import { schrijfKopVoeten, vindKopVoetIds, leesKopVoetDefinities } from './kopvoet.js';
 
-// Save watermarks into PDF pages
+function titelVan(pdfDocLib) {
+  try { return pdfDocLib.getTitle() || ''; } catch { return ''; } // een /Title die geen tekst is
+}
+
+/**
+ * Kop-/voetteksten (#375): de streams van eerdere saves gaan eruit en de
+ * huidige komen er opnieuw in, zodat ze niet bij elke save stapelen. Alleen
+ * streams van kop-/voetteksten die het document kent worden vervangen; een
+ * onbekende (niet ingelezen bij openen) blijft staan, met zijn definitie.
+ * @returns {Promise<string[]>} de ids die nu in het bestand staan
+ */
+async function saveHeaderFootersToPages(pdfDocLib, doc) {
+  const kopVoeten = (doc?.watermarks || []).filter(w => w?.type === 'headerFooter');
+  const inBestand = vindKopVoetIds(pdfDocLib);
+  const bekend = new Set([...(doc?.kopVoetBekend || []), ...kopVoeten.map(w => w.id)]);
+  const onbekend = new Set([...inBestand].filter(id => !bekend.has(id)));
+  const { geschreven } = await schrijfKopVoeten(pdfDocLib, kopVoeten, {
+    vervang: new Set([...inBestand].filter(id => bekend.has(id))),
+    behouden: leesKopVoetDefinities(pdfDocLib).filter(d => onbekend.has(d.id)),
+    bestandsnaam: doc?.fileName || '',
+    titel: doc?.pdfTitel || titelVan(pdfDocLib),
+    paginaBereik: parsePageRange,
+  });
+  return geschreven;
+}
+
+// Save watermarks into PDF pages. Geeft { kopVoet: ids } terug: de
+// kop-/voetteksten die nu als pagina-inhoud in het bestand staan.
 export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDocument()) {
-  const watermarks = doc?.watermarks;
-  if (!watermarks || watermarks.length === 0) return;
+  const kopVoet = await saveHeaderFootersToPages(pdfDocLib, doc);
+  const watermarks = (doc?.watermarks || []).filter(w => w?.type !== 'headerFooter');
+  if (watermarks.length === 0) return { kopVoet };
 
   const totalPages = pages.length;
 
@@ -121,54 +150,8 @@ export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDoc
             rotate: degrees(-(wm.rotation || 0)),
           });
         }
-
-        if (wm.type === 'headerFooter' && layer === 'infront') {
-          const font = await getFont(wm.fontFamily);
-          const fontSize = wm.fontSize || 10;
-          const color = hexToRgbObj(wm.color || '#000000');
-          const mt = wm.marginTop || 30;
-          const mb = wm.marginBottom || 30;
-          const ml = wm.marginLeft || 40;
-          const mr = wm.marginRight || 40;
-
-          const filename = doc ? doc.fileName : '';
-          const now = new Date();
-          const subst = (t) => (t || '')
-            .replace(/\{page\}/g, String(pageNum))
-            .replace(/\{pages\}/g, String(totalPages))
-            .replace(/\{date\}/g, now.toLocaleDateString())
-            .replace(/\{time\}/g, now.toLocaleTimeString())
-            .replace(/\{filename\}/g, filename);
-
-          const headerY = ph - mt;
-          const footerY = mb;
-
-          const slots = [
-            { text: subst(wm.headerLeft), x: ml, y: headerY, align: 'left' },
-            { text: subst(wm.headerCenter), x: pw / 2, y: headerY, align: 'center' },
-            { text: subst(wm.headerRight), x: pw - mr, y: headerY, align: 'right' },
-            { text: subst(wm.footerLeft), x: ml, y: footerY, align: 'left' },
-            { text: subst(wm.footerCenter), x: pw / 2, y: footerY, align: 'center' },
-            { text: subst(wm.footerRight), x: pw - mr, y: footerY, align: 'right' },
-          ];
-
-          for (const slot of slots) {
-            if (!slot.text) continue;
-            let drawX = slot.x;
-            const tw = font.widthOfTextAtSize(slot.text, fontSize);
-            if (slot.align === 'center') drawX -= tw / 2;
-            else if (slot.align === 'right') drawX -= tw;
-
-            page.drawText(slot.text, {
-              x: drawX,
-              y: slot.y,
-              size: fontSize,
-              font: font,
-              color: color,
-            });
-          }
-        }
       }
     }
   }
+  return { kopVoet };
 }

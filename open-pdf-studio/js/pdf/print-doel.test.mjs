@@ -122,7 +122,7 @@ test('alle locales kennen de teksten van "Opslaan als PDF" en de velkop, vertaal
   const en = lees('en');
   const enCommon = leesCommon('en');
   const talen = readdirSync(map);
-  assert.equal(talen.length, 39);
+  assert.equal(talen.length, 40);
   for (const taal of talen) {
     const print = lees(taal);
     const common = leesCommon(taal);

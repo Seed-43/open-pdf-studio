@@ -20,6 +20,7 @@ import ImageSection from './ImageSection.jsx';
 import ActionsSection from './ActionsSection.jsx';
 import CustomFieldsSection from './CustomFieldsSection.jsx';
 import CustomPluginPanel from './CustomPluginPanel.jsx';
+import ScopedInstancePanels from './ScopedInstancePanels.jsx';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import ParametricSymbolSection from './ParametricSymbolSection.jsx';
 import GevelelementSection from './GevelelementSection.jsx';
@@ -240,6 +241,7 @@ export default function PropertiesPanel() {
             <ImageSection />
             <CustomFieldsSection />
             <CustomPluginPanel />
+            <ScopedInstancePanels />
             <ActionsSection />
           </div>
         </Show>

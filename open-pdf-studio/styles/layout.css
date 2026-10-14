@@ -495,8 +495,11 @@
 }
 
 /* Thumbnails Panel */
-/* Thumbnails fill the panel width and wrap into extra columns once the
-   panel is wide enough for two (or more) at the minimum column width. */
+/* De miniaturen vullen de paneelbreedte en lopen in extra kolommen over zodra
+   er twee (of meer) van minstens 150 px naast elkaar passen (#579). Houd
+   150 px en de gap gelijk aan js/ui/panels/miniatuur-maat.js. De vaste
+   scrollbalkgoot voorkomt dat het aantal kolommen verspringt als de
+   scrollbalk verschijnt. */
 .thumbnails-container {
   flex: 1;
   overflow-y: auto;
@@ -505,6 +508,7 @@
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   align-content: start;
   gap: 4px;
+  scrollbar-gutter: stable;
   outline: none;
 }
 
@@ -576,17 +580,78 @@
   color: var(--theme-thumbnail-active-label);
 }
 
+/* Paginalabel (bladnaam, #580): afkappen in plaats van de miniatuur verbreden. */
+.thumbnail-label.named {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thumbnail-label-input {
+  margin-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1px 4px;
+  font-size: 11px;
+  font-family: inherit;
+  border: 1px solid var(--theme-accent, #0078d7);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #333);
+  outline: none;
+}
+
+/* Knop in de kop van het miniaturenpaneel: de naambouwer voor paginalabels. */
+.thumbnails-header-btn {
+  width: 20px;
+  height: 18px;
+  margin: -2px 2px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--theme-panel-header-text);
+  cursor: default;
+}
+
+.thumbnails-header-btn:hover:not(:disabled) {
+  background: var(--theme-panel-tab-hover);
+  border-color: var(--theme-panel-border);
+}
+
+.thumbnails-header-btn:disabled {
+  opacity: 0.35;
+}
+
+.thumbnails-header-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Thumbnail drag-and-drop reorder */
 .thumbnail-item.dragging {
   opacity: 0.4;
 }
 
-.thumbnail-item.drop-before {
+.thumbnail-item.drop-before:not(.drop-side) {
   border-top: 3px solid #0078d7;
 }
 
-.thumbnail-item.drop-after {
+.thumbnail-item.drop-after:not(.drop-side) {
   border-bottom: 3px solid #0078d7;
+}
+
+/* In meerdere kolommen staan de buren naast elkaar: streep links of rechts */
+.thumbnail-item.drop-side.drop-before {
+  border-left: 3px solid #0078d7;
+}
+
+.thumbnail-item.drop-side.drop-after {
+  border-right: 3px solid #0078d7;
 }
 
 /* Bookmarks Panel */

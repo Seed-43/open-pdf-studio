@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// De CAD-teksten (#400) in alle 39 talen: elke taal heeft precies de sleutels
+// De CAD-teksten (#400) in alle 40 talen: elke taal heeft precies de sleutels
 // van het Engels, en elke tekst gebruikt precies de {{variabelen}} van de
 // Engelse tekst. Een variabele die in een vertaling ontbreekt of anders
 // heet, geeft in de app een lege of kapotte regel ("{{n}} objecten" zonder n),
@@ -20,8 +20,8 @@ const variabelen = (tekst) => [...new Set(String(tekst).match(/\{\{\s*\w+\s*\}\}
 const talen = readdirSync(LOCALES).sort();
 const en = lees("en");
 
-test("there are 39 languages and English carries both CAD blocks", () => {
-  assert.equal(talen.length, 39);
+test("there are 40 languages and English carries both CAD blocks", () => {
+  assert.equal(talen.length, 40);
   for (const blok of BLOKKEN) assert.ok(Object.keys(en[blok] || {}).length > 50, blok);
 });
 

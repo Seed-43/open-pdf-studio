@@ -23,8 +23,9 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 // Core modules
-// Faster pdf-lib defaults for every load/save (see the module).
-import './pdf/pdf-lib-speed.js';
+// Snellere pdf-lib-standaarden voor elke load en save (#581); als eerste,
+// vóór elk module dat pdf-lib gebruikt.
+import './pdf/pdf-lib-snelheid.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initDomElements } from './ui/dom-elements.js';
@@ -89,6 +90,7 @@ import { addRecentFile } from './mobile/recent-files.js';
 // Tauri API
 import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName } from './core/platform.js';
 import { sessieHerstelBeleid } from './core/sessie-herstel.js';
+import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -99,7 +101,13 @@ const openFiles = createFileOpenQueue({
   createTab,
   switchToTab,
   loadPDF,
-  onLoaded: (filePath) => addRecentFile(filePath, extractFileName(filePath)),
+  // Only a file that really opened: not one whose password dialog was
+  // cancelled (its tab is closed again) or that failed to load.
+  onLoaded: (filePath) => {
+    if (state.documents.some(d => d.pdfDoc && bronPad(d) === filePath)) {
+      addRecentFile(filePath, extractFileName(filePath));
+    }
+  },
 });
 
 // Register open-files listener immediately (before init) so events from the
@@ -154,11 +162,11 @@ function disableBrowserShortcuts() {
       return;
     }
     // Ctrl+Shift+I (DevTools), Ctrl+Shift+J (Console), Ctrl+Shift+C (Inspect element)
-    if (e.shiftKey && ['I', 'J', 'C'].includes(e.key)) {
+    if (e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) {
       e.preventDefault();
     }
     // F5 refresh, Ctrl+R refresh (allow in dev mode)
-    if ((e.key === 'r' || e.key === 'R') && !window.__devMode) {
+    if (e.key.toLowerCase() === 'r' && !window.__devMode) {
       e.preventDefault();
     }
   }, true);
@@ -337,6 +345,14 @@ async function init() {
   pendingOpenFiles = [];
   appReady = true;
 
+  // Als gast in de OpenAEC-site: het document dat de site meegeeft openen
+  // via het opslagcontract van de site (#546). Zonder contract gebeurt niets.
+  if (!hasCommandLineFile) {
+    import('./pdf/host-document.js')
+      .then(m => m.startMetGastsite())
+      .catch(e => console.warn('[gast] openen via de site mislukt:', e));
+  }
+
   // Detached-window mode: a detached document window is its OWN app process,
   // launched by `spawn_window_with_pdf` with the PDF path as a command-line
   // argument and `OPDS_DETACHED=1` in its env. The PDF therefore arrives via
@@ -449,9 +465,9 @@ async function saveSessionData() {
   try {
     // Skip untitled docs: their filePath is a temp file that gets deleted on
     // close — restoring it next launch would open a dangling/empty path.
-    const openFiles = state.documents
-      .filter(doc => doc.filePath && !doc.isUntitled)
-      .map(doc => doc.filePath);
+    // A PDF opened with a password is stored by its ORIGINAL path, never by
+    // its decrypted working copy: the next launch asks the password again.
+    const openFiles = sessieBestanden(state.documents);
 
     const sessionData = {
       openFiles: openFiles,

@@ -737,8 +737,10 @@ test('paneeltype-assortiment als data: renderStijl via typeDef.paneelTypen', () 
 
 // ── strook-layout (kanaalplaatvloer) ───────────────────────────────────────
 
+// Alle fysieke maten expliciet: sinds #567 vult de normalisatie geen
+// standaardmaat meer in (een ontbrekende celYMm is onbevestigd).
 const KANAALPLAAT = normalizeSysteemType({
-  id: 'kp', naam: 'Kanaalplaat', layout: 'strook', strookBreedteMm: 1200,
+  id: 'kp', naam: 'Kanaalplaat', layout: 'strook', strookBreedteMm: 1200, celYMm: 1200,
   categorie: 'vloer', ifcCategory: 'IfcSlab', ifcPredefinedType: 'FLOOR',
   sparingRegels: { kleineSparingMaxMm: 400, raveelVanafMm: 800 },
 });

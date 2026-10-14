@@ -18,11 +18,14 @@ import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import {
   parsePageImages, blankImageRange, bboxFromCtm,
 } from './embedded-image-parser.js';
+import { verplaatsAfbeelding, vervangAfbeelding, isRechtOpScherm } from './embedded-image-edit.js';
 
 // pageNum → [{ index, bbox:{x,y,width,height} }] in app-space (scale=1, y-down).
 const _cache = new Map();
+// pageNum → viewport transform (PDF-ruimte → app-ruimte) waarmee de kaders berekend zijn.
+const _vt = new Map();
 
-export function clearEmbeddedImageCache() { _cache.clear(); }
+export function clearEmbeddedImageCache() { _cache.clear(); _vt.clear(); }
 
 export function getCachedEmbeddedImages(pageNum) {
   return _cache.get(pageNum) || null;
@@ -68,8 +71,14 @@ export async function detectEmbeddedImages(pageNum) {
     console.warn('[embedded-image] viewport failed:', e);
   }
 
-  const out = images.map((im, idx) => ({ index: idx, bbox: bboxFromCtm(im.ctm, vt) }));
+  const out = images.map((im, idx) => ({
+    index: idx,
+    bbox: bboxFromCtm(im.ctm, vt),
+    // Alleen een rechte afbeelding laat zich zonder vervorming schalen.
+    schaalbaar: isRechtOpScherm(im.ctm, vt),
+  }));
   _cache.set(pageNum, out);
+  if (vt) _vt.set(pageNum, vt);
   return out;
 }
 
@@ -83,6 +92,29 @@ export function hitTestEmbeddedImage(pageNum, x, y) {
     if (x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height) hit = i;
   }
   return hit;
+}
+
+// Schrijf de aangepaste pdf-lib-inhoud terug in het document: herladen,
+// ongedaan te maken (pagina-structuur) en de detectiecache leegmaken.
+async function legInhoudVast(doc, bytes, pdfLibDoc) {
+  const newBytes = new Uint8Array(await pdfLibDoc.save());
+
+  // Snapshot for undo. Annotations/rotations are unchanged by a content edit.
+  const oldBytes = bytes.slice();
+  const oldAnnotations = doc.annotations.map(a => ({ ...a }));
+  const oldRotations = { ...doc.pageRotations };
+  const oldPage = doc.currentPage;
+
+  await reloadFromBytes(newBytes, doc.annotations.map(a => ({ ...a })), { ...doc.pageRotations }, doc.currentPage);
+
+  const newAnnotations = doc.annotations.map(a => ({ ...a }));
+  const newRotations = { ...doc.pageRotations };
+  recordPageStructure(
+    oldBytes, oldAnnotations, oldRotations, oldPage,
+    newBytes, newAnnotations, newRotations, doc.currentPage,
+  );
+
+  clearEmbeddedImageCache();
 }
 
 // Remove the embedded image at `index` on `pageNum` by neutralising its
@@ -110,27 +142,50 @@ export async function removeEmbeddedImage(pageNum, index) {
     const newRef = context.register(newStream);
     pdfLibDoc.getPage(pageNum - 1).node.set(PDFName.of('Contents'), newRef);
 
-    const newBytes = new Uint8Array(await pdfLibDoc.save());
-
-    // Snapshot for undo. Annotations/rotations are unchanged by a content edit.
-    const oldBytes = bytes.slice();
-    const oldAnnotations = doc.annotations.map(a => ({ ...a }));
-    const oldRotations = { ...doc.pageRotations };
-    const oldPage = doc.currentPage;
-
-    await reloadFromBytes(newBytes, doc.annotations.map(a => ({ ...a })), { ...doc.pageRotations }, doc.currentPage);
-
-    const newAnnotations = doc.annotations.map(a => ({ ...a }));
-    const newRotations = { ...doc.pageRotations };
-    recordPageStructure(
-      oldBytes, oldAnnotations, oldRotations, oldPage,
-      newBytes, newAnnotations, newRotations, doc.currentPage,
-    );
-
-    clearEmbeddedImageCache();
+    await legInhoudVast(doc, bytes, pdfLibDoc);
     return true;
   } catch (e) {
     console.error('[embedded-image] removal failed:', e);
+    return false;
+  } finally {
+    hideLoading();
+  }
+}
+
+// Verplaats of schaal de afbeelding naar `nieuwKader` (app-ruimte). Ongedaan te maken.
+export async function moveEmbeddedImage(pageNum, index, nieuwKader) {
+  const doc = getActiveDocument();
+  const bytes = currentBytes();
+  const vt = _vt.get(pageNum);
+  if (!doc || !bytes || !vt) return false;
+  showLoading('Moving image...');
+  try {
+    const pdfLibDoc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    if (!verplaatsAfbeelding(pdfLibDoc, pageNum, index, vt, nieuwKader)) return false;
+    await legInhoudVast(doc, bytes, pdfLibDoc);
+    return true;
+  } catch (e) {
+    console.error('[embedded-image] move failed:', e);
+    return false;
+  } finally {
+    hideLoading();
+  }
+}
+
+// Vervang de afbeelding door `imageBytes` (PNG of JPEG), passend in het oude kader.
+export async function replaceEmbeddedImage(pageNum, index, imageBytes, soort) {
+  const doc = getActiveDocument();
+  const bytes = currentBytes();
+  const vt = _vt.get(pageNum);
+  if (!doc || !bytes || !vt) return false;
+  showLoading('Replacing image...');
+  try {
+    const pdfLibDoc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    if (!(await vervangAfbeelding(pdfLibDoc, pageNum, index, vt, imageBytes, soort))) return false;
+    await legInhoudVast(doc, bytes, pdfLibDoc);
+    return true;
+  } catch (e) {
+    console.error('[embedded-image] replace failed:', e);
     return false;
   } finally {
     hideLoading();

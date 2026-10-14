@@ -352,7 +352,7 @@ function pythonApCheck(pdfPad) {
   // ── #353: voorkeuren-spiegel is klein en het bestand gaat vóór ───────────
   console.log('== #353 voorkeuren-spiegel');
   {
-    const spiegel = await evalJs(`localStorage.getItem('pdfEditorPreferences') || ''`);
+    const spiegel = await evalJs(`localStorage.getItem('opds:pdfEditorPreferences') || ''`);
     let sleutels = null;
     try { sleutels = Object.keys(JSON.parse(spiegel)); } catch { /* leeg */ }
     check('#353 spiegel bevat alleen het thema (Tauri)', Array.isArray(sleutels) && sleutels.every((k) => k === 'theme'), `sleutels: ${JSON.stringify(sleutels)} (${spiegel.length} tekens)`);

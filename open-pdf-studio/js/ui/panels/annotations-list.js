@@ -339,8 +339,9 @@ export function updateAnnotationsList(filterValue) {
   setItems(flatItems);
 }
 
-// Scroll the pdf-container viewport to center on the given annotation
-function scrollToAnnotation(annotation) {
+// Scroll the pdf-container viewport to center on the given annotation.
+// Ook gebruikt door de plugin-API (focusAnnotation, #557).
+export function scrollToAnnotation(annotation) {
   const bounds = getAnnotationBounds(annotation);
   if (!bounds) return;
 

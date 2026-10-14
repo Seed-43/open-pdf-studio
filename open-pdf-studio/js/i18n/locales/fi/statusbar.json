@@ -11,6 +11,7 @@
     "box": "Suorakulmio",
     "polygon": "Monikulmio",
     "cloud": "Pilvi",
+    "cloudPolyline": "Pilvimurtoviiva",
     "polyline": "Murtoviiva",
     "textbox": "Tekstilaatikko",
     "callout": "Kuvateksti",
@@ -27,7 +28,8 @@
     "formTextField": "Lomakkeen tekstikenttä",
     "formCheckbox": "Lomakkeen valintaruutu",
     "formRadio": "Lomakkeen valintapainike",
-    "screenshot": "Kuvakaappaus"
+    "screenshot": "Kuvakaappaus",
+    "pageLabelPick": "Valitse teksti sivun nimiöön"
   },
   "toolLabel": "Työkalu:",
   "annotationsLabel": "Merkinnät:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Tämä asiakirja sisältää interaktiivisia lomakekentitä. Voit täyttää lomakkeen ja tallentaa tiedot.",
   "enableEditing": "Ota muokkaus käyttöön",
   "pdfAConformance": "Tämä asiakirja noudattaa PDF/A-vaatimuksia.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Tiedoston nimeäminen uudelleen epäonnistui: {{error}}",
+  "renameInvalidChars": "Tiedostonimi ei voi sisältää merkkejä  / : * ? \" < > |",
+  "renameFileExists": "Tämänniminen tiedosto on jo olemassa.",
+  "engineTitle": "Nykyisen näkymän hahmonnusmoottori",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektori)"
+  },
+  "viewSingle": "Yksittäinen sivu",
+  "viewContinuous": "Jatkuva",
+  "viewBook": "Kaksi sivua",
+  "viewFacing": "Kaksi sivua rinnakkain",
   "viewRotatedTitle": "Näkymää on kierretty {{degrees}}° myötäpäivään; asiakirja on ennallaan. Palauta näkymä napsauttamalla.",
+  "compareTabTitle": "Vertailu",
   "filledAreaSketch": {
     "undoPoint": "Kumoa piste",
     "undoPointTitle": "Poista viimeisin piste (Askelpalautin)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "K",
+  "boxSizeHint": "Kirjoita arvo + Enter — tai käytä napsauttamalla muualle",
   "ocr": {
     "progress": {
       "starting": "Tunnistetaan tekstiä...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Tulokset ({{count}})",
   "searchResultPage": "Sivu {{page}}",
   "searchHitsOne": "1 osuma",
-  "searchHitsMany": "{{count}} osumaa"
+  "searchHitsMany": "{{count}} osumaa",
+  "passwordProtectedBar": "Suojattu salasanalla: avattu vain luku -tilassa."
 }

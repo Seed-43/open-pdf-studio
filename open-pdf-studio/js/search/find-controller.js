@@ -6,6 +6,7 @@
 
 import { state, getActiveDocument } from '../core/state.js';
 import { BRON_TEKST, zoekInAnnotaties } from './search-sources.js';
+import { pdfjsBronnen } from '../core/basis-url.js';
 
 // Cache for extracted text content per document
 const textCache = new Map();
@@ -531,10 +532,7 @@ async function replaceInPdfContent(doc, result, replaceText) {
     const pdfjsLib = await import('pdfjs-dist');
     doc.pdfDoc = await pdfjsLib.getDocument({
       data: newBytesArr.slice(),
-      cMapUrl: '/pdfjs/web/cmaps/',
-      cMapPacked: true,
-      standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+      ...pdfjsBronnen(),
       isEvalSupported: false,
       verbosity: 0,
     }).promise;

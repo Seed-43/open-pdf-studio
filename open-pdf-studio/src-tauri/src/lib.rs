@@ -5,13 +5,16 @@
 
 mod accounts;
 mod atomic_file;
+pub mod beveiligde_pdf;
 pub mod cad_export;
 pub mod cad_import;
 pub mod datamap;
 mod email;
+pub mod extensie_installatie;
 pub mod linux_runtime;
 pub mod logboek;
 pub mod mcp_app_bridge;
+pub mod mcp_extensie_tools;
 pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
@@ -19,6 +22,7 @@ pub mod mcp_tool_meta;
 #[cfg(not(target_os = "android"))]
 pub mod ocr;
 pub mod pdfium_renderer;
+pub mod pdfx_cmyk;
 pub mod handtekening;
 pub mod print_formulieren;
 pub mod print_instelling;
@@ -36,6 +40,8 @@ pub mod print_windows;
 pub mod render_to_png;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
+// Vensteropname voor app_screenshot_view (#583); buiten Windows een nette fout.
+pub mod webview_opname;
 pub mod worker_pool;
 
 pub struct StartupOpts {
@@ -1511,10 +1517,9 @@ fn install_plugin(path: String) -> Result<serde_json::Value, String> {
         .and_then(|v| v.as_str())
         .ok_or("plugin.json must have an 'id' field")?;
 
-    // Validate plugin id (prevent path traversal)
-    if plugin_id.contains("..") || plugin_id.contains('/') || plugin_id.contains('\\') {
-        return Err("Invalid plugin id".to_string());
-    }
+    // Strikte id-controle (#550): "" of "." wees naar de pluginmap zelf en
+    // "C:" ontsnapte via Path::join.
+    extensie_installatie::valideer_extensie_id(plugin_id).map_err(|f| f.message)?;
 
     let plugins_dir = get_plugins_dir();
     let plugin_dir = plugins_dir.join(plugin_id);
@@ -1557,27 +1562,25 @@ fn install_plugin(path: String) -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 fn uninstall_plugin(id: String) -> Result<bool, String> {
-    // Validate id
-    if id.contains("..") || id.contains('/') || id.contains('\\') {
-        return Err("Invalid plugin id".to_string());
-    }
+    // Strikt of een veilig oud id; nooit de pluginmap zelf of daarbuiten (#550).
+    extensie_installatie::controleer_bestaand_id(&id)?;
 
     let plugins_dir = get_plugins_dir();
     let plugin_dir = plugins_dir.join(&id);
 
-    if plugin_dir.exists() {
-        fs::remove_dir_all(&plugin_dir).map_err(|e| format!("Failed to remove plugin: {}", e))?;
-    }
-
-    Ok(true)
+    // Niet tijdens een lopende installatie van een extensie.
+    extensie_installatie::met_wisselslot(|| {
+        if plugin_dir.exists() {
+            fs::remove_dir_all(&plugin_dir).map_err(|e| format!("Failed to remove plugin: {}", e))?;
+        }
+        Ok(true)
+    })
 }
 
 #[tauri::command]
 fn read_plugin_file(plugin_id: String, file_path: String) -> Result<String, String> {
-    // Validate inputs
-    if plugin_id.contains("..") || plugin_id.contains('/') || plugin_id.contains('\\') {
-        return Err("Invalid plugin id".to_string());
-    }
+    // Validate inputs: strikt of een veilig oud id (#550)
+    extensie_installatie::controleer_bestaand_id(&plugin_id)?;
     if file_path.contains("..") {
         return Err("Invalid file path".to_string());
     }
@@ -2565,6 +2568,7 @@ pub fn run(opts: StartupOpts) {
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
+        .manage(beveiligde_pdf::BeveiligdeKopieen::default())
         .manage(print_instelling::PrinterDevmodes::default())
         .manage(PdfBytesCache(Mutex::new(HashMap::new())))
         .manage(DocHandleCache(Mutex::new(HashMap::new())))
@@ -2577,6 +2581,7 @@ pub fn run(opts: StartupOpts) {
         .manage(cad_import::CadImportState::default())
         .manage(pool.clone())
         .manage(mcp_app_bridge::McpAppBridge::new())
+        .manage(mcp_extensie_tools::ExtensieTools::default())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
@@ -2686,6 +2691,13 @@ pub fn run(opts: StartupOpts) {
                     cad_import::sweep_previews(&voorbeelden, cad_import::PREVIEW_MAX_AGE);
                 });
             }
+
+            // Ontsleutelde werkkopieën van PDF's met een wachtwoord die van een
+            // vorige keer zijn blijven staan (beveiligde_pdf.rs). Kopieën van
+            // een andere, nog draaiende instantie blijven staan.
+            std::thread::spawn(|| {
+                beveiligde_pdf::ruim_oude_kopieen_op(&beveiligde_pdf::werkmap());
+            });
 
             // Grant FS plugin scope for command-line files (file association)
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
@@ -2852,6 +2864,12 @@ pub fn run(opts: StartupOpts) {
             install_plugin,
             uninstall_plugin,
             read_plugin_file,
+            // Extensies installeren en herladen zonder dialoog (#550)
+            extensie_installatie::extensie_lijst,
+            extensie_installatie::extensie_inspecteer,
+            extensie_installatie::extensie_installeer,
+            extensie_installatie::extensie_bevestig,
+            extensie_installatie::extensie_terugdraaien,
             render_pdf_page,
             ocr_pdf_page,
             worker_pool_ready,
@@ -2876,6 +2894,9 @@ pub fn run(opts: StartupOpts) {
             cad_export::export_page_to_cad,
             cad_export::cancel_cad_export,
             cad_export::scan_page_for_cad,
+            pdfx_cmyk::pdfx_list_cmyk_profiles,
+            pdfx_cmyk::pdfx_inspect_profile,
+            pdfx_cmyk::pdfx_convert_to_cmyk,
             cad_import::scan_cad_file,
             cad_import::import_cad_to_pdf,
             cad_import::cancel_cad_import,
@@ -2887,8 +2908,12 @@ pub fn run(opts: StartupOpts) {
             cad_import::cad_import_limits,
             cad_import::cad_import_dir,
             allow_fs_scope,
+            beveiligde_pdf::open_protected_pdf,
+            beveiligde_pdf::release_protected_pdf,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,
+            mcp_extensie_tools::mcp_set_extension_tools,
+            webview_opname::capture_webview_png,
             mcp_koppeling::mcp_instellen,
             mcp_koppeling::mcp_status,
             accounts::accounts_sign_in,
@@ -2916,6 +2941,11 @@ pub fn run(opts: StartupOpts) {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|_app, _event| {
+            // Bij afsluiten de ontsleutelde werkkopieën van deze instantie
+            // opruimen (best effort; wat blijft staan ruimt de volgende start op).
+            if let tauri::RunEvent::Exit = &_event {
+                beveiligde_pdf::ruim_eigen_kopieen_op(&_app.state::<beveiligde_pdf::BeveiligdeKopieen>());
+            }
             // macOS (en iOS) leveren een dubbelklik in Finder NIET als
             // argv-argument aan (zoals Windows/Linux), maar als Apple Event
             // dat Tauri doorgeeft als RunEvent::Opened { urls }. Zonder deze

@@ -13,6 +13,9 @@ import { closeAllPopups } from '../../bridge.js';
 import { persistReaderPosition, restoreReaderPosition } from '../../pdf/reader-mode-view.js';
 import { hasPendingRestore } from '../../core/reader-mode-tracking.js';
 import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
+import { compareActive, compareFocused, focusCompareTab, blurCompareTab } from '../../compare/compare-store.js';
+import { volgendTabDoel, voerTabWisselUit } from './tab-sneltoets.js';
+import { isBeveiligdDocument } from '../../pdf/wachtwoord-pdf.js';
 
 /**
  * Create a new tab for a document
@@ -55,9 +58,12 @@ export function createTab(filePath = null, autoSwitch = true) {
 /**
  * Switch to a specific tab
  * @param {number} index - Index of the tab to switch to
+ * @returns {Promise<void>|undefined} de eerste render van het nieuwe tabblad
+ *   (undefined zonder PDF); de tabwissel-sneltoets wacht hierop (#539)
  */
 export function switchToTab(index) {
   if (index < 0 || index >= state.documents.length) return;
+  let eersteRender;
 
   // Save scroll position of current document
   const currentDoc = getActiveDocument();
@@ -141,9 +147,15 @@ export function switchToTab(index) {
       newDoc.currentPage = 1;
     }
 
+    // Enkelpagina: renderPage hergebruikt wat er van dit document al klaarstaat
+    // — de viewport zet zoom en verschuiving terug zoals het document werd
+    // verlaten en tekent direct de gecachte paginabitmap (pdf-viewport.js
+    // setPage, weergave-per-document.js), in plaats van opnieuw passend te
+    // maken en te renderen (#539).
     const firstRender = newDoc.viewMode === 'continuous'
       ? renderContinuous()
       : renderPage(newDoc.currentPage);
+    eersteRender = firstRender;
 
     // Reader Mode: a tracked document that finished loading while another
     // tab was in front (multi-file open, session restore, a tab switch
@@ -157,13 +169,21 @@ export function switchToTab(index) {
     }
 
     // Restore scroll position (not for a document that still has to jump to
-    // its stored reading position: it has no scroll of its own yet, and the
-    // timer could undo the jump).
+    // its stored reading position: it has no scroll of its own yet, and this
+    // could undo the jump). Zodra de pagina's van het document staan en niet
+    // na een vaste 50 ms: in de doorlopende weergave was dan eerst de
+    // bovenkant van het document te zien (en renderden daar pagina's voor
+    // niets) voordat het beeld naar de bewaarde plek sprong, en een trage
+    // opbouw kreeg een te vroege, afgekapte scrollpositie (#539).
     if (pdfContainer && newDoc.scrollPosition && !readerRestorePending) {
-      setTimeout(() => {
-        pdfContainer.scrollLeft = newDoc.scrollPosition.x;
-        pdfContainer.scrollTop = newDoc.scrollPosition.y;
-      }, 50);
+      const { x, y } = newDoc.scrollPosition;
+      Promise.resolve(firstRender)
+        .catch((e) => console.warn('[tabs] render na tabwissel mislukt:', e))
+        .then(() => {
+          if (getActiveDocument() !== newDoc) return;
+          pdfContainer.scrollLeft = x;
+          pdfContainer.scrollTop = y;
+        });
     }
 
     // Regenerate thumbnails for the new document
@@ -198,6 +218,26 @@ export function switchToTab(index) {
       }
     });
   }
+
+  return eersteRender;
+}
+
+/**
+ * Tabwissel met de sneltoets (#539): Ctrl+Tab / Ctrl+PageDown naar het
+ * volgende, Ctrl+Shift+Tab / Ctrl+PageUp naar het vorige tabblad, met omloop
+ * en in de volgorde van de tabbalk (het vergelijkingstabblad achteraan).
+ * Met één tabblad gebeurt er niets.
+ * @param {number} richting  1 = volgende, -1 = vorige
+ * @returns {Promise<void>|undefined} de eerste render van het nieuwe tabblad
+ */
+export function wisselTabMetSneltoets(richting) {
+  const doel = volgendTabDoel({
+    aantalDocumenten: state.documents.length,
+    actieveIndex: state.activeDocumentIndex,
+    vergelijkActief: compareActive(),
+    vergelijkGefocust: compareFocused(),
+  }, richting);
+  return voerTabWisselUit(doel, { switchToTab, focusCompareTab, blurCompareTab });
 }
 
 /**
@@ -216,7 +256,9 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
   // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
   let vorigActief = null;
-  if (!force && doc.modified) {
+  // Een met een wachtwoord geopende PDF is alleen-lezen en kan niet
+  // opgeslagen worden: niets te vragen.
+  if (!force && doc.modified && !isBeveiligdDocument(doc)) {
     const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
@@ -275,6 +317,11 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // anders blijft het bestand vergrendeld tot de app afsluit. (#345)
   if (doc.saveTargetPath && doc.saveTargetPath !== doc.filePath) {
     await unlockFile(doc.saveTargetPath);
+  }
+  // Met een wachtwoord geopend: de lock staat op het origineel, het document
+  // rendert uit een ontsleutelde werkkopie (die gaat hieronder weg).
+  if (doc.originalFilePath && doc.originalFilePath !== doc.filePath) {
+    await unlockFile(doc.originalFilePath);
   }
   if (doc._renderTemp && doc.filePath && !doc.isUntitled) {
     try {
@@ -344,6 +391,17 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // De interface is bijgewerkt; nu pas wachten tot alles is vrijgegeven.
   await vrijgave;
 
+  // De ontsleutelde werkkopie van een beveiligde PDF weg, nu de caches en de
+  // worker-processen hem hebben losgelaten. Rust verwijdert alleen bestanden
+  // in zijn eigen map; wat nog in gebruik is, ruimt het afsluiten of de
+  // volgende start op.
+  if (isBeveiligdDocument(doc) && doc.filePath && doc.filePath !== doc.originalFilePath
+      && !state.documents.some((d) => d.filePath === doc.filePath)) {
+    try {
+      await window.__TAURI__?.core?.invoke?.('release_protected_pdf', { path: doc.filePath });
+    } catch (e) { console.warn('[tabs] werkkopie van beveiligde PDF niet verwijderd:', e); }
+  }
+
   return true;
 }
 
@@ -409,6 +467,15 @@ export async function renameDocument(index, newName) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
+
+  // Met een wachtwoord geopend: alleen-lezen, ook de bestandsnaam. (Het pad
+  // zou bovendien de werkkopie zijn, niet het origineel.)
+  if (isBeveiligdDocument(doc)) {
+    const { showMessage } = await import('../../solid/stores/dialogStore.js');
+    const i18next = (await import('../../i18n/config.js')).default;
+    showMessage(i18next.t('protectedPdfReadOnly'));
+    return false;
+  }
 
   // Untitled docs — trigger Save As instead
   if (!doc.filePath) {

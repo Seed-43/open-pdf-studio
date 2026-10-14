@@ -44,6 +44,7 @@ use serde_json::{json, Value};
 use tauri::{AppHandle, Manager};
 
 use crate::mcp_app_bridge::{self, McpAppBridge};
+use crate::mcp_extensie_tools::{self, ExtensieTools};
 use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};
 
 /// Per-server state. Cloned (cheaply, via Arc) into every request handler.
@@ -339,6 +340,180 @@ fn floorplan_tool() -> Value {
     })
 }
 
+/// Het definitie-object van een systeemtype (#567), schema 1. Een eigen functie
+/// vanwege de recursielimiet van `json!` (zie lib.rs). `register`: bij
+/// registreren zijn naam, categorie en layout verplicht; bij bijwerken is niets
+/// verplicht en wist null een optioneel veld. De JS-kant
+/// (js/annotations/systeem-typen-contract.js) is de echte controle: Rust
+/// valideert het inputSchema niet.
+fn system_type_definition_schema(register: bool) -> Value {
+    let mut schema = json!({
+        "type": "object",
+        "properties": {
+            "naam":              { "type": "string", "description": "Display name (1-200 characters). Not an identity: references use the id." },
+            "categorie":         { "type": "string", "enum": ["plafond", "vloer", "wand", "overig"] },
+            "layout":            { "type": "string", "enum": ["raster", "strook"], "description": "raster: cells in two directions (needs celXMm and celYMm). strook: strips in one direction (needs strookBreedteMm and celYMm)." },
+            "ifcCategory":       { "type": "string", "enum": ["IfcCovering", "IfcWall", "IfcSlab", "IfcPlate"] },
+            "ifcPredefinedType": { "type": ["string", "null"], "enum": ["CEILING", "FLOORING", "FLOOR", "CLADDING", "ROOFING", null] },
+            "celXMm":            { "type": ["number", "null"], "minimum": 50, "maximum": 20000, "description": "Cell width in mm. Left out or null: unconfirmed, no default is applied." },
+            "celYMm":            { "type": ["number", "null"], "minimum": 50, "maximum": 20000, "description": "Cell height in mm. Left out or null: unconfirmed, no default is applied." },
+            "strookBreedteMm":   { "type": ["number", "null"], "minimum": 50, "maximum": 20000, "description": "Strip width in mm for the strook layout. Left out or null: unconfirmed." },
+            "edgeProfiel":       { "type": "string", "enum": ["geen", "hoeklijn", "schaduwvoeg"] },
+            "sparingRegels":     { "type": ["object", "null"], "properties": {
+                                     "kleineSparingMaxMm": { "type": "number", "minimum": 10, "maximum": 20000 },
+                                     "raveelVanafMm":      { "type": "number", "minimum": 10, "maximum": 20000 } },
+                                   "additionalProperties": false },
+            "paneelTypen":       { "type": "array", "minItems": 1, "maxItems": 50, "items": {
+                                     "type": "object",
+                                     "properties": {
+                                       "id":          { "type": "string" },
+                                       "naam":        { "type": "string" },
+                                       "renderStijl": { "type": "string", "enum": ["tegel", "ventilatie", "licht"] } },
+                                     "required": ["id", "naam", "renderStijl"],
+                                     "additionalProperties": false } },
+            "lagen":             { "type": "array", "maxItems": 0, "description": "Reserved. Schema 1 has one implicit layer; only an empty array is accepted." }
+        },
+        "additionalProperties": false
+    });
+    if register {
+        schema["required"] = json!(["naam", "categorie", "layout"]);
+    }
+    schema
+}
+
+/// `app_read_ui` (#584): de interface als compacte toegankelijkheidsboom
+/// lezen (rol, naam, staat), zodat een agent kan nalezen wat een klik deed.
+/// De regels staan in js/core/mcp-ui-boom.js.
+fn read_ui_tool() -> Value {
+    json!({
+        "name": "app_read_ui",
+        "description": "Read the LIVE app's interface as a compact accessibility-style tree, to check what a click did without a screenshot. Each node has a role (button, tab, tabpanel, group, combobox, option, checkbox, status, text, ...), a name and only the state that applies: disabled, checked, pressed, selected, expanded, active, focused, readonly, plus value/valueText for inputs. Ribbon tabs carry `tab` and the `command` 'ribbon-tab:<tab>'; ribbon buttons and extension controls carry the `command` that app_run_command runs. Without `selector` it reads the ribbon (only the active tab's content exists), the side panels, the bars above the document, floating palettes, open dialogs and the status bar, each as a region. With `selector` it reads the matching elements instead, for example an extension's panel. Reads only: it never switches ribbon tabs. maxDepth, maxNodes and maxText keep the output small; `truncated` says when something was left out.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "selector":      { "type": "string", "description": "CSS selector of the element(s) to read, e.g. '.ribbon-container', '#left-panel' or '.status-bar'. Default: the standard regions." },
+                "maxDepth":      { "type": "integer", "minimum": 1, "maximum": 40, "default": 12, "description": "Maximum depth of the tree." },
+                "maxNodes":      { "type": "integer", "minimum": 1, "maximum": 3000, "default": 400, "description": "Maximum number of nodes over all regions together." },
+                "maxText":       { "type": "integer", "minimum": 8, "maximum": 1000, "default": 80, "description": "Maximum length of a name, description or value." },
+                "includeHidden": { "type": "boolean", "default": false, "description": "Also list hidden elements, marked with state.hidden." }
+            },
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_list_system_types` (#567): de bibliotheek met systeemtypen lezen.
+fn list_system_types_tool() -> Value {
+    json!({
+        "name": "app_list_system_types",
+        "description": "List the reusable system types (suspended ceilings, floor slabs, panel systems) of the app library, or one type by id. Each entry has its stable id, owner, revision, whether the user edited it, the validated definition, unconfirmed dimensions and stored values that fail validation. Compare libraryRevision between calls to detect changes. Reads only.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "string", "description": "Stable id of one system type." }
+            },
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_register_system_type` (#567): een type onder `mcp:<key>` registreren.
+/// Een andere definitie vervangt een bestaand, onbewerkt `mcp:`-type en
+/// hertekent alle systemen ermee: daarom `wijzigt` in mcp_tool_meta.rs.
+fn register_system_type_tool() -> Value {
+    json!({
+        "name": "app_register_system_type",
+        "description": "Register a system type owned by MCP under the id mcp:<key>. Repeating the call with the same definition changes nothing (status unchanged), and a definition the user edited in the app is kept (status kept-user-edit) and never overwritten. A different definition replaces an existing mcp:<key> type that the user has not edited (status updated) and redraws every system that uses it. Unknown fields, out-of-range values and layered definitions are rejected. Missing dimensions stay unconfirmed.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "key":        { "type": "string", "description": "Stable key: lowercase letters, digits, dot, underscore or hyphen (1-64)." },
+                "definition": system_type_definition_schema(true),
+                "schema":     { "type": "integer", "enum": [1] },
+                "restore":    { "type": "boolean", "description": "Recreate a type the user removed. Only on an explicit user request." }
+            },
+            "required": ["key", "definition"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_update_system_type` (#567): een MCP-type bijwerken met revisiecontrole.
+fn update_system_type_tool() -> Value {
+    json!({
+        "name": "app_update_system_type",
+        "description": "Update a system type owned by MCP (id mcp:<key>). Pass the revision you last read as expectedRevision; a stale revision is rejected with the current revision. Types of the app or of extensions cannot be changed here. Nested values (sparingRegels, paneelTypen) are replaced as a whole; null clears an optional field.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "id":               { "type": "string" },
+                "expectedRevision": { "type": "integer", "minimum": 1 },
+                "changes":          system_type_definition_schema(false),
+                "schema":           { "type": "integer", "enum": [1] }
+            },
+            "required": ["id", "expectedRevision", "changes"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_open_system_type_editor` (#567): de native editor openen met de focus
+/// op een type. Keert meteen terug; de gebruiker past toe of annuleert.
+fn open_system_type_editor_tool() -> Value {
+    json!({
+        "name": "app_open_system_type_editor",
+        "description": "Open the app's system type editor with the given type selected, or select it in the editor that is already open without discarding unapplied edits. Returns immediately; the user applies or cancels in the app. Does not change any data.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "string", "description": "Stable id of the system type to select." }
+            },
+            "required": ["id"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_get_system_geometry` (#567, punt 7): de documentgebonden geometrie van
+/// één systeem in het actieve document, uit de eigen geometrie van de app.
+fn get_system_geometry_tool() -> Value {
+    json!({
+        "name": "app_get_system_geometry",
+        "description": "Get the geometry of one system (suspended ceiling, floor slab, panel field) in the active document, computed by the app's own geometry engine: panels with clipped outlines, grid lines, openings, trimmers, edge segments and component positions, in millimetres in the system's own frame (independent of zoom and view rotation; placement maps it onto the page). Includes the document and type revisions and whether every physical dimension is confirmed. Pass expectedDocumentRevision and expectedTypeRevision to reject a stale snapshot. Reads only.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "annotationId":             { "type": "string", "description": "Id of the system annotation (type systeemraster) in the active document." },
+                "expectedDocumentRevision": { "type": "string", "description": "document.revision of an earlier snapshot; a different current revision is rejected." },
+                "expectedTypeRevision":     { "type": "integer", "minimum": 1, "description": "type.revision of an earlier snapshot; a different current revision is rejected." },
+                "schema":                   { "type": "integer", "enum": [1] }
+            },
+            "required": ["annotationId"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// `app_call_extension_command` (#575): een gestructureerde opdracht van een
+/// geladen extensie aanroepen. Elke opdracht staat ook als eigen tool
+/// (`ext_<extensie>__<opdracht>`) in tools/list; deze vaste tool is er voor
+/// een client die zijn lijst las voordat de extensie geladen was.
+fn call_extension_command_tool() -> Value {
+    json!({
+        "name": "app_call_extension_command",
+        "description": "Run a structured command of a loaded extension. Every such command is also listed as its own tool named ext_<extension>__<command>; use this tool when that tool is not in your list, for example after installing or reloading an extension. app_list_extensions with includeContributions lists each command with its input and output schema. The arguments are checked against the input schema before the extension runs; a mutating command also needs idempotencyKey and revisionContext. Returns ok, requestId, extension, command and result, or ok: false with an error code such as UNKNOWN_COMMAND, INVALID_ARGUMENT, STALE_REVISION, IDEMPOTENCY_KEY_REUSED, COMMAND_TIMEOUT or EXTENSION_UNLOADED.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "tool":      { "type": "string", "description": "Tool name of the extension command, ext_<extension>__<command>." },
+                "arguments": { "type": "object", "description": "Arguments for the command, as described by its input schema.", "additionalProperties": true }
+            },
+            "required": ["tool"],
+            "additionalProperties": false
+        }
+    })
+}
+
 /// Beschrijving van `app_facade_element`: het gevelelement (#475) — een
 /// vliesgevel of kozijn als één object met stijlen op de veldgrenzen en een
 /// paneel per veld.
@@ -380,10 +555,99 @@ fn facade_element_tool() -> Value {
     })
 }
 
+/// Extensies beheren via MCP (#550): opvragen, installeren uit een lokaal
+/// `.oppx`-pakket en herladen, zonder dialoog en zonder herstart.
+fn extensie_tools() -> Vec<Value> {
+    vec![
+        json!({
+            "name": "app_list_extensions",
+            "description": "List the app's extensions: every installed and every loaded extension with its id, name, version, installed version, whether it is loaded and activated, its status (active, failed, notLoaded, busy), the code and message of the last failure, who made the last change (ui, mcp or startup) and whether it uses an old-style id. Broken folders in the extensions directory are listed under problems instead of being skipped. Reads only.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "includeContributions": { "type": "boolean", "description": "Also list each extension's registered contributions (ribbon tabs, command count, annotation types, palettes, property panels, and structured commands with their input and output schemas). Default false." }
+                },
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_install_extension",
+            "description": "Install or update an extension from a local .oppx package, without a file dialog and without restarting the app: the package is checked and unpacked by the app, then the new version is activated. If the new version fails to load or activate, the previous working version is restored and stays active (rolledBack: true). Open PDF tabs and unsaved changes are not touched. Returns ok, outcome (installed, updated, unchanged), id, version, previousVersion, activated and the registered contributions, or ok: false with an error code such as PATH_NOT_ALLOWED, PACKAGE_INVALID, MANIFEST_INVALID, ALREADY_INSTALLED, VERSION_NOT_NEWER, MODULE_LOAD_FAILED or ACTIVATION_FAILED.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "path": { "type": "string", "description": "Absolute path to a local .oppx package. Relative paths, network shares and URLs are refused." },
+                    "replace": { "type": "string", "enum": ["never", "ifNewer", "always"], "description": "What to do when the extension id is already installed: 'never' refuses, 'ifNewer' replaces only a lower version, 'always' replaces (also a downgrade). An identical package (same SHA-256) is always reported as 'unchanged'." },
+                    "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$", "description": "Caller-chosen key for this install request. Repeating a call with the same key, path and replace returns the stored result without installing again; the same key with a different path or replace is refused." }
+                },
+                "required": ["path", "replace", "idempotencyKey"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_reload_extension",
+            "description": "Reload an installed extension from disk: deactivate it, remove everything it registered (ribbon tabs, commands, annotation types, palettes, panels) and activate it again, without restarting the app. If the reloaded code fails, the previous code is activated again (rolledBack: true). Returns ok, outcome 'reloaded', id, version, activated and contributions, or ok: false with an error code such as NOT_INSTALLED, MODULE_LOAD_FAILED or ACTIVATION_FAILED.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "string", "description": "Extension id from app_list_extensions." }
+                },
+                "required": ["id"],
+                "additionalProperties": false
+            }
+        }),
+    ]
+}
+
+/// Agenttaken van extensies (#556): een MCP-agent pakt een gestructureerde
+/// taak op en levert een gestructureerd resultaat, zonder assistentvenster en
+/// zonder chatbericht. De regels staan in js/plugins/agent-tasks.js.
+fn agent_task_pending_tool() -> Value {
+    json!({
+        "name": "app_agent_task_pending",
+        "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it. Returns { ok, task, waiting }; task is null when no task waits. A task has id, kind, extensionId, document { id, page, pageCount, sourceFingerprint, pageRotation, scale }, context (only the fields the extension chose to share), resultSchema (what the answer must match), createdAt, deadline (ms timestamps) and attemptsLeft. No conversation, file name or other tasks are shared. Answer with app_agent_task_result before the deadline; the task is cancelled when the user switches or closes the document, or when its source, page or scale changes.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "kind": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{0,63}$", "description": "Only take a task of this kind, for example floorplan.recognize. Left out: the oldest task of any kind." }
+            },
+            "additionalProperties": false
+        }
+    })
+}
+
+/// Het antwoord op precies die ene taak: een resultaat dat aan het
+/// resultaatschema van de taak voldoet, of een fout.
+fn agent_task_result_tool() -> Value {
+    json!({
+        "name": "app_agent_task_result",
+        "description": "Answer a running agent task by its id (from app_agent_task_pending) with either result, an object that must match the task's resultSchema (unknown fields are refused), or error { message, code } when the task cannot be done. The answer goes only to the extension that submitted this task, as a proposal: nothing is drawn until the extension applies it to the same document. Returns { ok, id, status }. A result that does not match returns ok false, code INVALID_RESULT, errors and attemptsLeft: send a corrected result; after the last attempt the task fails. Other codes: UNKNOWN_TASK, TASK_NOT_CLAIMED, TASK_NOT_RUNNING (with status and reason, for a task that was cancelled, failed or answered already) and STALE_TASK (the document, source, page or scale changed; the task is cancelled).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "string", "description": "Task id from app_agent_task_pending." },
+                "result": { "type": "object", "description": "The structured result; it must match the task's resultSchema." },
+                "error": {
+                    "type": "object",
+                    "description": "Instead of result: why the task cannot be done.",
+                    "properties": {
+                        "code": { "type": "string", "pattern": "^[A-Za-z0-9_.-]{1,64}$", "description": "Optional machine-readable code." },
+                        "message": { "type": "string", "maxLength": 2000, "description": "What went wrong." }
+                    },
+                    "required": ["message"],
+                    "additionalProperties": false
+                }
+            },
+            "required": ["id"],
+            "additionalProperties": false
+        }
+    })
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
-    json!({
+    let mut lijst = json!({
         "tools": [
             {
                 "name": "list_test_pdfs",
@@ -433,7 +697,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_open_pdf",
-                "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active. A DWG or DXF opens the CAD import dialog instead (result `dialog: \"cad-import\"`).",
+                "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active. A DWG or DXF opens the CAD import dialog instead (result `dialog: \"cad-import\"`). A PDF with an open password shows the password dialog instead (result `dialog: \"pdf-password\"`); it opens read-only once the password is entered in the app.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -475,11 +739,13 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_screenshot_view",
-                "description": "Capture the LIVE app's current page view as a base64 PNG. Composites the PDF canvas with the annotation/highlight overlays (NOT the surrounding chrome — for that use OS-level screenshotting).",
+                "description": "Capture the LIVE app as a base64 PNG. scope 'document' (default) composites the PDF canvas with the annotation/highlight overlays, without the surrounding interface. scope 'window' captures the whole app window as it is shown: ribbon (including extension tabs), side panels such as an extension's workspace panel, the document view and the status bar. scope 'element' crops that window capture to the element matched by `selector`. The longer side is scaled down to `width`. Returns { png_base64, width, height, scope, bounds: { x, y, width, height } (the captured area in CSS px), devicePixelRatio }. 'window' and 'element' use a native capture of the web view and are available on Windows only for now; on other platforms they return an error.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "width": { "type": "integer", "minimum": 1, "default": 2000 }
+                        "width":    { "type": "integer", "minimum": 1, "default": 2000, "description": "Maximum length in px of the longer side of the PNG." },
+                        "scope":    { "type": "string", "enum": ["document", "window", "element"], "default": "document", "description": "'document' (the page view), 'window' (the whole app window) or 'element' (one element, needs selector)." },
+                        "selector": { "type": "string", "description": "CSS selector of the element to capture with scope 'element', e.g. '.ribbon-container', '#left-panel' or '.status-bar'." }
                     },
                     "additionalProperties": false
                 }
@@ -660,7 +926,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_click_element",
-                "description": "Click an arbitrary DOM element in the LIVE app by CSS selector (usually '#button-id'). If the element lives on an inactive ribbon tab, the matching tab is activated first (the ribbon only renders the active tab's content). Returns { ok, found, disabled, clicked, activatedTab }. Disabled elements are reported but NOT clicked. Set searchTabs=false to probe only the current DOM (e.g. for dialogs) without touching the ribbon tabs.",
+                "description": "Click an arbitrary DOM element in the LIVE app by CSS selector (usually '#button-id'). If the element lives on an inactive ribbon tab, the matching tab is activated first (the ribbon only renders the active tab's content). Returns { ok, found, disabled, clicked, activatedTab, activeTab }: activatedTab is the ribbon tab this call activated (the tab the search opened, the tab whose button was clicked, also an extension tab, or the tab the click switched to), activeTab the ribbon tab active afterwards. Disabled elements are reported but NOT clicked. Set searchTabs=false to probe only the current DOM (e.g. for dialogs) without touching the ribbon tabs.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -784,6 +1050,9 @@ fn handle_tools_list() -> Value {
                 "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }. Use to verify a delivered answer landed in the window.",
                 "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
             },
+            // Agenttaken van extensies (#556)
+            agent_task_pending_tool(),
+            agent_task_result_tool(),
             {
                 "name": "app_create_annotation",
                 "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
@@ -1017,6 +1286,35 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
+                "name": "app_translate_page",
+                "description": "Replace many text spans of one page in a single call, for example to translate the page. Takes spans from app_get_page_text with their exact expected text. All or nothing: if any replacement fails, nothing changes and the result lists the error per span. Same rules as app_replace_text (in-place removal, fit to the original width, full fallback font when the subset lacks glyphs), checked together on one copy of the PDF and applied as one undo step. Changes stay pending until app_save_pdf is called.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "page": { "type": "integer", "minimum": 1, "description": "1-based page number; defaults to the page of the first spanId." },
+                        "replacements": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 500,
+                            "description": "One entry per span to replace, each on one line.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "spanId": { "type": "string", "description": "Opaque span ID from app_get_page_text." },
+                                    "expectedText": { "type": "string", "description": "Exact current text returned for that span." },
+                                    "newText": { "type": "string", "description": "Replacement text on one line (may be empty to delete)." },
+                                    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "Required only when the source fill colour could not be recovered." }
+                                },
+                                "required": ["spanId", "expectedText", "newText"],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": ["replacements"],
+                    "additionalProperties": false
+                }
+            },
+            {
                 "name": "app_set_measure_scale",
                 "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation.",
                 "inputSchema": {
@@ -1096,7 +1394,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_list_commands",
-                "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool. Use this to discover how a feature is called before running it with app_run_command. Command ids: 'ribbon:#<id>' (stable), 'ribbon:<tab>:<n>' (button without an id, only stable within one version), 'tool:<name>'. Optional `filter` narrows by text (matches id, label, title or tab).",
+                "description": "List EVERY function the app exposes: each ribbon tab, each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool. Use this to discover how a feature is called before running it with app_run_command. Command ids: 'ribbon-tab:<tab>' (activate a ribbon tab), 'ribbon:#<id>' (stable), 'ribbon:<tab>:<n>' (button without an id, only stable within one version), 'tool:<name>'. Optional `filter` narrows by text (matches id, label, title or tab). Tabs and buttons that an extension adds carry the extension tab id in `tab`, including tabs an extension put into the ribbon itself. Extension actions appear as 'ext:<extensionId>:<itemId>'.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1107,16 +1405,17 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_run_command",
-                "description": "Run any command returned by app_list_commands: clicks the ribbon button (switching to its tab first) or activates the tool. Disabled buttons are refused.",
+                "description": "Run any command returned by app_list_commands: activates a ribbon tab ('ribbon-tab:<tab>'), clicks the ribbon button (switching to its tab first), runs an extension action ('ext:...') or activates the tool. Disabled buttons are refused.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "command": { "type": "string", "description": "Command id from app_list_commands, e.g. 'ribbon:#btn-vector-snippet' or 'tool:measureArea'." }
+                        "command": { "type": "string", "description": "Command id from app_list_commands, e.g. 'ribbon:#btn-vector-snippet', 'ribbon-tab:view' or 'tool:measureArea'." }
                     },
                     "required": ["command"],
                     "additionalProperties": false
                 }
             },
+            read_ui_tool(),
             {
                 "name": "app_snippet_cut",
                 "description": "Cut a rectangular area from a page of the active document as a VECTOR snippet (not a raster screenshot) and put it on the app's snippet clipboard. Coordinates are app points (top-left origin, 100% zoom). Paste it into any open document with app_snippet_paste.",
@@ -1240,9 +1539,21 @@ fn handle_tools_list() -> Value {
                 }
             },
             floorplan_tool(),
-            facade_element_tool()
+            facade_element_tool(),
+            // Systeemtypen (#567)
+            list_system_types_tool(),
+            register_system_type_tool(),
+            update_system_type_tool(),
+            open_system_type_editor_tool(),
+            get_system_geometry_tool(),
+            // Opdrachten van extensies (#575)
+            call_extension_command_tool()
         ]
-    })
+    });
+    if let Some(tools) = lijst["tools"].as_array_mut() {
+        tools.extend(extensie_tools());
+    }
+    lijst
 }
 
 /// De `tools/list` voor een profiel: gefilterd, en elk gereedschap met de
@@ -1311,6 +1622,9 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_assistant_pending"  => tool_app_request(state, "mcp:assistant-pending",   &arguments, Duration::from_secs(10)).await,
         "app_assistant_answer"   => tool_app_request(state, "mcp:assistant-answer",    &arguments, Duration::from_secs(10)).await,
         "app_assistant_history"  => tool_app_request(state, "mcp:assistant-history",   &arguments, Duration::from_secs(10)).await,
+        // Agenttaken van extensies (#556): alleen de wachtrij, dus korte grenzen.
+        "app_agent_task_pending" => tool_app_request(state, "mcp:agent-task-pending",  &arguments, Duration::from_secs(10)).await,
+        "app_agent_task_result"  => tool_app_request(state, "mcp:agent-task-result",   &arguments, Duration::from_secs(10)).await,
         "app_create_annotation"  => tool_app_request(state, "mcp:create-annotation",  &arguments, Duration::from_secs(15)).await,
         "app_list_annotations"   => tool_app_request(state, "mcp:list-annotations",   &arguments, Duration::from_secs(10)).await,
         "app_get_annotation"     => tool_app_request(state, "mcp:get-annotation",     &arguments, Duration::from_secs(10)).await,
@@ -1331,12 +1645,14 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_get_page_count"     => tool_app_request(state, "mcp:get-page-count",     &arguments, Duration::from_secs(5)).await,
         "app_get_page_text"      => tool_app_request(state, "mcp:get-page-text",      &arguments, Duration::from_secs(60)).await,
         "app_replace_text"       => tool_app_request(state, "mcp:replace-text",       &arguments, Duration::from_secs(120)).await,
+        "app_translate_page"     => tool_app_request(state, "mcp:translate-page",     &arguments, Duration::from_secs(300)).await,
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
         "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
         "app_structural_layout"  => tool_app_request(state, "mcp:structural-layout",  &arguments, Duration::from_secs(60)).await,
         "app_list_commands"      => tool_app_request(state, "mcp:list-commands",      &arguments, Duration::from_secs(30)).await,
         "app_run_command"        => tool_app_request(state, "mcp:run-command",        &arguments, Duration::from_secs(20)).await,
+        "app_read_ui"            => tool_app_request(state, "mcp:read-ui",            &arguments, Duration::from_secs(10)).await,
         "app_snippet_cut"        => tool_app_request(state, "mcp:snippet-cut",        &arguments, Duration::from_secs(60)).await,
         "app_snippet_paste"      => tool_app_request(state, "mcp:snippet-paste",      &arguments, Duration::from_secs(15)).await,
         "app_snippet_flatten"    => tool_app_request(state, "mcp:snippet-flatten",    &arguments, Duration::from_secs(10)).await,
@@ -1357,11 +1673,63 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_list_layers"        => tool_app_request(state, "mcp:list-layers",        &arguments, Duration::from_secs(10)).await,
         "app_create_layer"       => tool_app_request(state, "mcp:create-layer",       &arguments, Duration::from_secs(10)).await,
         "app_set_layer"          => tool_app_request(state, "mcp:set-layer",          &arguments, Duration::from_secs(10)).await,
+        // Systeemtypen (#567): alleen de bibliotheek, dus korte grenzen.
+        "app_list_system_types"       => tool_app_request(state, "mcp:list-system-types",       &arguments, Duration::from_secs(10)).await,
+        "app_register_system_type"    => tool_app_request(state, "mcp:register-system-type",    &arguments, Duration::from_secs(10)).await,
+        "app_update_system_type"      => tool_app_request(state, "mcp:update-system-type",      &arguments, Duration::from_secs(10)).await,
+        "app_open_system_type_editor" => tool_app_request(state, "mcp:open-system-type-editor", &arguments, Duration::from_secs(10)).await,
+        "app_get_system_geometry"     => tool_app_request(state, "mcp:get-system-geometry",     &arguments, Duration::from_secs(10)).await,
+        // Opdrachten van extensies (#575); zonder JSON-RPC-id (mcp_handler geeft dat mee).
+        "app_call_extension_command" => extensie_aanroep(state, name, params, &Value::Null).await,
+        // Extensies (#550): installeren pakt uit en activeert; de JS-kant breekt eerder af.
+        "app_list_extensions"    => tool_app_request(state, "mcp:list-extensions",    &arguments, Duration::from_secs(10)).await,
+        "app_install_extension"  => tool_app_request(state, "mcp:install-extension",  &arguments, Duration::from_secs(60)).await,
+        "app_reload_extension"   => tool_app_request(state, "mcp:reload-extension",   &arguments, Duration::from_secs(30)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
         )),
     }
+}
+
+/// Een aanroep van een extensieopdracht (#575): een `ext_`-tool zelf, of
+/// `app_call_extension_command`. De WebView controleert de argumenten tegen
+/// het schema van de opdracht en houdt zich aan de tijdgrens van de opdracht
+/// (hooguit 120 s); Rust wacht iets langer. Het JSON-RPC-id gaat mee, zodat
+/// `notifications/cancelled` precies deze aanroep kan annuleren.
+async fn extensie_aanroep(
+    state: &AppState,
+    naam: &str,
+    params: &Value,
+    rpc_id: &Value,
+) -> Result<Value, (i32, String)> {
+    let arguments = params.get("arguments").cloned().unwrap_or(Value::Null);
+    let payload = if naam == "app_call_extension_command" {
+        json!({ "generic": true, "call": arguments, "rpcId": rpc_id })
+    } else {
+        json!({ "tool": naam, "arguments": arguments, "rpcId": rpc_id })
+    };
+    tool_app_request(state, "mcp:call-extension-command", &payload, Duration::from_secs(125)).await
+}
+
+/// Registreert een geladen extensie deze `ext_`-tool?
+fn extensie_tool_bekend(state: &AppState, naam: &str) -> bool {
+    state
+        .app_handle
+        .as_ref()
+        .and_then(|app| app.try_state::<ExtensieTools>())
+        .map_or(false, |et| et.bevat(naam))
+}
+
+/// De vaste lijst plus de opdrachten van geladen extensies (#575).
+fn tools_list_met_extensies(state: &AppState) -> Value {
+    let mut lijst = tools_list_voor(state.profiel);
+    if let Some(et) = state.app_handle.as_ref().and_then(|app| app.try_state::<ExtensieTools>()) {
+        if let Some(tools) = lijst["tools"].as_array_mut() {
+            tools.extend(et.lijst());
+        }
+    }
+    lijst
 }
 
 /// `app_set_window_size` — resize the main window from the Rust side.
@@ -1841,12 +2209,32 @@ async fn mcp_handler(
 
     let response = match method {
         "initialize" => rpc_result(id, handle_initialize()),
-        "tools/list" => rpc_result(id, tools_list_voor(state.profiel)),
+        "tools/list" => rpc_result(id, tools_list_met_extensies(&state)),
         "tools/call" => {
             let empty = Value::Null;
             let params = body.get("params").unwrap_or(&empty);
             let naam = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
-            if !beschikbaar(naam, state.profiel) {
+            if naam.starts_with(mcp_extensie_tools::VOORVOEGSEL) {
+                // Opdracht van een extensie (#575): alleen als een geladen
+                // extensie hem registreert.
+                if !extensie_tool_bekend(&state, naam) {
+                    rpc_error(
+                        id,
+                        jsonrpc_error::INVALID_PARAMS,
+                        format!("tool '{naam}' is not available: no loaded extension registers it (see app_list_extensions)"),
+                    )
+                } else {
+                    match extensie_aanroep(&state, naam, params, &id).await {
+                        Ok(value) => rpc_result(id, value),
+                        Err((code, msg)) => rpc_error(id, code, msg),
+                    }
+                }
+            } else if naam == "app_call_extension_command" && beschikbaar(naam, state.profiel) {
+                match extensie_aanroep(&state, naam, params, &id).await {
+                    Ok(value) => rpc_result(id, value),
+                    Err((code, msg)) => rpc_error(id, code, msg),
+                }
+            } else if !beschikbaar(naam, state.profiel) {
                 rpc_error(
                     id,
                     jsonrpc_error::INVALID_PARAMS,
@@ -1863,6 +2251,18 @@ async fn mcp_handler(
         // id and expect no response. We still send back an empty result for
         // robustness; the harness ignores unknown ids.
         "notifications/initialized" | "initialized" => rpc_result(id, json!({})),
+        // Een client breekt een lopende aanroep af (#575): alleen opdrachten
+        // van extensies zijn af te breken; die krijgen hun AbortSignal.
+        "notifications/cancelled" => {
+            let request_id = body.get("params").and_then(|p| p.get("requestId")).cloned();
+            if let (Some(_), Some(rid)) = (&state.app_handle, request_id) {
+                let st = state.clone();
+                tauri::async_runtime::spawn(async move {
+                    let _ = tool_app_request(&st, "mcp:cancel-extension-command", &json!({ "rpcId": rid }), Duration::from_secs(5)).await;
+                });
+            }
+            rpc_result(id, json!({}))
+        }
         other => rpc_error(
             id,
             jsonrpc_error::METHOD_NOT_FOUND,
@@ -1970,7 +2370,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 62);
+        assert_eq!(arr.len(), 75);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -2023,6 +2423,95 @@ mod tests {
         let maak = meta("app_create_layer").unwrap();
         assert!(!maak.alleen_lezen && !maak.wijzigt);
         assert!(meta("app_set_layer").unwrap().wijzigt);
+    }
+
+    #[test]
+    fn extensies_zijn_te_beheren_via_mcp() {
+        let v = handle_tools_list();
+        let zoek = |naam: &str| {
+            v["tools"].as_array().unwrap().iter()
+                .find(|t| t["name"] == naam)
+                .unwrap_or_else(|| panic!("{naam} staat in de lijst"))
+                .clone()
+        };
+        assert_eq!(zoek("app_install_extension")["inputSchema"]["required"], json!(["path", "replace", "idempotencyKey"]));
+        assert_eq!(zoek("app_install_extension")["inputSchema"]["properties"]["replace"]["enum"], json!(["never", "ifNewer", "always"]));
+        assert_eq!(zoek("app_reload_extension")["inputSchema"]["required"], json!(["id"]));
+        assert!(zoek("app_list_commands")["description"].as_str().unwrap().contains("'ext:<extensionId>:<itemId>'"));
+        use crate::mcp_tool_meta::meta;
+        assert!(meta("app_list_extensions").unwrap().alleen_lezen);
+        assert!(meta("app_install_extension").unwrap().wijzigt, "installeren kan een installatie vervangen");
+        let herladen = meta("app_reload_extension").unwrap();
+        assert!(!herladen.alleen_lezen && !herladen.wijzigt);
+    }
+
+    #[test]
+    fn extensieopdrachten_zijn_aan_te_roepen_via_mcp() {
+        let v = handle_tools_list();
+        let tool = v["tools"].as_array().unwrap().iter()
+            .find(|t| t["name"] == "app_call_extension_command")
+            .expect("app_call_extension_command staat in de lijst")
+            .clone();
+        assert_eq!(tool["inputSchema"]["required"], json!(["tool"]));
+        assert_eq!(tool["inputSchema"]["additionalProperties"], false);
+        assert!(tool["description"].as_str().unwrap().contains("ext_<extension>__<command>"));
+        assert!(crate::mcp_tool_meta::meta("app_call_extension_command").unwrap().wijzigt);
+        // Zonder app is er geen extensielijst: alleen de vaste gereedschappen.
+        let state = AppState::nieuw(Profiel::Publiek, 9999, None);
+        assert_eq!(
+            tools_list_met_extensies(&state)["tools"].as_array().unwrap().len(),
+            tools_list_voor(Profiel::Publiek)["tools"].as_array().unwrap().len()
+        );
+        assert!(!extensie_tool_bekend(&state, "ext_a__x"));
+    }
+
+    #[test]
+    fn agenttaken_zijn_te_beantwoorden_via_mcp() {
+        let v = handle_tools_list();
+        let tools = v["tools"].as_array().unwrap();
+        let zoek = |naam: &str| {
+            tools.iter()
+                .find(|t| t["name"] == naam)
+                .unwrap_or_else(|| panic!("{naam} staat in de lijst"))
+                .clone()
+        };
+        let ophalen = zoek("app_agent_task_pending");
+        assert_eq!(ophalen["inputSchema"]["additionalProperties"], false);
+        assert_eq!(ophalen["inputSchema"]["properties"]["kind"]["type"], "string");
+        assert!(ophalen["inputSchema"].get("required").is_none());
+        let antwoord = zoek("app_agent_task_result");
+        assert_eq!(antwoord["inputSchema"]["required"], json!(["id"]));
+        assert_eq!(antwoord["inputSchema"]["properties"]["error"]["required"], json!(["message"]));
+        assert_eq!(antwoord["inputSchema"]["properties"]["error"]["additionalProperties"], false);
+        // Direct na de assistent-relay, in deze volgorde.
+        let pos = |naam: &str| tools.iter().position(|t| t["name"] == naam).unwrap();
+        assert_eq!(pos("app_agent_task_pending"), pos("app_assistant_history") + 1);
+        assert_eq!(pos("app_agent_task_result"), pos("app_agent_task_pending") + 1);
+        use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};
+        for naam in ["app_agent_task_pending", "app_agent_task_result"] {
+            let m = meta(naam).unwrap();
+            assert!(!m.alleen_lezen && !m.wijzigt, "{naam}: wijzigt geen documentgegevens");
+            assert!(beschikbaar(naam, Profiel::Publiek), "{naam} hoort in het publieke profiel");
+        }
+    }
+
+    #[test]
+    fn interface_is_te_lezen_via_mcp() {
+        let v = handle_tools_list();
+        let tools = v["tools"].as_array().unwrap();
+        let lezen = tools.iter().find(|t| t["name"] == "app_read_ui").expect("app_read_ui staat in de lijst");
+        let schema = &lezen["inputSchema"];
+        assert_eq!(schema["additionalProperties"], false);
+        assert!(schema.get("required").is_none(), "zonder argumenten leest hij de standaardgebieden");
+        assert_eq!(schema["properties"]["maxNodes"]["maximum"], 3000);
+        assert_eq!(schema["properties"]["includeHidden"]["type"], "boolean");
+        assert!(crate::mcp_tool_meta::meta("app_read_ui").unwrap().alleen_lezen);
+        // Direct na app_run_command, in dezelfde volgorde als de brug en tools.json.
+        let namen: Vec<&str> = tools.iter().map(|t| t["name"].as_str().unwrap()).collect();
+        let i = namen.iter().position(|n| *n == "app_run_command").unwrap();
+        assert_eq!(namen[i + 1], "app_read_ui");
+        let lijst = tools.iter().find(|t| t["name"] == "app_list_commands").unwrap();
+        assert!(lijst["description"].as_str().unwrap().contains("'ribbon-tab:<tab>'"));
     }
 
     #[test]
@@ -2479,6 +2968,7 @@ mod tests {
             "app_structural_layout",
             "app_list_commands",
             "app_run_command",
+            "app_read_ui",
             "app_snippet_cut",
             "app_snippet_paste",
             "app_snippet_flatten",
@@ -2494,6 +2984,14 @@ mod tests {
             "app_list_layers",
             "app_create_layer",
             "app_set_layer",
+            "app_list_system_types",
+            "app_register_system_type",
+            "app_update_system_type",
+            "app_open_system_type_editor",
+            "app_get_system_geometry",
+            "app_list_extensions",
+            "app_install_extension",
+            "app_reload_extension",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();

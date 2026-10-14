@@ -11,6 +11,7 @@
     "box": "مستطيل",
     "polygon": "مضلع",
     "cloud": "سحابة",
+    "cloudPolyline": "خط متعدد سحابي",
     "polyline": "خط متعدد",
     "textbox": "مربع نص",
     "callout": "وسيلة شرح",
@@ -27,7 +28,8 @@
     "formTextField": "حقل نصي للنموذج",
     "formCheckbox": "خانة اختيار للنموذج",
     "formRadio": "زر اختيار للنموذج",
-    "screenshot": "لقطة شاشة"
+    "screenshot": "لقطة شاشة",
+    "pageLabelPick": "اختيار نص لتسمية الصفحة"
   },
   "toolLabel": "الأداة:",
   "annotationsLabel": "التعليقات:",
@@ -36,6 +38,7 @@
   "previousPage": "الصفحة السابقة",
   "nextPage": "الصفحة التالية",
   "lastPage": "الصفحة الأخيرة",
+  "page": "صفحة",
   "zoomOut": "تصغير",
   "zoomIn": "تكبير",
   "noDocumentsOpen": "لا توجد مستندات مفتوحة",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "يحتوي هذا المستند على حقول نماذج تفاعلية. يمكنك ملء النموذج وحفظ بياناتك.",
   "enableEditing": "تمكين التحرير",
   "pdfAConformance": "يدّعي هذا المستند التوافق مع PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "فشلت إعادة تسمية الملف: {{error}}",
+  "renameInvalidChars": "لا يمكن أن يحتوي اسم الملف على  / : * ? \" < > |",
+  "renameFileExists": "يوجد ملف بهذا الاسم بالفعل.",
+  "engineTitle": "محرك العرض المستخدم للعرض الحالي",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (متجهي)"
+  },
+  "viewSingle": "صفحة واحدة",
+  "viewContinuous": "مستمر",
+  "viewBook": "صفحتان",
+  "viewFacing": "صفحتان جنبًا إلى جنب",
   "viewRotatedTitle": "العرض مُدار بمقدار {{degrees}}° في اتجاه عقارب الساعة؛ المستند لم يتغير. انقر لإعادة العرض.",
+  "compareTabTitle": "مقارنة",
   "filledAreaSketch": {
     "undoPoint": "تراجع عن النقطة",
     "undoPointTitle": "إزالة النقطة الأخيرة (Backspace)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "ع",
   "boxHeightAbbr": "ا",
+  "boxSizeHint": "اكتب قيمة + Enter — أو انقر خارجها للتطبيق",
   "ocr": {
     "progress": {
       "starting": "جارٍ التعرف على النص...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "النتائج ({{count}})",
   "searchResultPage": "صفحة {{page}}",
   "searchHitsOne": "نتيجة واحدة",
-  "searchHitsMany": "{{count}} نتائج"
+  "searchHitsMany": "{{count}} نتائج",
+  "passwordProtectedBar": "محمي بكلمة مرور: تم الفتح للقراءة فقط."
 }

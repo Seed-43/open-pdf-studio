@@ -7,9 +7,11 @@
     "addReply": "Добавить ответ",
     "locked": "Заблокировано",
     "marked": "Отмечено",
+    "gridEndLock": "Заблокировать конец оси",
+    "gridEndUnlock": "Разблокировать конец оси",
     "printable": "Печатаемое",
     "status": "Статус",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Показать по статусу",
     "statusNone": "Нет",
     "statusAccepted": "Принято",
     "statusCancelled": "Отменено",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Экспорт",
     "exportAsImage": "Экспортировать как изображение...",
     "addHole": "Добавить отверстие",
+    "wallJoinAllow": "Разрешить соединение (этот конец)",
+    "wallJoinDisallow": "Запретить соединение (этот конец)",
     "properties": "Свойства...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Изменить масштаб видового экрана",
+    "calibrateFromLine": "Калибровать по этой линии...",
+    "setScale": "Задать масштаб...",
+    "dimChainAdd": "Добавить точки в размерную цепь",
+    "dimChainRemove": "Удалить выносную линию из цепи",
+    "selectRoom": "Выбрать помещение"
   },
   "multiSelect": {
     "copyAnnotations": "Копировать {{count}} аннотаций",
@@ -54,6 +63,7 @@
     "centerVertically": "Центрировать по вертикали",
     "distributeHorizontally": "Распределить по горизонтали",
     "distributeVertically": "Распределить по вертикали",
+    "trimWallCorners": "Обрезать углы стен",
     "deleteAnnotations": "Удалить {{count}} аннотаций",
     "deleteConfirm": "Удалить {{count}} аннотаций?",
     "deleteTitle": "Удаление аннотаций"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Повернуть влево",
     "rotateRight": "Повернуть вправо",
+    "moveUp": "Переместить вверх",
+    "moveDown": "Переместить вниз",
     "insertPages": "Вставить страницы...",
     "extractPages": "Извлечь страницы...",
     "replacePages": "Заменить страницы...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Удалить страницу {{page}}?",
     "deletePageTitle": "Удаление страницы",
     "properties": "Свойства",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Вырезать страницы: {{count}}",
+    "copyPages": "Копировать страницы: {{count}}",
+    "rotateLeftPages": "Повернуть страницы влево: {{count}}",
+    "rotateRightPages": "Повернуть страницы вправо: {{count}}",
+    "deletePagesMulti": "Удалить страницы: {{count}}",
+    "selectAll": "Выделить все страницы",
+    "deselectAll": "Снять всё выделение",
+    "insertFromFile": "Вставить из файла...",
+    "insertFromFileBefore": "Перед этой страницей...",
+    "insertFromFileAfter": "После этой страницы...",
+    "pageLabels": "Метки страниц (конструктор имён)..."
   },
   "textSelection": {
     "highlightSelection": "Выделить выделенное",
     "strikethroughSelection": "Зачеркнуть выделенное",
     "underlineSelection": "Подчеркнуть выделенное",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Добавить изогнутую выноску"
   },
   "deleteAnnotation": {
     "confirmSingle": "Удалить эту аннотацию?",
     "title": "Удаление аннотации"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Удалить вершину",
+    "insertVertex": "Вставить вершину здесь",
+    "convertToArc": "Преобразовать в дугу",
+    "convertToLine": "Преобразовать в линию"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Показать в Проводнике",
+    "mac": "Показать в Finder",
+    "linux": "Открыть содержащую папку"
+  },
+  "gevelelement": {
+    "addMullionHere": "Добавить импост здесь",
+    "removeMullion": "Удалить ближайший импост",
+    "panelItem": "Заполнение: {{name}}",
+    "placeInWall": "Разместить в стене (прервать стену)",
+    "noHostWall": "Под этим элементом не найдена стена",
+    "editRefused": "Невозможно"
   }
 }

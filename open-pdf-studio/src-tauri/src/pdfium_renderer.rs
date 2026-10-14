@@ -16,6 +16,17 @@ use pdfium_render::prelude::*;
 /// `init_pdfium`. Subsequent calls to `pdfium()` are zero-cost lookups.
 static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
+/// Pad van de geladen PDFium-bibliotheek. De ontsleuteling van PDF's met een
+/// wachtwoord (beveiligde_pdf.rs) spreekt daarin C-functies aan die de
+/// Rust-schil niet aanbiedt.
+static PDFIUM_BIBLIOTHEEK: OnceLock<std::path::PathBuf> = OnceLock::new();
+
+/// Pad van de PDFium-bibliotheek, als die geladen en geïnitialiseerd is.
+pub fn bibliotheek_pad() -> Option<std::path::PathBuf> {
+    PDFIUM.get()?;
+    PDFIUM_BIBLIOTHEEK.get().cloned()
+}
+
 /// Initialise the PDFium runtime by dynamically loading the DLL at the
 /// given directory. Call this exactly once during app startup, before
 /// any Tauri command runs.
@@ -29,16 +40,16 @@ pub fn init_pdfium(dll_dir: &Path) -> Result<(), String> {
         return Ok(()); // Already initialised — idempotent.
     }
 
-    let bindings = Pdfium::bind_to_library(
-        Pdfium::pdfium_platform_library_name_at_path(dll_dir),
-    )
-    .map_err(|e| format!("Failed to load PDFium DLL from {:?}: {}", dll_dir, e))?;
+    let bibliotheek = Pdfium::pdfium_platform_library_name_at_path(dll_dir);
+    let bindings = Pdfium::bind_to_library(&bibliotheek)
+        .map_err(|e| format!("Failed to load PDFium DLL from {:?}: {}", dll_dir, e))?;
 
     let pdfium = Pdfium::new(bindings);
 
     PDFIUM
         .set(pdfium)
         .map_err(|_| "PDFium was concurrently initialised".to_string())?;
+    let _ = PDFIUM_BIBLIOTHEEK.set(bibliotheek);
 
     Ok(())
 }

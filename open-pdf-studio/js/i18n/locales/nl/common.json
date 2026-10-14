@@ -11,7 +11,7 @@
   "update": "Bijwerken",
   "yes": "Ja",
   "no": "Nee",
-  "none": "None",
+  "none": "Geen",
   "export": "Exporteren",
   "import": "Importeren",
   "print": "Afdrukken",
@@ -32,6 +32,7 @@
   "saved": "Opgeslagen",
   "documentChangedDuringSave": "Het document is gewijzigd tijdens het opslaan. Sla opnieuw op.",
   "documentChangedDuringExport": "Het document is gewijzigd tijdens het exporteren. Start opnieuw.",
+  "snippetOutputFailed": "Een vectorknipsel kon niet worden weergegeven, daarom is de export of afdruk gestopt. Probeer het opnieuw.",
   "search": "Zoeken",
   "find": "Zoeken",
   "page": "Pagina",
@@ -45,6 +46,8 @@
   "percent": "%",
   "webSessionStartsEmpty": "Een herlaadbeurt begint leeg: in de browser blijft je document op je eigen computer en wordt het niet bewaard.",
   "desktopOnly": "{{feature}} werkt alleen in de bureaubladversie. Deze pagina is de webversie.",
+  "assistantTitle": "OpenAEC-assistent",
+  "onlineSymbolLibrary": "Online symboolbibliotheek",
   "noDocumentOpen": "Er is geen document geopend.",
   "invalidPageRange": "Ongeldig paginabereik. Voer geldige paginanummers in.",
   "appName": "Open PDF Studio",
@@ -53,11 +56,11 @@
   "solid": "Doorlopend",
   "dashed": "Gestreept",
   "dotted": "Gestippeld",
-  "dashDot": "Dash-Dot",
-  "dashDotDot": "Dash-Dot-Dot",
-  "longDash": "Long Dash",
-  "longDashDot": "Long Dash-Dot",
-  "longDashDotDot": "Long Dash-Dot-Dot",
+  "dashDot": "Streep-punt",
+  "dashDotDot": "Streep-punt-punt",
+  "longDash": "Lang gestreept",
+  "longDashDot": "Lange streep-punt",
+  "longDashDotDot": "Lange streep-punt-punt",
   "portrait": "Staand",
   "landscape": "Liggend",
   "custom": "Aangepast",
@@ -156,7 +159,9 @@
     "dragFileGone": "Dit bestand bestaat niet meer op schijf — de tab kan niet verplaatst worden.",
     "dragNotStarted": "De tab kon niet naar een ander venster gesleept worden. Probeer het opnieuw, of gebruik rechtsklik → openen in nieuw venster.",
     "openInNewWindow": "Open in nieuw venster",
-    "closeTab": "Tab sluiten"
+    "closeTab": "Tab sluiten",
+    "nextTab": "Volgend tabblad",
+    "previousTab": "Vorig tabblad"
   },
   "quickAccess": {
     "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"
@@ -166,5 +171,6 @@
     "copied": "Knipsel gekopieerd — plak het in een andere tekening",
     "failed": "Knippen mislukt",
     "clipboardEmpty": "Geen knipsel op het klembord"
-  }
+  },
+  "protectedPdfReadOnly": "Dit document is met een wachtwoord geopend en is alleen-lezen. Het kan niet worden opgeslagen."
 }

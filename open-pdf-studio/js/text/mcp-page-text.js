@@ -7,7 +7,9 @@ const multiply = (a, b) => [
   a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5],
 ];
 
-function itemBox(item, viewport) {
+// Ook gebruikt door de paginalabels (pdf/pagina-labels.js): het vak volgt de
+// eigen richting van de tekstloop, dus ook tekst die in PDF-ruimte omhoog loopt.
+export function itemBox(item, viewport) {
   const m = multiply(viewport.transform, item.transform);
   const height = Math.max(1, Math.hypot(m[2], m[3]));
   const width = Math.max(0, item.width * viewport.scale);

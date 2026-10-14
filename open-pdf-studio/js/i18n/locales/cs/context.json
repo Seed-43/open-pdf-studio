@@ -7,9 +7,11 @@
     "addReply": "Přidat odpověď",
     "locked": "Uzamčeno",
     "marked": "Označeno",
+    "gridEndLock": "Zamknout konec osy rastru",
+    "gridEndUnlock": "Odemknout konec osy rastru",
     "printable": "Tisknutelné",
     "status": "Stav",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Zobrazit podle stavu",
     "statusNone": "Žádný",
     "statusAccepted": "Přijato",
     "statusCancelled": "Zrušeno",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Exportovat",
     "exportAsImage": "Exportovat jako obrázek...",
     "addHole": "Přidat otvor",
+    "wallJoinAllow": "Povolit napojení (tento konec)",
+    "wallJoinDisallow": "Zakázat napojení (tento konec)",
     "properties": "Vlastnosti...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Upravit měřítko výřezu",
+    "calibrateFromLine": "Kalibrovat podle této čáry...",
+    "setScale": "Nastavit měřítko...",
+    "dimChainAdd": "Přidat body do řetězce kót",
+    "dimChainRemove": "Odebrat vynášecí čáru z řetězce",
+    "selectRoom": "Vybrat místnost"
   },
   "multiSelect": {
     "copyAnnotations": "Kopírovat {{count}} anotací",
@@ -54,6 +63,7 @@
     "centerVertically": "Vystředit svisle",
     "distributeHorizontally": "Rozložit vodorovně",
     "distributeVertically": "Rozložit svisle",
+    "trimWallCorners": "Oříznout rohy stěn",
     "deleteAnnotations": "Smazat {{count}} anotací",
     "deleteConfirm": "Smazat {{count}} anotací?",
     "deleteTitle": "Smazat anotace"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Otočit doleva",
     "rotateRight": "Otočit doprava",
+    "moveUp": "Přesunout nahoru",
+    "moveDown": "Přesunout dolů",
     "insertPages": "Vložit stránky...",
     "extractPages": "Extrahovat stránky...",
     "replacePages": "Nahradit stránky...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Smazat stránku {{page}}?",
     "deletePageTitle": "Smazat stránku",
     "properties": "Vlastnosti",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Vyjmout stránky: {{count}}",
+    "copyPages": "Kopírovat stránky: {{count}}",
+    "rotateLeftPages": "Otočit stránky doleva: {{count}}",
+    "rotateRightPages": "Otočit stránky doprava: {{count}}",
+    "deletePagesMulti": "Smazat stránky: {{count}}",
+    "selectAll": "Vybrat všechny stránky",
+    "deselectAll": "Zrušit výběr všeho",
+    "insertFromFile": "Vložit ze souboru...",
+    "insertFromFileBefore": "Před tuto stránku...",
+    "insertFromFileAfter": "Za tuto stránku...",
+    "pageLabels": "Popisky stránek (tvorba názvů)..."
   },
   "textSelection": {
     "highlightSelection": "Zvýraznit výběr",
     "strikethroughSelection": "Přeškrtnout výběr",
     "underlineSelection": "Podtrhnout výběr",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Přidat zakřivený popisek"
   },
   "deleteAnnotation": {
     "confirmSingle": "Smazat tuto anotaci?",
     "title": "Smazat anotaci"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Smazat vrchol",
+    "insertVertex": "Vložit vrchol sem",
+    "convertToArc": "Převést na oblouk",
+    "convertToLine": "Převést na čáru"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Zobrazit v Průzkumníkovi",
+    "mac": "Zobrazit ve Finderu",
+    "linux": "Otevřít nadřazenou složku"
+  },
+  "gevelelement": {
+    "addMullionHere": "Přidat sloupek sem",
+    "removeMullion": "Odebrat nejbližší sloupek",
+    "panelItem": "Výplň: {{name}}",
+    "placeInWall": "Umístit do stěny (přerušit stěnu)",
+    "noHostWall": "Pod tímto prvkem nebyla nalezena žádná stěna",
+    "editRefused": "Není možné"
   }
 }

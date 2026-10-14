@@ -5,7 +5,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream, PDFRef, StandardFonts, degrees, decodePDFRawStream,
+  PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream, PDFRef, PDFString, PDFOperator, StandardFonts, degrees,
+  decodePDFRawStream, rgb,
 } from 'pdf-lib';
 
 import {
@@ -423,4 +424,54 @@ test('een lege pagina zonder inhoud breekt de vectorafdruk niet', async () => {
     bronBytes: bytes, paginas: [{ index: 0 }, { index: 1 }], keuzes: { ...KEUZES, papier: vel('a4') },
   });
   assert.equal((await herlaad(pdf)).getPageCount(), 2);
+});
+
+// Lagen: inhoud in een laag die in de bron standaard uit staat (/D /OFF) moet
+// in de kopie ook uit staan. Zonder /OCProperties in de catalogus tekent een
+// weergave alle optionele inhoud, en kwam een verborgen laag tevoorschijn.
+async function bronMetLagen() {
+  const doc = await PDFDocument.create();
+  const p = doc.addPage([200, 200]);
+  const verborgen = doc.context.register(doc.context.obj({ Type: 'OCG', Name: PDFString.of('Verborgen') }));
+  const zichtbaar = doc.context.register(doc.context.obj({ Type: 'OCG', Name: PDFString.of('Zichtbaar') }));
+  p.node.normalizedEntries().Resources.set(
+    PDFName.of('Properties'), doc.context.obj({ OCv: verborgen, OCz: zichtbaar }),
+  );
+  p.pushOperators(PDFOperator.of('BDC', [PDFName.of('OC'), PDFName.of('OCv')]));
+  p.drawRectangle({ x: 20, y: 20, width: 60, height: 60, color: rgb(0, 0, 1) });
+  p.pushOperators(PDFOperator.of('EMC'), PDFOperator.of('BDC', [PDFName.of('OC'), PDFName.of('OCz')]));
+  p.drawRectangle({ x: 120, y: 120, width: 60, height: 60, color: rgb(1, 0, 0) });
+  p.pushOperators(PDFOperator.of('EMC'));
+  doc.catalog.set(PDFName.of('OCProperties'), doc.context.obj({
+    OCGs: [verborgen, zichtbaar],
+    D: { Order: [verborgen, zichtbaar], OFF: [verborgen] },
+  }));
+  return doc.save();
+}
+
+test('lagen: een laag die in de bron uit staat, staat in de kopie ook uit', async () => {
+  const { pdf } = await bouwVectorPrintPdf({
+    bronBytes: await bronMetLagen(), paginas: [{ index: 0 }], keuzes: { ...KEUZES, papier: null },
+  });
+  const uit = await herlaad(pdf);
+  const lagen = uit.catalog.lookupMaybe(PDFName.of('OCProperties'), PDFDict);
+  assert.ok(lagen, 'de kopie heeft /OCProperties');
+  const ocgs = lagen.lookup(PDFName.of('OCGs'), PDFArray).asArray();
+  const uitgezet = lagen.lookup(PDFName.of('D'), PDFDict).lookup(PDFName.of('OFF'), PDFArray).asArray();
+  // De vorm met de bronpagina wijst via /Properties naar dezelfde OCG-objecten.
+  const vorm = xobjecten(uit.getPage(0)).find((x) => x.naam.startsWith('OPSPagina')).stroom;
+  const props = vorm.dict.lookup(PDFName.of('Resources'), PDFDict).lookup(PDFName.of('Properties'), PDFDict);
+  const ocv = props.get(PDFName.of('OCv'));
+  const ocz = props.get(PDFName.of('OCz'));
+  assert.ok(ocv instanceof PDFRef && ocz instanceof PDFRef);
+  assert.deepEqual(ocgs.map(String).sort(), [ocv, ocz].map(String).sort());
+  assert.deepEqual(uitgezet.map(String), [String(ocv)]);
+  assert.equal(uit.context.lookup(ocv, PDFDict).lookup(PDFName.of('Name'), PDFString).decodeText(), 'Verborgen');
+});
+
+test('lagen: een bron zonder lagen krijgt er geen', async () => {
+  const { pdf } = await bouwVectorPrintPdf({
+    bronBytes: await bron([[595, 842]]), paginas: [{ index: 0 }], keuzes: { ...KEUZES, papier: null },
+  });
+  assert.equal((await herlaad(pdf)).catalog.get(PDFName.of('OCProperties')), undefined);
 });

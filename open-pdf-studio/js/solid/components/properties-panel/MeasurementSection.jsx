@@ -56,6 +56,16 @@ export default function MeasurementSection() {
               onChange={(e) => updateAnnotProp('measureShowLabel', e.target.checked)}
             />
           </div>
+          {/* Lengte van elke rechte zijde (#536), standaard uit. Bij de
+              gereedschapsstandaarden wordt dit de standaard voor nieuwe vlakken. */}
+          <div class="property-group">
+            <label>{t('measurement.showEdgeLengths')}</label>
+            <input type="checkbox"
+              checked={annotProps.measureShowEdgeLengths === true}
+              disabled={isLocked()}
+              onChange={(e) => updateAnnotProp('measureShowEdgeLengths', e.target.checked)}
+            />
+          </div>
         </Show>
 
         <Show when={annotProps.type === 'measureDistance'}>

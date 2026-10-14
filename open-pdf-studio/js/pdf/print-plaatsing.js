@@ -353,6 +353,20 @@ export function printPxPerPt(plaatsing, dpi = PRINT_DPI) {
 }
 
 /**
+ * De maat in pt van de pagina die de tijdelijke print-PDF voor deze plaatsing
+ * krijgt: het vel, of bij onbekend papier de pagina op haar eigen maat
+ * (zonder afrondingsverschil). Het raster- en het vectorpad gebruiken
+ * allebei deze maat, en meerdere pagina's per vel (print-meerperblad.js)
+ * zet precies deze pagina's in zijn cellen.
+ * @returns {[number, number]}
+ */
+export function printPaginaMaat(plaatsing) {
+  return plaatsing.bekend
+    ? [plaatsing.vel.breedteMm * PT_PER_MM, plaatsing.vel.hoogteMm * PT_PER_MM]
+    : [plaatsing.paginaPt.breedtePt, plaatsing.paginaPt.hoogtePt];
+}
+
+/**
  * Pagina voor de tijdelijke print-PDF (pdf-lib): de maat van het vel in pt en
  * waar de gerenderde pixels (`renderDeel`) erop komen, met de oorsprong
  * linksonder zoals in PDF. Bij onbekend papier is het vel de pagina en vult
@@ -362,10 +376,7 @@ export function printPxPerPt(plaatsing, dpi = PRINT_DPI) {
  *             afbeelding: { x:number, y:number, width:number, height:number } }}
  */
 export function pdfPagina(plaatsing, deel) {
-  const velB = plaatsing.vel.breedteMm * PT_PER_MM;
-  const velH = plaatsing.vel.hoogteMm * PT_PER_MM;
-  // Onbekend papier: de pagina op haar eigen maat, zonder afrondingsverschil.
-  const maat = plaatsing.bekend ? [velB, velH] : [plaatsing.paginaPt.breedtePt, plaatsing.paginaPt.hoogtePt];
+  const maat = printPaginaMaat(plaatsing);
   const k = maat[0] / plaatsing.vel.breedteMm;
   const r = deel.opVel;
   return {

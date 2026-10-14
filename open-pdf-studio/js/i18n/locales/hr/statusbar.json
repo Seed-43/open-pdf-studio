@@ -11,6 +11,7 @@
     "box": "Pravokutnik",
     "polygon": "Poligon",
     "cloud": "Oblak",
+    "cloudPolyline": "Oblak-polilinija",
     "polyline": "Polilinija",
     "textbox": "Tekstualni okvir",
     "callout": "Oblačić",
@@ -27,7 +28,8 @@
     "formTextField": "Tekstualno polje obrasca",
     "formCheckbox": "Potvrdni okvir obrasca",
     "formRadio": "Radio gumb obrasca",
-    "screenshot": "Snimka zaslona"
+    "screenshot": "Snimka zaslona",
+    "pageLabelPick": "Odabir teksta za oznaku stranice"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Oznake:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Ovaj dokument sadrži interaktivna polja obrasca. Možete ispuniti obrazac i spremiti podatke.",
   "enableEditing": "Omogući uređivanje",
   "pdfAConformance": "Ovaj dokument zadovoljava PDF/A sukladnost.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Preimenovanje datoteke nije uspjelo: {{error}}",
+  "renameInvalidChars": "Naziv datoteke ne smije sadržavati  / : * ? \" < > |",
+  "renameFileExists": "Datoteka s tim nazivom već postoji.",
+  "engineTitle": "Mehanizam iscrtavanja korišten za trenutni prikaz",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vektorski)"
+  },
+  "viewSingle": "Pojedinačna stranica",
+  "viewContinuous": "Neprekidno",
+  "viewBook": "Dvije stranice",
+  "viewFacing": "Dvije stranice jedna uz drugu",
   "viewRotatedTitle": "Prikaz je zakrenut za {{degrees}}° u smjeru kazaljke na satu; dokument je nepromijenjen. Kliknite da biste vratili prikaz.",
+  "compareTabTitle": "Usporedba",
   "filledAreaSketch": {
     "undoPoint": "Poništi točku",
     "undoPointTitle": "Ukloni zadnju točku (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V",
+  "boxSizeHint": "Upišite vrijednost + Enter — ili kliknite izvan za primjenu",
   "ocr": {
     "progress": {
       "starting": "Prepoznavanje teksta...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Rezultati ({{count}})",
   "searchResultPage": "Stranica {{page}}",
   "searchHitsOne": "1 podudaranje",
-  "searchHitsMany": "Podudaranja: {{count}}"
+  "searchHitsMany": "Podudaranja: {{count}}",
+  "passwordProtectedBar": "Zaštićeno lozinkom: otvoreno samo za čitanje."
 }

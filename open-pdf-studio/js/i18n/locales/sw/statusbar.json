@@ -11,6 +11,7 @@
     "box": "Mstatili",
     "polygon": "Poligoni",
     "cloud": "Wingu",
+    "cloudPolyline": "Mistari Mingi ya Wingu",
     "polyline": "Mistari Mingi",
     "textbox": "Kisanduku cha Maandishi",
     "callout": "Tangazo",
@@ -27,7 +28,8 @@
     "formTextField": "Sehemu ya Maandishi ya Fomu",
     "formCheckbox": "Kisanduku cha Kuteua cha Fomu",
     "formRadio": "Kitufe cha Kuchagua cha Fomu",
-    "screenshot": "Picha ya Skrini"
+    "screenshot": "Picha ya Skrini",
+    "pageLabelPick": "Chagua Maandishi kwa Lebo ya Ukurasa"
   },
   "toolLabel": "Zana:",
   "annotationsLabel": "Maoni:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Hati hii ina sehemu za fomu shirikishi. Unaweza kujaza fomu na kuhifadhi data yako.",
   "enableEditing": "Wezesha Kuhariri",
   "pdfAConformance": "Hati hii inadai kufuata viwango vya PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Imeshindwa kubadilisha jina la faili: {{error}}",
+  "renameInvalidChars": "Jina la faili haliwezi kuwa na  / : * ? \" < > |",
+  "renameFileExists": "Faili yenye jina hili tayari ipo.",
+  "engineTitle": "Injini ya uonyeshaji inayotumika kwa mwonekano wa sasa",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vekta)"
+  },
+  "viewSingle": "Ukurasa Mmoja",
+  "viewContinuous": "Uendelezaji",
+  "viewBook": "Kurasa Mbili",
+  "viewFacing": "Kurasa Mbili Kando kwa Kando",
   "viewRotatedTitle": "Mwonekano umezungushwa {{degrees}}° kwa mwendo wa saa; hati haijabadilika. Bofya ili kurudisha mwonekano.",
+  "compareTabTitle": "Linganisha",
   "filledAreaSketch": {
     "undoPoint": "Tengua pointi",
     "undoPointTitle": "Ondoa pointi ya mwisho (Backspace)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "U",
   "boxHeightAbbr": "K",
+  "boxSizeHint": "Andika thamani + Enter — au bofya nje ili kutekeleza",
   "ocr": {
     "progress": {
       "starting": "Inatambua maandishi...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Matokeo ({{count}})",
   "searchResultPage": "Ukurasa {{page}}",
   "searchHitsOne": "Tokeo 1",
-  "searchHitsMany": "Matokeo {{count}}"
+  "searchHitsMany": "Matokeo {{count}}",
+  "passwordProtectedBar": "Imelindwa kwa nenosiri: imefunguliwa kwa kusoma tu."
 }

@@ -20,9 +20,9 @@ const SAME_AS_ENGLISH = {
   ro: ["Vertical (mm):"],
 };
 
-test("all 39 locales have the same Shift Page keys as English, none empty", () => {
+test("all 40 locales have the same Shift Page keys as English, none empty", () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   const en = shiftPage("en");
   assert.ok(Object.keys(en).length >= 17);
   for (const locale of locales) {

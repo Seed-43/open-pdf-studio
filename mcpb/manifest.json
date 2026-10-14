@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "open-pdf-studio",
   "display_name": "Open PDF Studio",
-  "version": "2026.41.0",
+  "version": "2026.42.7",
   "description": "Open, measure, annotate and save PDF drawings in Open PDF Studio, the free open-source PDF editor for the construction industry.",
   "long_description": "Connects Claude to Open PDF Studio running on your computer. Claude can open PDF drawings, read and navigate pages, place scale regions, measure areas and lengths, create and edit annotations, cut vector snippets from one drawing into another, fill title blocks, place a quantity schedule on the sheet and save the result.\n\nEverything runs locally: the extension talks to the app on 127.0.0.1 and the PDF file itself is never sent to an external service. Claude only sees what it asks for, such as a picture of the current page view.\n\n**Before you start:** install Open PDF Studio (free, from open-aec.com). The AI link is on by default; check it under **Settings > General > AI link (MCP)**. Tools that change a document always ask for your permission.",
   "author": {
@@ -49,7 +49,7 @@
     },
     {
       "name": "app_screenshot_view",
-      "description": "Capture the LIVE app's current page view as a base64 PNG."
+      "description": "Capture the LIVE app as a base64 PNG."
     },
     {
       "name": "app_mouse_move",
@@ -114,6 +114,14 @@
     {
       "name": "app_assistant_history",
       "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }."
+    },
+    {
+      "name": "app_agent_task_pending",
+      "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it."
+    },
+    {
+      "name": "app_agent_task_result",
+      "description": "Answer a running agent task by its id (from app_agent_task_pending) with either result, an object that must match the task's resultSchema (unknown fields are refused), or error { message, code } when the task cannot be done."
     },
     {
       "name": "app_create_annotation",
@@ -196,6 +204,10 @@
       "description": "Replace one existing PDF text span returned by app_get_page_text."
     },
     {
+      "name": "app_translate_page",
+      "description": "Replace many text spans of one page in a single call, for example to translate the page."
+    },
+    {
       "name": "app_set_measure_scale",
       "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g."
     },
@@ -213,11 +225,15 @@
     },
     {
       "name": "app_list_commands",
-      "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool."
+      "description": "List EVERY function the app exposes: each ribbon tab, each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool."
     },
     {
       "name": "app_run_command",
-      "description": "Run any command returned by app_list_commands: clicks the ribbon button (switching to its tab first) or activates the tool."
+      "description": "Run any command returned by app_list_commands: activates a ribbon tab ('ribbon-tab:<tab>'), clicks the ribbon button (switching to its tab first), runs an extension action ('ext:...') or activates the tool."
+    },
+    {
+      "name": "app_read_ui",
+      "description": "Read the LIVE app's interface as a compact accessibility-style tree, to check what a click did without a screenshot."
     },
     {
       "name": "app_snippet_cut",
@@ -278,6 +294,42 @@
     {
       "name": "app_facade_element",
       "description": "Draw and edit a facade element in a floor plan: a curtain wall or a window frame, as ONE object along a line with an outer frame, mullions on the field boundaries and a panel in every field."
+    },
+    {
+      "name": "app_list_system_types",
+      "description": "List the reusable system types (suspended ceilings, floor slabs, panel systems) of the app library, or one type by id."
+    },
+    {
+      "name": "app_register_system_type",
+      "description": "Register a system type owned by MCP under the id mcp:<key>."
+    },
+    {
+      "name": "app_update_system_type",
+      "description": "Update a system type owned by MCP (id mcp:<key>)."
+    },
+    {
+      "name": "app_open_system_type_editor",
+      "description": "Open the app's system type editor with the given type selected, or select it in the editor that is already open without discarding unapplied edits."
+    },
+    {
+      "name": "app_get_system_geometry",
+      "description": "Get the geometry of one system (suspended ceiling, floor slab, panel field) in the active document, computed by the app's own geometry engine: panels with clipped outlines, grid lines, openings, trimmers, edge segments and component positions, in millimetres in the system's own frame (independent of zoom and view rotation; placement maps it onto the page)."
+    },
+    {
+      "name": "app_call_extension_command",
+      "description": "Run a structured command of a loaded extension."
+    },
+    {
+      "name": "app_list_extensions",
+      "description": "List the app's extensions: every installed and every loaded extension with its id, name, version, installed version, whether it is loaded and activated, its status (active, failed, notLoaded, busy), the code and message of the last failure, who made the last change (ui, mcp or startup) and whether it uses an old-style id."
+    },
+    {
+      "name": "app_install_extension",
+      "description": "Install or update an extension from a local .oppx package, without a file dialog and without restarting the app: the package is checked and unpacked by the app, then the new version is activated."
+    },
+    {
+      "name": "app_reload_extension",
+      "description": "Reload an installed extension from disk: deactivate it, remove everything it registered (ribbon tabs, commands, annotation types, palettes, panels) and activate it again, without restarting the app."
     }
   ],
   "keywords": [

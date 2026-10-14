@@ -1,10 +1,12 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
-import { calculateArea, formatMeasurement, formatDimensionText, arcControlPoint, expandArcPoints } from '../../annotations/measurement.js';
+import { formatDimensionText, expandArcPoints, herberekenVlakMaat, vlakMeting, vlakZijdeTeksten } from '../../annotations/measurement.js';
+import { drawVlakZijdematen } from '../../annotations/rendering/measurements.js';
 import { applyToolTransform } from '../tool-context.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
+import { documentHeeftSchaal } from '../../annotations/schaal-op-punt.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -120,12 +122,12 @@ export const measureDistanceTool = {
       const prefs = state.preferences;
       const currentPage = getActiveDocument()?.currentPage || 1;
       const dist = ctx.calculateDistance(startX, startY, endX, endY, currentPage);
-      // Scale inheritance: when the document has ANY scale source — a scale
-      // region (schaalgebied), scale bar or viewport — the dimension inherits
-      // its scale from that source (calculateDistance resolves the innermost
-      // scale region at the measured point). The manual preference scale only
-      // applies when no source exists at all.
-      const hasScaleSource = getActiveDocument()?.annotations?.some(a => a.type === 'scaleRegion' || a.type === 'scaleBar' || a.type === 'viewport');
+      // Schaal erven: heeft het document een schaalbron (schaalgebied,
+      // schaalbalk, viewport, een viewport uit de PDF zelf of de
+      // documentschaal uit de kalibratie, #554), dan neemt de maat haar schaal
+      // daaruit (calculateDistance zoekt de bron op het gemeten punt). De
+      // handmatige voorkeursschaal geldt alleen zonder enige bron.
+      const hasScaleSource = documentHeeftSchaal(getActiveDocument());
       const dimScale = hasScaleSource ? 0 : (prefs.measureDistDimScale || 0);
       const dimUnit = hasScaleSource ? dist.unit : (prefs.measureDistDimUnit || dist.unit);
       // mm shows whole numbers (no decimals); other units use the user pref.
@@ -236,9 +238,10 @@ export const measureDistanceTool = {
     const hSize = prefs.measureDistHeadSize || 12;
     const fSize = prefs.measureDistFontSize || undefined;
     const dimExt = prefs.measureDistDimExtension !== false; // default ON
-    // Same scale-inheritance rule as the commit path: any scale source
-    // (scale region / bar / viewport) wins over the manual preference scale.
-    const hasScaleSourcePreview = getActiveDocument()?.annotations?.some(a => a.type === 'scaleRegion' || a.type === 'scaleBar' || a.type === 'viewport');
+    // Zelfde regel als bij het vastleggen: elke schaalbron van het document,
+    // ook de kalibratie en de viewports uit de PDF (#554), gaat voor de
+    // handmatige voorkeursschaal.
+    const hasScaleSourcePreview = documentHeeftSchaal(getActiveDocument());
     const dimScale = hasScaleSourcePreview ? 0 : (prefs.measureDistDimScale || 0);
     const dimUnit = prefs.measureDistDimUnit || '';
     // mm shows whole numbers (no decimals); other units use the user pref.
@@ -426,6 +429,22 @@ export const measurePerimeterTool = {
   },
 };
 
+// Poolhoek-volgen (F10) werkt per zijde vanaf het laatst GEPLAATSTE hoekpunt,
+// net als bij het lijngereedschap (#536). De dispatcher zet het poolanker bij
+// elke klik op het klikpunt, vóór de tool het hoekpunt bepaalt; dat punt kan
+// nog door de poolhoek, Shift, een getypte lengte of Ctrl verschuiven. Hier
+// komt het anker terug op het echte laatste hoekpunt van de ring in aanbouw,
+// en zonder punten is er geen anker (anders trekt het eerste punt naar een
+// oud anker).
+function _zetPoolAnker(ctx, punten) {
+  if (punten && punten.length > 0) {
+    const laatste = punten[punten.length - 1];
+    if (ctx.setPolarAnchor) ctx.setPolarAnchor(laatste.x, laatste.y, ctx.pageNum);
+  } else if (ctx.clearPolarAnchor) {
+    ctx.clearPolarAnchor();
+  }
+}
+
 // Shared helpers for area/perimeter
 function _measureMultiClickDown(ctx, e, toolType) {
   const { x, y, state } = ctx;
@@ -447,6 +466,9 @@ function _measureMultiClickDown(ctx, e, toolType) {
   }
 
   if (!state.measurePoints) state.measurePoints = [];
+
+  // Poolanker op het laatste hoekpunt, niet op het klikpunt van de dispatcher.
+  _zetPoolAnker(ctx, state.measurePoints);
 
   // Object snap (including in-progress vertices)
   const allInProgressPoints = _getAllInProgressPoints(state, isArea);
@@ -508,6 +530,8 @@ function _measureMultiClickDown(ctx, e, toolType) {
   } else {
     state.measurePoints.push({ x: ptX, y: ptY });
   }
+  // De volgende zijde begint bij dit hoekpunt (poolhoek-volgen).
+  _zetPoolAnker(ctx, state.measurePoints);
   // Arm/refresh type-length anchor for next segment
   if (state.measurePoints.length === 1) {
     enterTypeLengthMode(ptX, ptY);
@@ -526,6 +550,7 @@ function _closeOuterAndEnterHolesPhase(ctx, state) {
   state.measurePhase = 'holes';
   state.measureHoles = [];
   state.measurePoints = [];
+  _zetPoolAnker(ctx, state.measurePoints);
   ctx.redraw();
   _drawMeasureInProgress(ctx, 'measureArea');
 }
@@ -535,6 +560,7 @@ function _closeCurrentHole(ctx, state) {
     state.measureHoles = [...state.measureHoles, [...state.measurePoints]];
   }
   state.measurePoints = [];
+  _zetPoolAnker(ctx, state.measurePoints);
   ctx.redraw();
   _drawMeasureInProgress(ctx, 'measureArea');
 }
@@ -561,6 +587,7 @@ function _finishMeasureWithHoles(ctx) {
   state.measurePhase = 'outer';
   state.measureOuterPoints = null;
   state.measureHoles = [];
+  _zetPoolAnker(ctx, null);
   exitTypeLengthMode();
   state._typeLengthCommit = null;
   ctx.redraw();
@@ -589,6 +616,8 @@ function _measureMultiClickMove(ctx, e, toolType) {
   _measureCursor.x = x; _measureCursor.y = y;
   const isArea = toolType === 'measureArea';
   const inHolesPhase = isArea && state.measurePhase === 'holes';
+  // De voorvertoning snapt vanaf hetzelfde anker als de klik.
+  _zetPoolAnker(ctx, state.measurePoints);
 
   // When in holes phase with no active hole points, still show the outer preview
   if (inHolesPhase && (!state.measurePoints || state.measurePoints.length === 0)) {
@@ -709,6 +738,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
       const currentPage = getActiveDocument()?.currentPage || 1;
       const area = ctx.calculateArea(outerPoints, allHoles.length > 0 ? allHoles : undefined, currentPage);
       ctx.drawCentroidLabel(canvasCtx, outerPoints, ctx.formatMeasurement(area), mColor);
+      _voorvertoningZijdematen(canvasCtx, outerPoints, mColor);
     }
   } else {
     // Normal outer drawing
@@ -743,6 +773,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
       const expandedPoints = expandArcPoints(previewPoints);
       const area = ctx.calculateArea(expandedPoints, undefined, currentPage);
       ctx.drawCentroidLabel(canvasCtx, previewPoints, ctx.formatMeasurement(area), mColor);
+      _voorvertoningZijdematen(canvasCtx, previewPoints, mColor);
     } else if (!isArea && previewPoints.length >= 2) {
       const perim = ctx.calculatePerimeter(previewPoints, currentPage);
       canvasCtx.save();
@@ -773,6 +804,15 @@ function _measureMultiClickMove(ctx, e, toolType) {
   }
 }
 
+// Zijdematen in de voorvertoning (#536), als ze als standaard aanstaan: zo
+// ziet de gebruiker tijdens het tekenen wat het vlak straks toont.
+function _voorvertoningZijdematen(canvasCtx, punten, kleur) {
+  if (state.preferences?.measureAreaShowEdgeLengths !== true) return;
+  if (!punten || punten.length < 3) return;
+  const page = getActiveDocument()?.currentPage || 1;
+  drawVlakZijdematen(canvasCtx, vlakZijdeTeksten({ points: punten, page }), kleur);
+}
+
 // Draw preview of outer polygon with completed holes while idle in holes phase
 function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   const { state, canvasCtx, scale } = ctx;
@@ -799,6 +839,7 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   const currentPage = getActiveDocument()?.currentPage || 1;
   const area = ctx.calculateArea(outerPoints, completedHoles.length > 0 ? completedHoles : undefined, currentPage);
   ctx.drawCentroidLabel(canvasCtx, outerPoints, ctx.formatMeasurement(area), mColor);
+  _voorvertoningZijdematen(canvasCtx, outerPoints, mColor);
 
   // Draw hint text near cursor (rechtop op het scherm, ook gedraaid, #200)
   canvasCtx.save();
@@ -830,6 +871,7 @@ function _finishMeasure(ctx, toolType) {
   state.measurePhase = 'outer';
   state.measureOuterPoints = null;
   state.measureHoles = [];
+  _zetPoolAnker(ctx, null);
   exitTypeLengthMode();
   state._typeLengthCommit = null;
   ctx.redraw();
@@ -849,6 +891,7 @@ function _measureDeactivate(ctx) {
   }
   _macDirLock.x = null; _macDirLock.y = null;
   _dimDirLock.x = null; _dimDirLock.y = null;
+  _zetPoolAnker(ctx, null);
   exitTypeLengthMode();
   state._typeLengthCommit = null;
 }
@@ -862,6 +905,7 @@ function _commitMeasureSegmentByLength(ctx, toolType) {
   const ep = applyToEndpoint(last.x, last.y, _measureCursor.x, _measureCursor.y);
   state.measurePoints.push({ x: ep.x, y: ep.y });
   _macDirLock.x = null; _macDirLock.y = null;
+  _zetPoolAnker(ctx, state.measurePoints);
   setTypeLengthStart(ep.x, ep.y);
   ctx.redraw();
 }
@@ -980,6 +1024,9 @@ export const addHoleTool = {
 
     const pts = state.addHolePoints || [];
 
+    // Poolhoek-volgen vanaf het laatst geplaatste punt van het gat (#536).
+    _zetPoolAnker(ctx, pts);
+
     // Snap
     const snap = ctx.snap(x, y, targetId, pts);
     let ptX = snap.snapped ? snap.x : x;
@@ -1012,6 +1059,7 @@ export const addHoleTool = {
       : { x: ptX, y: ptY };
     if (addHoleArcState.active) addHoleArcState.active = false; // reset after placing
     state.addHolePoints = [...pts, newPt];
+    _zetPoolAnker(ctx, state.addHolePoints);
     ctx.redraw();
     _drawAddHoleInProgress(ctx);
   },
@@ -1022,6 +1070,7 @@ export const addHoleTool = {
     if (!targetId) return;
 
     const pts = state.addHolePoints || [];
+    _zetPoolAnker(ctx, pts);
     if (pts.length === 0) {
       _drawAddHolePreview(ctx, x, y);
       _drawHoverSnap(ctx, x, y);
@@ -1102,7 +1151,8 @@ export const addHoleTool = {
 
     // Live area text (measureArea only)
     if (ann.type === 'measureArea' && ann.points && ann.points.length >= 3) {
-      const area = ctx.calculateArea(ann.points, allHoles.length > 0 ? allHoles : undefined, ann.page || 1);
+      // Met de eigen schaal van het vlak, zoals na het toevoegen (#536).
+      const area = vlakMeting({ ...ann, page: ann.page || 1, holes: allHoles.length > 0 ? allHoles : undefined });
       ctx.drawCentroidLabel(canvasCtx, ann.points, ctx.formatMeasurement(area), mColor);
     }
 
@@ -1143,6 +1193,7 @@ export const addHoleTool = {
     addHoleArcState.bulge = 0.3;
     state.addHoleTargetId = null;
     state.addHolePoints = [];
+    _zetPoolAnker(ctx, null);
     ctx.redraw();
   },
 };
@@ -1173,6 +1224,7 @@ function _finishAddHole(ctx) {
   // Reset state and switch back to select tool
   state.addHoleTargetId = null;
   state.addHolePoints = [];
+  _zetPoolAnker(ctx, null);
   ctx.redraw();
 
   // Switch back to select tool
@@ -1182,12 +1234,9 @@ function _finishAddHole(ctx) {
 function _recalcMeasureAreaText(ann, ctx) {
   if (!ann.points || ann.points.length < 3) return;
 
-  // Always use calculateArea (resolves scale from scaleBar / document / prefs)
-  // + formatMeasurement (auto-converts mm² → m²)
-  const area = calculateArea(ann.points, ann.holes, ann.page || 1);
-  ann.measureText = formatMeasurement(area);
-  ann.measureValue = area.value;
-  ann.measureUnit = area.unit;
+  // De schaal van het vlak zelf (measureScale) als die er is, anders die van
+  // scaleBar / document / voorkeur; formatMeasurement zet mm² om naar m² (#536).
+  herberekenVlakMaat(ann);
 }
 
 function _drawAddHolePreview(ctx, cursorX, cursorY) {
@@ -1211,9 +1260,9 @@ function _drawAddHolePreview(ctx, cursorX, cursorY) {
 
   ctx.drawMeasureAreaShape(canvasCtx, ann.points, mColor, canvasCtx.lineWidth, mFillColor, mBorderStyle, ann.holes && ann.holes.length > 0 ? ann.holes : undefined, DEFAULT_AREA_HATCH);
 
-  // Show area text (measureArea only)
+  // Show area text (measureArea only), met de eigen schaal van het vlak (#536)
   if (ann.type === 'measureArea') {
-    const area = ctx.calculateArea(ann.points, ann.holes, ann.page || 1);
+    const area = vlakMeting({ ...ann, page: ann.page || 1 });
     ctx.drawCentroidLabel(canvasCtx, ann.points, ctx.formatMeasurement(area), mColor);
   }
 

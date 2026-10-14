@@ -44,6 +44,13 @@ function _ensureOverlay(parent) {
   return _el;
 }
 
+// The thumbnail store holds { dataURL, width, height, px } per page; accept a
+// plain data-URL string as well. Anything else gives no usable image source.
+function thumbnailSrc(entry) {
+  if (typeof entry === 'string') return entry;
+  return typeof entry?.dataURL === 'string' ? entry.dataURL : null;
+}
+
 // Show the cached thumbnail for `pageNum` as an instant placeholder over the
 // PDF canvas. Returns a generation token to pass to hidePagePlaceholder().
 // If no thumbnail is cached yet (e.g. a far-page jump the sidebar hasn't
@@ -51,7 +58,7 @@ function _ensureOverlay(parent) {
 export function showPagePlaceholder(pageNum) {
   const myGen = ++_gen;
   try {
-    const src = thumbnailData[String(pageNum)];
+    const src = thumbnailSrc(thumbnailData[String(pageNum)]);
     const canvas = document.getElementById('pdf-canvas');
     if (!src || !canvas || !canvas.parentElement) return myGen;
 

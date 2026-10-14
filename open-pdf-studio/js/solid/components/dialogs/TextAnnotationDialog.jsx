@@ -55,16 +55,18 @@ export default function TextAnnotationDialog(props) {
   };
 
   const handleKeyDown = (e) => {
+    // Letter in kleine letters: met Caps Lock aan is e.key een hoofdletter (#577).
+    const letter = (e.key || '').toLowerCase();
     if (e.ctrlKey && e.key === 'Enter') {
       e.preventDefault();
       handleOk();
-    } else if (e.ctrlKey && e.key === 'b') {
+    } else if (e.ctrlKey && !e.shiftKey && letter === 'b') {
       e.preventDefault();
       setBold(!bold());
-    } else if (e.ctrlKey && e.key === 'i') {
+    } else if (e.ctrlKey && !e.shiftKey && letter === 'i') {
       e.preventDefault();
       setItalic(!italic());
-    } else if (e.ctrlKey && e.key === 'u') {
+    } else if (e.ctrlKey && !e.shiftKey && letter === 'u') {
       e.preventDefault();
       setUnderline(!underline());
     }

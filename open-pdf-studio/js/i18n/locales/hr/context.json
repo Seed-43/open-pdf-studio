@@ -7,9 +7,11 @@
     "addReply": "Dodaj odgovor",
     "locked": "Zaključano",
     "marked": "Označeno",
+    "gridEndLock": "Zaključaj kraj osi rastera",
+    "gridEndUnlock": "Otključaj kraj osi rastera",
     "printable": "Za ispis",
     "status": "Status",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Prikaži prema statusu",
     "statusNone": "Ništa",
     "statusAccepted": "Prihvaćeno",
     "statusCancelled": "Otkazano",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Izvoz",
     "exportAsImage": "Izvezi kao sliku...",
     "addHole": "Dodaj otvor",
+    "wallJoinAllow": "Dopusti spoj (ovaj kraj)",
+    "wallJoinDisallow": "Zabrani spoj (ovaj kraj)",
     "properties": "Svojstva...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Uredi mjerilo prikaznog okvira",
+    "calibrateFromLine": "Kalibriraj prema ovoj liniji...",
+    "setScale": "Postavi mjerilo...",
+    "dimChainAdd": "Dodaj točke u lanac kota",
+    "dimChainRemove": "Ukloni pomoćnu liniju iz lanca",
+    "selectRoom": "Odaberi prostoriju"
   },
   "multiSelect": {
     "copyAnnotations": "Kopiraj {{count}} oznaka",
@@ -54,6 +63,7 @@
     "centerVertically": "Centriraj okomito",
     "distributeHorizontally": "Rasporedi vodoravno",
     "distributeVertically": "Rasporedi okomito",
+    "trimWallCorners": "Odreži kutove zidova",
     "deleteAnnotations": "Obriši {{count}} oznaka",
     "deleteConfirm": "Obrisati {{count}} oznaka?",
     "deleteTitle": "Brisanje oznaka"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Rotiraj lijevo",
     "rotateRight": "Rotiraj desno",
+    "moveUp": "Pomakni gore",
+    "moveDown": "Pomakni dolje",
     "insertPages": "Umetni stranice...",
     "extractPages": "Izdvoji stranice...",
     "replacePages": "Zamijeni stranice...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Obrisati stranicu {{page}}?",
     "deletePageTitle": "Brisanje stranice",
     "properties": "Svojstva",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Izreži stranice: {{count}}",
+    "copyPages": "Kopiraj stranice: {{count}}",
+    "rotateLeftPages": "Rotiraj stranice ulijevo: {{count}}",
+    "rotateRightPages": "Rotiraj stranice udesno: {{count}}",
+    "deletePagesMulti": "Obriši stranice: {{count}}",
+    "selectAll": "Odaberi sve stranice",
+    "deselectAll": "Poništi sav odabir",
+    "insertFromFile": "Umetni iz datoteke...",
+    "insertFromFileBefore": "Ispred ove stranice...",
+    "insertFromFileAfter": "Iza ove stranice...",
+    "pageLabels": "Oznake stranica (izrada naziva)..."
   },
   "textSelection": {
     "highlightSelection": "Istakni odabrano",
     "strikethroughSelection": "Precrtaj odabrano",
     "underlineSelection": "Podcrtaj odabrano",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Dodaj zakrivljeni oblačić"
   },
   "deleteAnnotation": {
     "confirmSingle": "Obrisati ovu oznaku?",
     "title": "Brisanje oznake"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Obriši vrh",
+    "insertVertex": "Umetni vrh ovdje",
+    "convertToArc": "Pretvori u luk",
+    "convertToLine": "Pretvori u liniju"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Prikaži u Eksploreru",
+    "mac": "Prikaži u Finderu",
+    "linux": "Otvori mapu u kojoj se nalazi"
+  },
+  "gevelelement": {
+    "addMullionHere": "Dodaj prečku ovdje",
+    "removeMullion": "Ukloni najbližu prečku",
+    "panelItem": "Ispuna: {{name}}",
+    "placeInWall": "Postavi u zid (prekini zid)",
+    "noHostWall": "Ispod ovog elementa nije pronađen zid",
+    "editRefused": "Nije moguće"
   }
 }

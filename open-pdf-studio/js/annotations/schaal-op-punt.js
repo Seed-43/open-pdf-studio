@@ -144,3 +144,24 @@ export function schaalOpPunt(doc, pageNum, x, y) {
   if (!doc) return null;
   return schaalOpPuntUitBronnen(verzamelSchaalBronnen(doc), doc, pageNum, x, y);
 }
+
+/**
+ * Heeft het document ergens een schaalbron (#554)? Een schaalgebied,
+ * schaalbalk of viewport-annotatie, een viewport uit de PDF zelf (/VP) of de
+ * documentschaal (kalibratie, snelle schaal, schaal uit de titelhoek). Een
+ * nieuwe meting neemt dan haar schaal uit die bronnen (getMeasureScale); de
+ * handmatige voorkeursschaal van een meetgereedschap geldt alleen als het
+ * document er geen enkele heeft.
+ * @param {{annotations?:Array<object>, pdfViewports?:Record<number, Array<object>>,
+ *   measureScale?:{pixelsPerUnit:number} | null} | null | undefined} doc
+ * @returns {boolean}
+ */
+export function documentHeeftSchaal(doc) {
+  if (!doc) return false;
+  if (doc.measureScale && doc.measureScale.pixelsPerUnit > 0) return true;
+  if (doc.pdfViewports && Object.values(doc.pdfViewports).some((lijst) => Array.isArray(lijst) && lijst.length > 0)) {
+    return true;
+  }
+  const annotaties = Array.isArray(doc.annotations) ? doc.annotations : [];
+  return annotaties.some((a) => a.type === 'scaleRegion' || a.type === 'scaleBar' || a.type === 'viewport');
+}

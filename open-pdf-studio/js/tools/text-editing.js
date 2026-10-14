@@ -1,3 +1,4 @@
+import { plaatsTekstOpPagina } from '../text/wrap-tekst.js';
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { hasFill } from '../annotations/fill-utils.js';
@@ -300,6 +301,23 @@ function showTextAnnotationDialog() {
   });
 }
 
+// Breedte van een tekenreeks in PDF-punten voor de standaard-PDF-lettertypen,
+// gemeten met het canvas (schermlettertype dat erop lijkt). Zonder canvas een
+// schatting van 0,55 x de lettergrootte per teken.
+function maakTekstMeter(pdfFont, fontSize) {
+  const gewicht = /Bold/.test(pdfFont) ? 'bold ' : '';
+  const stand = /Italic|Oblique/.test(pdfFont) ? 'italic ' : '';
+  const css = /^Courier/.test(pdfFont) ? '"Courier New", Courier, monospace'
+    : /^Times/.test(pdfFont) ? '"Times New Roman", Times, serif'
+    : 'Helvetica, Arial, sans-serif';
+  let ctx = null;
+  try {
+    ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = `${stand}${gewicht}${fontSize}px ${css}`;
+  } catch (e) { ctx = null; }
+  return (str) => (ctx ? ctx.measureText(str).width : str.length * fontSize * 0.55);
+}
+
 // Add PDF content text at position (stored as textEdit, burned into PDF on save)
 export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const result = await showTextAnnotationDialog();
@@ -356,12 +374,22 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
 
   const fontSize = result.fontSize || 16;
 
+  // Lange tekst binnen de pagina houden: afbreken op de rechtermarge, en het
+  // beginpunt alleen naar links schuiven als de tekst er anders niet past.
+  // Zonder dit liep de tekst als één regel de pagina uit.
+  const plaatsing = plaatsTekstOpPagina({
+    tekst: result.text,
+    x: pdfX,
+    paginaBreedte: geometry.pageWidth,
+    meet: maakTekstMeter(fontFamily, fontSize),
+  });
+
   const editRecord = {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
     page,
     originalText: '',
-    newText: result.text,
-    pdfX,
+    newText: plaatsing.tekst,
+    pdfX: plaatsing.x,
     pdfY,
     pdfWidth: 0,
     fontSize,

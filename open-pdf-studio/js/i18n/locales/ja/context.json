@@ -7,9 +7,11 @@
     "addReply": "返信を追加",
     "locked": "ロック",
     "marked": "マーク済み",
+    "gridEndLock": "通り芯の端点をロック",
+    "gridEndUnlock": "通り芯の端点のロックを解除",
     "printable": "印刷可能",
     "status": "状態",
-    "showByStatus": "Show by Status",
+    "showByStatus": "ステータス別に表示",
     "statusNone": "なし",
     "statusAccepted": "承認",
     "statusCancelled": "取消",
@@ -38,8 +40,15 @@
     "exportSubmenu": "エクスポート",
     "exportAsImage": "画像としてエクスポート...",
     "addHole": "穴を追加",
+    "wallJoinAllow": "結合を許可（この端）",
+    "wallJoinDisallow": "結合を禁止（この端）",
     "properties": "プロパティ...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "ビューポートの縮尺を編集",
+    "calibrateFromLine": "この線から校正...",
+    "setScale": "縮尺を設定...",
+    "dimChainAdd": "寸法チェーンに点を追加",
+    "dimChainRemove": "寸法チェーンから補助線を削除",
+    "selectRoom": "部屋を選択"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} 個の注釈をコピー",
@@ -54,6 +63,7 @@
     "centerVertically": "垂直方向に中央揃え",
     "distributeHorizontally": "水平方向に分布",
     "distributeVertically": "垂直方向に分布",
+    "trimWallCorners": "壁の角をトリム",
     "deleteAnnotations": "{{count}} 個の注釈を削除",
     "deleteConfirm": "{{count}} 個の注釈を削除しますか？",
     "deleteTitle": "注釈の削除"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "左に回転",
     "rotateRight": "右に回転",
+    "moveUp": "上へ移動",
+    "moveDown": "下へ移動",
     "insertPages": "ページを挿入...",
     "extractPages": "ページを抽出...",
     "replacePages": "ページを置換...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "{{page}} ページを削除しますか？",
     "deletePageTitle": "ページの削除",
     "properties": "プロパティ",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}} ページを切り取り",
+    "copyPages": "{{count}} ページをコピー",
+    "rotateLeftPages": "{{count}} ページを左に回転",
+    "rotateRightPages": "{{count}} ページを右に回転",
+    "deletePagesMulti": "{{count}} ページを削除",
+    "selectAll": "すべてのページを選択",
+    "deselectAll": "すべて選択解除",
+    "insertFromFile": "ファイルから挿入...",
+    "insertFromFileBefore": "このページの前に...",
+    "insertFromFileAfter": "このページの後に...",
+    "pageLabels": "ページラベル (名前ビルダー)..."
   },
   "textSelection": {
     "highlightSelection": "選択範囲をハイライト",
     "strikethroughSelection": "選択範囲に取り消し線",
     "underlineSelection": "選択範囲に下線",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "曲線の吹き出しを追加"
   },
   "deleteAnnotation": {
     "confirmSingle": "この注釈を削除しますか？",
     "title": "注釈の削除"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "頂点を削除",
+    "insertVertex": "ここに頂点を挿入",
+    "convertToArc": "円弧に変換",
+    "convertToLine": "直線に変換"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "エクスプローラーで表示",
+    "mac": "Finder で表示",
+    "linux": "保存先フォルダーを開く"
+  },
+  "gevelelement": {
+    "addMullionHere": "ここに方立を追加",
+    "removeMullion": "最も近い方立を削除",
+    "panelItem": "パネル：{{name}}",
+    "placeInWall": "壁に配置（壁を切り欠く）",
+    "noHostWall": "この要素の下に壁が見つかりません",
+    "editRefused": "実行できません"
   }
 }

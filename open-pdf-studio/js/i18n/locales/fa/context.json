@@ -7,9 +7,11 @@
     "addReply": "افزودن پاسخ",
     "locked": "قفل شده",
     "marked": "علامت‌گذاری‌شده",
+    "gridEndLock": "قفل کردن انتهای محور",
+    "gridEndUnlock": "باز کردن قفل انتهای محور",
     "printable": "قابل چاپ",
     "status": "وضعیت",
-    "showByStatus": "Show by Status",
+    "showByStatus": "نمایش بر اساس وضعیت",
     "statusNone": "هیچ",
     "statusAccepted": "پذیرفته‌شده",
     "statusCancelled": "لغوشده",
@@ -38,8 +40,15 @@
     "exportSubmenu": "صدور",
     "exportAsImage": "صدور به صورت تصویر...",
     "addHole": "افزودن سوراخ",
+    "wallJoinAllow": "اجازه اتصال (این انتها)",
+    "wallJoinDisallow": "عدم اجازه اتصال (این انتها)",
     "properties": "ویژگی‌ها...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "ویرایش مقیاس دریچه دید",
+    "calibrateFromLine": "کالیبره کردن از این خط...",
+    "setScale": "تنظیم مقیاس...",
+    "dimChainAdd": "افزودن نقاط به زنجیره اندازه",
+    "dimChainRemove": "حذف خط رابط از زنجیره",
+    "selectRoom": "انتخاب اتاق"
   },
   "multiSelect": {
     "copyAnnotations": "کپی {{count}} حاشیه‌نویسی",
@@ -54,6 +63,7 @@
     "centerVertically": "مرکزگذاری عمودی",
     "distributeHorizontally": "توزیع افقی",
     "distributeVertically": "توزیع عمودی",
+    "trimWallCorners": "تریم گوشه‌های دیوار",
     "deleteAnnotations": "حذف {{count}} حاشیه‌نویسی",
     "deleteConfirm": "آیا {{count}} حاشیه‌نویسی حذف شوند؟",
     "deleteTitle": "حذف حاشیه‌نویسی‌ها"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "چرخش به چپ",
     "rotateRight": "چرخش به راست",
+    "moveUp": "انتقال به بالا",
+    "moveDown": "انتقال به پایین",
     "insertPages": "درج صفحات...",
     "extractPages": "استخراج صفحات...",
     "replacePages": "جایگزینی صفحات...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "آیا صفحه {{page}} حذف شود؟",
     "deletePageTitle": "حذف صفحه",
     "properties": "ویژگی‌ها",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "برش {{count}} صفحه",
+    "copyPages": "کپی {{count}} صفحه",
+    "rotateLeftPages": "چرخش {{count}} صفحه به چپ",
+    "rotateRightPages": "چرخش {{count}} صفحه به راست",
+    "deletePagesMulti": "حذف {{count}} صفحه",
+    "selectAll": "انتخاب همه صفحات",
+    "deselectAll": "لغو انتخاب همه",
+    "insertFromFile": "درج از فایل...",
+    "insertFromFileBefore": "پیش از این صفحه...",
+    "insertFromFileAfter": "پس از این صفحه...",
+    "pageLabels": "برچسب‌های صفحه (سازنده نام)..."
   },
   "textSelection": {
     "highlightSelection": "برجسته‌سازی انتخاب",
     "strikethroughSelection": "خط‌خوردگی انتخاب",
     "underlineSelection": "زیرخط انتخاب",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "افزودن فراخوان منحنی"
   },
   "deleteAnnotation": {
     "confirmSingle": "آیا این حاشیه‌نویسی حذف شود؟",
     "title": "حذف حاشیه‌نویسی"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "حذف رأس",
+    "insertVertex": "درج رأس در اینجا",
+    "convertToArc": "تبدیل به کمان",
+    "convertToLine": "تبدیل به خط"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "نمایش در Explorer",
+    "mac": "نمایش در Finder",
+    "linux": "باز کردن پوشه حاوی"
+  },
+  "gevelelement": {
+    "addMullionHere": "افزودن وادار در اینجا",
+    "removeMullion": "حذف نزدیک‌ترین وادار",
+    "panelItem": "پانل: {{name}}",
+    "placeInWall": "قرار دادن در دیوار (قطع دیوار)",
+    "noHostWall": "هیچ دیواری زیر این المان یافت نشد",
+    "editRefused": "امکان‌پذیر نیست"
   }
 }

@@ -11,6 +11,7 @@
     "box": "四角形",
     "polygon": "多角形",
     "cloud": "クラウド",
+    "cloudPolyline": "雲形ポリライン",
     "polyline": "ポリライン",
     "textbox": "テキストボックス",
     "callout": "吹き出し",
@@ -27,7 +28,8 @@
     "formTextField": "フォームテキストフィールド",
     "formCheckbox": "フォームチェックボックス",
     "formRadio": "フォームラジオボタン",
-    "screenshot": "スクリーンショット"
+    "screenshot": "スクリーンショット",
+    "pageLabelPick": "ページラベルの文字を選択"
   },
   "toolLabel": "ツール：",
   "annotationsLabel": "注釈：",
@@ -36,6 +38,7 @@
   "previousPage": "前のページ",
   "nextPage": "次のページ",
   "lastPage": "最後のページ",
+  "page": "ページ",
   "zoomOut": "縮小",
   "zoomIn": "拡大",
   "noDocumentsOpen": "ドキュメントが開かれていません",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "このドキュメントにはインタラクティブなフォームフィールドが含まれています。フォームに入力してデータを保存できます。",
   "enableEditing": "編集を有効にする",
   "pdfAConformance": "このドキュメントは PDF/A 準拠を宣言しています。",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "ファイル名の変更に失敗しました：{{error}}",
+  "renameInvalidChars": "ファイル名に次の文字は使用できません：  / : * ? \" < > |",
+  "renameFileExists": "この名前のファイルは既に存在します。",
+  "engineTitle": "現在の表示に使用しているレンダリングエンジン",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1（ベクター）"
+  },
+  "viewSingle": "単一ページ",
+  "viewContinuous": "連続",
+  "viewBook": "2 ページ",
+  "viewFacing": "2 ページを左右に表示",
   "viewRotatedTitle": "表示は時計回りに{{degrees}}°回転しています。文書は変更されていません。クリックすると表示を元に戻します。",
+  "compareTabTitle": "比較",
   "filledAreaSketch": {
     "undoPoint": "点を元に戻す",
     "undoPointTitle": "最後の点を削除（Backspace）",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "幅",
   "boxHeightAbbr": "高",
+  "boxSizeHint": "値を入力して Enter — またはほかの場所をクリックして適用",
   "ocr": {
     "progress": {
       "starting": "文字を認識しています...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "結果 ({{count}})",
   "searchResultPage": "{{page}} ページ",
   "searchHitsOne": "1 件",
-  "searchHitsMany": "{{count}} 件"
+  "searchHitsMany": "{{count}} 件",
+  "passwordProtectedBar": "パスワードで保護されています: 読み取り専用で開きました。"
 }

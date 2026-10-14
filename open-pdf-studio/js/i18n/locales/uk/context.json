@@ -7,9 +7,11 @@
     "addReply": "Додати відповідь",
     "locked": "Заблоковано",
     "marked": "Позначено",
+    "gridEndLock": "Заблокувати кінець осі",
+    "gridEndUnlock": "Розблокувати кінець осі",
     "printable": "Для друку",
     "status": "Стан",
-    "showByStatus": "Show by Status",
+    "showByStatus": "Показати за статусом",
     "statusNone": "Немає",
     "statusAccepted": "Прийнято",
     "statusCancelled": "Скасовано",
@@ -38,8 +40,15 @@
     "exportSubmenu": "Експорт",
     "exportAsImage": "Експортувати як зображення...",
     "addHole": "Додати отвір",
+    "wallJoinAllow": "Дозволити з'єднання (цей кінець)",
+    "wallJoinDisallow": "Заборонити з'єднання (цей кінець)",
     "properties": "Властивості...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "Змінити масштаб видового екрана",
+    "calibrateFromLine": "Калібрувати за цією лінією...",
+    "setScale": "Задати масштаб...",
+    "dimChainAdd": "Додати точки до розмірного ланцюга",
+    "dimChainRemove": "Вилучити виносну лінію з ланцюга",
+    "selectRoom": "Вибрати приміщення"
   },
   "multiSelect": {
     "copyAnnotations": "Копіювати {{count}} анотацій",
@@ -54,6 +63,7 @@
     "centerVertically": "Центрувати вертикально",
     "distributeHorizontally": "Розподілити горизонтально",
     "distributeVertically": "Розподілити вертикально",
+    "trimWallCorners": "Обрізати кути стін",
     "deleteAnnotations": "Видалити {{count}} анотацій",
     "deleteConfirm": "Видалити {{count}} анотацій?",
     "deleteTitle": "Видалити анотації"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "Повернути ліворуч",
     "rotateRight": "Повернути праворуч",
+    "moveUp": "Перемістити вгору",
+    "moveDown": "Перемістити вниз",
     "insertPages": "Вставити сторінки...",
     "extractPages": "Витягти сторінки...",
     "replacePages": "Замінити сторінки...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "Видалити сторінку {{page}}?",
     "deletePageTitle": "Видалити сторінку",
     "properties": "Властивості",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "Вирізати сторінки ({{count}})",
+    "copyPages": "Копіювати сторінки ({{count}})",
+    "rotateLeftPages": "Повернути сторінки ліворуч ({{count}})",
+    "rotateRightPages": "Повернути сторінки праворуч ({{count}})",
+    "deletePagesMulti": "Видалити сторінки ({{count}})",
+    "selectAll": "Вибрати всі сторінки",
+    "deselectAll": "Зняти весь вибір",
+    "insertFromFile": "Вставити з файлу...",
+    "insertFromFileBefore": "Перед цією сторінкою...",
+    "insertFromFileAfter": "Після цієї сторінки...",
+    "pageLabels": "Мітки сторінок (конструктор назв)..."
   },
   "textSelection": {
     "highlightSelection": "Виділити виділене",
     "strikethroughSelection": "Закреслити виділене",
     "underlineSelection": "Підкреслити виділене",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Додати криволінійну виноску"
   },
   "deleteAnnotation": {
     "confirmSingle": "Видалити цю анотацію?",
     "title": "Видалити анотацію"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "Видалити вершину",
+    "insertVertex": "Вставити вершину тут",
+    "convertToArc": "Перетворити на дугу",
+    "convertToLine": "Перетворити на лінію"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "Показати в Провіднику",
+    "mac": "Показати у Finder",
+    "linux": "Відкрити теку з файлом"
+  },
+  "gevelelement": {
+    "addMullionHere": "Додати імпост тут",
+    "removeMullion": "Вилучити найближчий імпост",
+    "panelItem": "Панель: {{name}}",
+    "placeInWall": "Розмістити в стіні (перервати стіну)",
+    "noHostWall": "Під цим елементом не знайдено стіни",
+    "editRefused": "Неможливо"
   }
 }

@@ -11,6 +11,7 @@
     "box": "Rectangle",
     "polygon": "Polígon",
     "cloud": "Núvol",
+    "cloudPolyline": "Polilínia de núvol",
     "polyline": "Polilínia",
     "textbox": "Quadre de text",
     "callout": "Crida",
@@ -27,7 +28,8 @@
     "formTextField": "Camp de text de formulari",
     "formCheckbox": "Casella de verificació de formulari",
     "formRadio": "Botó d'opció de formulari",
-    "screenshot": "Captura de pantalla"
+    "screenshot": "Captura de pantalla",
+    "pageLabelPick": "Tria text per a l'etiqueta de pàgina"
   },
   "toolLabel": "Eina:",
   "annotationsLabel": "Anotacions:",
@@ -52,14 +54,21 @@
   "formFieldsMessage": "Aquest document conté camps de formulari interactius. Podeu emplenar el formulari i desar les vostres dades.",
   "enableEditing": "Activa l'edició",
   "pdfAConformance": "Aquest document declara conformitat PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "No s'ha pogut canviar el nom del fitxer: {{error}}",
+  "renameInvalidChars": "El nom del fitxer no pot contenir:  / : * ? \" < > |",
+  "renameFileExists": "Ja existeix un fitxer amb aquest nom.",
+  "engineTitle": "Motor de renderització utilitzat per a la vista actual",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vectorial)"
+  },
+  "viewSingle": "Pàgina única",
+  "viewContinuous": "Contínua",
+  "viewBook": "Dues pàgines",
+  "viewFacing": "Dues pàgines costat a costat",
   "viewRotatedTitle": "La vista està girada {{degrees}}° en sentit horari; el document no ha canviat. Feu clic per tornar la vista a la posició original.",
+  "compareTabTitle": "Compara",
   "filledAreaSketch": {
     "undoPoint": "Desfés punt",
     "undoPointTitle": "Elimina l'últim punt (Retrocés)",
@@ -82,6 +91,7 @@
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al",
+  "boxSizeHint": "Escriviu un valor + Enter — o feu clic fora per aplicar-lo",
   "ocr": {
     "progress": {
       "starting": "S'està reconeixent el text...",
@@ -97,5 +107,6 @@
   "searchResultsTitle": "Resultats ({{count}})",
   "searchResultPage": "Pàgina {{page}}",
   "searchHitsOne": "1 coincidència",
-  "searchHitsMany": "{{count}} coincidències"
+  "searchHitsMany": "{{count}} coincidències",
+  "passwordProtectedBar": "Protegit amb contrasenya: obert només de lectura."
 }

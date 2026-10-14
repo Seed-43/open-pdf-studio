@@ -11,6 +11,7 @@
     "box": "Rectangle",
     "polygon": "Polygone",
     "cloud": "Nuage",
+    "cloudPolyline": "Polyligne en nuage",
     "polyline": "Polyligne",
     "textbox": "Zone de texte",
     "callout": "Légende",
@@ -27,7 +28,8 @@
     "formTextField": "Champ de texte de formulaire",
     "formCheckbox": "Case à cocher de formulaire",
     "formRadio": "Bouton radio de formulaire",
-    "screenshot": "Capture d'écran"
+    "screenshot": "Capture d'écran",
+    "pageLabelPick": "Choisir le texte de l'étiquette de page"
   },
   "toolLabel": "Outil :",
   "annotationsLabel": "Annotations :",
@@ -36,6 +38,7 @@
   "previousPage": "Page précédente",
   "nextPage": "Page suivante",
   "lastPage": "Dernière page",
+  "page": "Page",
   "zoomOut": "Zoom arrière",
   "zoomIn": "Zoom avant",
   "noDocumentsOpen": "Aucun document ouvert",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "Ce document contient des champs de formulaire interactifs. Vous pouvez remplir le formulaire et enregistrer vos données.",
   "enableEditing": "Activer la modification",
   "pdfAConformance": "Ce document est conforme à la norme PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Impossible de renommer le fichier : {{error}}",
+  "renameInvalidChars": "Le nom de fichier ne peut pas contenir :  / : * ? \" < > |",
+  "renameFileExists": "Un fichier portant ce nom existe déjà.",
+  "engineTitle": "Moteur de rendu utilisé pour la vue actuelle",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vectoriel)"
+  },
+  "viewSingle": "Page unique",
+  "viewContinuous": "Continu",
+  "viewBook": "Deux pages",
+  "viewFacing": "Deux pages côte à côte",
   "viewRotatedTitle": "L'affichage est pivoté de {{degrees}}° dans le sens horaire ; le document n'est pas modifié. Cliquez pour rétablir l'affichage.",
+  "compareTabTitle": "Comparer",
   "filledAreaSketch": {
     "undoPoint": "Annuler le point",
     "undoPointTitle": "Supprimer le dernier point (Retour arrière)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Tapez une valeur + Enter — ou cliquez ailleurs pour appliquer",
   "ocr": {
     "progress": {
       "starting": "Reconnaissance du texte...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "Résultats ({{count}})",
   "searchResultPage": "Page {{page}}",
   "searchHitsOne": "1 correspondance",
-  "searchHitsMany": "{{count}} correspondances"
+  "searchHitsMany": "{{count}} correspondances",
+  "passwordProtectedBar": "Protégé par un mot de passe : ouvert en lecture seule."
 }

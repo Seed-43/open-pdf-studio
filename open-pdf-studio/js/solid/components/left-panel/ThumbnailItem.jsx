@@ -4,8 +4,20 @@ import {
   selectedPages, selectPage, togglePageSelection, selectPageRange, isPageSelected
 } from '../../stores/panels/thumbnailStore.js';
 import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
+import { dropPositie } from '../../../ui/panels/miniatuur-maat.js';
 import { state } from '../../../core/state.js';
-import { pageLabelFor, hasPageLabel, setPageLabel } from '../../../pdf/page-labels.js';
+import { labelVan, heeftEigenLabel } from '../../../pdf/pagina-labels.js';
+import { zetPaginaLabel } from '../../../pdf/pagina-labels-app.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
+
+// Staan de miniaturen in meerdere kolommen (breed paneel, #579)? Dan zijn de
+// buren links en rechts en valt een gesleepte pagina ervoor of erachter.
+function meerdereKolommen(item) {
+  const lijst = item?.parentElement;
+  if (!lijst) return false;
+  const kolommen = getComputedStyle(lijst).gridTemplateColumns || '';
+  return kolommen.trim().split(/\s+/).filter(Boolean).length > 1;
+}
 
 export default function ThumbnailItem(props) {
   const isActive = () => activePage() === props.pageNum;
@@ -14,23 +26,34 @@ export default function ThumbnailItem(props) {
   const drop = () => dropTarget();
   const isDropBefore = () => drop()?.page === props.pageNum && drop()?.position === 'before';
   const isDropAfter = () => drop()?.page === props.pageNum && drop()?.position === 'after';
+  const isDropNaast = () => drop()?.page === props.pageNum && !!drop()?.naast;
   const isSelected = () => { selectedPages(); return isPageSelected(props.pageNum); };
 
   const size = () => placeholderSize();
 
-  // Page label (sheet name). Reads the active document through the mutable
-  // state so a rename or a name-builder run re-renders the label.
+  // Paginalabel (bladnaam, #580) in plaats van het nummer; het nummer staat
+  // dan in de tooltip. Dubbelklikken hernoemt de pagina: Enter bewaart, Esc
+  // breekt af, leeg zet haar terug op haar nummer.
+  const { t: tc } = useTranslation('common');
   const doc = () => state.documents[state.activeDocumentIndex];
-  const label = () => { doc()?.pageLabels; return pageLabelFor(doc(), props.pageNum); };
-  const named = () => { doc()?.pageLabels; return hasPageLabel(doc(), props.pageNum); };
-  const [renaming, setRenaming] = createSignal(false);
-  const commitRename = (value) => {
-    setRenaming(false);
+  const label = () => labelVan(doc()?.pageLabels, props.pageNum);
+  const benoemd = () => heeftEigenLabel(doc()?.pageLabels, props.pageNum);
+  const [hernoemen, setHernoemen] = createSignal(false);
+  let hernoemKlaar = false;
+  const rondHernoemenAf = (waarde) => {
+    if (hernoemKlaar) return;
+    hernoemKlaar = true;
+    setHernoemen(false);
     const d = doc();
-    if (!d) return;
-    const v = (value || '').trim();
-    if (v === label()) return;
-    setPageLabel(d, props.pageNum, v);
+    if (waarde == null || !d?.pdfDoc) return;
+    const nieuw = waarde.replace(/\s+/g, ' ').trim();
+    if ((nieuw || String(props.pageNum)) === label()) return;
+    zetPaginaLabel(d, props.pageNum, nieuw);
+  };
+  const startHernoemen = (e) => {
+    e.stopPropagation();
+    hernoemKlaar = false;
+    setHernoemen(true);
   };
 
   const handleClick = (e) => {
@@ -64,10 +87,11 @@ export default function ThumbnailItem(props) {
         selected: isSelected(),
         dragging: isDragging(),
         'drop-before': isDropBefore(),
-        'drop-after': isDropAfter()
+        'drop-after': isDropAfter(),
+        'drop-side': isDropNaast()
       }}
       data-page={props.pageNum}
-      draggable={true}
+      draggable={!hernoemen()}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDragStart={(e) => {
@@ -80,8 +104,8 @@ export default function ThumbnailItem(props) {
         e.dataTransfer.dropEffect = 'move';
         if (draggedPage() === props.pageNum) return;
         const rect = e.currentTarget.getBoundingClientRect();
-        const midY = rect.top + rect.height / 2;
-        setDropTarget({ page: props.pageNum, position: e.clientY < midY ? 'before' : 'after' });
+        const naast = meerdereKolommen(e.currentTarget);
+        setDropTarget({ page: props.pageNum, position: dropPositie(rect, e.clientX, e.clientY, naast), naast });
       }}
       onDragLeave={() => {
         if (dropTarget()?.page === props.pageNum) setDropTarget(null);
@@ -91,7 +115,8 @@ export default function ThumbnailItem(props) {
         setDropTarget(null);
         if (draggedPage() !== null && draggedPage() !== props.pageNum) {
           const rect = e.currentTarget.getBoundingClientRect();
-          const dropBefore = e.clientY < (rect.top + rect.height / 2);
+          const naast = meerdereKolommen(e.currentTarget);
+          const dropBefore = dropPositie(rect, e.clientX, e.clientY, naast) === 'before';
           props.onReorder(draggedPage(), props.pageNum, dropBefore);
         }
         setDraggedPage(null);
@@ -106,31 +131,35 @@ export default function ThumbnailItem(props) {
           <div class="thumbnail-spinner" />
         </div>
       }>
+        {/* Vult de kolombreedte (layout.css); gerenderd op die breedte maal
+            devicePixelRatio, dus scherp ook als het paneel breed is (#579). */}
         <img class="thumbnail-canvas" src={imageData().dataURL} />
       </Show>
-      <Show when={renaming()} fallback={
+      <Show when={hernoemen()} fallback={
         <div
           class="thumbnail-label"
-          classList={{ named: named() }}
-          title={named() ? `${props.pageNum}: ${label()}` : String(props.pageNum)}
-          onDblClick={(e) => { e.stopPropagation(); setRenaming(true); }}
-        >
-          <span class="thumbnail-label-text">{label()}</span>
-        </div>
+          classList={{ named: benoemd() }}
+          title={benoemd() ? `${tc('page')} ${props.pageNum}` : undefined}
+          onDblClick={startHernoemen}
+        >{label()}</div>
       }>
         <input
           class="thumbnail-label-input"
-          value={named() ? label() : ''}
+          type="text"
+          spellcheck={false}
+          value={benoemd() ? label() : ''}
           placeholder={String(props.pageNum)}
           ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
           onClick={(e) => e.stopPropagation()}
           onDblClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
+            // Niet naar de miniaturenlijst (Delete verwijdert daar pagina's).
             e.stopPropagation();
-            if (e.key === 'Enter') commitRename(e.currentTarget.value);
-            else if (e.key === 'Escape') setRenaming(false);
+            if (e.key === 'Enter') { e.preventDefault(); rondHernoemenAf(e.currentTarget.value); }
+            else if (e.key === 'Escape') { e.preventDefault(); rondHernoemenAf(null); }
           }}
-          onBlur={(e) => { if (renaming()) commitRename(e.currentTarget.value); }}
+          onBlur={(e) => rondHernoemenAf(e.currentTarget.value)}
         />
       </Show>
     </div>

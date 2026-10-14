@@ -141,6 +141,18 @@ function getAnnotationCenter(annotation) {
   }
 }
 
+// Waar een punt uit de lokale (ongedraaide) ruimte van de vorm op het scherm
+// staat: om het midden gedraaid, precies zoals getAnnotationHandles hieronder
+// de grepen draait. Zonder rotatie of zonder draaipunt (vormen die niet
+// meedraaien) komt het punt ongewijzigd terug. Het slepen van een greep
+// (greep-strek.js) rekent er snap en meetlijn mee vanaf de greep die je ziet.
+export function greepOpScherm(annotation, x, y) {
+  if (!annotation || !annotation.rotation) return { x, y };
+  const center = getAnnotationCenter(annotation);
+  if (!center) return { x, y };
+  return rotatePoint(x, y, center.x, center.y, annotation.rotation);
+}
+
 // Get handles for an annotation based on its type
 // scale parameter ensures handles stay the same screen size at any zoom level
 export function getAnnotationHandles(annotation, scale = 1) {
@@ -734,16 +746,42 @@ export function findHandleAt(x, y, annotation, scale = 1) {
   const bestHandle = kiesGreep(handles, x, y, hs, hitPad);
 
   if (!bestHandle) return null;
+  return _greepNaam(bestHandle);
+}
+
+// Naam van een greep zoals findHandleAt hem teruggeeft en het slepen hem
+// kent (state.activeHandle).
+function _greepNaam(handle) {
   // For polyline nodes, encode the index in the type string
-  if (bestHandle.type === HANDLE_TYPES.POLYLINE_NODE) {
-    return `${bestHandle.type}_${bestHandle.nodeIndex}`;
+  if (handle.type === HANDLE_TYPES.POLYLINE_NODE) {
+    return `${handle.type}_${handle.nodeIndex}`;
   }
   // For hole node handles (type = "polyline_node_hole_<holeIdx>"), append the nodeIndex
-  if (typeof bestHandle.type === 'string' && bestHandle.type.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_hole_')) {
-    return `${bestHandle.type}_${bestHandle.nodeIndex}`;
+  if (typeof handle.type === 'string' && handle.type.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_hole_')) {
+    return `${handle.type}_${handle.nodeIndex}`;
   }
   // Edge-midpoint handles already encode the index in the type string at build time
-  return bestHandle.type;
+  return handle.type;
+}
+
+/**
+ * Waar de greep met deze naam (zoals findHandleAt hem noemt) op de pagina
+ * staat: het midden van de greep zoals getAnnotationHandles hem tekent, met
+ * de draaiing van de vorm. Uit dezelfde geometrie als het tekenen, dus ook
+ * voor vormen die hun vak niet als x/width/height voeren: plugin-vormen met
+ * {x, y, w, h}, een tekst (basislijn en gemeten tekstbreedte) en een
+ * vrijehandlijn (omhullende van het pad). Het punt op de vorm zelf, los van
+ * de zoom en zonder het uitwijken van de grepen van een piepkleine vorm
+ * (greep-keuze.js). Null als de vorm zo'n greep niet heeft.
+ * Het slepen van een greep (greep-strek.js) rekent er snap en meetlijn mee.
+ */
+export function greepPunt(annotation, naam) {
+  if (!annotation || typeof naam !== 'string') return null;
+  // Oneindige schaal: de greepmaat en alle schermvaste afstanden worden 0 en
+  // spreidMaatgrepen doet niets, dus x/y is precies het greepmidden.
+  const greep = getAnnotationHandles(annotation, Infinity).find((g) => _greepNaam(g) === naam);
+  if (!greep || !Number.isFinite(greep.x) || !Number.isFinite(greep.y)) return null;
+  return { x: greep.x, y: greep.y };
 }
 
 // Cache for generated cursor SVG data URIs

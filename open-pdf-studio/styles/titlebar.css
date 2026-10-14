@@ -195,3 +195,9 @@
   background: #e81123;
   color: white;
 }
+
+/* Als gast staat feedback uit (#548): gedimd, geen hover-kleur. */
+.send-feedback-btn:disabled {
+  opacity: 0.5;
+  color: var(--theme-text-secondary, #666);
+}

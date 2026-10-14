@@ -1,5 +1,6 @@
 import fontkit from '@pdf-lib/fontkit';
 import { embedOcrFont, loadDefaultOcrFontBytes } from '../pdf/saver/ocr-text-layer.js';
+import { assetUrl } from '../core/basis-url.js';
 
 const latinFonts = {
   regular: 'LiberationSans-Regular.ttf',
@@ -12,7 +13,7 @@ const embeddedFonts = new WeakMap();
 
 async function liberationBytes(variant) {
   if (!fontBytes.has(variant)) {
-    fontBytes.set(variant, fetch(`/pdfjs/web/standard_fonts/${latinFonts[variant]}`)
+    fontBytes.set(variant, fetch(assetUrl(`pdfjs/web/standard_fonts/${latinFonts[variant]}`))
       .then(response => {
         if (!response.ok) throw new Error(`Could not load ${latinFonts[variant]}`);
         return response.arrayBuffer();

@@ -6,8 +6,9 @@ import Dialog from '../Dialog.jsx';
 import {
   fillColor, strokeColor, fmtLineWidth, opacity, borderStyle, blendMode,
   arrowStart, arrowEnd, isLocked, isSingleSymbolStamp,
-  STYLE_DEFS, applyToSelected, syncFormatStore
+  STYLE_DEFS, applyToSelected, syncFormatStore, setSymbolInsertOption
 } from '../../stores/formatStore.js';
+import { symbolInsertActive, symbolInsertSupports } from '../../../symbols/symbol-insert-format-store.js';
 import {
   getStylePresets, createStylePreset, deleteStylePreset, renameStylePreset,
   applyStylePresetById, copyStyleFromSelection, pasteStyleToSelection, copiedStyle,
@@ -36,9 +37,31 @@ const STYLE_GALLERY = [
   { name: 'indigo-cloudy', labelKey: 'format.styleIndigoCloudy', color: '#7b68ee', cloudy: true, bg: 'rgba(123,104,238,0.15)' },
 ];
 
+// Invoegmodus voor symbolen (#587): de werkbalk stelt dan de opmaak in voor
+// de volgende plaatsingen in plaats van de selectie te wijzigen. Opties die
+// geen enkel symbool kent (vulling, randstijl, pijlpunten) en acties op de
+// selectie zijn dan uitgeschakeld; een optie die alleen het HUIDIGE symbool
+// niet kent ook, maar de gekozen waarde blijft staan voor het volgende.
+const invoegen = () => symbolInsertActive();
+const nietVoorSymbool = (key) => invoegen() && !symbolInsertSupports(key);
+
+function zetOpmaak(patch, applyFn) {
+  if (invoegen()) {
+    setSymbolInsertOption(patch);
+    return;
+  }
+  applyToSelected(applyFn);
+  syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+}
+
 function applyStyle(styleName) {
   const style = STYLE_DEFS[styleName];
   if (!style) return;
+  if (invoegen()) {
+    // Van een stijl telt bij een symbool alleen de lijnkleur.
+    if (style.strokeColor) setSymbolInsertOption({ strokeColor: style.strokeColor });
+    return;
+  }
   applyToSelected(ann => {
     if (style.strokeColor) { ann.strokeColor = style.strokeColor; ann.color = style.color; }
     ann.fillColor = style.fillColor || null;
@@ -98,7 +121,7 @@ export default function FormatTab() {
   return (
     <div class="ribbon-content active" id="tab-format">
       <AdaptiveGroups>
-        <Show when={isSingleSymbolStamp()}>
+        <Show when={isSingleSymbolStamp() && !invoegen()}>
           <RibbonGroup label={t('format.symbolTypeGroup')}>
             <div class="ribbon-grid-col">
               <button class="ribbon-row-btn" id="fmt-edit-type" title={t('format.editTypeHint')}
@@ -120,6 +143,7 @@ export default function FormatTab() {
                 {(item) => (
                   <div
                     class="ribbon-style-item"
+                    classList={{ disabled: nietVoorSymbool('strokeColor') }}
                     data-style={item.name}
                     title={t(item.labelKey)}
                     onClick={() => applyStyle(item.name)}
@@ -150,6 +174,7 @@ export default function FormatTab() {
                   {(item) => (
                     <div
                       class="ribbon-style-item"
+                      classList={{ disabled: nietVoorSymbool('strokeColor') }}
                       title={t(item.labelKey)}
                       onClick={() => { applyStyle(item.name); setMoreOpen(false); }}
                     >
@@ -168,7 +193,7 @@ export default function FormatTab() {
                   )}
                 </For>
               </div>
-              <Show when={presets().length > 0}>
+              <Show when={presets().length > 0 && !invoegen()}>
                 <div class="ribbon-menu-sep"></div>
                 <div class="ribbon-style-more-presets">
                   <For each={presets()}>
@@ -195,6 +220,7 @@ export default function FormatTab() {
               dropdownId="fmt-fill-dropdown"
               paletteId="fmt-fill-palette"
               showNoneButton={true}
+              disabled={invoegen()}
               currentColor={fillColor()}
               onColorSelect={(color) => {
                 applyToSelected(ann => { ann.fillColor = color; });
@@ -217,14 +243,13 @@ export default function FormatTab() {
               dropdownId="fmt-stroke-dropdown"
               paletteId="fmt-stroke-palette"
               showNoneButton={false}
+              disabled={nietVoorSymbool('strokeColor')}
               currentColor={strokeColor()}
               onColorSelect={(color) => {
-                applyToSelected(ann => { ann.strokeColor = color; ann.color = color; });
-                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                zetOpmaak({ strokeColor: color }, ann => { ann.strokeColor = color; ann.color = color; });
               }}
               onCustom={(color) => {
-                applyToSelected(ann => { ann.strokeColor = color; ann.color = color; });
-                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                zetOpmaak({ strokeColor: color }, ann => { ann.strokeColor = color; ann.color = color; });
               }}
             />
           </div>
@@ -237,17 +262,18 @@ export default function FormatTab() {
               <input type="number" class="ribbon-form-number" id="fmt-line-width" title={t('format.lineWidth')}
                 min="0.1" max="50" step="0.1"
                 value={fmtLineWidth()}
+                disabled={nietVoorSymbool('lineWidth')}
                 onInput={(e) => {
                   const v = parseFloat(e.currentTarget.value);
                   if (!Number.isFinite(v) || v <= 0) return;
-                  applyToSelected(ann => { zetRanddikte(ann, v); });
-                  syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                  zetOpmaak({ lineWidth: v }, ann => { zetRanddikte(ann, v); });
                 }} />
             </div>
             <div class="ribbon-form-row">
               <label>{t('format.borderLabel')}</label>
               <select class="ribbon-form-select" id="fmt-border-style" title={t('format.borderStyle')}
                 value={borderStyle()}
+                disabled={invoegen()}
                 onChange={(e) => {
                   applyToSelected(ann => { ann.borderStyle = e.target.value; });
                   syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
@@ -261,9 +287,10 @@ export default function FormatTab() {
               <label>{t('format.blendLabel')}</label>
               <select class="ribbon-form-select" id="fmt-blend-mode" title={t('format.blendMode')}
                 value={blendMode()}
+                disabled={nietVoorSymbool('blendMode')}
                 onChange={(e) => {
-                  applyToSelected(ann => { ann.blendMode = e.target.value; });
-                  syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                  const mode = e.target.value;
+                  zetOpmaak({ blendMode: mode }, ann => { ann.blendMode = mode; });
                 }}>
                 <option value="normal">{t('format.normal')}</option>
                 <option value="multiply">{t('format.multiply')}</option>
@@ -275,18 +302,19 @@ export default function FormatTab() {
             <input type="range" class="ribbon-slider" id="fmt-opacity" title={t('format.opacity')}
               min="0" max="100" step="1"
               value={opacity()}
+              disabled={nietVoorSymbool('opacity')}
               onInput={(e) => {
-                applyToSelected(ann => { ann.opacity = parseInt(e.currentTarget.value, 10) / 100; });
-                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                const v = parseInt(e.currentTarget.value, 10) / 100;
+                zetOpmaak({ opacity: v }, ann => { ann.opacity = v; });
               }} />
             <input type="number" class="ribbon-slider-number" title={t('format.opacity')}
               min="0" max="100" step="1"
               value={opacity()}
+              disabled={nietVoorSymbool('opacity')}
               onInput={(e) => {
                 const v = parseInt(e.currentTarget.value, 10);
                 if (!Number.isFinite(v) || v < 0 || v > 100) return;
-                applyToSelected(ann => { ann.opacity = v / 100; });
-                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+                zetOpmaak({ opacity: v / 100 }, ann => { ann.opacity = v / 100; });
               }} />
             <span class="ribbon-slider-unit">%</span>
           </div>
@@ -298,6 +326,7 @@ export default function FormatTab() {
               <label>{t('format.startLabel')}</label>
               <select class="ribbon-form-select" id="fmt-arrow-start" title={t('format.startArrow')}
                 value={arrowStart()}
+                disabled={invoegen()}
                 onChange={(e) => {
                   applyToSelected(ann => { if (ann.type === 'arrow') ann.startHead = e.target.value; });
                   syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
@@ -316,6 +345,7 @@ export default function FormatTab() {
               <label>{t('format.endLabel')}</label>
               <select class="ribbon-form-select" id="fmt-arrow-end" title={t('format.endArrow')}
                 value={arrowEnd()}
+                disabled={invoegen()}
                 onChange={(e) => {
                   applyToSelected(ann => { if (ann.type === 'arrow') ann.endHead = e.target.value; });
                   syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
@@ -337,6 +367,7 @@ export default function FormatTab() {
           <div class="ribbon-grid-col">
             <div class="ribbon-menu-wrapper" ref={toolsRef}>
               <button class="ribbon-row-btn ribbon-dropdown-btn" id="fmt-style-tools" title={t('format.styleTools')}
+                disabled={invoegen()}
                 onClick={() => setToolsOpen(!toolsOpen())}>
                 <span ref={el => { el.innerHTML = styleToolsIcon; }} />
                 <span>{t('format.styleTools')}</span>
@@ -374,6 +405,7 @@ export default function FormatTab() {
               </div>
             </div>
             <button class="ribbon-row-btn" id="fmt-reset-location" title={t('format.resetLocation')}
+              disabled={invoegen()}
               onClick={() => {
                 applyToSelected(ann => {
                   ann.rotation = 0;
@@ -406,6 +438,7 @@ export default function FormatTab() {
         <RibbonGroup label={t('format.propertiesGroup')}>
           <div class="ribbon-grid-col">
             <button class="ribbon-row-btn" id="fmt-open" title={t('format.openProperties')}
+              disabled={invoegen()}
               onClick={() => {
                 setPanelVisible(true);
                 const _fmtSel = getActiveDocument()?.selectedAnnotations || [];
@@ -419,6 +452,7 @@ export default function FormatTab() {
               <span>{t('format.openLabel')}</span>
             </button>
             <button class="ribbon-row-btn" id="fmt-hide" title={t('format.hideAnnotation')}
+              disabled={invoegen()}
               onClick={() => {
                 applyToSelected(ann => { ann.hidden = !ann.hidden; });
               }}>
@@ -429,7 +463,7 @@ export default function FormatTab() {
           <div class="ribbon-grid-col" style={{ 'justify-content': 'center' }}>
             <div class="ribbon-form-row">
               <label>{t('format.layerLabel')}</label>
-              <select class="ribbon-form-select" id="fmt-layer" title={t('format.layer')}>
+              <select class="ribbon-form-select" id="fmt-layer" title={t('format.layer')} disabled={invoegen()}>
                 <option value="none">{tc('none')}</option>
               </select>
             </div>

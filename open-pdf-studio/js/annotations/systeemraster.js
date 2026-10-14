@@ -75,11 +75,30 @@ export const SYSTEEM_PAS_OFFSET_MM = 80;
 export const SYSTEEM_RAVEEL_OFFSET_MM = 40;
 export const SYSTEEM_RAVEEL_STREEP_MM = 200;
 
-/** Default-sparingsregels (worden normaal door het systeemtype geleverd). */
+/** Default-sparingsregels: alleen voor legacy-instances ZONDER systeemtype.
+ *  Bij een type komen de regels uit het type (zie sparingRegelsVoorType). */
 export const SYSTEEM_SPARING_REGELS_DEFAULT = {
   kleineSparingMaxMm: 400,
   raveelVanafMm: 800,
 };
+
+/** Label dat een systeem met een onbevestigde maat toont in plaats van de
+ *  plaatmaat (#567). ASCII, zodat de PDF-appearance het ook kan zetten. */
+export const SYSTEEM_ONBEVESTIGD_LABEL = 'maat onbevestigd';
+
+const _geldigeMaat = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+
+/**
+ * Sparingsregels voor de geometrie: zonder type de standaardregels (legacy),
+ * met een type de regels van het type — of null als niet beide drempels
+ * bevestigd zijn. Null betekent: elke sparing is een gewoon gat, zonder
+ * verzwaarde rand of raveel (zie sparingRegime).
+ */
+export function sparingRegelsVoorType(typeDef) {
+  if (!typeDef) return SYSTEEM_SPARING_REGELS_DEFAULT;
+  const r = typeDef.sparingRegels;
+  return r && _geldigeMaat(r.kleineSparingMaxMm) && _geldigeMaat(r.raveelVanafMm) ? r : null;
+}
 
 // ── sparingen ──────────────────────────────────────────────────────────────
 // Een SPARING is instantie-data: een rechthoekig gat in het systeem.
@@ -136,8 +155,11 @@ export function updateSparing(ann, id, patch) {
  * raveelVanafMm — alléén zinvol in de strook-layout; bij raster degradeert
  * de aanroeper naar 'verzwaard'), anders 'verzwaard' (gat met verzwaarde
  * randlijn). Grenswaarden horen bij de buitenste regimes (≤ resp. ≥).
+ * `regels` null = onbevestigd (type zonder volledige sparingsregels): altijd
+ * 'klein'; undefined = de standaardregels (legacy zonder type).
  */
 export function sparingRegime(bMm, hMm, regels, layout) {
+  if (regels === null) return 'klein';
   const r = regels || SYSTEEM_SPARING_REGELS_DEFAULT;
   const maat = Math.max(Number(bMm) || 0, Number(hMm) || 0);
   if (maat <= r.kleineSparingMaxMm) return 'klein';
@@ -845,9 +867,26 @@ export function buildSysteemraster(ann, opts = {}) {
   // (instance) draagt alleen contour, oorsprong, rasterhoek en overrides.
   // Zonder typeDef (legacy raster) gelden de vlakke instance-velden.
   const typeDef = opts.typeDef || null;
+  // LAYOUT-VORM (data op het type): 'raster' = cellen in twee richtingen;
+  // 'strook' = stroken van strookBreedteMm die in de raster-Y-richting (de
+  // overspanning, gedraaid door de rasterhoek) over de volle lengte lopen —
+  // alleen langsnaden, geen dwarsnaden.
+  const layout = typeDef && typeDef.layout === 'strook' ? 'strook' : 'raster';
+  // ONBEVESTIGDE MATEN (#567): mist het type een vereiste maat (raster:
+  // celXMm + celYMm; strook: strookBreedteMm + celYMm), dan komt er GEEN
+  // standaardmaat: geen cellen, stroken of panelen, alleen de contour met
+  // het label "maat onbevestigd". De terugval op 2000 geldt alleen nog voor
+  // legacy-instances zonder type.
+  const breedteVeld = layout === 'strook' ? 'strookBreedteMm' : 'celXMm';
+  const onbevestigd = typeDef
+    ? [breedteVeld, 'celYMm'].filter(veld => !_geldigeMaat(typeDef[veld]))
+    : [];
+  const bevestigd = onbevestigd.length === 0;
   const params = resolveSysteemrasterParams(typeDef
-    ? { ...ann, plaatBreedteMm: typeDef.celXMm, plaatHoogteMm: typeDef.celYMm }
+    ? { ...ann, plaatBreedteMm: typeDef[breedteVeld], plaatHoogteMm: typeDef.celYMm }
     : ann);
+  if (onbevestigd.includes(breedteVeld)) params.plaatBreedteMm = null;
+  if (onbevestigd.includes('celYMm')) params.plaatHoogteMm = null;
   const nodes = systeemrasterContour(ann);
   if (!nodes) return null;
   // Alle veld-geometrie (AABB, clipping, panelen) rekent op de VLAKKE
@@ -867,20 +906,16 @@ export function buildSysteemraster(ann, opts = {}) {
   });
   const contourR = rot ? contour.map(p => rotToRaster(rot, p)) : contour;
   const box = _aabb(contourR);
-  // LAYOUT-VORM (data op het type): 'raster' = cellen in twee richtingen;
-  // 'strook' = stroken van strookBreedteMm die in de raster-Y-richting (de
-  // overspanning, gedraaid door de rasterhoek) over de volle lengte lopen —
-  // alleen langsnaden, geen dwarsnaden.
-  const layout = typeDef && typeDef.layout === 'strook' ? 'strook' : 'raster';
-  const cellW = (layout === 'strook' && typeDef
-    ? typeDef.strookBreedteMm : params.plaatBreedteMm) * k;
-  const cellH = params.plaatHoogteMm * k;
+  // Onbevestigd: celmaat 0 — de lussen hieronder leveren dan niets op.
+  const cellW = bevestigd ? (layout === 'strook' && typeDef
+    ? typeDef.strookBreedteMm : params.plaatBreedteMm) * k : 0;
+  const cellH = bevestigd ? params.plaatHoogteMm * k : 0;
   const minPx = params.minRandMm * k;
 
   // SPARINGEN (instantie-data, rasterruimte): positie in mm t.o.v. de
-  // raster-AABB-min; regime volgens de sparingsregels van het type.
-  const sparingRegels = (typeDef && typeDef.sparingRegels)
-    || SYSTEEM_SPARING_REGELS_DEFAULT;
+  // raster-AABB-min; regime volgens de sparingsregels van het type (null =
+  // onbevestigd: elke sparing een gewoon gat).
+  const sparingRegels = sparingRegelsVoorType(typeDef);
   const sparingen = systeemSparingen(ann).map((s, i) => ({
     ...s,
     index: i,
@@ -924,8 +959,9 @@ export function buildSysteemraster(ann, opts = {}) {
   // leveren via de clip vanzelf niets of alleen echte binnen-segmenten op.
   // In RASTERRUIMTE (contourR): bij hoek 0 is dat identiek aan de wereld.
   // Sparingen knippen gaten in de lijnen (naden stoppen op de sparingsrand).
+  // Onbevestigde maat: geen rasterlijnen (er is geen celmaat).
   const linesV = [];
-  for (let x = box.x + offX; x < box.x + box.width + EDGE_EPS; x += cellW) {
+  for (let x = box.x + offX; bevestigd && x < box.x + box.width + EDGE_EPS; x += cellW) {
     const segs = knipSparingenV(x, clipVerticalLine(contourR, x));
     if (segs.length > 0) linesV.push({ x, segs });
     if (!(cellW > EDGE_EPS)) break;
@@ -933,7 +969,7 @@ export function buildSysteemraster(ann, opts = {}) {
   // Dwarslijnen alleen in de raster-layout; een strook loopt over de volle
   // overspanning (geen dwarsnaden).
   const linesH = [];
-  if (layout === 'raster') {
+  if (layout === 'raster' && bevestigd) {
     for (let y = box.y + offY; y < box.y + box.height + EDGE_EPS; y += cellH) {
       const segs = knipSparingenH(y, clipHorizontalLine(contourR, y));
       if (segs.length > 0) linesH.push({ y, segs });
@@ -987,7 +1023,7 @@ export function buildSysteemraster(ann, opts = {}) {
   // de sparing, haaks op de overspanningsrichting, doorlopend tot de
   // eerstvolgende strooknaad aan weerszijden.
   const raveels = [];
-  if (layout === 'strook') {
+  if (layout === 'strook' && bevestigd) {
     const naden = linesV.map(l => l.x);
     for (const sp of sparingen) {
       if (sp.regime !== 'raveel') continue;
@@ -1002,8 +1038,9 @@ export function buildSysteemraster(ann, opts = {}) {
   }
 
   // Randstukken per zijde (mm; 0 = geen randstuk / volle plaat op de rand).
-  const ex = _edges(box.width, cellW, offX);
-  const ey = _edges(box.height, cellH, offY);
+  // Onbevestigd: er is geen indeling, dus ook geen randstukken.
+  const ex = bevestigd ? _edges(box.width, cellW, offX) : { left: 0, right: 0 };
+  const ey = bevestigd ? _edges(box.height, cellH, offY) : { left: 0, right: 0 };
   const randMm = {
     links: ex.left / k,
     rechts: ex.right / k,
@@ -1026,17 +1063,19 @@ export function buildSysteemraster(ann, opts = {}) {
   // Hoekgrip: op de (gedraaide) raster-x-as, ruim voorbij de origin-grip —
   // slepen zet de rasterhoek (zie transforms.js).
   const hoekGrip = rotToWorld(rot, {
-    x: originGripR.x + Math.min(cellW * 1.5, box.width),
+    x: originGripR.x + (bevestigd ? Math.min(cellW * 1.5, box.width) : box.width / 4),
     y: originGripR.y,
   });
 
   // Tag: plaatmaat "B×H" naast de oorsprong (inline bewerkbaar bij
   // selectie) — horizontaal in wereldruimte, verankerd aan de gedraaide
-  // oorsprong.
+  // oorsprong. Bij een onbevestigde maat staat er altijd het label
+  // "maat onbevestigd" (ook met de tag uit): de tekening mag geen maat
+  // suggereren die niet bevestigd is.
   let tag = null;
-  if (params.tagTonen) {
+  if (params.tagTonen || !bevestigd) {
     const measure = typeof opts.measureText === 'function' ? opts.measureText : approxTextWidth;
-    const text = systeemrasterTagTekst(params);
+    const text = bevestigd ? systeemrasterTagTekst(params) : SYSTEEM_ONBEVESTIGD_LABEL;
     tag = {
       text,
       x: originWorld.x + params.tagFontSize * 0.5,
@@ -1122,6 +1161,8 @@ export function buildSysteemraster(ann, opts = {}) {
     params,
     systeem,
     typeDef,
+    // Vereiste maten die het type mist (leeg = alles bevestigd of geen type).
+    onbevestigd,
     pxPerMm: k,
     nodes,
     contour,
@@ -1155,6 +1196,18 @@ export function buildSysteemraster(ann, opts = {}) {
     tag,
     aabb,
   };
+}
+
+/**
+ * Randstukken voor het eigenschappenpaneel (#567). Mist het type een vereiste
+ * maat, dan is er geen indeling en dus geen randstuk: geen randmaten (die
+ * zouden als "volle plaat" lezen), wel de onbevestigde velden. Puur.
+ * @returns {{onbevestigd:string[], randMm:object|null}|null}
+ */
+export function randstukkenVoorPaneel(geom) {
+  if (!geom) return null;
+  const onbevestigd = Array.isArray(geom.onbevestigd) ? geom.onbevestigd.slice() : [];
+  return { onbevestigd, randMm: onbevestigd.length > 0 ? null : geom.randMm };
 }
 
 // ── persistentie-helpers (model ⇄ OPS-sleutels) ────────────────────────────

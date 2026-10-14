@@ -1,6 +1,6 @@
 # Open PDF Studio — MCP for Claude Desktop / Claude Code
 
-Open PDF Studio ships a **full MCP server inside the app** (62 public tools: open /
+Open PDF Studio ships a **full MCP server inside the app** (75 public tools: open /
 zoom / annotate / save PDFs, drive the assistant, call the OpenAEC AI, inspect
 viewport state, …). It is implemented in Rust (`src-tauri/src/mcp_server.rs`)
 and speaks **HTTP JSON-RPC** on `127.0.0.1:9223/mcp`.
@@ -49,7 +49,7 @@ and `[mcp-bridge] WebView ready, listening for: [...]`.
 
 ```bash
 node mcp-stdio/server.mjs --probe
-# → [open-pdf-studio mcp bridge] OK — 62 tools available at http://127.0.0.1:9223/mcp
+# → [open-pdf-studio mcp bridge] OK — 75 tools available at http://127.0.0.1:9223/mcp
 ```
 
 If you used a non-default port, set it first: `OPS_MCP_PORT=9300 node mcp-stdio/server.mjs --probe`.
@@ -98,6 +98,16 @@ The reason this exists — drive Open PDF Studio's assistant from Claude:
   `app_assistant_answer { id, text }` to make it appear in the window. This is
   how *Claude itself becomes the assistant's brain*.
 - **`app_assistant_history`** — read back the conversation to confirm a reply.
+- **`app_agent_task_pending`** → **`app_agent_task_result`** — structured tasks
+  from extensions, without the assistant window or a chat message. An
+  extension submits a task (for example recognising the floor plan on one
+  page) with the context fields it chooses to share and a `resultSchema`.
+  Take the oldest task with `app_agent_task_pending` (optionally `{ kind }`),
+  then answer `app_agent_task_result { id, result }` with an object that
+  matches the schema, or `{ id, error: { message } }`. The result goes only to
+  the extension that asked, as a proposal: nothing is drawn until it applies
+  it. A task is cancelled when the user switches or closes the document or
+  when its source, page or scale changes.
 - **`app_ai_complete`** — call the OpenAEC AI directly (needs the app signed in
   to OpenAEC; returns `{ ok, signedInAs, text, credits }`).
 - **`app_accounts_status`** / **`app_accounts_fetch`** — check sign-in and call
@@ -105,10 +115,24 @@ The reason this exists — drive Open PDF Studio's assistant from Claude:
 
 A few of the many PDF tools: `app_open_pdf`, `app_new_blank_pdf`,
 `app_go_to_page`, `app_set_zoom` / `app_fit_width`, `app_create_annotation`,
-`app_list_annotations`, `app_get_page_text`, `app_replace_text`, `app_save_pdf`,
+`app_list_annotations`, `app_get_page_text`, `app_replace_text`,
+`app_translate_page`, `app_save_pdf`,
 `app_screenshot_view`. The full,
 authoritative list is in `src-tauri/src/mcp_server.rs` (`handle_tools_list`)
 and documented in `docs/superpowers/specs/2026-05-09-mcp-app-tools.md`.
+
+`app_screenshot_view` captures the page view by default. Pass
+`{"scope":"window"}` for the whole window (ribbon, extension tabs, side
+panels, status bar) or `{"scope":"element","selector":".ribbon-container"}`
+for one element; the result adds the captured `bounds` (CSS px) and
+`devicePixelRatio`. The window and element captures are Windows-only for now.
+
+`app_list_commands` lists every ribbon tab as `ribbon-tab:<tab>` (extension
+tabs included) and the buttons of extension tabs with the extension tab id in
+`tab`; `app_run_command` runs them. To check what a click did, `app_read_ui`
+returns a compact accessibility-style tree (role, name, state such as
+disabled, checked, selected, expanded and value) of the ribbon, the side
+panels and the status bar, or of the elements a `selector` matches.
 
 ## Edit or translate existing page text
 
@@ -133,8 +157,19 @@ over page artwork for MCP replacements. A returned `rasterBackgroundOverlap`
 warning means that an overlapping background image may already contain the
 same words as pixels; those pixels cannot be edited as PDF text. Colour may
 also be `null` for some PDFs; then supply an explicit `#RRGGBB` `color` to
-`app_replace_text`. This API edits one line per call; translate long pages by
-mapping each returned span and reviewing the saved pages. A scanned page with
+`app_replace_text`. That tool edits one line per call. To translate a whole
+page, send all spans of that page in one `app_translate_page` call:
+
+```json
+{"page":1,"replacements":[
+  {"spanId":"42:p1:i0-3","expectedText":"Welcome","newText":"Welkom"},
+  {"spanId":"42:p1:i4-9","expectedText":"Opening hours","newText":"Openingstijden"}]}
+```
+
+It applies the same rules, checks all replacements together on one copy of
+the PDF and adds them as one undo step. It is all or nothing: when one
+replacement fails, nothing changes and `results` gives the error per span.
+Review the saved pages afterwards. A scanned page with
 no selectable text must first go through OCR; pixels in the scan are not
 editable text spans.
 

@@ -1,15 +1,15 @@
+import { leesOpslagJson, schrijfOpslagJson } from '../core/opslag.js';
+
 const STORAGE_KEY = 'savedPlaces';
 
 /**
- * Get all saved places from localStorage.
+ * Get all saved places from browser storage (core/opslag.js).
  * @returns {Array<{name: string, path: string, timestamp: number}>}
  */
 export function getSavedPlaces() {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      return JSON.parse(data);
-    }
+    const data = leesOpslagJson(STORAGE_KEY);
+    if (Array.isArray(data)) return data;
   } catch (e) {
     console.warn('Failed to read saved places:', e);
   }
@@ -37,7 +37,7 @@ export function addPlace(folderPath, name) {
       timestamp: Date.now()
     });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(places));
+    schrijfOpslagJson(STORAGE_KEY, places);
   } catch (e) {
     console.warn('Failed to add place:', e);
   }
@@ -51,7 +51,7 @@ export function removePlace(folderPath) {
   try {
     let places = getSavedPlaces();
     places = places.filter(p => p.path !== folderPath);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(places));
+    schrijfOpslagJson(STORAGE_KEY, places);
   } catch (e) {
     console.warn('Failed to remove place:', e);
   }

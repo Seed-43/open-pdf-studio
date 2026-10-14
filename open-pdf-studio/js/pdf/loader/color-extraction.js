@@ -676,6 +676,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (sgTypeId) colors.sgTypeId = sgTypeId;
         const sgTypeDef = srStr('OPS_SgTypeDef');
         if (sgTypeDef) colors.sgTypeDefJson = sgTypeDef;
+        // Koppelingen van extensies (#574): JSON per extensie-id.
+        const sgLinks = srStr('OPS_SgExtLinks');
+        if (sgLinks) colors.sgExtLinksJson = sgLinks;
         // Legacy (eerste vorm): hartlijn-polyline [x1,y1,...] — de converter
         // splitst meerpunts-exemplaren in losse tweepunts-balken.
         const bbHart = srArr('OPS_Hartlijn');

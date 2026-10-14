@@ -23,6 +23,7 @@ import { maatTekstMarge, leesbareHoek } from '../../annotations/maat-label.js';
 import { maatlijnGeometrie } from '../../annotations/maatlijn-geometrie.js';
 import { inlineMaatlijn, helveticaBreedte, HOOFDLETTER_HOOGTE } from '../../annotations/maatlijn-inline.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../../annotations/minimummaat.js';
+import { vlakZijden, zijdeLabel, zijdeTekstBreedte, ZIJDE_TEKST_GROOTTE } from '../../annotations/vlak-zijden.js';
 import {
   rotToWorld as srRotToWorld,
   SYSTEEM_RAVEEL_OFFSET_MM as srRaveelOffsetMm,
@@ -332,14 +333,40 @@ export function buildFilledAreaAP({ points, holes, X, Y, fillColorHex, strokeCol
   return { content: s, needsFont: false };
 }
 
-// measureArea: fill + optional hatch + outline + centroid label.
+// Zijdematen van een meetvlak (#536): elke tekst midden op haar zijde, langs
+// de zijde, rechtop en aan de buitenkant — dezelfde plaats als op het scherm
+// (vlak-zijden.js). `zijdeTeksten` is een lijst { index, tekst }; `draaiing`
+// de paginarotatie (radialen), want de punten staan hier in het ongedraaide
+// paginaframe.
+function zijdematenOps({ points, zijdeTeksten, draaiing, colorRgb, X, Y }) {
+  const tekstVan = new Map(zijdeTeksten.map((z) => [z.index, z.tekst]));
+  const fs = ZIJDE_TEKST_GROOTTE;
+  let s = '';
+  for (const zijde of vlakZijden(points)) {
+    const tekst = tekstVan.get(zijde.index);
+    if (!tekst) continue;
+    const l = zijdeLabel(zijde, { fontSize: fs, draaiing });
+    const half = zijdeTekstBreedte(toWinAnsiText(tekst, { newlines: 'space' }), fs) / 2;
+    const bx = l.x - l.richting.x * half;
+    const by = l.y - l.richting.y * half;
+    // App-hoek is y-omlaag, PDF y-omhoog: hoek spiegelen (zoals maatLabelOps).
+    const c = Math.cos(-l.hoek), sn = Math.sin(-l.hoek);
+    s += `BT\n/Helv ${f(fs)} Tf\n${f(colorRgb[0])} ${f(colorRgb[1])} ${f(colorRgb[2])} rg\n`;
+    s += `${f(c)} ${f(sn)} ${f(-sn)} ${f(c)} ${f(X(bx))} ${f(Y(by))} Tm\n`;
+    s += `(${escapePdfText(tekst)}) Tj\nET\n`;
+  }
+  return s;
+}
+
+// measureArea: fill + optional hatch + outline + centroid label, en de
+// zijdematen als `zijdeTeksten` gegeven is (#536).
 // `fillAlpha` (annotation fillOpacity, PDF /ca) applies to the solid fill only,
 // wrapped in q…Q with /GSf so hatch, outline and label stay opaque — the same
 // split as on screen. The result then carries `fillAlpha`, which makes the
 // caller (attachVectorAP) add the /GSf ExtGState to the resources.
 export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeColorHex,
   lineWidth, borderStyle, hatchPattern, hatchColorHex, hatchScale, hatchAngle,
-  text, labelX, labelY, fillAlpha, heeftRand = true }) {
+  text, labelX, labelY, fillAlpha, heeftRand = true, zijdeTeksten, draaiing = 0 }) {
   if (!points || points.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#ff0000');
   const alpha = (typeof fillAlpha === 'number' && fillAlpha >= 0 && fillAlpha < 1) ? fillAlpha : undefined;
@@ -365,6 +392,9 @@ export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeCo
   cx /= points.length; cy /= points.length;
   s += labelOps({ text, x: labelX != null ? labelX : cx, y: labelY != null ? labelY : cy,
     fontSize: 11, colorRgb: stroke, X, Y });
+  if (Array.isArray(zijdeTeksten) && zijdeTeksten.length > 0) {
+    s += zijdematenOps({ points, zijdeTeksten, draaiing, colorRgb: stroke, X, Y });
+  }
   return filledWithAlpha
     ? { content: s, needsFont: true, fillAlpha: alpha }
     : { content: s, needsFont: true };

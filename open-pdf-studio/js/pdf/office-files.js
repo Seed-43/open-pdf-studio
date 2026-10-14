@@ -118,3 +118,92 @@ export function buildOdt(pages, { title = 'Document', pageLabel = 'Page' } = {})
   entries.push(part('META-INF/manifest.xml', `${XML}<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3"><manifest:file-entry manifest:full-path="/" manifest:media-type="${mime}" manifest:version="1.3"/>${entries.filter(e => e.name !== 'mimetype').map(e => `<manifest:file-entry manifest:full-path="${e.name}" manifest:media-type="${e.name.endsWith('.png') ? 'image/png' : 'text/xml'}"/>`).join('')}</manifest:manifest>`));
   return zipStore(entries);
 }
+
+// DOCX (Office Open XML, WordprocessingML) uit dezelfde blokken als de ODT:
+// per pagina een kop, alinea's, tabellen en optioneel het paginabeeld. Een
+// klein, geldig pakket — geen getrouwe opmaak, wel bewerkbare tekst en tabellen.
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const DOCX_NS = `xmlns:w="${W}" xmlns:r="${REL}" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"`;
+// A4 met 2 cm marge, in twintigsten van een punt (twips).
+const DOCX_PAGE = { width: 11906, height: 16838, margin: 1134 };
+const DOCX_TEXT_WIDTH = DOCX_PAGE.width - 2 * DOCX_PAGE.margin;
+const EMU_PER_CM = 360000;
+const DOCX_BORDER = side => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="BAC6CE"/>`;
+const DOCX_STYLES = `${XML}<w:styles xmlns:w="${W}">`
+  + '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:rPrDefault>'
+  + '<w:pPrDefault><w:pPr><w:spacing w:after="68" w:line="288" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'
+  + '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>'
+  + '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/>'
+  + '<w:pPr><w:keepNext/><w:spacing w:after="170"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:color w:val="244766"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr></w:style>'
+  + '<w:style w:type="paragraph" w:styleId="TableText"><w:name w:val="Table Text"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="0"/></w:pPr></w:style>'
+  + '<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/>'
+  + '<w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>'
+  + '<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:basedOn w:val="TableNormal"/><w:tblPr>'
+  + `<w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(DOCX_BORDER).join('')}</w:tblBorders>`
+  + '<w:tblCellMar><w:top w:w="68" w:type="dxa"/><w:left w:w="68" w:type="dxa"/><w:bottom w:w="68" w:type="dxa"/><w:right w:w="68" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>'
+  + '</w:styles>';
+
+// Tekst als één run: tabs en regeleinden worden eigen elementen, spaties blijven staan.
+function docxRun(value, { bold = false } = {}) {
+  const inner = String(value ?? '').split(/(\t|\r?\n)/).map(stuk => stuk === '\t' ? '<w:tab/>'
+    : /^\r?\n$/.test(stuk) ? '<w:br/>'
+    : stuk ? `<w:t xml:space="preserve">${xml(stuk)}</w:t>` : '').join('');
+  return inner ? `<w:r>${bold ? '<w:rPr><w:b/></w:rPr>' : ''}${inner}</w:r>` : '';
+}
+const docxParagraph = (text, style = 'Normal', extra = '') =>
+  `<w:p><w:pPr><w:pStyle w:val="${style}"/>${extra}</w:pPr>${docxRun(text)}</w:p>`;
+
+function docxTable(rows) {
+  const columns = rows.reduce((max, row) => Math.max(max, row.length), 1);
+  // Zelfde kolomverdeling als de ODT: omschrijvingen krijgen meer ruimte.
+  const weights = Array.from({ length: columns }, (_, i) => Math.sqrt(2 + Math.min(80,
+    rows.reduce((max, row) => Math.max(max, String(row[i] ?? '').length), 0))));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const widths = weights.map(weight => Math.max(1, Math.round(DOCX_TEXT_WIDTH * weight / totalWeight)));
+  const header = hasHeaderRow(rows, ',') && hasHeaderRow(rows, '.');
+  const rowXml = (row, isHeader) => `<w:tr>${isHeader ? '<w:trPr><w:tblHeader/></w:trPr>' : ''}${widths.map((width, i) =>
+    `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:pStyle w:val="TableText"/></w:pPr>${docxRun(row[i] ?? '', { bold: isHeader })}</w:p></w:tc>`).join('')}</w:tr>`;
+  // Een lege alinea erna: twee tabellen achter elkaar smelten anders samen.
+  return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="${DOCX_TEXT_WIDTH}" w:type="dxa"/><w:tblLayout w:type="fixed"/></w:tblPr>`
+    + `<w:tblGrid>${widths.map(width => `<w:gridCol w:w="${width}"/>`).join('')}</w:tblGrid>`
+    + `${rows.map((row, r) => rowXml(row, header && r === 0)).join('')}</w:tbl><w:p/>`;
+}
+
+function docxImage(id, page) {
+  const scale = Math.min(16 / page.width, 23 / page.height);
+  const cx = Math.round(page.width * scale * EMU_PER_CM), cy = Math.round(page.height * scale * EMU_PER_CM);
+  return `<w:p><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/>`
+    + `<wp:docPr id="${id}" name="Page ${page.number}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>`
+    + '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic>'
+    + `<pic:nvPicPr><pic:cNvPr id="${id}" name="page-${page.number}.png"/><pic:cNvPicPr/></pic:nvPicPr>`
+    + `<pic:blipFill><a:blip r:embed="rIdImage${id}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+    + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>`
+    + '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+}
+
+export function buildDocx(pages, { title = 'Document', pageLabel = 'Page' } = {}) {
+  const media = [];
+  const body = pages.map((page, index) => {
+    let text = docxParagraph(`${pageLabel} ${page.number}`, 'Heading1', index ? '<w:pageBreakBefore/>' : '');
+    for (const block of page.blocks) {
+      text += block.type === 'paragraph' ? docxParagraph(block.text) : docxTable(block.rows);
+    }
+    if (page.image) {
+      media.push({ id: media.length + 1, name: `media/page-${page.number}.png`, data: page.image });
+      text += docxImage(media.length, page);
+    }
+    if (!page.blocks.length && page.emptyMessage) text += docxParagraph(page.emptyMessage);
+    return text;
+  }).join('');
+  const { width, height, margin } = DOCX_PAGE;
+  const sectPr = `<w:sectPr><w:pgSz w:w="${width}" w:h="${height}"/><w:pgMar w:top="${margin}" w:right="${margin}" w:bottom="${margin}" w:left="${margin}" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr>`;
+  return zipStore([
+    part('[Content_Types].xml', `${XML}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>`),
+    part('_rels/.rels', `${XML}<Relationships xmlns="${PACKAGE_REL}"><Relationship Id="rId1" Type="${REL}/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>`),
+    part('docProps/core.xml', `${XML}<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${xml(title)}</dc:title><dc:creator>Open PDF Studio</dc:creator></cp:coreProperties>`),
+    part('word/_rels/document.xml.rels', `${XML}<Relationships xmlns="${PACKAGE_REL}"><Relationship Id="rIdStyles" Type="${REL}/styles" Target="styles.xml"/>${media.map(m => `<Relationship Id="rIdImage${m.id}" Type="${REL}/image" Target="${m.name}"/>`).join('')}</Relationships>`),
+    part('word/styles.xml', DOCX_STYLES),
+    part('word/document.xml', `${XML}<w:document ${DOCX_NS}><w:body>${body}${sectPr}</w:body></w:document>`),
+    ...media.map(m => part(`word/${m.name}`, m.data)),
+  ]);
+}

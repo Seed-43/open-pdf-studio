@@ -6,6 +6,9 @@ import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering
 import { showProperties, showMultiSelectionProperties } from '../../ui/panels/properties-panel.js';
 import { applyStampLineWidth, applyStampColor } from '../../annotations/stamp-line-width.js';
 import { stampAppearanceSnapshot, syncStampAppearance } from '../../annotations/stamp-appearance-sync.js';
+import {
+  symbolInsertActive, symbolInsertDisplay, setSymbolInsertFormat,
+} from '../../symbols/symbol-insert-format-store.js';
 
 // Een symbool (SVG-stempel) wordt als raster getekend: kleur en lijndikte
 // moeten na de wijziging de SVG in, anders heeft de werkbalk geen effect (#398).
@@ -92,8 +95,40 @@ export function applyToSelected(applyFn) {
   redraw();
 }
 
+// Invoegmodus voor symbolen (#587): de werkbalk toont de opmaak voor de
+// VOLGENDE plaatsingen — de gekozen waarde, anders de eigen opmaak van het
+// gekozen symbool. Een automatisch geselecteerd, net geplaatst symbool telt
+// hier niet; dat behoudt zijn eigen opmaak.
+function syncFromSymbolInsert(selectedAnnotations) {
+  const d = symbolInsertDisplay();
+  setHasSelection(!!selectedAnnotations && selectedAnnotations.length > 0);
+  setIsSingleSymbolStamp(false);
+  setIsLocked(false);
+  setAnnotationType('symbolInsert');
+  setFillColor('#ffffff');
+  setHasFill(false);
+  setStrokeColor(d.strokeColor);
+  setFmtLineWidth(d.lineWidth);
+  setOpacity(d.opacity);
+  setBorderStyle('solid');
+  setBlendMode(d.blendMode);
+}
+
+/**
+ * Een optie van de werkbalk instellen voor de volgende plaatsingen tijdens
+ * het invoegen van symbolen. Raakt geen enkel bestaand symbool.
+ */
+export function setSymbolInsertOption(patch) {
+  setSymbolInsertFormat(patch);
+  syncFromSymbolInsert(getActiveDocument()?.selectedAnnotations || []);
+}
+
 // Sync format store from selected annotations
 export function syncFormatStore(selectedAnnotations) {
+  if (symbolInsertActive()) {
+    syncFromSymbolInsert(selectedAnnotations);
+    return;
+  }
   if (!selectedAnnotations || selectedAnnotations.length === 0) {
     setHasSelection(false);
     setIsSingleSymbolStamp(false);

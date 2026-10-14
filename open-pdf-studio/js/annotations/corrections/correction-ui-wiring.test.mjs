@@ -26,18 +26,20 @@ function caseBlok(tekst, soort, inspringing) {
 test('rendering.js tekent het invoegteken en de doorhaling langs verticale tekst', () => {
   const r = bron('../rendering.js');
   assert.match(r, /import \{[^}]*drawCaret[^}]*\} from '\.\/rendering\/caret\.js'/);
-  assert.match(r, /import \{[^}]*strikeLine[^}]*\} from '\.\/rendering\/caret\.js'/);
+  // De lijn per tekstvak (strikeLine bij een doorhaling) tekent
+  // drawMarkupLines; het gedrag staat in markeringslijnen.test.mjs (#564).
+  assert.match(r, /import \{[^}]*drawMarkupLines[^}]*\} from '\.\/rendering\/caret\.js'/);
   assert.match(caseBlok(r, 'caret', '    '), /drawCaret\(ctx, annotation, /);
   const door = caseBlok(r, 'textStrikethrough', '    ');
-  assert.match(door, /strikeLine\(rect, annotation\.textDir\)/);
-  assert.match(door, /strikeLine\(annotation, annotation\.textDir\)/);
+  assert.match(door, /drawMarkupLines\(ctx, annotation\)/);
+  assert.match(bron('../rendering/caret.js'), /textStrikethrough: strikeLine,/);
   assert.match(door, /replaceStrikeColor\(annotation, /, 'de doorhaling van een vervanging in de kleur van haar invoegteken');
   assert.match(r, /import \{[^}]*replaceStrikeColor[^}]*\} from '\.\/rendering\/caret\.js'/);
 });
 
 test('selectie en grepen: het invoegteken hoort bij de tekstmarkeringen', () => {
   const sel = bron('../rendering/selection.js');
-  assert.match(sel, /case 'textUnderline':\n\s*case 'caret': \{/);
+  assert.match(sel, /case 'textUnderline':\n\s*case 'textSquiggly':\n\s*case 'caret': \{/);
   const grepen = bron('../handles.js');
   assert.match(grepen, /case 'textUnderline':\n\s*case 'caret':\n\s*return \{/);
   assert.match(grepen, /case 'textUnderline':\n\s*case 'caret':\n\s*\/\/ Text markup/);

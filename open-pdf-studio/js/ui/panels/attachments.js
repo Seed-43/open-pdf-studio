@@ -2,8 +2,8 @@ import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { isTauri, writeBinaryFile, readBinaryFile } from '../../core/platform.js';
-import { PDFDocument, PDFName, PDFHexString, PDFDict, PDFArray, PDFString } from 'pdf-lib';
-import { getCachedPdfBytes } from '../../pdf/loader.js';
+import { markDocumentModified } from '../chrome/tabs.js';
+import { wijzigingenVan, vrijeNaam, metToegevoegd, metVerwijderd, zichtbareBijlagen } from '../../pdf/bijlagen.js';
 import {
   setAttachmentItems as setItems, setAttachmentCountText as setCountText,
   setAttachmentEmptyMessage as setEmptyMessage, setAttachmentSelectedKey as setSelectedKey,
@@ -11,7 +11,11 @@ import {
 } from '../../bridge.js';
 
 // Current state
-let currentAttachments = {}; // key -> { filename, content, description, createdAt, modifiedAt }
+// key -> { filename, content, description, createdAt, modifiedAt }. `content` is
+// null voor een bestand uit de PDF tot het nodig is: PDF.js 6 stuurt de bytes
+// niet meer mee met de lijst, getAttachmentContent() leest ze op verzoek.
+let currentAttachments = {};
+let currentPdfDoc = null;
 let selectedKeyLocal = null;
 
 // Initialize (no-op, kept for callers)
@@ -32,6 +36,22 @@ function formatDate(dateStr) {
   try {
     return new Date(dateStr).toLocaleString();
   } catch { return ''; }
+}
+
+// De bytes van een bijlage: toegevoegde bestanden hebben ze bij zich, die uit
+// de PDF worden één keer gelezen, op verzoek.
+async function attachmentContent(key) {
+  const att = currentAttachments[key];
+  if (!att) return null;
+  if (!att.content && currentPdfDoc && typeof currentPdfDoc.getAttachmentContent === 'function') {
+    try {
+      const bytes = await currentPdfDoc.getAttachmentContent(key);
+      if (bytes) att.content = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    } catch (e) {
+      console.warn('Failed to read attachment:', e);
+    }
+  }
+  return att.content || null;
 }
 
 // Update toolbar button states
@@ -113,40 +133,31 @@ async function openAttachmentExternal(filename, content) {
 // Open a specific attachment by key (for double-click from component)
 export async function openAttachment(key) {
   if (!key || !currentAttachments[key]) return;
-  const att = currentAttachments[key];
-  await openAttachmentExternal(att.filename, att.content);
+  const content = await attachmentContent(key);
+  if (content) await openAttachmentExternal(currentAttachments[key].filename, content);
 }
 
 // Toolbar: Open selected attachment
 export async function openSelectedAttachment() {
-  if (!selectedKeyLocal || !currentAttachments[selectedKeyLocal]) return;
-  const att = currentAttachments[selectedKeyLocal];
-  await openAttachmentExternal(att.filename, att.content);
+  await openAttachment(selectedKeyLocal);
 }
 
 // Toolbar: Save selected attachment
 export async function saveSelectedAttachment() {
   if (!selectedKeyLocal || !currentAttachments[selectedKeyLocal]) return;
-  const att = currentAttachments[selectedKeyLocal];
-  await saveAttachmentToDisk(att.filename, att.content);
+  const content = await attachmentContent(selectedKeyLocal);
+  if (content) await saveAttachmentToDisk(currentAttachments[selectedKeyLocal].filename, content);
 }
 
 // Toolbar: Save all attachments
 export async function saveAllAttachments() {
-  if (isTauri() && window.__TAURI__?.dialog) {
-    try {
-      for (const key of Object.keys(currentAttachments)) {
-        const att = currentAttachments[key];
-        await saveAttachmentToDisk(att.filename, att.content);
-      }
-    } catch (e) {
-      console.error('Failed to save all attachments:', e);
-    }
-  } else {
+  try {
     for (const key of Object.keys(currentAttachments)) {
-      const att = currentAttachments[key];
-      await saveAttachmentToDisk(att.filename, att.content);
+      const content = await attachmentContent(key);
+      if (content) await saveAttachmentToDisk(currentAttachments[key].filename, content);
     }
+  } catch (e) {
+    console.error('Failed to save all attachments:', e);
   }
 }
 
@@ -199,97 +210,23 @@ export async function deleteSelectedAttachment() {
   updateAttachmentsList();
 }
 
-// Embed a file into the PDF using pdf-lib
-async function embedAttachment(activeDoc, filename, fileBytes) {
-  try {
-    let pdfBytes;
-    if (activeDoc.filePath) {
-      pdfBytes = getCachedPdfBytes(activeDoc.filePath);
-      if (!pdfBytes && isTauri()) {
-        pdfBytes = await readBinaryFile(activeDoc.filePath);
-      }
-    }
-    if (!pdfBytes) {
-      pdfBytes = await activeDoc.pdfDoc.getData();
-    }
-
-    const pdfDocLib = await PDFDocument.load(pdfBytes);
-    await pdfDocLib.attach(fileBytes, filename, {
-      mimeType: guessMimeType(filename),
-      description: filename,
-      creationDate: new Date(),
-      modificationDate: new Date(),
-    });
-
-    const savedBytes = await pdfDocLib.save();
-    await reloadDocumentFromBytes(activeDoc, savedBytes);
-    activeDoc.modified = true;
-  } catch (e) {
-    console.error('Failed to embed attachment:', e);
-  }
+// Toevoegen en verwijderen veranderen alleen de bijlagenwijzigingen van het
+// document; de saver schrijft ze in het bestand (pdf/bijlagen.js). De geopende
+// PDF blijft zoals hij is: niets hoeft opnieuw geladen of getekend te worden.
+function embedAttachment(activeDoc, filename, fileBytes) {
+  const name = vrijeNaam(filename, Object.values(currentAttachments).map(a => a.filename).concat(Object.keys(currentAttachments)));
+  const now = new Date().toISOString();
+  activeDoc.bijlagenWijzigingen = metToegevoegd(wijzigingenVan(activeDoc), {
+    naam: name, bytes: fileBytes, mime: guessMimeType(name), beschrijving: name, aangemaakt: now, gewijzigd: now,
+  });
+  // Een volgend bestand uit dezelfde keuze moet deze naam als bezet zien.
+  currentAttachments[name] = { filename: name, content: fileBytes };
+  markDocumentModified(activeDoc);
 }
 
-// Remove an attachment from the PDF using pdf-lib
-async function removeAttachment(activeDoc, key) {
-  try {
-    let pdfBytes;
-    if (activeDoc.filePath) {
-      pdfBytes = getCachedPdfBytes(activeDoc.filePath);
-      if (!pdfBytes && isTauri()) {
-        pdfBytes = await readBinaryFile(activeDoc.filePath);
-      }
-    }
-    if (!pdfBytes) {
-      pdfBytes = await activeDoc.pdfDoc.getData();
-    }
-
-    const pdfDocLib = await PDFDocument.load(pdfBytes);
-
-    const catalog = pdfDocLib.catalog;
-    const namesDict = catalog.lookup(PDFName.of('Names'));
-    if (namesDict instanceof PDFDict) {
-      const embeddedFiles = namesDict.lookup(PDFName.of('EmbeddedFiles'));
-      if (embeddedFiles instanceof PDFDict) {
-        const namesArray = embeddedFiles.lookup(PDFName.of('Names'));
-        if (namesArray instanceof PDFArray) {
-          const newEntries = [];
-          for (let i = 0; i < namesArray.size(); i += 2) {
-            const nameObj = namesArray.lookup(i);
-            const nameStr = nameObj instanceof PDFHexString ? nameObj.decodeText() :
-                            nameObj instanceof PDFString ? nameObj.decodeText() :
-                            String(nameObj);
-            if (nameStr !== key) {
-              newEntries.push(namesArray.get(i), namesArray.get(i + 1));
-            }
-          }
-          const newArray = PDFArray.withContext(pdfDocLib.context);
-          newEntries.forEach(e => newArray.push(e));
-          embeddedFiles.set(PDFName.of('Names'), newArray);
-        }
-      }
-    }
-
-    const savedBytes = await pdfDocLib.save();
-    await reloadDocumentFromBytes(activeDoc, savedBytes);
-    activeDoc.modified = true;
-  } catch (e) {
-    console.error('Failed to remove attachment:', e);
-  }
-}
-
-// Reload the pdf.js document from new bytes
-async function reloadDocumentFromBytes(activeDoc, bytes) {
-  const pdfjsLib = await import('pdfjs-dist');
-  const newDoc = await pdfjsLib.getDocument({
-    data: bytes,
-    cMapUrl: '/pdfjs/web/cmaps/',
-    cMapPacked: true,
-    standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
-    isEvalSupported: false,
-    verbosity: 0,
-  }).promise;
-  activeDoc.pdfDoc = newDoc;
+function removeAttachment(activeDoc, key) {
+  activeDoc.bijlagenWijzigingen = metVerwijderd(wijzigingenVan(activeDoc), key);
+  markDocumentModified(activeDoc);
 }
 
 // Guess MIME type from filename
@@ -339,13 +276,31 @@ export async function updateAttachmentsList() {
 
   try {
     const pdfDoc = activeDoc.pdfDoc;
-    let attachments = null;
+    let fromPdf = null;
 
     if (typeof pdfDoc.getAttachments === 'function') {
-      attachments = pdfjsRecord(await pdfDoc.getAttachments());
+      fromPdf = pdfjsRecord(await pdfDoc.getAttachments());
+    }
+    if (getActiveDocument() !== activeDoc || activeDoc.pdfDoc !== pdfDoc) return;
+    currentPdfDoc = pdfDoc;
+
+    // De bijlagen in de PDF plus wat er sinds het openen bij kwam of af ging.
+    const listed = zichtbareBijlagen(Object.entries(fromPdf || {}).map(([naam, att]) => ({
+      naam,
+      filename: att.filename || naam,
+      content: att.content || null,
+      description: att.description || null,
+      createdAt: att.creationDate || null,
+      modifiedAt: att.modDate || null,
+    })), wijzigingenVan(activeDoc));
+    const attachments = {};
+    for (const att of listed) {
+      attachments[att.naam] = att.nieuw
+        ? { filename: att.naam, content: att.bytes, description: att.beschrijving || null, createdAt: att.aangemaakt || null, modifiedAt: att.gewijzigd || null }
+        : att;
     }
 
-    if (!attachments || Object.keys(attachments).length === 0) {
+    if (Object.keys(attachments).length === 0) {
       currentAttachments = {};
       selectedKeyLocal = null;
       setItems([]);
@@ -363,10 +318,10 @@ export async function updateAttachmentsList() {
       const att = attachments[key];
       currentAttachments[key] = {
         filename: att.filename || key,
-        content: att.content,
+        content: att.content || null,
         description: att.description || null,
-        createdAt: att.creationDate || null,
-        modifiedAt: att.modDate || null,
+        createdAt: att.createdAt || null,
+        modifiedAt: att.modifiedAt || null,
       };
     });
 
@@ -379,10 +334,11 @@ export async function updateAttachmentsList() {
     // Build items array for the store
     const itemsArray = keys.map(key => {
       const att = currentAttachments[key];
-      const size = att.content ? att.content.length : 0;
-      let metaText = formatFileSize(size);
-      if (att.createdAt) metaText += ` | Created: ${formatDate(att.createdAt)}`;
-      else if (att.modifiedAt) metaText += ` | Modified: ${formatDate(att.modifiedAt)}`;
+      // De grootte is bekend zodra de bytes dat zijn (toegevoegd, of gelezen).
+      const parts = att.content ? [formatFileSize(att.content.length)] : [];
+      if (att.createdAt) parts.push(`Created: ${formatDate(att.createdAt)}`);
+      else if (att.modifiedAt) parts.push(`Modified: ${formatDate(att.modifiedAt)}`);
+      const metaText = parts.join(' | ');
 
       return {
         key,

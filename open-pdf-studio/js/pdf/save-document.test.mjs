@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { opslaanGeweigerd, markeerBeveiligd } from './wachtwoord-pdf.js';
 
 // Execute the production save functions with controlled I/O. The app imports
 // require a webview; only those dependencies and dynamic imports are replaced.
@@ -16,7 +17,7 @@ function harness() {
   const a = { id: 'a', pdfDoc: {}, filePath: 'a.pdf', annotations: [], modified: true, undoStack: [] };
   const b = { id: 'b', pdfDoc: {}, filePath: 'b.pdf', annotations: [], modified: true, undoStack: [] };
   let active = a;
-  const writes = [], owners = [];
+  const writes = [], owners = [], attachmentEdits = [];
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
@@ -29,12 +30,18 @@ function harness() {
     saveTextEditsToPages: async (_pdf, _pages, doc) => owners.push(doc),
     saveWatermarksToPages: async (_pdf, _pages, doc) => owners.push(doc),
     saveBookmarksToOutline: (_pdf, doc) => owners.push(doc), saveStylePresetsToCatalog() {},
+    slaPaginaLabelsOp: (_pdf, doc) => owners.push(doc),
+    pasBijlagenToe: (_pdf, wijzigingen) => attachmentEdits.push(wijzigingen),
     unlockFile: async () => {}, lockFile: async () => {},
     writeBinaryFileAtomic: async (path, bytes) => { writes.push({ path, source: new TextDecoder().decode(bytes) }); },
     isTauri: () => false, markeerGebakken() {}, hidePdfABar() {}, stripPdfAMetadata() {},
     i18next: { t: x => x }, showMessage() {}, window: {},
+    // Met een wachtwoord geopend: nooit opslaan (wachtwoord-pdf.js, echt).
+    opslaanGeweigerd,
     console: { error() {}, warn() {} },
     saveFileDialog: async () => 'copy.pdf',
+    // Het slot tegen een extensiewissel (#550): standaard loopt er geen.
+    metOpslagSlot: async fn => fn(),
     loadModule: async path => {
       if (path.includes('verificatie')) return { bevestigOpslaanMetHandtekeningen: async () => true };
       if (path.includes('opslaan')) return { moetOpnieuwVerifieren: () => false, opslaanAlsStandaardPad: doc => doc.filePath };
@@ -45,7 +52,7 @@ function harness() {
   };
   // A with scope keeps the injected dependencies mutable across awaits.
   const api = new Function('deps', `with (deps) { ${saved}\n${functions}\n return {savePDF, savePDFAs}; }`)(deps);
-  return { a, b, deps, api, writes, owners, switchToB: () => { active = b; } };
+  return { a, b, deps, api, writes, owners, attachmentEdits, switchToB: () => { active = b; } };
 }
 
 test('tab switch during signature verification still saves A to the requested path', async () => {
@@ -62,6 +69,45 @@ test('tab switch during signature verification still saves A to the requested pa
   assert.ok(h.owners.every(doc => doc === h.a));
   assert.equal(h.a.modified, false);
   assert.equal(h.b.modified, true);
+});
+
+test('saving waits for a running extension switch before it reads the document (#550)', async () => {
+  const h = harness(), wissel = deferred();
+  h.deps.metOpslagSlot = fn => wissel.promise.then(fn);
+  const saving = h.api.savePDF('copy-of-a.pdf');
+  await new Promise(r => setTimeout(r, 5));
+  assert.deepEqual(h.writes, [], 'nothing is written during the switch');
+  assert.deepEqual(h.owners, []);
+  wissel.resolve();
+  assert.equal(await saving, true);
+  assert.deepEqual(h.writes, [{ path: 'copy-of-a.pdf', source: 'a.pdf' }]);
+});
+
+test('the extension slot is taken after the signature question and held for the whole write (#550)', async () => {
+  const h = harness(), log = [];
+  const original = h.deps.loadModule;
+  h.deps.loadModule = async path => path.includes('verificatie')
+    ? { bevestigOpslaanMetHandtekeningen: async () => { log.push('question'); return true; } }
+    : original(path);
+  h.deps.metOpslagSlot = async fn => { log.push('slot taken'); try { return await fn(); } finally { log.push('slot released'); } };
+  const write = h.deps.writeBinaryFileAtomic;
+  h.deps.writeBinaryFileAtomic = async (path, bytes) => { log.push('write'); return write(path, bytes); };
+  assert.equal(await h.api.savePDF('copy-of-a.pdf'), true);
+  assert.deepEqual(log, ['question', 'slot taken', 'write', 'slot released']);
+});
+
+test('a second save while the first waits for the slot waits for the first one (#550)', async () => {
+  const h = harness(), wissel = deferred();
+  let requests = 0;
+  h.deps.metOpslagSlot = fn => { requests++; return wissel.promise.then(fn); };
+  const first = h.api.savePDF('first.pdf');
+  await new Promise(r => setTimeout(r, 5));
+  const second = h.api.savePDF('second.pdf');
+  await new Promise(r => setTimeout(r, 5));
+  assert.equal(requests, 1, 'the second save does not start its own write next to the first');
+  wissel.resolve();
+  assert.deepEqual([await first, await second], [true, true]);
+  assert.deepEqual(h.writes.map(w => w.path), ['first.pdf', 'second.pdf']);
 });
 
 test('tab switch during parsing keeps all serialization helpers and clean state on A', async () => {
@@ -159,4 +205,34 @@ test('saving aborts before writing when a page has model annotations but is not 
   assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
   assert.deepEqual(h.writes, []);
   assert.equal(h.a.modified, true);
+});
+
+test('a PDF opened with a password is never saved: Save, Save As and a given path all refuse', async () => {
+  const h = harness();
+  const meldingen = [];
+  h.deps.showMessage = (m) => meldingen.push(m);
+  let dialoog = 0;
+  h.deps.saveFileDialog = async () => { dialoog++; return 'copy.pdf'; };
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf');
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
+  assert.equal(await h.api.savePDF('D:/elders.pdf', { zonderHandtekeningVraag: true }), false);
+  assert.equal(await h.api.savePDFAs(h.a), false);
+  assert.deepEqual(h.writes, []);
+  assert.equal(dialoog, 0, 'no Save As dialog either');
+  assert.deepEqual(meldingen, ['protectedPdfReadOnly', 'protectedPdfReadOnly', 'protectedPdfReadOnly']);
+  // Het andere document slaat gewoon op.
+  h.switchToB();
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.equal(h.writes.length, 1);
+  assert.equal(h.writes[0].path, 'b.pdf');
+});
+
+test('a save writes the attachment changes of the document being saved (#376)', async () => {
+  const h = harness();
+  const edits = { toegevoegd: [{ naam: 'model.ifc', bytes: new Uint8Array([1]) }], verwijderd: ['old.xlsx'] };
+  h.a.bijlagenWijzigingen = edits;
+  h.b.bijlagenWijzigingen = { toegevoegd: [], verwijderd: ['b-only.txt'] };
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.deepEqual(h.attachmentEdits, [edits]);
 });

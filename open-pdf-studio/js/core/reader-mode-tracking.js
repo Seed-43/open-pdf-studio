@@ -24,6 +24,9 @@ const MEMORY_KEY_PREFIX = '__memory__';
  */
 export function readerTrackingPath(doc) {
   if (!doc || doc.isUntitled) return null;
+  // Opened with a password: read-only, nothing is written next to it (and
+  // doc.filePath is a decrypted working copy in a temporary folder).
+  if (doc.passwordProtected === true) return null;
   const path = doc.saveTargetPath || doc.filePath;
   if (!path || typeof path !== 'string' || path.startsWith(MEMORY_KEY_PREFIX)) return null;
   return path;

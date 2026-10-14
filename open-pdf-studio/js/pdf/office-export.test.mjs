@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { textItemsToBoxes, recoverLayout, recoverDrawingLayout, spreadsheetCurrency, spreadsheetNumber } from './office-layout.js';
-import { buildOdt, buildXlsx } from './office-files.js';
+import { buildDocx, buildOdt, buildXlsx } from './office-files.js';
 import { unzip } from '../bcf/bcf-zip.js';
 
 const box = (text, x, y, width = 35) => ({ text, x, y, width, height: 10 });
@@ -235,4 +235,76 @@ test('large worksheets do not exceed the JavaScript argument limit while measuri
   const rows = [['Value'], ...Array.from({ length: 150000 }, () => ['1'])];
   const bytes = buildXlsx([{ number: 1, blocks: [{ type: 'table', rows }] }]);
   assert.ok(bytes.length > 150000);
+});
+
+// Elke XML-part moet sluitend genest zijn, anders weigert een tekstverwerker het bestand.
+function assertWellFormed(name, text) {
+  const stack = [];
+  for (const [, slash, tag, self] of text.replace(/<\?xml[^>]*\?>/, '').matchAll(/<(\/?)([\w:]+)(?:\s[^>]*?)?(\/?)>/g)) {
+    if (self) continue;
+    if (!slash) stack.push(tag);
+    else assert.equal(stack.pop(), tag, `${name}: </${tag}> sluit niet`);
+  }
+  assert.deepEqual(stack, [], `${name}: open elementen`);
+}
+
+test('DOCX unpacks to a package with paragraphs, runs, tables, page breaks and page images', async () => {
+  const bytes = buildDocx([...pages, { number: 4, width: 500, height: 800,
+    blocks: [{ type: 'paragraph', text: 'Second\nline\twith  spaces' }], image: new Uint8Array([1, 2, 3]) }],
+  { title: 'Rapport & bijlage', pageLabel: 'Pagina' });
+  const files = await entries(bytes);
+  for (const [name, data] of files) if (name.endsWith('.xml') || name.endsWith('.rels')) assertWellFormed(name, string(data));
+  assert.match(string(files.get('[Content_Types].xml')), /PartName="\/word\/document\.xml" ContentType="application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document\.main\+xml"/);
+  assert.match(string(files.get('_rels/.rels')), /Target="word\/document\.xml"/);
+  const doc = string(files.get('word/document.xml'));
+  assert.match(doc, /<w:t xml:space="preserve">Pagina 3<\/w:t>/);
+  assert.match(doc, /Schedule &amp; quantities/);
+  assert.match(doc, /Room &lt;A&gt;/);
+  assert.match(doc, /Notes after table/);
+  // Kopregel van de tabel herhaalt zich en staat vet; elke rij heeft alle kolommen.
+  assert.match(doc, /<w:trPr><w:tblHeader\/><\/w:trPr>/);
+  assert.match(doc, /<w:rPr><w:b\/><\/w:rPr><w:t xml:space="preserve">Code<\/w:t>/);
+  const table = doc.slice(doc.indexOf('<w:tbl>'), doc.indexOf('</w:tbl>'));
+  for (const row of table.split('<w:tr>').slice(1)) assert.equal(row.split('<w:tc>').length - 1, 3);
+  const widths = [...table.matchAll(/<w:gridCol w:w="(\d+)"\/>/g)].map(m => Number(m[1]));
+  assert.equal(widths.length, 3);
+  assert.ok(Math.abs(widths.reduce((sum, w) => sum + w, 0) - 9638) <= 2);
+  // Tweede pagina: paginabreuk, regeleinde, tab en dubbele spatie blijven behouden.
+  assert.match(doc, /<w:pageBreakBefore\/>/);
+  assert.match(doc, /Second<\/w:t><w:br\/><w:t xml:space="preserve">line<\/w:t><w:tab\/><w:t xml:space="preserve">with {2}spaces<\/w:t>/);
+  assert.match(doc, /<a:blip r:embed="rIdImage1"\/>/);
+  assert.match(string(files.get('word/_rels/document.xml.rels')), /Id="rIdImage1" Type="[^"]+\/image" Target="media\/page-4\.png"/);
+  assert.deepEqual(files.get('word/media/page-4.png'), new Uint8Array([1, 2, 3]));
+  assert.match(string(files.get('docProps/core.xml')), /Rapport &amp; bijlage/);
+});
+
+test('DOCX export of a real text PDF contains its paragraphs', async () => {
+  const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const source = Uint8Array.from(readFileSync(new URL('../../../test pdf-bestanden/Originele bestanden/Tekst.pdf', import.meta.url)));
+  const pdf = await getDocument({ data: source, isEvalSupported: false, useSystemFonts: true }).promise;
+  try {
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1 });
+    const blocks = recoverLayout(textItemsToBoxes((await page.getTextContent()).items, viewport), { joinParagraphs: true });
+    const files = await entries(buildDocx([{ number: 1, width: viewport.width, height: viewport.height, blocks }]));
+    const doc = string(files.get('word/document.xml'));
+    assertWellFormed('word/document.xml', doc);
+    assert.match(doc, /drijvende woning\./);
+    assert.match(doc, /Waterdicht aansluiten van het bestaande casco op het nieuwe casco\./);
+    assert.match(doc, /Omschrijving/);
+  } finally { await pdf.loadingTask.destroy(); }
+});
+
+test('every locale names the DOCX export in its own language', async () => {
+  const { readdirSync } = await import('node:fs');
+  const locales = new URL('../i18n/locales/', import.meta.url);
+  const panel = locale => JSON.parse(readFileSync(new URL(`${locale}/appMenu.json`, locales), 'utf8')).exportPanel;
+  const en = panel('en');
+  for (const locale of readdirSync(locales)) {
+    const p = panel(locale);
+    for (const key of ['exportDocx', 'exportDocxDesc']) {
+      assert.ok(p[key]?.trim(), `${locale}: ${key}`);
+      if (locale !== 'en') assert.notEqual(p[key], en[key], `${locale}: ${key} is untranslated`);
+    }
+  }
 });

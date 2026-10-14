@@ -204,6 +204,10 @@ export function buildTextEditStrikeDict(context, ann, map, { rgb, opacity = 1, p
   });
   if (!linked) dict.set(N('Contents'), pdfTextString(ann.subject || ''));
   addTextEditKeys(dict, ann, pageRot, gebruikteNm);
+  // De lijndikte van de /AP, zodat de lader haar terugvindt (#565), net als
+  // bij een gewone tekstmarkering (text-markup-dict.js). Zonder eigen dikte
+  // geen sleutel: dan tekent de /AP met 1 pt en laadt hij zoals voorheen.
+  if (ann.lineWidth > 0) dict.set(N('OPS_LineWidth'), PDFNumber.of(ann.lineWidth));
   dict.set(N('AP'), context.obj({ N: apRef }));
   return dict;
 }

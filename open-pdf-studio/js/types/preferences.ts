@@ -182,6 +182,7 @@ export interface Preferences {
   measureAreaDimScale: number;
   measureAreaDimUnit: string;
   measureAreaDimPrecision: number;
+  measureAreaShowEdgeLengths: boolean;
 
   // Measure Perimeter defaults
   measurePerimStrokeColor: string;
@@ -223,6 +224,9 @@ export interface Preferences {
   thinLines: boolean;
   showScrollbars: boolean;
   progressiveRender: boolean;
+  screenCalibration: Record<string, number>;
+  zoomDpi: number;
+  pageSharpen: number;
 
   // Panels
   propertiesPanelVisible: boolean;
@@ -278,6 +282,7 @@ export interface Preferences {
   cadExportSettings: Record<string, unknown> | null;
   cadImportSettings: Record<string, unknown> | null;
   cadImportPresets: Array<{ name: string; settings: Record<string, unknown> }> | null;
+  pdfxSettings: { profilePath: string | null; profileName: string; intent: string } | null;
 }
 
 export interface PrintSettings {

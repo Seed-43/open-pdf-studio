@@ -550,6 +550,14 @@ export default function AnnotationsTab(props) {
                   <PrefSelect value={p.measureAreaDimPrecision[0]} setValue={p.measureAreaDimPrecision[1]} options={precisionOpts} />
                 </div>
               </fieldset>
+
+              {/* Zijdematen (#536): standaard voor nieuwe meetvlakken, uit. */}
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label">
+                  <input type="checkbox" checked={p.measureAreaShowEdgeLengths[0]()} onChange={e => p.measureAreaShowEdgeLengths[1](e.target.checked)} />
+                  <span>{t('measurement.showEdgeLengths')}</span>
+                </label>
+              </div>
             </fieldset>
 
             <fieldset class="pref-fieldset">

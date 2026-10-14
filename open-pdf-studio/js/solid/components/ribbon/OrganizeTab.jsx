@@ -1,3 +1,4 @@
+import { startScanTextTool } from '../../../tools/tools/scan-text-tool.js';
 import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
@@ -15,6 +16,8 @@ import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 
 const reorderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="4"/><rect x="3" y="10" width="6" height="4"/><rect x="3" y="17" width="6" height="4"/><path d="M14 5l4 4-4 4M14 13l4 4-4 4M18 9H10M18 17H10" stroke-linecap="round"/></svg>`;
 const compressIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>`;
+
+const scanTextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8.5 9.5h7M12 9.5v6"/></svg>`;
 
 export default function OrganizeTab() {
   const { t } = useTranslation('ribbon');
@@ -47,6 +50,8 @@ export default function OrganizeTab() {
             disabled={ro()} active={state.currentTool === 'editText'} onClick={() => setTool('editText')} />
           <RibbonButton id="ep-add-text" title={t('home.addText')} icon={addTextIcon} label={t('home.addText')}
             disabled={ro()} onClick={() => setTool('text')} />
+          <RibbonButton id="ep-scan-text" title={t('organize.scanText')} icon={scanTextIcon} label={t('organize.scanText')}
+            disabled={ro()} active={state.currentTool === 'scanText'} onClick={() => startScanTextTool()} />
           <RibbonButton id="ep-ocr" title={t('organize.ocr')} icon={ocrIcon} label={t('organize.ocr')}
             disabled={ro()} onClick={() => {
               const doc = getActiveDocument();

@@ -21,6 +21,9 @@ import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 import { onthoudWerkbestand, losgelatenWerkbestanden, ruimWerkbestandenOp } from './document-release.js';
 import { nieuwMergeVerslag, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS } from './merge-verslag.js';
+import { pdfjsBronnen } from '../core/basis-url.js';
+import { zonderKopVoetStromen } from './saver/kopvoet.js';
+import { labelsNaHerladen } from './pagina-labels-app.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -175,6 +178,23 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   const oldPath = doc.filePath || `__memory__${doc.id}`;
   if (!oldPath) return;
 
+  // Paginalabels (#580) horen bij een stand van de bytes: de oude stand (die
+  // ongedaan maken terugzet) en de aangeleverde nieuwe (die opnieuw doen laadt).
+  const oudeBytes = getCachedPdfBytes(oldPath);
+  const aangeleverdeBytes = newBytes;
+
+  // Kop-/voetteksten die als pagina-inhoud in de oude weergave stonden (#375):
+  // het scherm tekent ze zelf, dus uit de nieuwe werkkopie halen — anders
+  // staan ze dubbel, en na paginabewerkingen met verouderde nummers.
+  if (doc._kopVoetBron && doc._kopVoetBron === oldPath) {
+    try {
+      newBytes = await zonderKopVoetStromen(newBytes);
+    } catch (e) {
+      console.warn('[reloadFromBytes] kop-/voetteksten niet uit de weergave gehaald', e);
+    }
+    doc._kopVoetBron = null;
+  }
+
   // Cancel any in-progress annotation loading
   cancelAnnotationLoading(doc);
 
@@ -260,10 +280,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   // Load new bytes into pdf.js (slice to prevent buffer detachment of the original)
   doc.pdfDoc = await pdfjsLib.getDocument({
     data: newBytes.slice(),
-    cMapUrl: '/pdfjs/web/cmaps/',
-    cMapPacked: true,
-    standardFontDataUrl: '/pdfjs/web/standard_fonts/',
-    wasmUrl: '/pdfjs/web/wasm/',
+    ...pdfjsBronnen(),
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -289,6 +306,13 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     doc.pdfViewports = undefined;
     leesViewportsOpnieuw(doc, newBytes);
   }
+
+  // Paginalabels verhuizen mee met hun pagina (#580).
+  await labelsNaHerladen(doc, {
+    oudeBytes,
+    nieuweBytes: aangeleverdeBytes,
+    pageMapping: viewportUpdate?.pageMapping || null,
+  });
 
   // Restore annotations and rotations
   doc.annotations = annotations;

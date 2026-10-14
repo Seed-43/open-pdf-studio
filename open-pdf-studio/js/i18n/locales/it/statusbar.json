@@ -11,6 +11,7 @@
     "box": "Rettangolo",
     "polygon": "Poligono",
     "cloud": "Nuvola",
+    "cloudPolyline": "Polilinea a nuvola",
     "polyline": "Polilinea",
     "textbox": "Casella di testo",
     "callout": "Fumetto",
@@ -27,7 +28,8 @@
     "formTextField": "Campo di testo modulo",
     "formCheckbox": "Casella di controllo modulo",
     "formRadio": "Pulsante di opzione modulo",
-    "screenshot": "Cattura schermata"
+    "screenshot": "Cattura schermata",
+    "pageLabelPick": "Scegli il testo per l'etichetta di pagina"
   },
   "toolLabel": "Strumento:",
   "annotationsLabel": "Annotazioni:",
@@ -36,6 +38,7 @@
   "previousPage": "Pagina precedente",
   "nextPage": "Pagina successiva",
   "lastPage": "Ultima pagina",
+  "page": "Pagina",
   "zoomOut": "Riduci",
   "zoomIn": "Ingrandisci",
   "noDocumentsOpen": "Nessun documento aperto",
@@ -51,14 +54,21 @@
   "formFieldsMessage": "Questo documento contiene campi modulo interattivi. È possibile compilare il modulo e salvare i dati.",
   "enableEditing": "Abilita modifica",
   "pdfAConformance": "Questo documento dichiara conformità PDF/A.",
-  "renameError": "Failed to rename file: {{error}}",
-  "renameInvalidChars": "File name cannot contain  / : * ? \" < > |",
-  "renameFileExists": "A file with this name already exists.",
-  "viewSingle": "Single Page",
-  "viewContinuous": "Continuous",
-  "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side",
+  "renameError": "Impossibile rinominare il file: {{error}}",
+  "renameInvalidChars": "Il nome del file non può contenere:  / : * ? \" < > |",
+  "renameFileExists": "Esiste già un file con questo nome.",
+  "engineTitle": "Motore di rendering usato per la vista corrente",
+  "engine": {
+    "pdfium": "PDFium",
+    "scene": "AEC-PDF v1",
+    "vector": "AEC-PDF v1 (vettoriale)"
+  },
+  "viewSingle": "Pagina singola",
+  "viewContinuous": "Continua",
+  "viewBook": "Due pagine",
+  "viewFacing": "Due pagine affiancate",
   "viewRotatedTitle": "La vista è ruotata di {{degrees}}° in senso orario; il documento non è stato modificato. Fai clic per ripristinare la vista.",
+  "compareTabTitle": "Confronta",
   "filledAreaSketch": {
     "undoPoint": "Annulla punto",
     "undoPointTitle": "Rimuovi ultimo punto (Backspace)",
@@ -81,6 +91,7 @@
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "A",
+  "boxSizeHint": "Digita un valore + Enter — oppure fai clic altrove per applicare",
   "ocr": {
     "progress": {
       "starting": "Riconoscimento del testo...",
@@ -96,5 +107,6 @@
   "searchResultsTitle": "Risultati ({{count}})",
   "searchResultPage": "Pagina {{page}}",
   "searchHitsOne": "1 corrispondenza",
-  "searchHitsMany": "{{count}} corrispondenze"
+  "searchHitsMany": "{{count}} corrispondenze",
+  "passwordProtectedBar": "Protetto da password: aperto in sola lettura."
 }

@@ -83,3 +83,62 @@ test('a document captured before module loading cannot export a later active tab
   assert.deepEqual(h.writes, []);
   assert.equal(h.messages[0], 'Document changed during export');
 });
+
+// Een vectorknipsel dat niet gerenderd kan worden, stopt de uitvoer met een
+// melding voor de gebruiker; er wordt niets getekend en geen leeg kader (#511).
+const markeringenSource = source.slice(source.indexOf('export async function renderMarkeringenOffscreen'),
+  source.indexOf('/**\n * Convert a canvas to a blob'))
+  .replace('export async function', 'async function');
+const meldingSource = source.slice(source.indexOf('function alsKnipselMelding'), source.indexOf('function exportChanged'));
+
+function markeringenHarness({ bereid, render = () => {} }) {
+  const doc = { pdfDoc: {}, scale: 1, annotations: [{ type: 'vectorSnippet', page: 1 }] };
+  const getekend = [];
+  const deps = {
+    state: { documents: [doc], activeDocumentIndex: 0 },
+    getActiveDocument: () => doc,
+    document: { createElement: () => ({ getContext: () => ({}) }) },
+    isAnnotationHiddenInOutput: () => false,
+    bereidKnipselsVoorUitvoer: bereid,
+    renderAnnotationsForPage: (...args) => { getekend.push(args); render(...args); },
+    exportChanged: () => new Error('changed'),
+    KNIPSEL_UITVOER_FOUT: 'KNIPSEL_UITVOER',
+    i18next: { t: (key) => `t:${key}` },
+  };
+  const fn = new Function(...Object.keys(deps), `${meldingSource}\n${markeringenSource}\nreturn renderMarkeringenOffscreen;`)(...Object.values(deps));
+  return { fn, doc, getekend };
+}
+
+test('a vector snippet that cannot be rendered stops the output with a message, without drawing', async () => {
+  const fout = Object.assign(new Error('render failed'), { code: 'KNIPSEL_UITVOER' });
+  const h = markeringenHarness({ bereid: async () => { throw fout; } });
+  await assert.rejects(h.fn(1, 300 / 72, { width: 100, height: 100 }), (err) => err.message === 't:snippetOutputFailed' && err.cause === fout);
+  assert.deepEqual(h.getekend, []);
+  assert.equal(h.doc.scale, 1);
+});
+
+test('a snippet missing while drawing the output also gives the message, and the bitmaps are closed', async () => {
+  let gesloten = 0;
+  const bmp = { close: () => { gesloten++; } };
+  const h = markeringenHarness({
+    bereid: async (anns) => new Map(anns.map(a => [a, bmp])),
+    render: () => { throw Object.assign(new Error('Vectorknipsel ontbreekt in uitvoer'), { code: 'KNIPSEL_UITVOER' }); },
+  });
+  await assert.rejects(h.fn(1, 2, { width: 100, height: 100 }), /t:snippetOutputFailed/);
+  assert.equal(gesloten, 1);
+  assert.equal(h.doc.scale, 1);
+  // De uitvoer krijgt de voorbereide beelden mee, als uitvoerlagen.
+  assert.equal(h.getekend[0][7].uitvoer, true);
+  assert.ok(h.getekend[0][7].snippetBitmaps instanceof Map);
+});
+
+test('every locale explains a stopped output in its own language', async () => {
+  const { readdirSync } = await import('node:fs');
+  const locales = new URL('../i18n/locales/', import.meta.url);
+  const en = JSON.parse(readFileSync(new URL('en/common.json', locales), 'utf8')).snippetOutputFailed;
+  for (const locale of readdirSync(locales)) {
+    const tekst = JSON.parse(readFileSync(new URL(`${locale}/common.json`, locales), 'utf8')).snippetOutputFailed;
+    assert.ok(tekst?.trim(), locale);
+    if (locale !== 'en') assert.notEqual(tekst, en, locale);
+  }
+});

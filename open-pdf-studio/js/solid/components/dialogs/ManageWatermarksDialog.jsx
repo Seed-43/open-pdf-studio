@@ -6,6 +6,7 @@ import { recordRemoveWatermark, recordModifyWatermark } from '../../../core/undo
 import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { kopVoetInWeergave, haalKopVoetUitWeergave } from '../../../watermark/kopvoet-weergave.js';
 
 function refresh() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -13,6 +14,14 @@ function refresh() {
   } else {
     redrawAnnotations();
   }
+}
+
+// Een kop-/voettekst die als pagina-inhoud in de weergave staat, gaat daar
+// eerst uit vóór hij verandert of verdwijnt (kopvoet-weergave.js).
+async function voorWijziging(wm) {
+  const doc = getActiveDocument();
+  if (wm?.type === 'headerFooter' && kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
+  return getActiveDocument() === doc;
 }
 
 function getWmDescription(wm) {
@@ -56,7 +65,8 @@ export default function ManageWatermarksDialog() {
 
   const close = () => closeDialog('manage-watermarks');
 
-  function handleToggle(wm, checked) {
+  async function handleToggle(wm, checked) {
+    if (!(await voorWijziging(wm))) return;
     const oldState = { ...wm };
     wm.enabled = checked;
     recordModifyWatermark(wm.id, oldState, { ...wm });
@@ -73,7 +83,8 @@ export default function ManageWatermarksDialog() {
     }
   }
 
-  function handleDelete(wm) {
+  async function handleDelete(wm) {
+    if (!(await voorWijziging(wm))) return;
     const doc = getActiveDocument();
     const watermarks = doc?.watermarks;
     if (!watermarks) return;

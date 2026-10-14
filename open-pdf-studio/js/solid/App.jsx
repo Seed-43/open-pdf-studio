@@ -10,6 +10,7 @@ import AnnotationLayersPanel from './components/left-panel/AnnotationLayersPanel
 import FindBar from './components/FindBar.jsx';
 import FormFieldsBar from './components/FormFieldsBar.jsx';
 import PdfABar from './components/PdfABar.jsx';
+import BeveiligdBar from './components/BeveiligdBar.jsx';
 import HandtekeningBar from './components/HandtekeningBar.jsx';
 import NotificationBar from './components/NotificationBar.jsx';
 import PropertiesPanel from './components/properties-panel/PropertiesPanel.jsx';
@@ -112,6 +113,7 @@ function DesktopApp() {
           <FormFieldsBar />
 
           <PdfABar />
+          <BeveiligdBar />
 
           <HandtekeningBar />
 

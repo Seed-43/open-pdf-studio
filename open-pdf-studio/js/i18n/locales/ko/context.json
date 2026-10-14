@@ -7,9 +7,11 @@
     "addReply": "답글 추가",
     "locked": "잠김",
     "marked": "표시됨",
+    "gridEndLock": "그리드 끝 잠금",
+    "gridEndUnlock": "그리드 끝 잠금 해제",
     "printable": "인쇄 가능",
     "status": "상태",
-    "showByStatus": "Show by Status",
+    "showByStatus": "상태별 표시",
     "statusNone": "없음",
     "statusAccepted": "수락됨",
     "statusCancelled": "취소됨",
@@ -38,8 +40,15 @@
     "exportSubmenu": "내보내기",
     "exportAsImage": "이미지로 내보내기...",
     "addHole": "구멍 추가",
+    "wallJoinAllow": "결합 허용(이 끝)",
+    "wallJoinDisallow": "결합 허용 안 함(이 끝)",
     "properties": "속성...",
-    "calibrateFromLine": "Calibrate from this Line..."
+    "editViewportScale": "뷰포트 축척 편집",
+    "calibrateFromLine": "이 선으로 보정...",
+    "setScale": "축척 설정...",
+    "dimChainAdd": "치수 체인에 점 추가",
+    "dimChainRemove": "체인에서 치수 보조선 제거",
+    "selectRoom": "실 선택"
   },
   "multiSelect": {
     "copyAnnotations": "주석 {{count}}개 복사",
@@ -54,6 +63,7 @@
     "centerVertically": "세로 가운데 맞춤",
     "distributeHorizontally": "가로 균등 배분",
     "distributeVertically": "세로 균등 배분",
+    "trimWallCorners": "벽 모서리 자르기",
     "deleteAnnotations": "주석 {{count}}개 삭제",
     "deleteConfirm": "주석 {{count}}개를 삭제하시겠습니까?",
     "deleteTitle": "주석 삭제"
@@ -88,6 +98,8 @@
   "thumbnail": {
     "rotateLeft": "왼쪽으로 회전",
     "rotateRight": "오른쪽으로 회전",
+    "moveUp": "위로 이동",
+    "moveDown": "아래로 이동",
     "insertPages": "페이지 삽입...",
     "extractPages": "페이지 추출...",
     "replacePages": "페이지 바꾸기...",
@@ -95,30 +107,45 @@
     "deletePageConfirm": "{{page}} 페이지를 삭제하시겠습니까?",
     "deletePageTitle": "페이지 삭제",
     "properties": "속성",
-    "insertFromFile": "Insert from File...",
-    "insertFromFileBefore": "Before This Page...",
-    "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page labels (name builder)..."
+    "cutPages": "{{count}}페이지 잘라내기",
+    "copyPages": "{{count}}페이지 복사",
+    "rotateLeftPages": "{{count}}페이지 왼쪽으로 회전",
+    "rotateRightPages": "{{count}}페이지 오른쪽으로 회전",
+    "deletePagesMulti": "{{count}}페이지 삭제",
+    "selectAll": "모든 페이지 선택",
+    "deselectAll": "모두 선택 해제",
+    "insertFromFile": "파일에서 삽입...",
+    "insertFromFileBefore": "이 페이지 앞에...",
+    "insertFromFileAfter": "이 페이지 뒤에...",
+    "pageLabels": "페이지 레이블(이름 작성기)..."
   },
   "textSelection": {
     "highlightSelection": "선택 영역 하이라이트",
     "strikethroughSelection": "선택 영역 취소선",
     "underlineSelection": "선택 영역 밑줄",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "곡선 설명선 추가"
   },
   "deleteAnnotation": {
     "confirmSingle": "이 주석을 삭제하시겠습니까?",
     "title": "주석 삭제"
   },
   "contextMenu": {
-    "deleteVertex": "Delete vertex",
-    "insertVertex": "Insert vertex here",
-    "convertToArc": "Convert to arc",
-    "convertToLine": "Convert to line"
+    "deleteVertex": "꼭짓점 삭제",
+    "insertVertex": "여기에 꼭짓점 삽입",
+    "convertToArc": "호로 변환",
+    "convertToLine": "선으로 변환"
   },
   "revealInFileManager": {
-    "windows": "Show in Explorer",
-    "mac": "Reveal in Finder",
-    "linux": "Open containing folder"
+    "windows": "탐색기에서 보기",
+    "mac": "Finder에서 보기",
+    "linux": "포함 폴더 열기"
+  },
+  "gevelelement": {
+    "addMullionHere": "여기에 멀리언 추가",
+    "removeMullion": "가장 가까운 멀리언 제거",
+    "panelItem": "패널: {{name}}",
+    "placeInWall": "벽에 배치(벽 끊기)",
+    "noHostWall": "이 요소 아래에서 벽을 찾을 수 없습니다",
+    "editRefused": "불가능"
   }
 }

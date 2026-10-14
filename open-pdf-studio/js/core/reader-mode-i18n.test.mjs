@@ -1,4 +1,4 @@
-// Reader Mode texts: present and translated in all 39 locales. The tooltip is
+// Reader Mode texts: present and translated in all 40 locales. The tooltip is
 // the only place that tells the user a file is kept next to the PDF, so that
 // sentence has to be there in every language, not only in English.
 
@@ -13,9 +13,9 @@ const KEYS = ['readerMode', 'readerModeTip', 'readerModeSaveFailed'];
 
 const view = (locale) => JSON.parse(readFileSync(join(LOCALES, locale, 'ribbon.json'), 'utf8')).view || {};
 
-test('all 39 locales have the Reader Mode texts', () => {
+test('all 40 locales have the Reader Mode texts', () => {
   const locales = readdirSync(LOCALES);
-  assert.equal(locales.length, 39);
+  assert.equal(locales.length, 40);
   for (const locale of locales) {
     const v = view(locale);
     for (const key of KEYS) {

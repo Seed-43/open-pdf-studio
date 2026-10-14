@@ -22,6 +22,19 @@
 
 const listeners = new Map(); // typeName -> Set<fn>
 
+// Luisteraars voor elke selectiewissel, los van het type (#574): het
+// eigenschappenpaneel houdt zo de formulieren van extensies voor
+// systeem-instances bij (selecteren, verversen, deselecteren, tabwissel).
+// Intern; geen plugin-API.
+const algemeen = new Set();
+
+/** Luister naar elke selectiewissel; geeft de afmeldfunctie. */
+export function onAnySelectionChange(fn) {
+  if (typeof fn !== 'function') throw new TypeError('onAnySelectionChange: fn must be a function');
+  algemeen.add(fn);
+  return () => { algemeen.delete(fn); };
+}
+
 export function registerSelectionListener(typeName, fn) {
   if (typeof typeName !== 'string' || !typeName) {
     throw new Error('registerSelectionListener: typeName must be a non-empty string');
@@ -49,6 +62,9 @@ export function unregisterSelectionListener(typeName, fn) {
  * registered types (deselect signal — plugins don't know which type was active).
  */
 export function fireSelectionChange(annotation) {
+  for (const fn of [...algemeen]) {
+    try { fn(annotation ?? null); } catch (err) { console.error('[selection-listener] general listener threw', err); }
+  }
   if (annotation == null) {
     for (const set of listeners.values()) {
       for (const fn of set) {

@@ -19,6 +19,7 @@ js/pdf/saver/bestaande-markeringen.test.mjs
 js/pdf/correction-wiring.test.mjs
 js/pdf/correction-roundtrip.test.mjs
 js/annotations/rendering/caret.test.mjs
+js/annotations/rendering/markeringslijnen.test.mjs
 js/annotations/corrections/correction-ui.test.mjs
 js/annotations/corrections/correction-app.test.mjs
 js/annotations/corrections/correction-ui-wiring.test.mjs
@@ -36,6 +37,7 @@ js/unit-testlijst.test.mjs
 js/text/mcp-page-text.test.mjs
 js/text/mcp-text-color.test.mjs
 js/text/mcp-text-font.test.mjs
+js/text/mcp-text-plan.test.mjs
 js/pdf/office-document.test.mjs
 js/pdf/tiff.test.mjs
 js/pdf/export-document.test.mjs
@@ -46,9 +48,19 @@ js/pdf/save-document.test.mjs
 js/core/atomic-write.test.mjs
 scripts/test-nen-ifc-map.mjs
 scripts/test-systeemraster.mjs
+js/annotations/systeem-typen.test.mjs
+js/annotations/systeem-typen-contract.test.mjs
+js/annotations/systeem-typen-editor.test.mjs
+js/annotations/systeem-typen-registry.test.mjs
+js/annotations/systeem-typen-mcp.test.mjs
+js/annotations/systeem-geometrie.test.mjs
+js/solid/stores/systeemtypenEditorSessie.test.mjs
+js/pdf/loader/systeemraster-ifc-rondgang.test.mjs
+js/solid/components/dialogs/systeemtypen-dialoog-bedrading.test.mjs
 js/drafting/tekeningtype.test.mjs
 js/annotations/betonbalk-join.test.mjs
 js/annotations/hoek-trim.test.mjs
+js/annotations/hoek-geometrie.test.mjs
 js/annotations/polygon-transform.test.mjs
 js/annotations/fill-utils.test.mjs
 js/annotations/crop-geometrie.test.mjs
@@ -79,6 +91,7 @@ js/annotations/svg-real-size.test.mjs
 js/annotations/svg-stroke-color.test.mjs
 js/annotations/svg-stroke-width.test.mjs
 js/symbols/symbol-scale.test.mjs
+js/symbols/symbol-insert-format.test.mjs
 js/symbols/catalog-opslagkeuze.test.mjs
 js/symbols/linework-catalog.test.mjs
 js/symbols/templates/constructie-bouwplaats.test.mjs
@@ -99,6 +112,7 @@ js/pdf/progressive-render.test.mjs
 js/pdf/tile-coverage.test.mjs
 js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs
+js/pdf/continuous-render-scale.test.mjs
 js/pdf/link-destination.test.mjs
 js/help/previous-version.test.mjs
 js/quantities/engine.test.mjs
@@ -200,6 +214,9 @@ js/plattegrond/skill.test.mjs
 js/plugins/annotation-batch.test.mjs
 js/plugins/page-access.test.mjs
 js/plugins/plugin-pdf.test.mjs
+js/plugins/system-type-api.test.mjs
+js/plugins/view-navigation.test.mjs
+js/pdf/voorvertoning-sleutel.test.mjs
 js/tools/text-edit-vak.test.mjs
 js/symbols/anker.test.mjs
 js/symbols/templates/sanitair.test.mjs
@@ -244,3 +261,81 @@ js/pdf/printerlijst-afnemers.test.mjs
 js/pdf/wiel-scroll.test.mjs
 js/pdf/saver/text-markup-dict.test.mjs
 js/text/leesrichting.test.mjs
+js/pdf/frame-planner.test.mjs
+js/pdf/pdf-viewport-lus.test.mjs
+js/pdf/scrollbalk-geometrie.test.mjs
+js/tools/greep-strek.test.mjs
+js/pdf/haakjes-rondgang.test.mjs
+js/annotations/kalibratie-schaal.test.mjs
+js/tools/tools/meting-documentschaal.test.mjs
+js/annotations/vlak-zijden.test.mjs
+js/annotations/vlak-maat.test.mjs
+js/annotations/vlak-zijdematen-wiring.test.mjs
+js/pdf/meetvlak-rondgang.test.mjs
+js/tools/tools/meetvlak-hoeksnap.test.mjs
+js/core/standaardstijl-meetvlak.test.mjs
+js/ui/chrome/tab-sneltoets.test.mjs
+js/pdf/weergave-per-document.test.mjs
+js/ui/chrome/tab-sneltoets-koppeling.test.mjs
+scripts/nix-flake-bijwerken.test.mjs
+js/pdf/schermkalibratie.test.mjs
+js/pdf/schermkalibratie-i18n.test.mjs
+js/core/basis-url.test.mjs
+js/core/opslag.test.mjs
+js/core/ai-sleutel.test.mjs
+js/core/host-opslag.test.mjs
+js/pdf/bijlagen.test.mjs
+js/watermark/kopvoet.test.mjs
+js/pdf/page-manager-kopvoet.test.mjs
+js/pdf/pdfx-enrich.test.mjs
+js/pdf/pdfx-cmyk.test.mjs
+js/core/zoom-display.test.mjs
+js/pdf/render-sharpen.test.mjs
+js/pdf/print-meerperblad.test.mjs
+js/pdf/print-meerperblad-voorbeeld.test.mjs
+js/pdf/flattened-copy.test.mjs
+js/text/wrap-tekst.test.mjs
+js/annotations/offset-geometry.test.mjs
+js/annotations/stretch-geometry.test.mjs
+js/annotations/scale-geometry.test.mjs
+js/annotations/spot-coord.test.mjs
+js/tools/maat-vorm-eindpunt.test.mjs
+js/tools/embedded-image-edit.test.mjs
+js/tools/embedded-image-drag.test.mjs
+js/tools/scan-text-geom.test.mjs
+# Extensies beheren via MCP en eigen linttabbladen (#550, #551)
+js/plugins/extension-contributions.test.mjs
+js/plugins/svg-pictogram.test.mjs
+js/plugins/ribbon-tab-registry.test.mjs
+js/plugins/extension-commands.test.mjs
+js/solid/components/ribbon/ribbon-toetsenbord.test.mjs
+js/plugins/extension-lifecycle.test.mjs
+js/plugins/extension-mcp.test.mjs
+js/plugins/oppx-testpakket.test.mjs
+js/plugins/extensies-mcp-aansluiting.test.mjs
+js/plugins/opslag-wissel-slot.test.mjs
+js/plugins/plugin-api-opruimen.test.mjs
+js/tools/pijl-in-tabstrook.test.mjs
+# Ctrl-sneltoetsen met Caps Lock aan (#577)
+js/tools/sneltoetsen-caps-lock.test.mjs
+# Snellere pdf-lib-standaarden voor inlezen en opslaan (#581)
+js/pdf/pdf-lib-snelheid.test.mjs
+# Draagbare Cargo-instellingen, geen absolute paden (#582)
+scripts/cargo-config-draagbaar.test.mjs
+# Bladwijzerpaneel: huidige bladwijzer en zoekveld (#578)
+js/ui/panels/bladwijzer-zoeken.test.mjs
+# Miniaturen groeien mee, kolommen en scherpte (#579)
+js/ui/panels/miniatuur-maat.test.mjs
+js/pdf/pagina-labels.test.mjs
+js/pdf/pagina-labels-i18n.test.mjs
+js/pdf/page-manager-paginalabels.test.mjs
+js/plugins/structured-commands.test.mjs
+js/plugins/system-instance-panels.test.mjs
+# Agenttaken van extensies zonder assistentvenster (#556)
+js/plugins/agent-tasks.test.mjs
+js/plugins/agent-tasks-plugin-api.test.mjs
+js/core/mcp-schermafdruk.test.mjs
+js/core/mcp-ui-boom.test.mjs
+js/core/mcp-lint-opdrachten.test.mjs
+js/pdf/wachtwoord-pdf.test.mjs
+js/pdf/page-transition.test.mjs

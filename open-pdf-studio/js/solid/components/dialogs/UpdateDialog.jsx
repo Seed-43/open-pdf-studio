@@ -3,6 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { schrijfOpslag } from '../../../core/opslag.js';
 
 export default function UpdateDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -26,7 +27,7 @@ export default function UpdateDialog(props) {
   function handleSkip() {
     const ver = newVersion();
     if (ver && ver !== '-' && ver !== 'Unknown') {
-      localStorage.setItem('openpdfstudio-skip-version', ver);
+      try { schrijfOpslag('openpdfstudio-skip-version', ver); } catch { /* vraagt de volgende keer opnieuw */ }
     }
     close();
   }

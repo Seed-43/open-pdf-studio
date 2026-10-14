@@ -13,19 +13,20 @@ function harness() {
   const pdf = { numPages: 1, getPage: async () => page };
   const doc = { pdfDoc: pdf, filePath: 'source.pdf', fileName: 'source.pdf', textEdits: [], ocrResults: {} };
   const state = { documents: [doc] };
-  const writes = [], messages = [];
+  const writes = [], messages = [], built = [];
   const deps = {
     state, getActiveDocument: () => state.documents[0],
-    saveFileDialog: async () => '/tmp/source.xlsx',
+    saveFileDialog: async name => `/tmp/${name}`,
     writeBinaryFileAtomic: async (path, bytes) => writes.push({ path, bytes }),
     showLoading() {}, hideLoading() {}, showMessage: message => messages.push(message),
     i18next: { t: key => key },
     textItemsToBoxes: () => [], recoverLayout: () => [], recoverDrawingLayout: () => [],
     buildOdt: () => new Uint8Array(), buildXlsx: () => new Uint8Array([1, 2, 3]),
+    buildDocx: (pages, options) => { built.push({ pages, options }); return new Uint8Array([4, 5]); },
     pageImage: async () => new Uint8Array(),
   };
   const exportOffice = new Function(...Object.keys(deps), `${exportSource}\nreturn exportOffice;`)(...Object.values(deps));
-  return { content, doc, state, writes, messages, exportOffice };
+  return { content, doc, state, writes, messages, built, exportOffice };
 }
 
 test('closing the source document during Office extraction prevents an output file', async () => {
@@ -45,4 +46,23 @@ test('switching tabs leaves the captured source document exportable', async () =
   h.content.resolve({ items: [] });
   assert.equal(await exporting, true);
   assert.equal(h.writes[0].path, '/tmp/source.xlsx');
+});
+
+test('DOCX export writes a .docx with the recovered blocks and a page image when there is no text', async () => {
+  const h = harness();
+  const exporting = h.exportOffice({ format: 'docx', pages: [1, 1, 7] });
+  h.content.resolve({ items: [] });
+  assert.equal(await exporting, true);
+  assert.equal(h.writes[0].path, '/tmp/source.docx');
+  assert.deepEqual([...h.writes[0].bytes], [4, 5]);
+  assert.equal(h.built.length, 1);
+  assert.deepEqual(h.built[0].pages.map(p => p.number), [1]);
+  assert.ok(h.built[0].pages[0].image instanceof Uint8Array);
+  assert.equal(h.built[0].pages[0].emptyMessage, 'appMenu:exportPanel.officeNoText');
+});
+
+test('an unknown office format is refused before asking for a file', async () => {
+  const h = harness();
+  assert.equal(await h.exportOffice({ format: 'rtf', pages: [1] }), false);
+  assert.deepEqual(h.writes, []);
 });

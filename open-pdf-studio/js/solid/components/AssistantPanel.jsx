@@ -7,10 +7,12 @@ import { registerAssistantSubmit, registerAssistantMessages, enqueueAssistantQue
 import { ASSISTANT_SKILLS, SKILLS_SYSTEM_PROMPT } from '../../assistant-skills.js';
 import { getActiveDocument } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { leesAiSleutel, bewaarAiSleutel, ruimAiSleutelOpAlsGast } from '../../core/ai-sleutel.js';
+import { knopUit, externeDienstenAan } from '../../core/webfuncties.js';
+import { isTauri } from '../../core/platform.js';
 
 const GREETING =
   'Hallo! Ik ben de **OpenAEC-assistent**. Ik kan: 🌐 vertalen, 📝 samenvatten, ✏️ tekenen op de tekening, en 🚪 deuren herkennen. Kies hieronder een vaardigheid of stel je vraag.';
-const ANTHROPIC_KEY_LS = 'opds-anthropic-key';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
 // Minimal markdown-lite rendering (bold, inline code, line breaks). The AI text
@@ -41,13 +43,19 @@ function describeAiError(err) {
 }
 
 export default function AssistantPanel() {
+  // Als gast staat de AI-dienst uit (#548): geen zwevende knop die niets kan
+  // over de tekening heen. De sleutel blijft daar ook uit de opslag.
+  if (knopUit('assistant-launcher', { inTauri: isTauri() })) {
+    ruimAiSleutelOpAlsGast();
+    return null;
+  }
+
   const { t } = useTranslation('common');
   const [open, setOpen] = createSignal(false);
   const [messages, setMessages] = createSignal([{ role: 'assistant', content: GREETING }]);
   const [input, setInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
-  const readKey = () => { try { return localStorage.getItem(ANTHROPIC_KEY_LS) || ''; } catch (_) { return ''; } };
-  const [apiKey, setApiKey] = createSignal(readKey());
+  const [apiKey, setApiKey] = createSignal(leesAiSleutel());
   const [showKey, setShowKey] = createSignal(false);
   let messagesEnd, inputEl, keyEl;
 
@@ -65,8 +73,7 @@ export default function AssistantPanel() {
   function saveKey() {
     const v = (keyEl?.value || '').trim();
     try {
-      if (v) localStorage.setItem(ANTHROPIC_KEY_LS, v);
-      else localStorage.removeItem(ANTHROPIC_KEY_LS);
+      bewaarAiSleutel(v);
     } catch (_) { /* private mode — ignore */ }
     setApiKey(v);
     setShowKey(false);
@@ -120,7 +127,7 @@ export default function AssistantPanel() {
     const relayActive = relayClientActive();
     const providers = [];
     if (relayActive) providers.push(mcpRelay);
-    if (key) providers.push(claudeDirect);
+    if (key && externeDienstenAan()) providers.push(claudeDirect);
     if (!relayActive) providers.push(mcpRelay);
 
     let answer = null;
@@ -158,7 +165,7 @@ export default function AssistantPanel() {
     <Show
       when={open()}
       fallback={
-        <button class="chat-fab" title={t('assistantTitle') || 'OpenAEC-assistent'} onClick={() => setOpen(true)}>💬</button>
+        <button id="assistant-launcher" class="chat-fab" title={t('assistantTitle')} onClick={() => setOpen(true)}>💬</button>
       }
     >
       <div class="chat-floating">
