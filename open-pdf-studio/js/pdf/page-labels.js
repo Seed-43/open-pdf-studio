@@ -2,7 +2,7 @@
 //
 // Labels live on the document as `doc.pageLabels` (array, index 0 = page 1,
 // null = no labels) and are written to the standard PDF /PageLabels number
-// tree on save, so Acrobat and Bluebeam show the same names. The name builder
+// tree on save, so other PDF viewers show the same names. The name builder
 // reads a sheet-number and a sheet-title region on every page: the PDF's own
 // text first (fast, exact for CAD output), OCR only where a region is empty.
 import { PDFName, PDFNumber, PDFHexString } from 'pdf-lib';
@@ -178,7 +178,7 @@ export function buildLabelFromTemplate(template, texts) {
     .replace(/\{page\}/gi, texts?.page != null ? String(texts.page) : '')
     .replace(/\s+/g, ' ')
     // Drop separators left dangling by an empty region ("S-101 - " -> "S-101").
-    .replace(/^[\s\-–:,|_]+|[\s\-–:,|_]+$/g, '')
+    .replace(/^[\s\-\u2013:,|_]+|[\s\-\u2013:,|_]+$/g, '')
     .trim();
 }
 

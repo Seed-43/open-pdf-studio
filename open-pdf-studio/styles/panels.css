@@ -1619,13 +1619,6 @@ body.page-label-picking .annotation-canvas { cursor: crosshair !important; }
 .page-labels-body { font-size: 12px; display: flex; flex-direction: column; gap: 10px; }
 .page-labels-intro { margin: 0; opacity: 0.85; line-height: 1.4; }
 .page-labels-regions { display: flex; flex-direction: column; gap: 6px; }
-.page-labels-region { display: flex; align-items: center; gap: 10px; }
-.page-labels-region-name { width: 100px; font-weight: 600; }
-.page-labels-region-state { flex: 1; opacity: 0.7; }
-.page-labels-region-state.set { opacity: 1; color: #16a34a; }
-.page-labels-options { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
-.page-labels-options input[type="text"] { margin-left: 8px; width: 220px; padding: 3px 6px; font-size: 12px; }
-.page-labels-hint { opacity: 0.6; }
 .page-labels-check { flex-basis: 100%; display: flex; align-items: center; gap: 6px; }
 .page-labels-actions { display: flex; align-items: center; gap: 10px; }
 .page-labels-progress { opacity: 0.8; }
@@ -1653,30 +1646,11 @@ body.page-label-picking .annotation-canvas { cursor: crosshair !important; }
 .thumbnails-header-btn:hover { border-color: var(--theme-thumbnail-active-border, #d97706); background: var(--theme-thumbnail-hover); }
 .thumbnails-header-btn svg { width: 15px; height: 15px; }
 
-/* Page label builder row (pieces like Bluebeam's page label builder) */
-.page-labels-builder {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  min-height: 40px; padding: 8px 10px;
-  border: 2px solid var(--theme-panel-header-text, #222);
-  border-radius: 2px;
-}
-.page-labels-builder-empty { opacity: 0.6; font-style: italic; }
-.page-labels-chip {
-  display: inline-flex; align-items: center; gap: 2px;
-  background: #3c4250; color: #22c55e; font-weight: 600;
-  padding: 3px 4px 3px 8px; border-radius: 2px; font-size: 13px;
-}
-.page-labels-chip-input {
-  background: transparent; border: none; outline: none; color: #22c55e;
-  font: inherit; padding: 0; min-width: 1ch; white-space: pre;
-}
-.page-labels-chip.text { border: 1px dashed rgba(34, 197, 94, 0.5); }
 .page-labels-chip-x {
   background: transparent; border: none; color: #9ca3af; cursor: pointer;
   font-size: 14px; line-height: 1; padding: 0 2px; margin-left: 4px;
 }
 .page-labels-chip-x:hover { color: #ef4444; }
-.page-labels-addrow { display: flex; align-items: center; gap: 8px; }
 .page-labels-add {
   border: 2px solid var(--theme-panel-header-text, #222) !important;
   background: #3c4250 !important; color: #22c55e !important; font-weight: 600;

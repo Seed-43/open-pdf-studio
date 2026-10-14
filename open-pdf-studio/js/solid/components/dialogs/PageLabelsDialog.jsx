@@ -7,7 +7,7 @@ import {
   pickPageRegion, readRegion, readRegionsOnAllPages, buildLabelFromTemplate, setPageLabels, pageLabelFor,
 } from '../../../pdf/page-labels.js';
 
-// Page label builder, modelled on Bluebeam: the user types the label in one
+// Page label builder: the user types the label in one
 // field, and "Select" drops an {OCR1}, {OCR2}... placeholder at the cursor for
 // text picked on the page (read from the same spot on every page). State lives
 // at module level so it survives the dialog closing while a region is dragged.
