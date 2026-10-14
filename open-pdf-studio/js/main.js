@@ -23,6 +23,8 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 // Core modules
+// Faster pdf-lib defaults for every load/save (see the module).
+import './pdf/pdf-lib-speed.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initDomElements } from './ui/dom-elements.js';
