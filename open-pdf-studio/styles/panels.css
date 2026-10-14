@@ -485,8 +485,7 @@
 }
 
 .bookmark-item.current {
-  background: var(--theme-thumbnail-active-bg);
-  box-shadow: inset 3px 0 0 var(--theme-thumbnail-active-border);
+  background: var(--theme-thumbnail-hover);
 }
 
 .bookmark-arrow {
@@ -1705,4 +1704,4 @@ body.page-label-picking .annotation-canvas { cursor: crosshair !important; }
   border: 1px solid var(--theme-panel-border, #555); border-radius: 2px;
 }
 .bookmarks-search:focus { outline: none; border-color: var(--theme-thumbnail-active-border, #d97706); }
-.bookmark-item.found { background: var(--theme-thumbnail-hover); }
+.bookmark-item.found { box-shadow: inset 3px 0 0 var(--theme-thumbnail-active-border); }
