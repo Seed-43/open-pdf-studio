@@ -1671,3 +1671,15 @@
 }
 .threed-dock-left, .threed-dock-right { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .threed-dock-left { font-weight: 600; }
+
+/* Model tree docked to the left edge of the document area, below the bar */
+.threed-tree-dock {
+  position: absolute; left: 0; bottom: 0; z-index: 2;
+  pointer-events: auto; display: flex;
+}
+.threed-tree-dock:empty { display: none; }
+.threed-tree-dock .threed-tree {
+  width: 260px; height: 100%;
+  background: var(--theme-panel-bg, #2b2b30); color: var(--theme-panel-header-text, #ddd);
+  border-right: 1px solid var(--theme-panel-border, #444);
+}

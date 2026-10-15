@@ -83,6 +83,8 @@ function InlineHost(props) {
   const [box, setBox] = createSignal(null);
   const isOff = () => deactivated().has(annotKey(props.annot));
   const [dock, setDock] = createSignal(null);
+  const [treeDock, setTreeDock] = createSignal(null);
+  const [dockH, setDockH] = createSignal(0);
   const [header, setHeader] = createSignal({ left: '', right: '' });
   let raf = 0, rect = null, last = '';
   const doc = activeDoc();
@@ -107,7 +109,8 @@ function InlineHost(props) {
   return (
     <Show when={clip() && box()}>
       <div class="threed-inline-clip" style={px(clip())}>
-        <div class="threed-dock" classList={{ off: isOff() }}>
+        <div class="threed-dock" classList={{ off: isOff() }}
+          ref={(el) => { const ro = new ResizeObserver(() => setDockH(el.offsetHeight)); ro.observe(el); onCleanup(() => ro.disconnect()); }}>
           <div class="threed-dock-toolbar" ref={setDock} />
           <Show when={header().left || header().right}>
             <div class="threed-dock-header">
@@ -116,6 +119,7 @@ function InlineHost(props) {
             </div>
           </Show>
         </div>
+        <div class="threed-tree-dock" style={{ top: `${dockH()}px` }} ref={setTreeDock} />
         <div class="threed-inline" style={px(box())}>
           <Show when={!isOff()} fallback={
             <button class="threed-activate" onClick={() => setDeactivated(s => { const n = new Set(s); n.delete(annotKey(props.annot)); return n; })}>
@@ -126,6 +130,7 @@ function InlineHost(props) {
               annot={props.annot}
               compact
               toolbarMount={dock()}
+              treeMount={treeDock()}
               onClose={() => setDeactivated(s => new Set(s).add(annotKey(props.annot)))}
               onToggleSize={() => setExpanded(props.annot)}
             />
@@ -399,13 +404,7 @@ function ThreeDViewer(props) {
     </div>
   );
 
-  return (
-    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
-      <Show when={props.toolbarMount} fallback={toolbar}>
-        <Portal mount={props.toolbarMount}>{toolbar}</Portal>
-      </Show>
-      <div class="threed-body">
-        <Show when={showTree() && tree().length}>
+  const treePanel = (
           <div class="threed-tree">
             <For each={tree()}>
               {(node, i) => (
@@ -432,6 +431,18 @@ function ThreeDViewer(props) {
               )}
             </For>
           </div>
+  );
+
+  return (
+    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
+      <Show when={props.toolbarMount} fallback={toolbar}>
+        <Portal mount={props.toolbarMount}>{toolbar}</Portal>
+      </Show>
+      <div class="threed-body">
+        <Show when={showTree() && tree().length}>
+          <Show when={props.treeMount} fallback={treePanel}>
+            <Portal mount={props.treeMount}>{treePanel}</Portal>
+          </Show>
         </Show>
         <div class="threed-canvas" ref={(el) => queueMicrotask(() => init(el))}>
           <Show when={!ready() && !error()}>
