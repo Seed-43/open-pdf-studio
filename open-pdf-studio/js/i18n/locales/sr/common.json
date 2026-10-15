@@ -172,5 +172,32 @@
     "clipboardEmpty": "Нема исечка у остави"
   },
   "snippetOutputFailed": "Векторски исечак није могао да се исцрта, па је извоз или штампа заустављен. Покушајте поново.",
-  "protectedPdfReadOnly": "Овај документ је отворен лозинком и само је за читање. Не може се сачувати."
+  "protectedPdfReadOnly": "Овај документ је отворен лозинком и само је за читање. Не може се сачувати.",
+  "threeD": {
+    "title": "3D view",
+    "view": "View",
+    "fit": "Fit",
+    "display": "Display",
+    "modeSolid": "Solid",
+    "modeEdges": "Solid with edges",
+    "modeWire": "Wireframe",
+    "modeXray": "Transparent",
+    "tree": "Model tree",
+    "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
+    "loading": "Loading 3D model... {{pct}}%",
+    "stats": "{{models}} objects, {{tris}} triangles",
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D).",
+    "activate": "Activate 3D",
+    "expand": "Fill the document area",
+    "shrink": "Back to the page",
+    "deactivate": "Turn off the 3D view",
+    "markupView": "Markup view",
+    "edit": "Edit",
+    "editTip": "Make a markup page of this view; the 3D page stays free to rotate",
+    "creating": "Creating page...",
+    "markupPages": "Markup pages",
+    "pageN": "page {{n}}",
+    "snapshotBar": "3D markup page: {{name}}",
+    "backTo3D": "Back to 3D model"
+  }
 }

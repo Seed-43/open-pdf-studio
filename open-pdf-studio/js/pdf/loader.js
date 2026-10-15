@@ -531,6 +531,20 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // Eagerly start pdf-lib loading in background (don't await - runs in parallel with first paint)
     getSharedPdfLibDoc(doc);
 
+    // 3D models (/Subtype /3D annotations). PDF.js only draws their poster
+    // image, so remember where they are; the 3D bar offers the WebGL view.
+    {
+      doc.threeD = [];
+      doc.threeDSnapshots = [];
+      getSharedPdfLibDoc(doc).then(async (pdfLibDoc) => {
+        if (isClosed() || !pdfLibDoc) return;
+        const { find3DAnnotations, findThreeDSnapshots } = await import('./three-d/pdf-3d.js');
+        if (isClosed()) return;
+        doc.threeD = find3DAnnotations(pdfLibDoc);
+        doc.threeDSnapshots = findThreeDSnapshots(pdfLibDoc);
+      }).catch((e) => console.warn('[3d] scan failed:', e));
+    }
+
     // UI operations — only if this is the active document
     if (isActive()) {
       // Reset form field annotation storage for the new document
