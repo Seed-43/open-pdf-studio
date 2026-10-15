@@ -314,6 +314,16 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     pageMapping: viewportUpdate?.pageMapping || null,
   });
 
+  // 3D models and 3D markup pages move with the pages: scan the new bytes.
+  try {
+    const { find3DAnnotations, findThreeDSnapshots } = await import('./three-d/pdf-3d.js');
+    const lib = await PDFDocument.load(aangeleverdeBytes.slice(), { ignoreEncryption: true, updateMetadata: false });
+    doc.threeD = find3DAnnotations(lib);
+    doc.threeDSnapshots = findThreeDSnapshots(lib);
+  } catch (e) {
+    console.warn('[3d] rescan after reload failed:', e);
+  }
+
   // Restore annotations and rotations
   doc.annotations = annotations;
   doc.pageRotations = rotations;
@@ -994,6 +1004,71 @@ export async function mergeFiles(filePaths, position) {
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
     return verslag;
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * 3D markup snapshot: add a page after the document's last page that shows
+ * the sheet of `sourcePage` (its page content, without the live 3D model)
+ * with a picture of the current 3D view placed over the 3D annotation's
+ * rectangle. Markups then go on that page with the normal tools, while the
+ * 3D page itself stays free to rotate. The page remembers the camera under
+ * /OPS_3DSnapshot (JSON: sourcePage, name, c2w, co, fov, hidden).
+ * @param {{sourcePage:number, rect:number[], jpeg:Uint8Array, name:string, view:object}} snap
+ * @returns {Promise<number|null>} the new page number
+ */
+export async function insertThreeDSnapshotPage(snap) {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return null;
+  const cacheKey = getCacheKey();
+  // The working bytes, or the open document's own data when they are not cached.
+  const currentBytes = getCachedPdfBytes(cacheKey) || new Uint8Array(await doc.pdfDoc.getData());
+  if (!currentBytes?.length) return null;
+  const oldAnnotations = doc.annotations.map(a => ({ ...a }));
+  const oldRotations = { ...doc.pageRotations };
+  const oldPage = doc.currentPage;
+
+  showLoading('Creating 3D markup page...');
+  try {
+    const { PDFName, PDFHexString, degrees, rgb } = await import('pdf-lib');
+    const pdfDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
+    const src = pdfDoc.getPage(snap.sourcePage - 1);
+    const { width, height } = src.getSize();
+    const rot = src.getRotation().angle % 360;
+
+    // Same sheet: the source page's content (title block, frame, notes) as
+    // a form XObject; annotations, the live 3D model among them, stay behind.
+    const sheet = await pdfDoc.embedPage(src);
+    const newIdx = pdfDoc.getPageCount();
+    const page = pdfDoc.insertPage(newIdx, [width, height]);
+    if (rot) page.setRotation(degrees(rot));
+    page.drawPage(sheet, { x: 0, y: 0, width, height });
+
+    // The snapshot over the 3D area, turned with the page's /Rotate so it
+    // reads the right way up on screen.
+    const img = await pdfDoc.embedJpg(snap.jpeg);
+    const [x1, y1, x2, y2] = snap.rect;
+    const rx = Math.min(x1, x2), ry = Math.min(y1, y2), rw = Math.abs(x2 - x1), rh = Math.abs(y2 - y1);
+    page.drawRectangle({ x: rx, y: ry, width: rw, height: rh, color: rgb(1, 1, 1) });
+    if (rot === 90) page.drawImage(img, { x: rx + rw, y: ry, width: rh, height: rw, rotate: degrees(90) });
+    else if (rot === 180) page.drawImage(img, { x: rx + rw, y: ry + rh, width: rw, height: rh, rotate: degrees(180) });
+    else if (rot === 270) page.drawImage(img, { x: rx, y: ry + rh, width: rh, height: rw, rotate: degrees(-90) });
+    else page.drawImage(img, { x: rx, y: ry, width: rw, height: rh });
+
+    page.node.set(PDFName.of('OPS_3DSnapshot'), PDFHexString.fromText(JSON.stringify({
+      sourcePage: snap.sourcePage, name: snap.name, ...snap.view,
+    })));
+
+    const newBytes = new Uint8Array(await pdfDoc.save());
+    const targetPage = newIdx + 1;
+    // Page numbers of existing pages do not change (the page is appended).
+    const newAnnotations = doc.annotations;
+    const newRotations = { ...doc.pageRotations };
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
+    return targetPage;
   } finally {
     hideLoading();
   }

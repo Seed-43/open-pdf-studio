@@ -3,7 +3,6 @@ import { state, getActiveDocument, getPageRotation, setPageRotation, imageCache 
 import { cloneAnnotation } from '../annotations/factory.js';
 import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
 import { applyOcrShift } from '../pdf/shift-page-geometry.js';
-import { tagNewMarkup } from '../pdf/three-d/three-d-markup.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
@@ -768,8 +767,6 @@ async function refresh() {
 // ---- Helper recorders ----
 
 export function recordAdd(annotation) {
-  // Drawn during a 3D markup session: tie it to that saved 3D view.
-  tagNewMarkup(annotation);
   execute({
     type: 'addAnnotation',
     annotation: cloneAnnotation(annotation)

@@ -191,14 +191,13 @@
     "expand": "Hele documentgebied vullen",
     "shrink": "Terug naar de pagina",
     "deactivate": "3D-weergave uitzetten",
-    "markup": "Markeren",
     "markupView": "Markeringsaanzicht",
-    "savedViews": "Opgeslagen markeringsaanzichten",
-    "done": "Klaar",
-    "locked": "Aanzicht vergrendeld",
-    "unlock": "Ontgrendelen",
-    "deleteView": "Aanzicht verwijderen",
-    "markupHint": "Model vergrendeld: teken met de markeergereedschappen",
-    "markupInline": "Markeer het model op de pagina (verlaat eerst volledig scherm)"
+    "edit": "Bewerken",
+    "editTip": "Maak een markeerpagina van dit aanzicht; de 3D-pagina blijft vrij draaibaar",
+    "creating": "Pagina maken...",
+    "markupPages": "Markeerpagina's",
+    "pageN": "pagina {{n}}",
+    "snapshotBar": "3D-markeerpagina: {{name}}",
+    "backTo3D": "Terug naar 3D-model"
   }
 }

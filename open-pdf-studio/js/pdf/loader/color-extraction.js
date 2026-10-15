@@ -257,14 +257,6 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       const laagId = laagVanOc(context, annotDict.get(PDFName.of('OC')));
       if (laagId) colors.layer = laagId;
 
-      // Markup tied to a saved 3D view (three-d-markup.js, saver.js).
-      const v3dRaw = annotDict.get(PDFName.of('OPS_3DView'));
-      if (v3dRaw !== undefined) {
-        const v3d = context.lookup(v3dRaw) || v3dRaw;
-        const id = typeof v3d.decodeText === 'function' ? v3d.decodeText() : String(v3d);
-        if (id) colors.threeDViewId = id;
-      }
-
       // Eigen sleutel van deze app (zie saver.js): wint van de afgeleide
       // waarde hierboven, want die is expliciet bij het opslaan bewaard.
       const ofoRaw = annotDict.get(PDFName.of('OPS_FillOpacity'));

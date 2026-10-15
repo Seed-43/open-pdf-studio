@@ -534,11 +534,13 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // image, so remember where they are; the 3D bar offers the WebGL view.
     {
       doc.threeD = [];
+      doc.threeDSnapshots = [];
       getSharedPdfLibDoc(doc).then(async (pdfLibDoc) => {
         if (isClosed() || !pdfLibDoc) return;
-        const { find3DAnnotations } = await import('./three-d/pdf-3d.js');
+        const { find3DAnnotations, findThreeDSnapshots } = await import('./three-d/pdf-3d.js');
         if (isClosed()) return;
         doc.threeD = find3DAnnotations(pdfLibDoc);
+        doc.threeDSnapshots = findThreeDSnapshots(pdfLibDoc);
       }).catch((e) => console.warn('[3d] scan failed:', e));
     }
 

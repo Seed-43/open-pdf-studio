@@ -191,14 +191,13 @@
     "expand": "Fill the document area",
     "shrink": "Back to the page",
     "deactivate": "Turn off the 3D view",
-    "markup": "Markup",
     "markupView": "Markup view",
-    "savedViews": "Saved markup views",
-    "done": "Done",
-    "locked": "View locked",
-    "unlock": "Unlock",
-    "deleteView": "Delete view",
-    "markupHint": "Model locked: draw with the markup tools",
-    "markupInline": "Mark up the model on the page (leave full size first)"
+    "edit": "Edit",
+    "editTip": "Make a markup page of this view; the 3D page stays free to rotate",
+    "creating": "Creating page...",
+    "markupPages": "Markup pages",
+    "pageN": "page {{n}}",
+    "snapshotBar": "3D markup page: {{name}}",
+    "backTo3D": "Back to 3D model"
   }
 }

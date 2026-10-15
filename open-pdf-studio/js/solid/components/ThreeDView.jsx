@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createEffect, For, Show, onCleanup } from 'solid-js';
+import { createSignal, createMemo, For, Show, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
@@ -11,8 +11,7 @@ import { useTranslation } from '../../i18n/useTranslation.js';
 // visibility toggles, and there are render modes and fit. The U3D model is
 // decoded in a worker (js/pdf/three-d/u3d-worker.js) and drawn with three.js.
 import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
-import { markDocumentModified } from '../../ui/chrome/tabs.js';
-import { setActive3DView, setMarkupSession, markupSession } from '../../pdf/three-d/three-d-markup.js';
+import { goToPage } from '../../pdf/renderer.js';
 
 const [expanded, setExpanded] = createSignal(null);   // annot shown full-area
 const [deactivated, setDeactivated] = createSignal(new Set()); // annot keys showing the poster
@@ -63,6 +62,31 @@ async function headerTextsOf(doc, annot) {
   return annot._header;
 }
 
+// 3D markup pages (page-manager.js insertThreeDSnapshotPage) of the active
+// document, and the one shown now if any.
+const snapshots = () => activeDoc()?.threeDSnapshots || [];
+const currentSnapshot = () => snapshots().find(s => s.page === activeDoc()?.currentPage) || null;
+
+export function ThreeDSnapshotBar() {
+  const { t } = useTranslation('common');
+  const tx = (k, f, o) => t(`threeD.${k}`, { defaultValue: f, ...o });
+  return (
+    <Show when={currentSnapshot()} keyed>
+      {(snap) => (
+        <div class="pdfa-bar threed-snapshot-bar">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+            <path d="M8 1.5l5.5 3v7L8 14.5l-5.5-3v-7z" /><path d="M2.5 4.5L8 7.5l5.5-3M8 7.5v7" />
+          </svg>
+          <span>{tx('snapshotBar', '3D markup page: {{name}}', { name: snap.name })}</span>
+          <button class="pdfa-bar-action" onClick={() => goToPage(snap.sourcePage || 1)}>
+            {tx('backTo3D', 'Back to 3D model')}
+          </button>
+        </div>
+      )}
+    </Show>
+  );
+}
+
 export default function ThreeDView() {
   return (
     <>
@@ -87,7 +111,6 @@ function InlineHost(props) {
   const [dock, setDock] = createSignal(null);
   const [treeDock, setTreeDock] = createSignal(null);
   const [dockH, setDockH] = createSignal(0);
-  const [locked, setLocked] = createSignal(false);
   const [header, setHeader] = createSignal({ left: '', right: '' });
   let raf = 0, rect = null, last = '';
   const doc = activeDoc();
@@ -111,7 +134,7 @@ function InlineHost(props) {
   const px = (o) => o && ({ left: `${o.left}px`, top: `${o.top}px`, width: `${o.width}px`, height: `${o.height}px` });
   return (
     <Show when={clip() && box()}>
-      <div class="threed-dock-layer" style={px(clip())}>
+      <div class="threed-inline-clip" style={px(clip())}>
         <div class="threed-dock" classList={{ off: isOff() }}
           ref={(el) => { const ro = new ResizeObserver(() => setDockH(el.offsetHeight)); ro.observe(el); onCleanup(() => ro.disconnect()); }}>
           <div class="threed-dock-toolbar" ref={setDock} />
@@ -123,8 +146,6 @@ function InlineHost(props) {
           </Show>
         </div>
         <div class="threed-tree-dock" style={{ top: `${dockH()}px` }} ref={setTreeDock} />
-      </div>
-      <div class="threed-inline-clip" classList={{ under: locked() }} style={px(clip())}>
         <div class="threed-inline" style={px(box())}>
           <Show when={!isOff()} fallback={
             <button class="threed-activate" onClick={() => setDeactivated(s => { const n = new Set(s); n.delete(annotKey(props.annot)); return n; })}>
@@ -136,7 +157,6 @@ function InlineHost(props) {
               compact
               toolbarMount={dock()}
               treeMount={treeDock()}
-              onLockChange={setLocked}
               onClose={() => setDeactivated(s => new Set(s).add(annotKey(props.annot)))}
               onToggleSize={() => setExpanded(props.annot)}
             />
@@ -159,21 +179,12 @@ function ThreeDViewer(props) {
   const [viewIdx, setViewIdx] = createSignal(props.annot.defaultView || 0);
   const [stats, setStats] = createSignal('');
   const [visTick, setVisTick] = createSignal(0);
-  // Markups. A saved view holds a camera, hidden nodes and markups; while one
-  // is shown (or while marking up) the model is locked so the markups stay
-  // on the parts they point at. Markup points are stored as [u, v] with
-  // u = (x - width / 2) / height and v = y / height: with a vertical field
-  // of view that keeps them on the model at any canvas size.
-  const [savedIdx, setSavedIdx] = createSignal(null);
-  const [markupMode, setMarkupMode] = createSignal(false);
-  const locked = () => savedIdx() != null || markupMode();
 
   let host, THREE, renderer, scene, camera, controls, root, worker, OrbitControls;
   let disposed = false;
   const materials = new Map();
   let edgesBuilt = false;
   const render = () => { if (renderer && !disposed) renderer.render(scene, camera); };
-  createEffect(() => { const l = locked(); if (controls) controls.enabled = !l; props.onLockChange?.(l); });
 
   async function init(el) {
     host = el;
@@ -306,20 +317,16 @@ function ThreeDViewer(props) {
     controls.enableDamping = false;
     controls.screenSpacePanning = true;
     controls.addEventListener('change', render);
-    controls.enabled = !locked();
     controls.update();
   }
 
   // /C2W is column major: left, up, forward, position (world space).
   function applyView(i) {
-    applyCamera(props.annot.views[i]);
-  }
-
-  function applyCamera(v) {
     if (!ready() && !root) return;
     const { sphere } = bounds();
     const r = Math.max(sphere.radius, 1);
     camera.near = r / 2000; camera.far = r * 200;
+    const v = props.annot.views[i];
     if (!v || !v.c2w || v.c2w.length < 12) { fit(); return; }
     const c = v.c2w;
     const up = new THREE.Vector3(c[3], c[4], c[5]).normalize();
@@ -374,24 +381,6 @@ function ThreeDViewer(props) {
     render();
   }
 
-  function toggle(obj) {
-    obj.visible = !obj.visible;
-    setVisTick(v => v + 1);
-    render();
-  }
-
-  // ── Saved markup views ──────────────────────────────────────────────
-  // The Markup button saves the camera as a view and locks the model; the
-  // app's normal markup tools then draw on top of it, and every markup made
-  // meanwhile is tied to that view (three-d-markup.js). Picking the view
-  // again restores camera and visibility and shows those markups.
-
-  const myKey = annotKey(props.annot);
-  const savedViews = () => props.annot.savedViews || [];
-  const ownerDoc = () => state.documents.find(doc => (doc.threeD || []).includes(props.annot)) || activeDoc();
-  const [countTick, setCountTick] = createSignal(0);
-  const markupCount = (id) => { countTick(); return (ownerDoc()?.annotations || []).filter(a => a.threeDViewId === id).length; };
-
   // Camera as a /3DView would store it: /C2W = left, up, forward, position.
   function captureCamera() {
     camera.updateMatrixWorld(true);
@@ -409,85 +398,59 @@ function ThreeDViewer(props) {
     return out;
   }
 
-  function markDirty() {
-    props.annot.savedViewsDirty = true;
-    const d = ownerDoc();
-    if (d) markDocumentModified(d);
+  // Render the current view at print resolution (about 2400 px across)
+  // and return it as JPEG bytes. The canvas size is restored afterwards.
+  function snapshotJpeg() {
+    const w = host.clientWidth || 1, h = host.clientHeight || 1;
+    const k = 2400 / Math.max(w, h);
+    const ratio = renderer.getPixelRatio();
+    renderer.setPixelRatio(1);
+    renderer.setSize(Math.round(w * k), Math.round(h * k), false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL('image/jpeg', 0.92);
+    renderer.setPixelRatio(ratio);
+    resize();
+    render();
+    const bin = atob(url.slice(url.indexOf(',') + 1));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
   }
 
-  function showSaved(i) {
-    const v = savedViews()[i];
-    if (!v) return;
-    const hidden = new Set(v.hidden || []);
-    root?.traverse((o) => { if (o !== root && o.name && o.name !== '__edges') o.visible = !hidden.has(o.name); });
-    setVisTick(t => t + 1);
-    setSavedIdx(i);
-    applyCamera(v);
-    setActive3DView(myKey, v.id);
-  }
+  const [creating, setCreating] = createSignal(false);
+  const mySnapshots = () => snapshots().filter(s => s.sourcePage === props.annot.page);
 
-  function finishMarkup() {
-    setMarkupMode(false);
-    setCountTick(t => t + 1);
-    if (markupSession()?.viewId === savedViews()[savedIdx()]?.id) setMarkupSession(null);
-  }
-
-  function selectView(value) {
-    finishMarkup();
-    if (value.startsWith('s')) { showSaved(+value.slice(1)); return; }
-    setSavedIdx(null);
-    setActive3DView(myKey, null);
-    const i = +value.slice(1);
-    setViewIdx(i);
-    applyView(i);
-  }
-
-  // Markup: save the current camera as a view (unless one is shown), lock
-  // the model and tie new markups on this page to that view.
-  function startMarkup() {
-    let i = savedIdx();
-    if (i == null) {
-      const list = [...savedViews()];
-      list.push({
-        id: `v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-        name: `${tx('markupView', 'Markup view')} ${list.length + 1}`,
-        ...captureCamera(), hidden: hiddenNames(), saved: true,
+  // Edit: the page with the 3D model stays free to rotate; this view becomes
+  // a new page (same sheet, picture of the model) that takes markups.
+  async function editAsPage() {
+    if (creating() || !ready()) return;
+    setCreating(true);
+    try {
+      const jpeg = snapshotJpeg();
+      const name = `${tx('markupView', 'Markup view')} ${mySnapshots().length + 1}`;
+      const { insertThreeDSnapshotPage } = await import('../../pdf/page-manager.js');
+      await insertThreeDSnapshotPage({
+        sourcePage: props.annot.page, rect: props.annot.rect, jpeg, name,
+        view: { ...captureCamera(), hidden: hiddenNames() },
       });
-      props.annot.savedViews = list;
-      i = list.length - 1;
-      setSavedIdx(i);
-      markDirty();
+    } catch (e) {
+      console.error('[3d] markup page failed:', e);
+      import('../../bridge.js').then(m => m.showMessage?.(String(e?.message || e))).catch(() => {});
+    } finally {
+      setCreating(false);
     }
-    const v = savedViews()[i];
-    setActive3DView(myKey, v.id);
-    setMarkupSession({ viewId: v.id, page: props.annot.page });
-    setMarkupMode(true);
   }
 
-  // Delete a saved view together with the markups made on it.
-  function deleteSaved() {
-    const i = savedIdx();
-    const v = savedViews()[i];
-    if (!v) return;
-    finishMarkup();
-    const d = ownerDoc();
-    if (d) d.annotations = (d.annotations || []).filter(a => a.threeDViewId !== v.id);
-    props.annot.savedViews = savedViews().filter((_, k) => k !== i);
-    setSavedIdx(null);
-    setActive3DView(myKey, null);
-    markDirty();
-  }
-
-  function unlock() {
-    finishMarkup();
-    setSavedIdx(null);
-    setActive3DView(myKey, null);
+  function toggle(obj) {
+    obj.visible = !obj.visible;
+    setVisTick(v => v + 1);
+    render();
   }
 
   onCleanup(() => {
     disposed = true;
-    if (markupSession()?.viewId && savedViews().some(v => v.id === markupSession().viewId)) setMarkupSession(null);
-    setActive3DView(myKey, null);
     if (worker) worker.terminate();
     if (controls) controls.dispose();
     root?.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
@@ -502,17 +465,21 @@ function ThreeDViewer(props) {
       <Show when={!props.compact}><span class="threed-title">{tx('title', '3D view')}</span></Show>
       <Show when={viewNames().length}>
         <label>{tx('view', 'View')}
-          <select value={savedIdx() != null ? `s${savedIdx()}` : `v${viewIdx()}`} onChange={(e) => selectView(e.currentTarget.value)}>
-            <For each={viewNames()}>{(n, i) => <option value={`v${i()}`} selected={savedIdx() == null && viewIdx() === i()}>{n}</option>}</For>
-            <Show when={savedViews().length}>
-              <optgroup label={tx('savedViews', 'Saved markup views')}>
-                <For each={savedViews()}>{(v, i) => <option value={`s${i()}`} selected={savedIdx() === i()}>{`\u{1F512} ${v.name} (${markupCount(v.id)})`}</option>}</For>
+          <select onChange={(e) => {
+            const v = e.currentTarget.value;
+            if (v.startsWith('p')) { goToPage(+v.slice(1)); e.currentTarget.value = `v${viewIdx()}`; return; }
+            const i = +v.slice(1); setViewIdx(i); applyView(i);
+          }}>
+            <For each={viewNames()}>{(n, i) => <option value={`v${i()}`} selected={viewIdx() === i()}>{n}</option>}</For>
+            <Show when={mySnapshots().length}>
+              <optgroup label={tx('markupPages', 'Markup pages')}>
+                <For each={mySnapshots()}>{(sn) => <option value={`p${sn.page}`}>{`${sn.name} (${tx('pageN', 'page {{n}}', { n: sn.page })})`}</option>}</For>
               </optgroup>
             </Show>
           </select>
         </label>
       </Show>
-      <button onClick={() => fit()} disabled={!ready() || locked()}>{tx('fit', 'Fit')}</button>
+      <button onClick={() => fit()} disabled={!ready()}>{tx('fit', 'Fit')}</button>
       <label>{tx('display', 'Display')}
         <select value={mode()} onChange={(e) => setRenderMode(e.currentTarget.value)} disabled={!ready()}>
           <option value="solid">{tx('modeSolid', 'Solid')}</option>
@@ -522,20 +489,10 @@ function ThreeDViewer(props) {
         </select>
       </label>
       <button classList={{ active: showTree() }} onClick={() => setShowTree(v => !v)}>{tx('tree', 'Model tree')}</button>
-      <Show when={!markupMode()} fallback={
-        <span class="threed-markup-tools">
-          <span class="threed-markup-hint">{tx('markupHint', 'Model locked: draw with the markup tools')}</span>
-          <button class="threed-done" onClick={finishMarkup}>{tx('done', 'Done')}</button>
-        </span>
-      }>
-        <button class="threed-markup-btn" onClick={startMarkup} disabled={!ready() || !props.compact}
-          title={props.compact ? '' : tx('markupInline', 'Mark up the model on the page (leave full size first)')}>{tx('markup', 'Markup')}</button>
-      </Show>
-      <Show when={savedIdx() != null && !markupMode()}>
-        <span class="threed-locked">{'\u{1F512}'} {tx('locked', 'View locked')}</span>
-        <button onClick={unlock}>{tx('unlock', 'Unlock')}</button>
-        <button onClick={deleteSaved}>{tx('deleteView', 'Delete view')}</button>
-      </Show>
+      <button class="threed-markup-btn" onClick={editAsPage} disabled={!ready() || creating()}
+        title={tx('editTip', 'Make a markup page of this view; the 3D page stays free to rotate')}>
+        {creating() ? tx('creating', 'Creating page...') : tx('edit', 'Edit')}
+      </button>
       <span class="threed-stats">{stats()}</span>
       <span style={{ flex: 1 }} />
       <Show when={!props.compact}>
@@ -578,7 +535,7 @@ function ThreeDViewer(props) {
   );
 
   return (
-    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key !== 'Escape') return; if (markupMode()) finishMarkup(); else props.onClose(); }} tabIndex={-1}>
+    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
       <Show when={props.toolbarMount} fallback={toolbar}>
         <Portal mount={props.toolbarMount}>{toolbar}</Portal>
       </Show>

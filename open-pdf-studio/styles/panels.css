@@ -1684,16 +1684,6 @@
   border-right: 1px solid var(--theme-panel-border, #444);
 }
 
-/* 3D markup controls */
-.threed-markup-tools { display: inline-flex; gap: 4px; }
+/* 3D markup page bar and the Edit button */
+.threed-snapshot-bar { background: #1e3a5f; color: #e0ecff; }
 .threed-toolbar button.threed-markup-btn { border-color: #e11d48; }
-.threed-toolbar button.threed-done { background: #16a34a; border-color: #16a34a; color: #fff; }
-.threed-locked { color: #f59e0b; font-weight: 600; }
-
-/* While a saved 3D view is shown or being marked up, the model sits under
-   the page's markup layer (annotation canvas, z-index 3) so the normal
-   markup tools draw on top of it. The dock stays above everything. */
-.threed-inline-clip.under { z-index: 2; }
-.threed-inline-clip.under .threed-inline { pointer-events: none; }
-.threed-dock-layer { position: fixed; overflow: hidden; pointer-events: none; z-index: 41; }
-.threed-markup-hint { color: #f59e0b; font-weight: 600; margin-right: 6px; }

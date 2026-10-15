@@ -51,9 +51,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
   // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
   // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
-  const extra = extraVoorAnnotatie(annotColorMap, annot);
-  if (extra?.threeDViewId && omgezet && typeof omgezet === 'object') omgezet.threeDViewId = extra.threeDViewId;
-  return zetLaagUitBestand(omgezet, extra?.layer);
+  return zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
 }
 
 // Convert PDF annotation to our format
