@@ -1,4 +1,5 @@
 import { createSignal, createMemo, For, Show, onCleanup } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 
@@ -33,6 +34,33 @@ async function viewRectOf(doc, annot) {
   return annot._viewRect;
 }
 
+// Text printed above the 3D area (sheet title on the left, export or print
+// date on the right), shown docked under the 3D toolbar so it stays readable
+// while the page is panned. Text runs may be rotated in PDF space (sheets
+// stored unrotated with /Rotate 90), so boxes come from the run direction.
+async function headerTextsOf(doc, annot) {
+  if (annot._header) return annot._header;
+  const rect = await viewRectOf(doc, annot);
+  const page = await doc.pdfDoc.getPage(annot.page);
+  const vp = page.getViewport({ scale: 1 });
+  const content = await page.getTextContent();
+  const left = [], right = [];
+  for (const it of content.items) {
+    if (!it.str || !it.str.trim()) continue;
+    const [a, b, c, d, e, f] = it.transform;
+    const rl = Math.hypot(a, b) || 1, ul = Math.hypot(c, d) || 1, h = it.height || ul;
+    const pts = [[e, f], [e + (a / rl) * it.width, f + (b / rl) * it.width],
+      [e + (c / ul) * h, f + (d / ul) * h]].map(([x, y]) => vp.convertToViewportPoint(x, y));
+    const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+    const box = { x: Math.min(...xs), y: Math.min(...ys), x2: Math.max(...xs), y2: Math.max(...ys), text: it.str.trim() };
+    if (box.y2 > rect.y + 1) continue; // only text above the 3D area
+    ((box.x + box.x2) / 2 < vp.width / 2 ? left : right).push(box);
+  }
+  const join = (bs) => bs.sort((p, q) => p.y - q.y || p.x - q.x).map(q => q.text).join(' ').replace(/\s+/g, ' ').trim();
+  annot._header = { left: join(left), right: join(right) };
+  return annot._header;
+}
+
 export default function ThreeDView() {
   return (
     <>
@@ -54,9 +82,12 @@ function InlineHost(props) {
   const [clip, setClip] = createSignal(null);
   const [box, setBox] = createSignal(null);
   const isOff = () => deactivated().has(annotKey(props.annot));
+  const [dock, setDock] = createSignal(null);
+  const [header, setHeader] = createSignal({ left: '', right: '' });
   let raf = 0, rect = null, last = '';
   const doc = activeDoc();
   viewRectOf(doc, props.annot).then((r) => { rect = r; });
+  headerTextsOf(doc, props.annot).then(setHeader).catch(() => {});
   const tick = () => {
     raf = requestAnimationFrame(tick);
     const area = document.getElementById('pdf-container');
@@ -76,6 +107,15 @@ function InlineHost(props) {
   return (
     <Show when={clip() && box()}>
       <div class="threed-inline-clip" style={px(clip())}>
+        <div class="threed-dock" classList={{ off: isOff() }}>
+          <div class="threed-dock-toolbar" ref={setDock} />
+          <Show when={header().left || header().right}>
+            <div class="threed-dock-header">
+              <span class="threed-dock-left" title={header().left}>{header().left}</span>
+              <span class="threed-dock-right" title={header().right}>{header().right}</span>
+            </div>
+          </Show>
+        </div>
         <div class="threed-inline" style={px(box())}>
           <Show when={!isOff()} fallback={
             <button class="threed-activate" onClick={() => setDeactivated(s => { const n = new Set(s); n.delete(annotKey(props.annot)); return n; })}>
@@ -85,6 +125,7 @@ function InlineHost(props) {
             <ThreeDViewer
               annot={props.annot}
               compact
+              toolbarMount={dock()}
               onClose={() => setDeactivated(s => new Set(s).add(annotKey(props.annot)))}
               onToggleSize={() => setExpanded(props.annot)}
             />
@@ -326,37 +367,43 @@ function ThreeDViewer(props) {
 
   const viewNames = createMemo(() => props.annot.views.map((v, i) => v.name || `${tx('view', 'View')} ${i + 1}`));
 
-  return (
-    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
-      <div class="threed-toolbar">
-        <Show when={!props.compact}><span class="threed-title">{tx('title', '3D view')}</span></Show>
-        <Show when={viewNames().length}>
-          <label>{tx('view', 'View')}
-            <select value={viewIdx()} onChange={(e) => { const i = +e.currentTarget.value; setViewIdx(i); applyView(i); }}>
-              <For each={viewNames()}>{(n, i) => <option value={i()}>{n}</option>}</For>
-            </select>
-          </label>
-        </Show>
-        <button onClick={() => fit()} disabled={!ready()}>{tx('fit', 'Fit')}</button>
-        <label>{tx('display', 'Display')}
-          <select value={mode()} onChange={(e) => setRenderMode(e.currentTarget.value)} disabled={!ready()}>
-            <option value="solid">{tx('modeSolid', 'Solid')}</option>
-            <option value="edges">{tx('modeEdges', 'Solid with edges')}</option>
-            <option value="wire">{tx('modeWire', 'Wireframe')}</option>
-            <option value="xray">{tx('modeXray', 'Transparent')}</option>
+  const toolbar = (
+    <div class="threed-toolbar">
+      <Show when={!props.compact}><span class="threed-title">{tx('title', '3D view')}</span></Show>
+      <Show when={viewNames().length}>
+        <label>{tx('view', 'View')}
+          <select value={viewIdx()} onChange={(e) => { const i = +e.currentTarget.value; setViewIdx(i); applyView(i); }}>
+            <For each={viewNames()}>{(n, i) => <option value={i()}>{n}</option>}</For>
           </select>
         </label>
-        <button classList={{ active: showTree() }} onClick={() => setShowTree(v => !v)}>{tx('tree', 'Model tree')}</button>
-        <Show when={!props.compact}><span class="threed-stats">{stats()}</span></Show>
-        <span style={{ flex: 1 }} />
-        <Show when={!props.compact}>
-          <span class="threed-hint">{tx('hint', 'Left drag: orbit, right drag: pan, wheel: zoom')}</span>
-        </Show>
-        <button onClick={props.onToggleSize} title={props.compact ? tx('expand', 'Fill the document area') : tx('shrink', 'Back to the page')}>
-          {props.compact ? '⤢' : '⤡'}
-        </button>
-        <button class="threed-close" onClick={props.onClose} title={props.compact ? tx('deactivate', 'Turn off the 3D view') : t('close')}>&times;</button>
-      </div>
+      </Show>
+      <button onClick={() => fit()} disabled={!ready()}>{tx('fit', 'Fit')}</button>
+      <label>{tx('display', 'Display')}
+        <select value={mode()} onChange={(e) => setRenderMode(e.currentTarget.value)} disabled={!ready()}>
+          <option value="solid">{tx('modeSolid', 'Solid')}</option>
+          <option value="edges">{tx('modeEdges', 'Solid with edges')}</option>
+          <option value="wire">{tx('modeWire', 'Wireframe')}</option>
+          <option value="xray">{tx('modeXray', 'Transparent')}</option>
+        </select>
+      </label>
+      <button classList={{ active: showTree() }} onClick={() => setShowTree(v => !v)}>{tx('tree', 'Model tree')}</button>
+      <span class="threed-stats">{stats()}</span>
+      <span style={{ flex: 1 }} />
+      <Show when={!props.compact}>
+        <span class="threed-hint">{tx('hint', 'Left drag: orbit, right drag: pan, wheel: zoom')}</span>
+      </Show>
+      <button onClick={props.onToggleSize} title={props.compact ? tx('expand', 'Fill the document area') : tx('shrink', 'Back to the page')}>
+        {props.compact ? '⤢' : '⤡'}
+      </button>
+      <button class="threed-close" onClick={props.onClose} title={props.compact ? tx('deactivate', 'Turn off the 3D view') : t('close')}>&times;</button>
+    </div>
+  );
+
+  return (
+    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
+      <Show when={props.toolbarMount} fallback={toolbar}>
+        <Portal mount={props.toolbarMount}>{toolbar}</Portal>
+      </Show>
       <div class="threed-body">
         <Show when={showTree() && tree().length}>
           <div class="threed-tree">
