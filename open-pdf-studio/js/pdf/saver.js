@@ -2842,6 +2842,10 @@ async function _savePDFNu(saveAsPath, activeDoc) {
           // voor alle soorten. Zonder lagen is laagOcgs null en komt er niets bij.
           const ocRef = ocVoorAnnotatie(laagOcgs, ann);
           if (ocRef && typeof annotDict.set === 'function') annotDict.set(PDFName.of('OC'), ocRef);
+          // Markup drawn on a saved 3D view: remember which one (three-d-markup.js).
+          if (ann.threeDViewId && typeof annotDict.set === 'function') {
+            annotDict.set(PDFName.of('OPS_3DView'), PDFHexString.fromText(String(ann.threeDViewId)));
+          }
           parentAnnotRef = context.register(annotDict);
           annotsArray.push(parentAnnotRef);
           if (annRaw.type === 'caret' || annRaw.type === 'textStrikethrough') {

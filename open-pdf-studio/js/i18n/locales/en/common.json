@@ -194,15 +194,11 @@
     "markup": "Markup",
     "markupView": "Markup view",
     "savedViews": "Saved markup views",
-    "toolPen": "Pen",
-    "toolArrow": "Arrow",
-    "toolBox": "Box",
-    "toolText": "Text",
-    "undo": "Undo",
     "done": "Done",
     "locked": "View locked",
     "unlock": "Unlock",
     "deleteView": "Delete view",
-    "textHint": "Type, then Enter"
+    "markupHint": "Model locked: draw with the markup tools",
+    "markupInline": "Mark up the model on the page (leave full size first)"
   }
 }

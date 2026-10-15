@@ -30,9 +30,10 @@ function streamOf(ctx, dd) {
   return s instanceof PDFRawStream ? s : null;
 }
 
-// Custom key on a /3DView dictionary holding this app's markups for that
-// view as JSON: { markups: [...], hidden: [node names] }. Other viewers
-// ignore it and still get the camera (/C2W, /CO, /P) as a named view.
+// Custom key on a /3DView dictionary marking a saved markup view of this
+// app, as JSON: { id, hidden: [node names] }. The markups themselves are
+// normal annotations carrying /OPS_3DView = id (three-d-markup.js). Other
+// viewers ignore the key and still get the camera (/C2W, /CO, /P).
 export const SAVED_VIEW_KEY = 'OPS_Markups';
 
 function readViews(ctx, dict) {
@@ -65,7 +66,7 @@ function readViews(ctx, dict) {
       try {
         const data = JSON.parse(text(extra));
         view.saved = true;
-        view.markups = Array.isArray(data.markups) ? data.markups : [];
+        view.id = typeof data.id === 'string' && data.id ? data.id : `v${views.length}_${view.name}`;
         view.hidden = Array.isArray(data.hidden) ? data.hidden : [];
       } catch (_) { /* unreadable: treat as a plain view */ }
     }
@@ -154,7 +155,7 @@ export function writeSavedViews(pdfLibDoc, threeD) {
         C2W: v.c2w.map(n => PDFNumber.of(n)),
         CO: PDFNumber.of(v.co || 0),
         P: ctx.obj({ Subtype: PDFName.of('P'), FOV: PDFNumber.of(v.fov || 30), PS: PDFName.of('Min') }),
-        [SAVED_VIEW_KEY]: PDFHexString.fromText(JSON.stringify({ markups: v.markups || [], hidden: v.hidden || [] })),
+        [SAVED_VIEW_KEY]: PDFHexString.fromText(JSON.stringify({ id: v.id, hidden: v.hidden || [] })),
       }));
       stream.dict.set(PDFName.of('VA'), ctx.obj([...kept, ...added]));
     }

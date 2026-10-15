@@ -194,15 +194,11 @@
     "markup": "Markeren",
     "markupView": "Markeringsaanzicht",
     "savedViews": "Opgeslagen markeringsaanzichten",
-    "toolPen": "Pen",
-    "toolArrow": "Pijl",
-    "toolBox": "Kader",
-    "toolText": "Tekst",
-    "undo": "Ongedaan maken",
     "done": "Klaar",
     "locked": "Aanzicht vergrendeld",
     "unlock": "Ontgrendelen",
     "deleteView": "Aanzicht verwijderen",
-    "textHint": "Typ en druk op Enter"
+    "markupHint": "Model vergrendeld: teken met de markeergereedschappen",
+    "markupInline": "Markeer het model op de pagina (verlaat eerst volledig scherm)"
   }
 }

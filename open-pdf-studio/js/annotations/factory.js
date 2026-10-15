@@ -1,6 +1,7 @@
 import { state } from '../core/state.js';
 import { normaliseerVormMaat } from './minimummaat.js';
 import { layerForNewAnnotation } from './annotatie-lagen.js';
+import { tagNewMarkup } from '../pdf/three-d/three-d-markup.js';
 
 // Create annotation with default properties
 // All annotations share these common properties (General section):
@@ -50,6 +51,10 @@ export function createAnnotation(baseProps) {
     if (laag) result.layer = laag;
   }
   if (!result.layer) delete result.layer;
+
+  // 3D markup session running on this page: tie the markup to the saved
+  // 3D view it is drawn on (three-d-markup.js).
+  tagNewMarkup(result);
 
   // Textbox: ensure leaders array exists (multi-leader feature)
   if (result.type === 'textbox' && !Array.isArray(result.leaders)) {

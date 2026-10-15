@@ -26,6 +26,7 @@ import { hiddenTypes as evHiddenTypes } from '../solid/stores/elementVisibilityS
 import { isStatusHidden } from '../solid/stores/panels/annotationsStore.js';
 import { getActiveDocument } from '../core/state.js';
 import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
+import { isHiddenBy3DView } from '../pdf/three-d/three-d-markup.js';
 
 function bronnen() {
   return { doc: getActiveDocument(), hiddenTypes: evHiddenTypes(), isStatusHidden };
@@ -33,6 +34,8 @@ function bronnen() {
 
 /** Wordt deze annotatie niet getekend? Dan is ze ook niet aanklikbaar. */
 export function isAnnotationHiddenInView(ann) {
+  // 5. markups tied to a saved 3D view only show while that view is shown.
+  if (isHiddenBy3DView(ann)) return true;
   return hiddenInView(ann, bronnen());
 }
 
@@ -50,5 +53,6 @@ export function isAnnotationHiddenInOutput(ann) {
  * pakken? Niet als ze verborgen is, en niet als haar laag vergrendeld is.
  */
 export function isAnnotationPickableInView(ann) {
+  if (isHiddenBy3DView(ann)) return false;
   return pickableInView(ann, bronnen());
 }
