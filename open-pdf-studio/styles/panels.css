@@ -1683,3 +1683,20 @@
   background: var(--theme-panel-bg, #2b2b30); color: var(--theme-panel-header-text, #ddd);
   border-right: 1px solid var(--theme-panel-border, #444);
 }
+
+/* 3D markups (drawn over the model, saved with a locked view) */
+.threed-markups { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.threed-markups.drawing { pointer-events: auto; cursor: crosshair; }
+.threed-markups polyline, .threed-markups line, .threed-markups rect {
+  fill: none; stroke: #e11d48; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.threed-arrowhead { fill: #e11d48; }
+.threed-markup-text { fill: #e11d48; font-weight: 600; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.threed-text-input {
+  position: absolute; z-index: 3; min-width: 160px; font-size: 13px; padding: 2px 6px;
+  border: 1px solid #e11d48; outline: none; color: #e11d48; background: #fff;
+}
+.threed-markup-tools { display: inline-flex; gap: 4px; }
+.threed-toolbar button.threed-markup-btn { border-color: #e11d48; }
+.threed-toolbar button.threed-done { background: #16a34a; border-color: #16a34a; color: #fff; }
+.threed-locked { color: #f59e0b; font-weight: 600; }

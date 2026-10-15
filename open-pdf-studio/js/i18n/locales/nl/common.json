@@ -190,6 +190,19 @@
     "activate": "3D activeren",
     "expand": "Hele documentgebied vullen",
     "shrink": "Terug naar de pagina",
-    "deactivate": "3D-weergave uitzetten"
+    "deactivate": "3D-weergave uitzetten",
+    "markup": "Markeren",
+    "markupView": "Markeringsaanzicht",
+    "savedViews": "Opgeslagen markeringsaanzichten",
+    "toolPen": "Pen",
+    "toolArrow": "Pijl",
+    "toolBox": "Kader",
+    "toolText": "Tekst",
+    "undo": "Ongedaan maken",
+    "done": "Klaar",
+    "locked": "Aanzicht vergrendeld",
+    "unlock": "Ontgrendelen",
+    "deleteView": "Aanzicht verwijderen",
+    "textHint": "Typ en druk op Enter"
   }
 }

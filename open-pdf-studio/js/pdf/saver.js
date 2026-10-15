@@ -2975,6 +2975,12 @@ async function _savePDFNu(saveAsPath, activeDoc) {
     // Save bookmarks to PDF outline
     saveBookmarksToOutline(pdfDocLib, activeDoc);
 
+    // Saved 3D markup views into the 3D streams' /VA (only when changed)
+    if ((activeDoc.threeD || []).some(a => a.savedViewsDirty)) {
+      const { writeSavedViews } = await import('./three-d/pdf-3d.js');
+      writeSavedViews(pdfDocLib, activeDoc.threeD);
+    }
+
     // Save named line-style presets into the catalog (travel with the PDF)
     saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
 
@@ -3044,6 +3050,7 @@ async function _savePDFNu(saveAsPath, activeDoc) {
 
     // Mark document as saved
     markDocumentSaved(activeDoc);
+    for (const a of activeDoc.threeD || []) a.savedViewsDirty = false;
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.

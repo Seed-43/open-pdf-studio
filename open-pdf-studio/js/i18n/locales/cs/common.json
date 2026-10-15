@@ -190,6 +190,19 @@
     "activate": "Activate 3D",
     "expand": "Fill the document area",
     "shrink": "Back to the page",
-    "deactivate": "Turn off the 3D view"
+    "deactivate": "Turn off the 3D view",
+    "markup": "Markup",
+    "markupView": "Markup view",
+    "savedViews": "Saved markup views",
+    "toolPen": "Pen",
+    "toolArrow": "Arrow",
+    "toolBox": "Box",
+    "toolText": "Text",
+    "undo": "Undo",
+    "done": "Done",
+    "locked": "View locked",
+    "unlock": "Unlock",
+    "deleteView": "Delete view",
+    "textHint": "Type, then Enter"
   }
 }
