@@ -266,6 +266,8 @@
     "swap": "Размяна на стар и нов",
     "overlayDesc": "Двата PDF файла един върху друг",
     "sideDesc": "Два PDF файла един до друг, синхронизирани",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Само в стария",
     "legendNew": "Само в новия",
     "legendBoth": "Без промяна",

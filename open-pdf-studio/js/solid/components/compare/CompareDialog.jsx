@@ -204,6 +204,25 @@ export default function CompareDialog() {
               <div class="cmp-mode-title">{t('compare.sideBySide') || 'Naast elkaar'}</div>
               <div class="cmp-mode-desc">{t('compare.sideDesc') || "Twee PDFs naast elkaar, gesynchroniseerd"}</div>
             </label>
+
+            <label class={`cmp-mode-card ${mode() === 'split' ? 'active' : ''}`}>
+              <input
+                type="radio"
+                name="cmp-mode"
+                value="split"
+                checked={mode() === 'split'}
+                onChange={() => setMode('split')}
+              />
+              <div class="cmp-mode-icon">
+                <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke-width="2">
+                  <rect x="4" y="5" width="24" height="22" stroke="#555"/>
+                  <line x1="16" y1="2" x2="16" y2="30" stroke="#0078d4"/>
+                  <circle cx="16" cy="16" r="3.5" fill="#0078d4" stroke="#0078d4"/>
+                </svg>
+              </div>
+              <div class="cmp-mode-title">{t('compare.split') || 'Scheidingslijn'}</div>
+              <div class="cmp-mode-desc">{t('compare.splitDesc') || 'Sleep een lijn om oud en nieuw te tonen'}</div>
+            </label>
           </div>
 
           {/* Legend */}

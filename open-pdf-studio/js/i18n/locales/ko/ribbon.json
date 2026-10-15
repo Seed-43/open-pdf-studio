@@ -266,6 +266,8 @@
     "swap": "이전 문서와 새 문서 바꾸기",
     "overlayDesc": "두 PDF를 겹쳐서 표시",
     "sideDesc": "두 PDF를 나란히 동기화하여 표시",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "이전 문서에만 있음",
     "legendNew": "새 문서에만 있음",
     "legendBoth": "변경 없음",

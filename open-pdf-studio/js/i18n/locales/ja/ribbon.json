@@ -266,6 +266,8 @@
     "swap": "旧版と新版を入れ替え",
     "overlayDesc": "2 つの PDF を重ねて表示",
     "sideDesc": "2 つの PDF を左右に並べて同期表示",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "旧版のみ",
     "legendNew": "新版のみ",
     "legendBoth": "変更なし",

@@ -266,6 +266,8 @@
     "swap": "Đổi chỗ bản cũ và bản mới",
     "overlayDesc": "Hai PDF chồng lên nhau",
     "sideDesc": "Hai PDF đặt cạnh nhau, đồng bộ",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Chỉ có ở bản cũ",
     "legendNew": "Chỉ có ở bản mới",
     "legendBoth": "Không đổi",

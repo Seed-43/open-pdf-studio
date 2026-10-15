@@ -266,6 +266,8 @@
     "swap": "جابه‌جایی قدیمی و جدید",
     "overlayDesc": "هر دو PDF روی هم",
     "sideDesc": "دو PDF کنار هم، همگام‌شده",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "فقط در قدیمی",
     "legendNew": "فقط در جدید",
     "legendBoth": "بدون تغییر",

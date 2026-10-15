@@ -266,6 +266,8 @@
     "swap": "پرانا اور نیا تبدیل کریں",
     "overlayDesc": "دونوں PDFs ایک دوسرے کے اوپر",
     "sideDesc": "دو PDFs ساتھ ساتھ، ہم آہنگ",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "صرف پرانے میں",
     "legendNew": "صرف نئے میں",
     "legendBoth": "غیر تبدیل شدہ",

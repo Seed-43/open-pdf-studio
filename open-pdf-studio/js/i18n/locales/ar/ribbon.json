@@ -266,6 +266,8 @@
     "swap": "تبديل القديم والجديد",
     "overlayDesc": "كلا ملفي PDF فوق بعضهما",
     "sideDesc": "ملفا PDF جنبًا إلى جنب، متزامنان",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "في القديم فقط",
     "legendNew": "في الجديد فقط",
     "legendBoth": "دون تغيير",

@@ -266,6 +266,8 @@
     "swap": "পুরোনো ও নতুন অদলবদল করুন",
     "overlayDesc": "উভয় PDF একে অপরের উপরে",
     "sideDesc": "দুটি PDF পাশাপাশি, সিঙ্ক্রোনাইজ করা",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "শুধু পুরোনোতে",
     "legendNew": "শুধু নতুনে",
     "legendBoth": "অপরিবর্তিত",

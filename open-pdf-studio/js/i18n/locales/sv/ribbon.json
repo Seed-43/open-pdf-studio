@@ -266,6 +266,8 @@
     "swap": "Byt gammal och ny",
     "overlayDesc": "Båda PDF-filerna ovanpå varandra",
     "sideDesc": "Två PDF-filer sida vid sida, synkroniserade",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Endast i gammal",
     "legendNew": "Endast i ny",
     "legendBoth": "Oförändrat",

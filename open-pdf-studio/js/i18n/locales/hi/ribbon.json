@@ -266,6 +266,8 @@
     "swap": "पुराना और नया अदला-बदली करें",
     "overlayDesc": "दोनों PDF एक-दूसरे के ऊपर",
     "sideDesc": "दो PDF अगल-बगल, सिंक्रनाइज़",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "केवल पुराने में",
     "legendNew": "केवल नए में",
     "legendBoth": "अपरिवर्तित",

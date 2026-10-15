@@ -266,6 +266,8 @@
     "swap": "Inverser ancien et nouveau",
     "overlayDesc": "Les deux PDF superposés",
     "sideDesc": "Deux PDF côte à côte, synchronisés",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Seulement dans l'ancien",
     "legendNew": "Seulement dans le nouveau",
     "legendBoth": "Inchangé",

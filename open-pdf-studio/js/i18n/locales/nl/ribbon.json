@@ -266,6 +266,8 @@
     "swap": "Wissel oud en nieuw",
     "overlayDesc": "Beide PDF's over elkaar heen",
     "sideDesc": "Twee PDF's naast elkaar, gesynchroniseerd",
+    "split": "Scheidingslijn",
+    "splitDesc": "Sleep een lijn om oud en nieuw te tonen",
     "legendOld": "Alleen in oud",
     "legendNew": "Alleen in nieuw",
     "legendBoth": "Ongewijzigd",

@@ -266,6 +266,8 @@
     "swap": "Tukar lama dan baharu",
     "overlayDesc": "Kedua-dua PDF bertindih antara satu sama lain",
     "sideDesc": "Dua PDF sebelah-menyebelah, disegerakkan",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Hanya dalam versi lama",
     "legendNew": "Hanya dalam versi baharu",
     "legendBoth": "Tidak berubah",
