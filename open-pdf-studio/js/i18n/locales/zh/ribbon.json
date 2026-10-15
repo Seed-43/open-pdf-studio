@@ -266,6 +266,8 @@
     "swap": "交换旧版和新版",
     "overlayDesc": "两个 PDF 相互叠加",
     "sideDesc": "两个 PDF 并排显示，同步滚动",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "仅在旧版中",
     "legendNew": "仅在新版中",
     "legendBoth": "未更改",

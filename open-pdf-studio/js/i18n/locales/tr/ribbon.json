@@ -266,6 +266,8 @@
     "swap": "Eski ile yeniyi değiştir",
     "overlayDesc": "Her iki PDF üst üste",
     "sideDesc": "İki PDF yan yana, eşitlenmiş",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Yalnızca eskide",
     "legendNew": "Yalnızca yenide",
     "legendBoth": "Değişmemiş",

@@ -266,6 +266,8 @@
     "swap": "பழையதையும் புதியதையும் இடமாற்று",
     "overlayDesc": "இரண்டு PDF-களும் ஒன்றின் மேல் ஒன்று",
     "sideDesc": "இரண்டு PDF-கள் அருகருகே, ஒத்திசைவுடன்",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "பழையதில் மட்டும்",
     "legendNew": "புதியதில் மட்டும்",
     "legendBoth": "மாறாதது",

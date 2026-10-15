@@ -8,7 +8,7 @@ import { state } from '../core/state.js';
 const [active, setActive] = createSignal(false);
 const [oldPath, setOldPath] = createSignal(null);
 const [newPath, setNewPath] = createSignal(null);
-const [mode, setMode] = createSignal('overlay'); // 'overlay' | 'side'
+const [mode, setMode] = createSignal('overlay'); // 'overlay' | 'side' | 'split'
 const [oldPage, setOldPage] = createSignal(1);
 const [newPage, setNewPage] = createSignal(1);
 // Aantal pagina's per document, zodat pagina-navigatie binnen de grenzen

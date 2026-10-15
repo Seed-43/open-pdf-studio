@@ -266,6 +266,8 @@
     "swap": "สลับเก่าและใหม่",
     "overlayDesc": "PDF ทั้งสองซ้อนทับกัน",
     "sideDesc": "PDF สองไฟล์เคียงข้างกัน แบบซิงโครไนซ์",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "มีเฉพาะในฉบับเก่า",
     "legendNew": "มีเฉพาะในฉบับใหม่",
     "legendBoth": "ไม่เปลี่ยนแปลง",

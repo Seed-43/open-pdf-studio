@@ -266,6 +266,8 @@
     "swap": "Zamień stary i nowy",
     "overlayDesc": "Oba pliki PDF nałożone na siebie",
     "sideDesc": "Dwa pliki PDF obok siebie, zsynchronizowane",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Tylko w starym",
     "legendNew": "Tylko w nowym",
     "legendBoth": "Bez zmian",

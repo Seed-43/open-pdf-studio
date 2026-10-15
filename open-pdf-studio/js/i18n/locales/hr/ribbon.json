@@ -266,6 +266,8 @@
     "swap": "Zamijeni stari i novi",
     "overlayDesc": "Oba PDF-a jedan preko drugoga",
     "sideDesc": "Dva PDF-a jedan uz drugi, sinkronizirano",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Samo u starom",
     "legendNew": "Samo u novom",
     "legendBoth": "Nepromijenjeno",

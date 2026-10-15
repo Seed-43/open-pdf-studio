@@ -266,6 +266,8 @@
     "swap": "Inversare vechi și nou",
     "overlayDesc": "Ambele PDF-uri suprapuse",
     "sideDesc": "Două PDF-uri alăturate, sincronizate",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Doar în vechi",
     "legendNew": "Doar în nou",
     "legendBoth": "Nemodificat",

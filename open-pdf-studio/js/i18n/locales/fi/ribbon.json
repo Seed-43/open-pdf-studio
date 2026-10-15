@@ -266,6 +266,8 @@
     "swap": "Vaihda vanha ja uusi",
     "overlayDesc": "Molemmat PDF:t päällekkäin",
     "sideDesc": "Kaksi PDF:ää rinnakkain, synkronoituna",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Vain vanhassa",
     "legendNew": "Vain uudessa",
     "legendBoth": "Ennallaan",

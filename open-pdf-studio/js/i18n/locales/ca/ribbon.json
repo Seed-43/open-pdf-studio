@@ -266,6 +266,8 @@
     "swap": "Intercanvia antic i nou",
     "overlayDesc": "Els dos PDF superposats",
     "sideDesc": "Dos PDF costat a costat, sincronitzats",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Només a l'antic",
     "legendNew": "Només al nou",
     "legendBoth": "Sense canvis",

@@ -266,6 +266,8 @@
     "swap": "החלפת ישן וחדש",
     "overlayDesc": "שני קובצי ה-PDF זה על גבי זה",
     "sideDesc": "שני קובצי PDF זה לצד זה, מסונכרנים",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "רק בישן",
     "legendNew": "רק בחדש",
     "legendBoth": "ללא שינוי",

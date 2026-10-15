@@ -266,6 +266,8 @@
     "swap": "ສະຫຼັບເກົ່າ ແລະ ໃໝ່",
     "overlayDesc": "ວາງ PDF ທັງສອງຊ້ອນທັບກັນ",
     "sideDesc": "ສະແດງ PDF ສອງໄຟລ໌ຄຽງຂ້າງກັນແບບຊິ້ງພ້ອມກັນ",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "ມີສະເພາະໃນເອກະສານເກົ່າ",
     "legendNew": "ມີສະເພາະໃນເອກະສານໃໝ່",
     "legendBoth": "ບໍ່ມີການປ່ຽນແປງ",

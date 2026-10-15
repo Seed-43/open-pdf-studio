@@ -266,6 +266,8 @@
     "swap": "Εναλλαγή παλιού και νέου",
     "overlayDesc": "Και τα δύο PDF το ένα πάνω στο άλλο",
     "sideDesc": "Δύο PDF δίπλα-δίπλα, συγχρονισμένα",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Μόνο στο παλιό",
     "legendNew": "Μόνο στο νέο",
     "legendBoth": "Αμετάβλητο",

@@ -266,6 +266,8 @@
     "swap": "Badilishana la zamani na jipya",
     "overlayDesc": "PDF zote mbili zimewekwa moja juu ya nyingine",
     "sideDesc": "PDF mbili kando kwa kando, zikienda pamoja",
+    "split": "Split line",
+    "splitDesc": "Drag a line across to reveal old and new",
     "legendOld": "Kwenye la zamani tu",
     "legendNew": "Kwenye jipya tu",
     "legendBoth": "Haijabadilika",
