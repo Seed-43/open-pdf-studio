@@ -3,49 +3,94 @@ import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 
 // 3D PDF support. PDF.js draws only the poster image of a /3D annotation,
-// so this offers a bar ("this page contains a 3D model") and a WebGL view
-// over the document area: preset views from the PDF, a model tree with
-// visibility toggles, render modes, fit and close. The U3D model is decoded
-// in a worker (js/pdf/three-d/u3d-worker.js) and drawn with three.js.
+// so the app shows the live model itself: on the page, inside the
+// annotation's rectangle (like a 3D-capable viewer activating it on page
+// open), following scroll, pan and zoom. A button expands it to fill the
+// document area. Preset views come from the PDF, the model tree has
+// visibility toggles, and there are render modes and fit. The U3D model is
+// decoded in a worker (js/pdf/three-d/u3d-worker.js) and drawn with three.js.
+import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
 
-const [openAnnot, setOpenAnnot] = createSignal(null);
-const [dismissedPage, setDismissedPage] = createSignal(null); // `${docId}:${page}`
+const [expanded, setExpanded] = createSignal(null);   // annot shown full-area
+const [deactivated, setDeactivated] = createSignal(new Set()); // annot keys showing the poster
 
 const activeDoc = () => state.documents[state.activeDocumentIndex];
 const annotsOnPage = () => {
   const d = activeDoc();
   return (d?.threeD || []).filter(a => a.page === d.currentPage);
 };
+const annotKey = (a) => `${activeDoc()?.id}:${a.page}:${(a.rect || []).join(',')}`;
 
-export function ThreeDBar() {
-  const { t } = useTranslation('common');
-  const tx = (k, f) => t(`threeD.${k}`, { defaultValue: f });
-  const key = () => `${activeDoc()?.id}:${activeDoc()?.currentPage}`;
-  const show = () => annotsOnPage().length > 0 && !openAnnot() && dismissedPage() !== key();
-  return (
-    <Show when={show()}>
-      <div class="pdfa-bar threed-bar">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
-          <path d="M8 1.5l5.5 3v7L8 14.5l-5.5-3v-7z" /><path d="M2.5 4.5L8 7.5l5.5-3M8 7.5v7" />
-        </svg>
-        <span>{tx('barText', 'This page contains a 3D model.')}</span>
-        <For each={annotsOnPage()}>
-          {(a, i) => (
-            <button class="pdfa-bar-action" onClick={() => setOpenAnnot(a)}>
-              {annotsOnPage().length > 1 ? `${tx('open', 'Open 3D view')} ${i() + 1}` : tx('open', 'Open 3D view')}
-            </button>
-          )}
-        </For>
-        <button class="pdfa-bar-close" onClick={() => setDismissedPage(key())} title={t('close')}>&times;</button>
-      </div>
-    </Show>
-  );
+// Annotation /Rect (PDF user space) -> page space as drawn (top-left origin,
+// scale 1, page /Rotate applied), the space paginaRectNaarClient expects.
+async function viewRectOf(doc, annot) {
+  if (annot._viewRect) return annot._viewRect;
+  const page = await doc.pdfDoc.getPage(annot.page);
+  const vp = page.getViewport({ scale: 1 });
+  const [x1, y1, x2, y2] = annot.rect || page.view;
+  const a = vp.convertToViewportPoint(x1, y1), b = vp.convertToViewportPoint(x2, y2);
+  annot._viewRect = { x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]), width: Math.abs(b[0] - a[0]), height: Math.abs(b[1] - a[1]) };
+  return annot._viewRect;
 }
 
 export default function ThreeDView() {
   return (
-    <Show when={openAnnot()} keyed>
-      {(annot) => <ThreeDViewer annot={annot} onClose={() => setOpenAnnot(null)} />}
+    <>
+      <Show when={expanded()} keyed>
+        {(annot) => <ThreeDViewer annot={annot} onClose={() => setExpanded(null)} onToggleSize={() => setExpanded(null)} />}
+      </Show>
+      <Show when={!expanded()}>
+        <For each={annotsOnPage()}>{(annot) => <InlineHost annot={annot} />}</For>
+      </Show>
+    </>
+  );
+}
+
+// Keeps a fixed-position box over the annotation's rectangle on screen,
+// clipped to the document area, re-measured every animation frame.
+function InlineHost(props) {
+  const { t } = useTranslation('common');
+  const tx = (k, f) => t(`threeD.${k}`, { defaultValue: f });
+  const [clip, setClip] = createSignal(null);
+  const [box, setBox] = createSignal(null);
+  const isOff = () => deactivated().has(annotKey(props.annot));
+  let raf = 0, rect = null, last = '';
+  const doc = activeDoc();
+  viewRectOf(doc, props.annot).then((r) => { rect = r; });
+  const tick = () => {
+    raf = requestAnimationFrame(tick);
+    const area = document.getElementById('pdf-container');
+    if (!rect || !area) return;
+    const a = area.getBoundingClientRect();
+    const r = paginaRectNaarClient(props.annot.page, rect, doc);
+    if (!r) return;
+    const key = [a.left, a.top, a.width, a.height, r.left, r.top, r.width, r.height].map(Math.round).join(',');
+    if (key === last) return;
+    last = key;
+    setClip({ left: a.left, top: a.top, width: a.width, height: a.height });
+    setBox({ left: r.left - a.left, top: r.top - a.top, width: r.width, height: r.height });
+  };
+  raf = requestAnimationFrame(tick);
+  onCleanup(() => cancelAnimationFrame(raf));
+  const px = (o) => o && ({ left: `${o.left}px`, top: `${o.top}px`, width: `${o.width}px`, height: `${o.height}px` });
+  return (
+    <Show when={clip() && box()}>
+      <div class="threed-inline-clip" style={px(clip())}>
+        <div class="threed-inline" style={px(box())}>
+          <Show when={!isOff()} fallback={
+            <button class="threed-activate" onClick={() => setDeactivated(s => { const n = new Set(s); n.delete(annotKey(props.annot)); return n; })}>
+              {tx('activate', 'Activate 3D')}
+            </button>
+          }>
+            <ThreeDViewer
+              annot={props.annot}
+              compact
+              onClose={() => setDeactivated(s => new Set(s).add(annotKey(props.annot)))}
+              onToggleSize={() => setExpanded(props.annot)}
+            />
+          </Show>
+        </div>
+      </div>
     </Show>
   );
 }
@@ -57,7 +102,7 @@ function ThreeDViewer(props) {
   const [error, setError] = createSignal(null);
   const [ready, setReady] = createSignal(false);
   const [tree, setTree] = createSignal([]); // [{ name, models: [{ name, obj }], obj, open }]
-  const [showTree, setShowTree] = createSignal(true);
+  const [showTree, setShowTree] = createSignal(!props.compact);
   const [mode, setMode] = createSignal('solid');
   const [viewIdx, setViewIdx] = createSignal(props.annot.defaultView || 0);
   const [stats, setStats] = createSignal('');
@@ -282,9 +327,9 @@ function ThreeDViewer(props) {
   const viewNames = createMemo(() => props.annot.views.map((v, i) => v.name || `${tx('view', 'View')} ${i + 1}`));
 
   return (
-    <div class="threed-view" onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
+    <div class="threed-view" classList={{ compact: !!props.compact }} onKeyDown={(e) => { if (e.key === 'Escape') props.onClose(); }} tabIndex={-1}>
       <div class="threed-toolbar">
-        <span class="threed-title">{tx('title', '3D view')}</span>
+        <Show when={!props.compact}><span class="threed-title">{tx('title', '3D view')}</span></Show>
         <Show when={viewNames().length}>
           <label>{tx('view', 'View')}
             <select value={viewIdx()} onChange={(e) => { const i = +e.currentTarget.value; setViewIdx(i); applyView(i); }}>
@@ -302,10 +347,15 @@ function ThreeDViewer(props) {
           </select>
         </label>
         <button classList={{ active: showTree() }} onClick={() => setShowTree(v => !v)}>{tx('tree', 'Model tree')}</button>
-        <span class="threed-stats">{stats()}</span>
+        <Show when={!props.compact}><span class="threed-stats">{stats()}</span></Show>
         <span style={{ flex: 1 }} />
-        <span class="threed-hint">{tx('hint', 'Left drag: orbit, right drag: pan, wheel: zoom')}</span>
-        <button class="threed-close" onClick={props.onClose} title={t('close')}>&times;</button>
+        <Show when={!props.compact}>
+          <span class="threed-hint">{tx('hint', 'Left drag: orbit, right drag: pan, wheel: zoom')}</span>
+        </Show>
+        <button onClick={props.onToggleSize} title={props.compact ? tx('expand', 'Fill the document area') : tx('shrink', 'Back to the page')}>
+          {props.compact ? '⤢' : '⤡'}
+        </button>
+        <button class="threed-close" onClick={props.onClose} title={props.compact ? tx('deactivate', 'Turn off the 3D view') : t('close')}>&times;</button>
       </div>
       <div class="threed-body">
         <Show when={showTree() && tree().length}>

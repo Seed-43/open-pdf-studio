@@ -1636,3 +1636,18 @@
   color: #444; font-size: 13px; text-align: center; padding: 20px;
 }
 .threed-error { color: #b91c1c; }
+
+/* 3D view embedded in the page (over the /3D annotation's rectangle) */
+.threed-inline-clip { position: fixed; overflow: hidden; pointer-events: none; z-index: 40; }
+.threed-inline { position: absolute; pointer-events: auto; }
+.threed-view.compact { z-index: auto; background: transparent; }
+.threed-view.compact .threed-toolbar {
+  padding: 3px 6px; gap: 6px; font-size: 11px;
+  background: rgba(40, 40, 46, 0.85); color: #eee;
+}
+.threed-view.compact .threed-toolbar select, .threed-view.compact .threed-toolbar button { font-size: 11px; padding: 1px 6px; }
+.threed-view.compact .threed-tree { width: 220px; background: rgba(40, 40, 46, 0.92); color: #eee; }
+.threed-activate {
+  position: absolute; top: 8px; left: 8px; padding: 4px 12px; font-size: 12px; cursor: pointer;
+  background: #d97706; color: #fff; border: none; border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}

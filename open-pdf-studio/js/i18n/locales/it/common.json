@@ -174,8 +174,6 @@
   "snippetOutputFailed": "Non è stato possibile eseguire il rendering di un ritaglio vettoriale, quindi l'esportazione o la stampa è stata interrotta. Riprova.",
   "protectedPdfReadOnly": "Questo documento è stato aperto con una password ed è in sola lettura. Non può essere salvato.",
   "threeD": {
-    "barText": "This page contains a 3D model.",
-    "open": "Open 3D view",
     "title": "3D view",
     "view": "View",
     "fit": "Fit",
@@ -188,6 +186,10 @@
     "hint": "Left drag: orbit, right drag: pan, wheel: zoom",
     "loading": "Loading 3D model... {{pct}}%",
     "stats": "{{models}} objects, {{tris}} triangles",
-    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D)."
+    "unsupported": "This 3D model uses the {{fmt}} format, which is not supported yet (only U3D).",
+    "activate": "Activate 3D",
+    "expand": "Fill the document area",
+    "shrink": "Back to the page",
+    "deactivate": "Turn off the 3D view"
   }
 }
