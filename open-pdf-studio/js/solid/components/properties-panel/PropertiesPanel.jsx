@@ -1,11 +1,12 @@
 import { Show, onMount } from 'solid-js';
-import { panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis, updateAnnotProp, cycleSelectNext, nativePanelHidden, hydrateCollapsedSections, getCurrentAnnotation } from '../../stores/propertiesStore.js';
+import { panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis, updateAnnotProp, cycleSelectNext, nativePanelHidden, hydrateCollapsedSections, getCurrentAnnotation, SCHAALBALK_MIN_HOOGTE_PT } from '../../stores/propertiesStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import PanelHeader from './PanelHeader.jsx';
 import DocInfoView from './DocInfoView.jsx';
 import DimensionTypeSection from './DimensionTypeSection.jsx';
+import LocationSection from './LocationSection.jsx';
 import GeneralSection from './GeneralSection.jsx';
 import RepliesSection from './RepliesSection.jsx';
 import AppearanceSection from './AppearanceSection.jsx';
@@ -17,6 +18,9 @@ import TextFormatSection from './TextFormatSection.jsx';
 import ParagraphSection from './ParagraphSection.jsx';
 import ContentSection from './ContentSection.jsx';
 import ImageSection from './ImageSection.jsx';
+import { PapierMaatInvoer, PapierEenheidKeuze } from './PapierMaat.jsx';
+import { leesInvoerInEenheid } from '../../../annotations/papiermaat-eenheid.js';
+import { papierEenheid } from '../../stores/papierEenheidStore.js';
 import ActionsSection from './ActionsSection.jsx';
 import CustomFieldsSection from './CustomFieldsSection.jsx';
 import CustomPluginPanel from './CustomPluginPanel.jsx';
@@ -75,6 +79,7 @@ export default function PropertiesPanel() {
             {/* Dimension type selector pinned at the very top for maatlijnen */}
             <DimensionTypeSection />
             <GeneralSection />
+            <LocationSection />
             <RepliesSection />
             <AppearanceSection />
             <HatchPatternSection />
@@ -172,7 +177,7 @@ export default function PropertiesPanel() {
                     units — editable, resizes the region (top-left anchored). */}
                 <div class="property-group">
                   <label>Breedte ({annotProps.scaleRegionUnits || 'mm'})</label>
-                  <input type="number" step="1" min="1"
+                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
                     value={annotProps.scaleRegionWidth ?? ''}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
                     onChange={(e) => updateAnnotProp('scaleRegionWidth', e.target.value)}
@@ -180,7 +185,7 @@ export default function PropertiesPanel() {
                 </div>
                 <div class="property-group">
                   <label>Hoogte ({annotProps.scaleRegionUnits || 'mm'})</label>
-                  <input type="number" step="1" min="1"
+                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
                     value={annotProps.scaleRegionHeight ?? ''}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
                     onChange={(e) => updateAnnotProp('scaleRegionHeight', e.target.value)}
@@ -205,7 +210,7 @@ export default function PropertiesPanel() {
                 </div>
                 <div class="property-group">
                   <label>{t('scaleBar.totalLength')}</label>
-                  <input type="number" step="1" min="1"
+                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
                     value={annotProps.scaleBarTotalUnits}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
                     onChange={(e) => updateAnnotProp('scaleBarTotalUnits', e.target.value)}
@@ -213,19 +218,24 @@ export default function PropertiesPanel() {
                 </div>
                 <div class="property-group">
                   <label>{t('scaleBar.divisions')}</label>
-                  <input type="number" step="1" min="1" max="20"
+                  <input type="text" inputmode="decimal" data-getal step="1" min="1" max="20"
                     value={annotProps.scaleBarDivisions}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
                     onChange={(e) => updateAnnotProp('scaleBarDivisions', e.target.value)}
                   />
                 </div>
+                {/* Balkhoogte is een papiermaat: in de gekozen eenheid (#598),
+                    in het model paginapunten (4 pt of meer). */}
                 <div class="property-group">
                   <label>{t('scaleBar.barHeight')}</label>
-                  <input type="number" step="1" min="4" max="100"
-                    value={annotProps.scaleBarHeight}
+                  <PapierMaatInvoer pt={() => annotProps.scaleBarHeight} bron={() => annotProps.id}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleBarHeight', e.target.value)}
+                    onWijzig={(tekst) => {
+                      const pt = leesInvoerInEenheid(tekst, papierEenheid(), { min: SCHAALBALK_MIN_HOOGTE_PT });
+                      if (pt != null) updateAnnotProp('scaleBarHeight', pt);
+                    }}
                   />
+                  <PapierEenheidKeuze />
                 </div>
               </CollapsibleSection>
             </Show>

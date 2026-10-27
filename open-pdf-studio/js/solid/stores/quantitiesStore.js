@@ -1,8 +1,10 @@
 // Hoeveelheden — config-store. Solid-signals voor de schedule-config + memo's
 // die de pure engine aanroepen. Visibility blijft in scheduleStore (re-exported).
 import { createSignal, createMemo } from 'solid-js';
-import { getActiveDocument } from '../../core/state.js';
+import { getActiveDocument, getAnnotationBounds } from '../../core/state.js';
 import { buildSchedule } from '../../quantities/engine.js';
+import { scheduleUsesLocation } from '../../quantities/categories.js';
+import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
@@ -95,7 +97,12 @@ function collectElements() {
     return a;
   }));
   const bi = selectedCategories().includes('text-built-in') ? builtInText() : [];
-  return [...anns, ...bi];
+  const elements = [...anns, ...bi];
+  // De Locatie-kolommen kosten per element een zone-opzoeking: alleen als de
+  // staat ze toont, erop filtert of erop sorteert.
+  if (!scheduleUsesLocation({ fields: scheduledFields(), filters: filters(), sort: sortLevels() })) return elements;
+  const zones = collectZones(doc?.annotations);
+  return elements.map(a => ({ ...a, __location: locationFor(a, zones, getAnnotationBounds(a)) }));
 }
 
 function computeSchedule() {

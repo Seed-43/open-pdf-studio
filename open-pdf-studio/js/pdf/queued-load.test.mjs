@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { queuedLoadTarget, documentNeedsLoad, loadIfNeeded, createFileOpenQueue } from './queued-load.js';
+import { queuedLoadTarget, documentNeedsLoad, loadIfNeeded, createFileOpenQueue, isOpenableDocumentPath } from './queued-load.js';
 
 const placeholder = (filePath) => ({ filePath, pdfDoc: null, _isLoading: false });
 
@@ -263,6 +263,32 @@ test('a load that throws does not stall the files behind it', async (t) => {
   assert.deepEqual(tabs(), ['C:/s/broken.pdf=-', 'C:/s/R2.pdf=C:/s/R2.pdf']);
   assert.equal(log.includes('recent:C:/s/broken.pdf'), false);
   assert.equal(console.warn.mock.callCount(), 1);
+});
+
+test('Android "Open with": a content:// URI gets a tab, also without .pdf (#593)', async () => {
+  const { openFiles, tabs } = app();
+  const uri = 'content://com.android.providers.downloads.documents/document/msf%3A1234';
+  await openFiles([uri]);
+  assert.deepEqual(tabs(), [`${uri}=${uri}`]);
+});
+
+test('isOpenableDocumentPath: PDF paths and content:// URIs only', () => {
+  assert.equal(isOpenableDocumentPath('C:/s/PLAN.PDF'), true);
+  assert.equal(isOpenableDocumentPath('/home/u/plan.pdf'), true);
+  assert.equal(isOpenableDocumentPath('content://media/external/file/42'), true);
+  assert.equal(isOpenableDocumentPath('CONTENT://media/external/file/42'), true);
+  assert.equal(isOpenableDocumentPath('C:/s/notes.txt'), false);
+  assert.equal(isOpenableDocumentPath('https://open/plan'), false);
+  assert.equal(isOpenableDocumentPath(''), false);
+  assert.equal(isOpenableDocumentPath(null), false);
+  assert.equal(isOpenableDocumentPath(42), false);
+});
+
+test('mobile: a file opened from another app is fitted to the screen (#593)', () => {
+  const main = source('../main.js');
+  const start = main.indexOf('const openFiles = createFileOpenQueue({');
+  const deps = main.slice(start, main.indexOf('\n});', start));
+  assert.match(deps, /if \(isMobile\(\) && actief\?\.pdfDoc && bronPad\(actief\) === filePath\) fitPage\(\);/);
 });
 
 test('only PDF paths get a tab', async () => {

@@ -84,7 +84,7 @@ export default function TypeLengthHUD() {
           background: '#ffffff',
           border: '1px solid #000000',
           padding: '2px 6px',
-          'font-family': 'Consolas, monospace',
+          'font-family': 'var(--ui-font-mono)',
           'font-size': '12px',
           color: '#000000',
           'pointer-events': 'none',

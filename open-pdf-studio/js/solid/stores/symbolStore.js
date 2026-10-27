@@ -9,6 +9,8 @@ import { savePreferences } from '../../core/preferences.js';
 import { registerPaletteDock } from './paletteOrder.js';
 import { removeSteelCatalog } from '../../symbols/steel-catalog-store.js';
 import { removeLineworkCatalog } from '../../symbols/linework-catalog-store.js';
+import { searchTermsFor } from '../../symbols/registry.js';
+import { symboolPastBijZoekterm } from '../data/symbool-zoeken.js';
 
 // --- State ---
 const [searchQuery, setSearchQuery] = createSignal('');
@@ -130,9 +132,9 @@ const filteredCategories = createMemo(() => {
     cats = cats
       .map(cat => ({
         ...cat,
-        symbols: cat.symbols.filter(s =>
-          s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)
-        )
+        // Naam, id en bij parametrische symbolen ook de maten (K100/5 en
+        // de oude schrijfwijze Koker 100x100x5).
+        symbols: cat.symbols.filter(s => symboolPastBijZoekterm(s, q, searchTermsFor))
       }))
       .filter(cat => cat.symbols.length > 0);
   }

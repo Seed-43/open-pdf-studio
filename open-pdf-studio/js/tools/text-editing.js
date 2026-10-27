@@ -13,6 +13,7 @@ import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { paginaNaarClient, weergaveRotatie } from '../pdf/weergave-ruimte.js';
 import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
 import { editorVakOpmaak } from './text-edit-vak.js';
+import { editorAchtergrond, caretKleur, meetOndergrond } from './editor-ondergrond.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import {
   showTextEditOverlay, hideTextEditOverlay,
@@ -134,7 +135,18 @@ export function startTextEditing(annotation) {
     'font-size': `${(annotation.fontSize || 14) * scale}px`,
     'font-family': cssFontFamily,
     color: annotation.textColor || annotation.color || '#000000',
-    'background-color': hasFill(annotation.fillColor) ? annotation.fillColor : '#ffffff',
+    // De vulling van het vak, of doorzichtig zonder vulling (#698): witte
+    // tekst op een donkere ondergrond blijft zo leesbaar. Het canvas tekent
+    // de tekst van dit vak zolang de editor open is niet (rendering.js).
+    'background-color': editorAchtergrond(annotation.fillColor),
+    'caret-color': caretKleur({
+      fillColor: annotation.fillColor,
+      ondergrond: hasFill(annotation.fillColor) ? null : meetOndergrond({
+        left: centerX - scaledWidth / 2, top: centerY - scaledHeight / 2,
+        width: scaledWidth, height: scaledHeight,
+      }),
+      tekstKleur: annotation.textColor || annotation.color,
+    }),
     ...vakOpmaak,
     'box-sizing': 'border-box',
     resize: 'none',
@@ -237,6 +249,10 @@ export function startTextEditing(annotation) {
 
   showTextEditOverlay(styleObj, initialText, commitFn, cancelFn, initialRuns);
   state.textEditElement = true;
+  // Het canvas opnieuw tekenen zonder de tekst van dit vak: de editor is
+  // doorzichtig, anders stond de oude tekst onder de getypte.
+  if (isContinuous) redrawContinuous();
+  else redrawAnnotations();
 }
 
 // Finish inline text editing (called externally, e.g. when switching tools)

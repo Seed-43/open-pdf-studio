@@ -7,6 +7,7 @@
 mod protocol;
 mod render;
 mod shm;
+mod thin_lines;
 
 use anyhow::{Context, Result};
 use protocol::{Request, Response};
@@ -58,8 +59,8 @@ fn main() -> Result<()> {
         };
 
         match req {
-            Request::Render { id, path, page_index, scale, rotation } => {
-                let resp = match renderer.render(&path, page_index, scale, rotation) {
+            Request::Render { id, path, page_index, scale, rotation, thin_lines } => {
+                let resp = match renderer.render(&path, page_index, scale, rotation, thin_lines) {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {
                             Ok(bytes) => Response::RenderOk {
@@ -83,11 +84,11 @@ fn main() -> Result<()> {
             }
             Request::RenderRegion {
                 id, path, page_index, scale, rotation,
-                region_x_pt, region_y_pt, region_w_pt, region_h_pt,
+                region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
             } => {
                 let resp = match renderer.render_region(
                     &path, page_index, scale, rotation,
-                    region_x_pt, region_y_pt, region_w_pt, region_h_pt,
+                    region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
                 ) {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {

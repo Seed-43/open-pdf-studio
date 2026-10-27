@@ -1321,7 +1321,10 @@ poort van de app van de gebruiker; het script weigert de bekende poorten
 bevestigingsvraag van het paneel met "ja" te beantwoorden, want een native
 dialoog is via MCP niet te bedienen). `OPDS_DETACHED=1` staat aan, en `OPDS_DATA_DIR`
 wijst naar een tijdelijke map, zodat de echte pluginmap van de gebruiker
-onaangeroerd blijft; ook `WEBVIEW2_USER_DATA_FOLDER` is eigen.
+onaangeroerd blijft; ook `WEBVIEW2_USER_DATA_FOLDER` is eigen. Met
+`OPDS_HEADLESS=1` blijft het rigvenster buiten beeld en zonder focus; een
+native dialoog wordt dan geweigerd (een `ask` geeft "nee"), dus het nabootsen
+van de bevestigingsvraag in stap 9 blijft nodig.
 
 ```
 node scripts/verify-extensies.mjs --pakketten <map>

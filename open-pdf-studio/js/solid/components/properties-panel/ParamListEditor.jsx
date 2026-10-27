@@ -98,7 +98,7 @@ export default function ParamListEditor(props) {
                   </select>
                 </Show>
                 <Show when={f.type === 'number'}>
-                  <input type="number"
+                  <input type="text" inputmode="decimal" data-getal
                     step={f.step ?? 1}
                     min={f.min}
                     max={f.max}

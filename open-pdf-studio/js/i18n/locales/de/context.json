@@ -93,7 +93,22 @@
     "editBookmark": "Lesezeichen bearbeiten",
     "deleteBookmark": "Lesezeichen löschen",
     "expandAll": "Alle aufklappen",
-    "collapseAll": "Alle zuklappen"
+    "collapseAll": "Alle zuklappen",
+    "color": "Farbe",
+    "colorDefault": "Standard",
+    "colorRed": "Rot",
+    "colorOrange": "Orange",
+    "colorGreen": "Grün",
+    "colorBlue": "Blau",
+    "colorPurple": "Lila",
+    "colorGray": "Grau",
+    "colorCustom": "Benutzerdefiniert...",
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "nestUnderNew": "Unter neuem Lesezeichen verschachteln...",
+    "indent": "Einrücken",
+    "outdent": "Ausrücken",
+    "deleteBookmarks": "{{count}} Lesezeichen löschen"
   },
   "thumbnail": {
     "rotateLeft": "Links drehen",

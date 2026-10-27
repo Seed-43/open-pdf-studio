@@ -149,8 +149,16 @@ const _sceneAttempts = createSceneAttemptCoordinator();
  */
 export async function invokeTileRegion(args) {
   const { invoke } = await import('../core/platform.js');
+  // Thin Lines (#595): the caller's flag (the one its cache key uses) or the
+  // preference. Both engines below draw strokes as hairlines with it.
+  const { withThinLines } = await import('./thin-lines.js');
+  args = args.thinLines === undefined ? withThinLines(args) : withThinLines(args, args.thinLines);
   const key = `${args.path}|${args.pageIndex}|${args.rotation || 0}`;
-  const sceneWorthIt = (await pageContentBytes(args.path, args.pageIndex + 1)) > SCENE_CONTENT_BYTES;
+  // De scene-engine kent geen optionele inhoud: met geschakelde lagen (#684)
+  // tekent PDFium, uit de weergavekopie.
+  const { tekentUitKopie } = await import('./lagen-schakelen.js');
+  const sceneWorthIt = !tekentUitKopie(args.path)
+    && (await pageContentBytes(args.path, args.pageIndex + 1)) > SCENE_CONTENT_BYTES;
   if (sceneWorthIt) {
     const res = await _sceneAttempts.tryRegion(
       key,
@@ -212,8 +220,9 @@ export async function pageContentBytes(filePath, pageNum) {
   if (_contentBytesCache.has(key)) return _contentBytesCache.get(key);
   let bytes = 0;
   try {
-    const { isTauri, invoke } = await import('../core/platform.js');
-    if (isTauri()) {
+    const { heeftRustRenderer, invoke } = await import('../core/platform.js');
+    // Mobiel heeft geen Rust-renderpad (#593): dan telt elke pagina als licht.
+    if (heeftRustRenderer()) {
       const _s0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : 0;
       bytes = Number(await invoke('page_content_size', { path: filePath, pageIndex: pageNum - 1 })) || 0;
       perfMark(`page_content_size p${pageNum} ${Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : 0) - _s0)}ms (${(bytes / 1048576).toFixed(1)}MB)`);
@@ -325,6 +334,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
   const { invoke } = await import('../core/platform.js');
   const { computeZoomBucket, getBestAvailableBitmap, getCachedBitmap, setCachedBitmapEntry, ensureBitmap } =
     await import('./page-bitmap-cache.js');
+  const { thinLinesOn } = await import('./thin-lines.js');
 
   if (!viewport.active || !viewport.filePath || viewport.pageType !== 'raster') return;
 
@@ -343,9 +353,14 @@ export async function ensureProgressiveBitmapForCurrentView() {
   // viewport-velden, zodat een tab-/paginawissel nooit de verkeerde pagina rendert.
   const filePath = viewport.filePath;
   const pageNum = viewport.pageNum;
+  // Lijnstand (Thin Lines, #595) van deze run: tegels, cache-sleutel en de
+  // dedupe gebruiken dezelfde. Wisselt de gebruiker tijdens de run, dan is
+  // de run achterhaald (actueel() hieronder) en start de wissel een nieuwe.
+  const thin = thinLinesOn();
+  const lineMode = thin ? 'thin' : 'true';
 
   // Zelfde doelrun al bezig? Niet herstarten (zie _inflightKey).
-  let runKey = `${filePath}:${pageNum}:${rotation}:${renderScale.toFixed(4)}`;
+  let runKey = `${filePath}:${pageNum}:${rotation}:${renderScale.toFixed(4)}:${lineMode}`;
   perfMark(`aanroep zoom=${viewport.zoom.toFixed(3)} scale=${renderScale.toFixed(3)} inflight=${_inflightKey ? 'ja' : 'nee'}`);
   if (_inflightKey === runKey) return;
   // SNELPAD vóór de herstart-demper: is de doel-bucket al gecachet, dan is
@@ -355,7 +370,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
   // getoonde weergave niet later met een verkeerde schaal overschrijft.
   {
     const hitBucket = computeZoomBucket(renderScale);
-    const hit = getCachedBitmap(filePath, pageNum, rotation, hitBucket);
+    const hit = getCachedBitmap(filePath, pageNum, rotation, hitBucket, thin);
     if (hit && hit.bitmap) {
       perfMark(`cache-hit-direct bucket=${hitBucket} scale=${renderScale.toFixed(3)}`);
       ++_progGen;
@@ -375,18 +390,21 @@ export async function ensureProgressiveBitmapForCurrentView() {
     if (tok !== _restartToken) return; // alweer vervangen door een nieuwere
     if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
     renderScale = Math.min(viewport.zoom * dpr, capScale);
-    runKey = `${filePath}:${pageNum}:${rotation}:${renderScale.toFixed(4)}`;
+    if (thinLinesOn() !== thin) return; // intussen van lijnstand gewisseld: die wissel rendert zelf
+    runKey = `${filePath}:${pageNum}:${rotation}:${renderScale.toFixed(4)}:${lineMode}`;
     if (_inflightKey === runKey) return; // lopende run is al de juiste
   }
   const cacheBucket = computeZoomBucket(renderScale);
   const myGen = ++_progGen;
   // Stale zodra een nieuwere run start (generatie) óf de viewport een andere
   // pagina/document toont (zie runVolgtViewport).
-  const actueel = () => myGen === _progGen && runVolgtViewport({ filePath, pageNum, rotation }, viewport);
+  const actueel = () => myGen === _progGen
+    && runVolgtViewport({ filePath, pageNum, rotation }, viewport)
+    && thinLinesOn() === thin;
   _inflightKey = runKey;
 
   // Al gerenderd op deze bucket? Meteen tonen en klaar.
-  const exact = getCachedBitmap(filePath, pageNum, rotation, cacheBucket);
+  const exact = getCachedBitmap(filePath, pageNum, rotation, cacheBucket, thin);
   if (exact && exact.bitmap) {
     perfMark(`cache-hit bucket=${cacheBucket} scale=${renderScale.toFixed(3)}`);
     viewport.currentBitmap = exact.bitmap;
@@ -395,7 +413,11 @@ export async function ensureProgressiveBitmapForCurrentView() {
     return;
   }
   // Anders: toon vast de best beschikbare (lagere bucket) terwijl we renderen.
-  const fallback = getBestAvailableBitmap(filePath, pageNum, rotation, cacheBucket);
+  // Net van lijnstand gewisseld en nog niets in de nieuwe stand? Dan de
+  // pagina in de vorige stand als ondergrond: de tegels vervangen hem, en de
+  // pagina valt intussen niet terug naar wit.
+  const fallback = getBestAvailableBitmap(filePath, pageNum, rotation, cacheBucket, thin)
+    || getBestAvailableBitmap(filePath, pageNum, rotation, cacheBucket, !thin);
   if (fallback && fallback.bitmap) {
     viewport.currentBitmap = fallback.bitmap;
     viewport.dirty = true;
@@ -469,6 +491,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
         path: filePath, pageIndex: pageNum - 1,
         scale: renderScale, rotation,
         regionXPt, regionYPt, regionWPt, regionHPt,
+        thinLines: thin,
       });
       bytes = res instanceof Uint8Array ? res : new Uint8Array(res);
       perfMark(`tegel-invoke ${t.pw}x${t.ph} ${Math.round(performance.now() - _i0)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
@@ -536,7 +559,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
   // Het eindbeeld is compleet en klopt voor zíjn pagina: altijd cachen (een
   // terugkeer naar die pagina is dan een cache-hit). Alleen tonen als de
   // viewport hem nog toont.
-  setCachedBitmapEntry(filePath, pageNum, rotation, cacheBucket, finalBmp, fullW, fullH, renderScale);
+  setCachedBitmapEntry(filePath, pageNum, rotation, cacheBucket, finalBmp, fullW, fullH, renderScale, thin);
   if (actueel()) {
     viewport.currentBitmap = finalBmp;
     viewport.dirty = true;

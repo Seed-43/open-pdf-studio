@@ -93,7 +93,22 @@
     "editBookmark": "Hariri Alamisho",
     "deleteBookmark": "Futa Alamisho",
     "expandAll": "Panua Zote",
-    "collapseAll": "Kunja Zote"
+    "collapseAll": "Kunja Zote",
+    "color": "Rangi",
+    "colorDefault": "Chaguo-msingi",
+    "colorRed": "Nyekundu",
+    "colorOrange": "Machungwa",
+    "colorGreen": "Kijani",
+    "colorBlue": "Bluu",
+    "colorPurple": "Zambarau",
+    "colorGray": "Kijivu",
+    "colorCustom": "Desturi...",
+    "bold": "Nzito",
+    "italic": "Italiki",
+    "nestUnderNew": "Weka chini ya alamisho jipya...",
+    "indent": "Ongeza ujongezaji",
+    "outdent": "Punguza ujongezaji",
+    "deleteBookmarks": "Futa alamisho {{count}}"
   },
   "thumbnail": {
     "rotateLeft": "Zungusha Kushoto",

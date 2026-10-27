@@ -48,6 +48,15 @@
   cursor: default;
 }
 
+/* Knop met het aantal rendermeldingen (#677): één regel, niet laten krimpen
+   naast de statusmelding. */
+.status-nav-btn.status-render-findings {
+  width: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 6px;
+}
+
 .status-separator {
   width: 1px;
   height: 14px;
@@ -189,6 +198,17 @@
   width: 12px;
   height: 12px;
   stroke: var(--theme-status-nav-text);
+}
+
+/* Mapbewaking van documentworkflows: zichtbaar zolang ze loopt, ook na het
+   sluiten van het venster; een klik stopt het bewaken. */
+.status-watch {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.status-watch-error {
+  color: #a4262c;
 }
 
 .status-zoom-level {

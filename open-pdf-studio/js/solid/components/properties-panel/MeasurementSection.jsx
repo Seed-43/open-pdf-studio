@@ -88,7 +88,7 @@ export default function MeasurementSection() {
           <For each={PAPIER_MM_VELDEN}>{([veld, sleutel]) => (
             <div class="property-group">
               <label>{t(sleutel)}</label>
-              <input type="number" step="0.5" min="0"
+              <input type="text" inputmode="decimal" data-getal step="0.5" min="0"
                 value={annotProps[veld] ?? ''}
                 placeholder={t('measurement.auto')}
                 disabled={isLocked()}
@@ -100,7 +100,7 @@ export default function MeasurementSection() {
 
         <div class="property-group">
           <label>{t('measurement.scale')}</label>
-          <input type="number" step="0.001" min="0"
+          <input type="text" inputmode="decimal" data-getal step="0.001" min="0"
             value={annotProps.measureScale || ''}
             placeholder={t('measurement.scaleAuto')}
             title={t('measurement.scaleTooltip')}

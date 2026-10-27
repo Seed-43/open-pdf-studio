@@ -43,6 +43,8 @@
     "strokeColor": "Lijnkleur",
     "color": "Kleur",
     "opacity": "Dekking",
+    "fillOpacity": "Vuldekking",
+    "strokeOpacity": "Lijndekking",
     "borderStyle": "Randstijl",
     "cross": "Kruis",
     "crossHint": "Tekent een kruis in de rechthoek, cirkel of ellips (bijv. een sparing)",
@@ -227,6 +229,9 @@
     "linkImageTitle": "Afbeelding koppelen",
     "imageFilter": "Afbeeldingen"
   },
+  "sizeUnit": {
+    "tooltip": "Eenheid voor maten"
+  },
   "multiSelect": "{{count}} annotaties geselecteerd",
   "pdfText": "PDF-tekst",
   "types": {
@@ -328,10 +333,24 @@
     "importComments": "Opmerkingen importeren...",
     "exportComments": "Opmerkingen exporteren naar gegevensbestand...",
     "exportSelectedComments": "Geselecteerde opmerkingen exporteren naar gegevensbestand...",
+    "exportListCsv": "Lijst exporteren naar CSV...",
+    "summarizeComingSoon": "Binnenkort beschikbaar",
+    "listExported": "Opmerkingenlijst geëxporteerd naar CSV",
+    "csvPage": "Pagina",
+    "csvType": "Type",
+    "csvAuthor": "Auteur",
+    "csvDate": "Datum",
+    "csvStatus": "Status",
+    "csvSubject": "Onderwerp",
+    "csvContents": "Inhoud",
+    "csvColor": "Kleur",
+    "csvLayer": "Laag",
     "measurements": "Metingen",
     "schedules": "Staten",
     "addPage": "Pagina toevoegen",
-    "pageLabels": "Paginalabels (naambouwer)"
+    "pageLabels": "Paginalabels (naambouwer)",
+    "portfolio": "PDF-portfolio",
+    "recognizeForm": "Formuliervelden herkennen"
   },
   "scaleBar": {
     "title": "Schaalbalk",
@@ -403,7 +422,8 @@
       "image": "Afbeeldingen & stempels"
     },
     "preview": "Voorbeeld",
-    "exportCsv": "CSV exporteren"
+    "exportCsv": "CSV exporteren",
+    "workbookBindings": "Spreadsheetkoppelingen"
   },
   "wizard": {
     "title": "Staten-wizard",
@@ -585,7 +605,9 @@
       "symbolId": "Symbool",
       "imageName": "Bestandsnaam",
       "width": "Breedte",
-      "height": "Hoogte"
+      "height": "Hoogte",
+      "location": "Locatie",
+      "locationSource": "Locatiebron"
     },
     "type": {
       "line": "Lijn",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbool: {{name}}",
     "symbolLabel": "Symbool",
     "typeLabel": "Type",
+    "profileType": "Profieltype",
+    "profileTypeTitle": "Staalprofiel",
     "unknownSymbol": "Onbekend symbool",
     "listNew": "Nieuw",
     "listAdd": "Toevoegen",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Dit object is elders gewijzigd. Het formulier toont de huidige waarden; uw wijzigingen zijn niet toegepast.",
     "failed": "De wijzigingen konden niet worden toegepast: {{error}}"
+  },
+  "location": {
+    "title": "Locatie",
+    "none": "Niet toegewezen",
+    "manual": "Handmatig",
+    "computed": "Berekend",
+    "override": "Handmatige locatie (leeg wist locatie)",
+    "automatic": "Automatische locatie gebruiken",
+    "zoneName": "Deze vorm gebruiken als benoemde zone",
+    "parent": "Bovenliggende zone",
+    "removeZone": "Zonedefinitie verwijderen",
+    "invalid": "Locatie kon niet worden bijgewerkt",
+    "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
+    "loading": "Annotaties laden: locaties kunnen nog veranderen."
   }
 }

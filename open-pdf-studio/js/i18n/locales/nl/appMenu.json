@@ -70,6 +70,12 @@
     "site": "Op deze site",
     "noSiteDocuments": "Geen documenten op deze site",
     "siteListError": "De documenten van deze site konden niet worden geladen",
+    "versions": "Versies",
+    "versionNumber": "Versie {{version}}",
+    "currentVersion": "huidig",
+    "noVersions": "Geen versies",
+    "versionsError": "De versies konden niet worden geladen",
+    "olderVersionsHint": "Oudere versies openen alleen-lezen; Opslaan als downloadt een kopie.",
     "save": "Opslaan"
   },
   "importPanel": {
@@ -132,7 +138,9 @@
     "officePage": "Pagina",
     "officeTable": "Tabel",
     "officeText": "Tekst",
-    "officeFailed": "Documentexport mislukt."
+    "officeFailed": "Documentexport mislukt.",
+    "protect": "Beveiligen met wachtwoord",
+    "protectDesc": "Sla een met een wachtwoord beveiligde kopie op (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Uitvoerprofiel",
@@ -211,5 +219,9 @@
     "activationFailed": "Niet actief: {{error}}",
     "viaMcp": "Via de AI-koppeling"
   },
-  "annotateScreenshot": "Klembord-schermafbeelding annoteren"
+  "annotateScreenshot": "Klembord-schermafbeelding annoteren",
+  "workflows": "Documentworkflows",
+  "drawingSets": "Tekeningsets",
+  "sheetLinks": "Verwijzingen tussen bladen",
+  "approvalRouting": "Goedkeuringsroutes"
 }

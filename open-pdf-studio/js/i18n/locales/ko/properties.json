@@ -63,6 +63,8 @@
     "strokeColor": "윤곽선 색",
     "color": "색상",
     "opacity": "불투명도",
+    "fillOpacity": "채우기 불투명도",
+    "strokeOpacity": "윤곽선 불투명도",
     "lineWidth": "선 너비",
     "borderWidth": "테두리 너비",
     "borderStyle": "테두리 스타일",
@@ -247,6 +249,9 @@
     "linkImageTitle": "이미지 연결",
     "imageFilter": "이미지"
   },
+  "sizeUnit": {
+    "tooltip": "크기 단위"
+  },
   "multiSelect": "{{count}}개 주석 선택됨",
   "pdfText": "PDF 텍스트",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "주석 가져오기...",
     "exportComments": "주석을 데이터 파일로 내보내기...",
     "exportSelectedComments": "선택한 주석을 데이터 파일로 내보내기...",
+    "exportListCsv": "목록을 CSV로 내보내기...",
+    "summarizeComingSoon": "곧 제공 예정",
+    "listExported": "주석 목록을 CSV로 내보냈습니다",
+    "csvPage": "페이지",
+    "csvType": "유형",
+    "csvAuthor": "작성자",
+    "csvDate": "날짜",
+    "csvStatus": "상태",
+    "csvSubject": "제목",
+    "csvContents": "내용",
+    "csvColor": "색상",
+    "csvLayer": "레이어",
     "schedules": "일람표",
     "addPage": "페이지 추가",
-    "pageLabels": "페이지 레이블(이름 작성기)"
+    "pageLabels": "페이지 레이블(이름 작성기)",
+    "portfolio": "PDF 포트폴리오",
+    "recognizeForm": "양식 필드 인식"
   },
   "scaleBar": {
     "title": "축척 막대",
@@ -403,7 +422,8 @@
       "image": "이미지 및 스탬프"
     },
     "preview": "미리 보기",
-    "exportCsv": "CSV 내보내기"
+    "exportCsv": "CSV 내보내기",
+    "workbookBindings": "스프레드시트 바인딩"
   },
   "wizard": {
     "title": "일람표 마법사",
@@ -585,7 +605,9 @@
       "symbolId": "기호",
       "imageName": "파일 이름",
       "width": "너비",
-      "height": "높이"
+      "height": "높이",
+      "location": "위치",
+      "locationSource": "위치 출처"
     },
     "type": {
       "line": "선",
@@ -631,6 +653,8 @@
     "sectionTitle": "기호: {{name}}",
     "symbolLabel": "기호",
     "typeLabel": "유형",
+    "profileType": "형강 종류",
+    "profileTypeTitle": "형강",
     "unknownSymbol": "알 수 없는 기호",
     "listNew": "새로 만들기",
     "listAdd": "추가",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "이 개체는 다른 곳에서 변경되었습니다. 양식에 현재 값이 표시됩니다. 변경 내용은 적용되지 않았습니다.",
     "failed": "변경 내용을 적용할 수 없습니다: {{error}}"
+  },
+  "location": {
+    "title": "위치",
+    "none": "할당되지 않음",
+    "manual": "수동",
+    "computed": "계산됨",
+    "override": "수동 재정의(비워 두면 위치가 지워짐)",
+    "automatic": "자동 위치 사용",
+    "zoneName": "이 도형을 이름 있는 구역으로 사용",
+    "parent": "상위 구역",
+    "removeZone": "구역 정의 제거",
+    "invalid": "위치를 업데이트할 수 없습니다",
+    "rules": "할당에는 가장자리를 포함한 마크업 경계 상자의 중심이 사용됩니다. 가장 깊은 구역이 우선하며, 그다음 가장 작은 면적, 그다음 구역 ID 순입니다. 구멍이 없는 직선 다각형이나 회전하지 않은 상자를 사용하세요. 잘못되었거나 중복된 구역 식별자는 제외됩니다.",
+    "loading": "주석을 불러오는 중입니다. 위치가 아직 변경될 수 있습니다."
   }
 }

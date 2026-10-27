@@ -29,7 +29,8 @@
     "formCheckbox": "Zaškrtávacie políčko formulára",
     "formRadio": "Prepínač formulára",
     "screenshot": "Snímka obrazovky",
-    "pageLabelPick": "Výber textu pre menovku strany"
+    "pageLabelPick": "Výber textu pre menovku strany",
+    "proofread": "Korektúra"
   },
   "toolLabel": "Nástroj:",
   "annotationsLabel": "Anotácie:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Strana {{page}}",
   "searchHitsOne": "1 zhoda",
   "searchHitsMany": "Zhôd: {{count}}",
-  "passwordProtectedBar": "Chránené heslom: otvorené iba na čítanie."
+  "passwordProtectedBar": "Chránené heslom: otvorené iba na čítanie.",
+  "documentSearch": {
+    "title": "Prehľadať dokumenty",
+    "query": "Hľadaný text",
+    "scope": "Hľadať v",
+    "active": "Aktuálny dokument",
+    "open": "Otvorené dokumenty",
+    "folder": "Priečinok",
+    "choose": "Zvoliť priečinok",
+    "annotations": "Zahrnúť komentáre",
+    "search": "Hľadať",
+    "cancel": "Zrušiť",
+    "stale": "Dokument sa zmenil. Spustite hľadanie znova.",
+    "folderHint": "Prehľadá súbory PDF priamo v tomto priečinku bez otvárania kariet a bez zmeny súborov.",
+    "limited": "Dosiahol sa limit výsledkov. Spresnite hľadanie.",
+    "cancelled": "Hľadanie bolo zrušené; výsledky sú neúplné.",
+    "ocrHint": "Na stranách {{pages}} nie je prehľadávateľný text. V prípade potreby otvorte dokument a spustite OCR.",
+    "status": {
+      "searching": "Hľadanie",
+      "complete": "Dokončené",
+      "needs_ocr": "Obsahuje strany bez prehľadávateľného textu",
+      "encrypted": "Vyžaduje sa heslo",
+      "unreadable": "Nedá sa prehľadať",
+      "changed": "Dokument sa zmenil; hľadajte znova",
+      "cancelled": "Zrušené",
+      "limited": "Dosiahnutý limit výsledkov"
+    },
+    "failed": "Hľadanie zlyhalo. Skontrolujte dopyt a priečinok a skúste to znova.",
+    "prepareOcr": "Otvoriť na OCR…"
+  },
+  "symbolSearch": "Nájsť symboly",
+  "findMoreOptions": "Ďalšie možnosti vyhľadávania",
+  "watchActive": "Sledovanie: {{folder}}",
+  "watchFailed": "Chyba sledovania: {{folder}}",
+  "watchTitle": "Pracovný postup dokumentov sleduje {{input}} a zapisuje do {{output}}. Kliknutím sledovanie zastavíte.",
+  "renderDiagnostics": {
+    "title": "Prejsť na ďalšie zistenie vykresľovania. Žiadne zistenia nezaručujú úplné vykreslenie.",
+    "count": "Zistenia vykresľovania: {{count}}",
+    "detail": "Strana {{page}}: {{code}}. Skúste menšie priblíženie alebo dokument znova otvorte; úplnosť nie je zaručená."
+  }
 }

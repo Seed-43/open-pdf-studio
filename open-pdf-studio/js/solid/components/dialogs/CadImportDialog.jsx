@@ -675,9 +675,9 @@ export default function CadImportDialog(props) {
               <Show when={layoutKeuze.paper === 'custom'}>
                 <div class="cad-row">
                   <label class="cad-label">{t('cadImport.paperSize')}</label>
-                  <input type="number" class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={layoutKeuze.paperWidthMm} onChange={(e) => setLayoutKeuze('paperWidthMm', papiermaatMm(e.target.value, 297))} />
+                  <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={layoutKeuze.paperWidthMm} onChange={(e) => setLayoutKeuze('paperWidthMm', papiermaatMm(e.target.value, 297))} />
                   <span class="cad-note">×</span>
-                  <input type="number" class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={layoutKeuze.paperHeightMm} onChange={(e) => setLayoutKeuze('paperHeightMm', papiermaatMm(e.target.value, 420))} />
+                  <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={layoutKeuze.paperHeightMm} onChange={(e) => setLayoutKeuze('paperHeightMm', papiermaatMm(e.target.value, 420))} />
                   <span class="cad-note">mm</span>
                 </div>
               </Show>
@@ -700,11 +700,11 @@ export default function CadImportDialog(props) {
               </Show>
               <div class="cad-row">
                 <label class="cad-label">{t('cadImport.windowFrom')}</label>
-                <input type="number" class="cad-input cad-input-short" value={venster.x0} onChange={(e) => setVenster('x0', Number(e.target.value) || 0)} />
-                <input type="number" class="cad-input cad-input-short" value={venster.y0} onChange={(e) => setVenster('y0', Number(e.target.value) || 0)} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.x0} onChange={(e) => setVenster('x0', Number(e.target.value) || 0)} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.y0} onChange={(e) => setVenster('y0', Number(e.target.value) || 0)} />
                 <label class="cad-label cad-label-short">{t('cadImport.windowTo')}</label>
-                <input type="number" class="cad-input cad-input-short" value={venster.x1} onChange={(e) => setVenster('x1', Number(e.target.value) || 0)} />
-                <input type="number" class="cad-input cad-input-short" value={venster.y1} onChange={(e) => setVenster('y1', Number(e.target.value) || 0)} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.x1} onChange={(e) => setVenster('x1', Number(e.target.value) || 0)} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.y1} onChange={(e) => setVenster('y1', Number(e.target.value) || 0)} />
               </div>
             </Show>
             <div class="cad-row">
@@ -726,7 +726,7 @@ export default function CadImportDialog(props) {
               </select>
               <Show when={vrijeSchaal()}>
                 <span class="cad-note">1 :</span>
-                <input type="number" class="cad-input cad-input-short" min="0.01" step="any" value={inst.scale}
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0.01" step="any" value={inst.scale}
                   onChange={(e) => setInst('scale', Math.max(0.01, Number(e.target.value) || 100))} />
               </Show>
               <Show when={!(inst.scale > 0) && voorstel()}>
@@ -755,15 +755,15 @@ export default function CadImportDialog(props) {
             <Show when={inst.paper === 'custom'}>
               <div class="cad-row">
                 <label class="cad-label">{t('cadImport.paperSize')}</label>
-                <input type="number" class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={inst.paperWidthMm} onChange={(e) => setInst('paperWidthMm', papiermaatMm(e.target.value, 297))} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={inst.paperWidthMm} onChange={(e) => setInst('paperWidthMm', papiermaatMm(e.target.value, 297))} />
                 <span class="cad-note">×</span>
-                <input type="number" class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={inst.paperHeightMm} onChange={(e) => setInst('paperHeightMm', papiermaatMm(e.target.value, 420))} />
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" max={MAX_PAGINA_MM} value={inst.paperHeightMm} onChange={(e) => setInst('paperHeightMm', papiermaatMm(e.target.value, 420))} />
                 <span class="cad-note">mm</span>
               </div>
             </Show>
             <div class="cad-row">
               <label class="cad-label">{t('cadImport.margin')}</label>
-              <input type="number" class="cad-input cad-input-short" min="0" max="200" value={inst.marginMm} onChange={(e) => setInst('marginMm', Math.min(200, Math.max(0, Number(e.target.value) || 0)))} />
+              <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0" max="200" value={inst.marginMm} onChange={(e) => setInst('marginMm', Math.min(200, Math.max(0, Number(e.target.value) || 0)))} />
               <span class="cad-note">mm</span>
               <label class="cad-label cad-label-short">{t('cadImport.rotation')}</label>
               <select class="cad-select cad-select-short" value={vrijeDraaiing() ? 'custom' : String(inst.rotation)}
@@ -777,7 +777,7 @@ export default function CadImportDialog(props) {
                 <option value="custom">{t('cadImport.rotationCustom')}</option>
               </select>
               <Show when={vrijeDraaiing()}>
-                <input type="number" class="cad-input cad-input-short" min="-360" max="360" step="any" value={inst.rotation}
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="-360" max="360" step="any" value={inst.rotation}
                   onChange={(e) => setInst('rotation', Math.min(360, Math.max(-360, Number(e.target.value) || 0)))} />
                 <span class="cad-note">°</span>
               </Show>
@@ -797,9 +797,9 @@ export default function CadImportDialog(props) {
                   {t('cadImport.ownBasePoint')}
                 </label>
                 <Show when={inst.ownBasePoint}>
-                  <input type="number" class="cad-input cad-input-short" step="any" aria-label="X" value={inst.basePointX}
+                  <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="any" aria-label="X" value={inst.basePointX}
                     onChange={(e) => setInst('basePointX', Number(e.target.value) || 0)} />
-                  <input type="number" class="cad-input cad-input-short" step="any" aria-label="Y" value={inst.basePointY}
+                  <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="any" aria-label="Y" value={inst.basePointY}
                     onChange={(e) => setInst('basePointY', Number(e.target.value) || 0)} />
                 </Show>
               </div>
@@ -850,7 +850,7 @@ export default function CadImportDialog(props) {
               <option value="fixed">{t('cadImport.lineweightFixed')}</option>
               <option value="pens">{t('cadImport.lineweightPens')}</option>
             </select>
-            <input type="number" class="cad-input cad-input-short" step="0.05" min="0" max="5" value={inst.lineweightMm}
+            <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="0.05" min="0" max="5" value={inst.lineweightMm}
               disabled={inst.lineweight !== 'fixed'} onChange={(e) => setInst('lineweightMm', Math.min(5, Math.max(0, Number(e.target.value) || 0.25)))} />
             <span class="cad-note">mm</span>
           </div>
@@ -859,10 +859,10 @@ export default function CadImportDialog(props) {
           </Show>
           <div class="cad-row">
             <label class="cad-label">{t('cadImport.lineweightFactor')}</label>
-            <input type="number" class="cad-input cad-input-short" step="0.1" min="0.1" max="10" value={inst.lineweightFactor}
+            <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="0.1" min="0.1" max="10" value={inst.lineweightFactor}
               onChange={(e) => setInst('lineweightFactor', Math.min(10, Math.max(0.1, Number(e.target.value) || 1)))} />
             <label class="cad-label cad-label-short">{t('cadImport.lineweightMin')}</label>
-            <input type="number" class="cad-input cad-input-short" step="0.01" min="0" max="5" value={inst.lineweightMinMm}
+            <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="0.01" min="0" max="5" value={inst.lineweightMinMm}
               onChange={(e) => setInst('lineweightMinMm', Math.min(5, Math.max(0, Number(e.target.value) || 0)))} />
             <span class="cad-note">mm</span>
           </div>
@@ -915,7 +915,7 @@ export default function CadImportDialog(props) {
         <div class="cad-row cad-import-underlay">
           <label class="cad-label" for={veld('opacity')}>{t('cadImport.underlayOpacity')}</label>
           <input
-            id={veld('opacity')} type="number" class="cad-input cad-input-short" min="5" max="100" step="5" disabled={bezig()}
+            id={veld('opacity')} type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="5" max="100" step="5" disabled={bezig()}
             value={inst.underlayOpacity}
             onChange={(e) => setInst('underlayOpacity', Math.round(Math.min(100, Math.max(5, Number(e.target.value) || 50))))}
           />

@@ -281,7 +281,7 @@ export default function PageSetupDialog() {
           <div class="page-setup-margins-grid">
             <label class="page-setup-margin-label">{t('pageSetup.left')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="page-setup-margin-input"
               value={marginLeft()}
               min="0"
@@ -290,7 +290,7 @@ export default function PageSetupDialog() {
             />
             <label class="page-setup-margin-label">{t('pageSetup.right')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="page-setup-margin-input"
               value={marginRight()}
               min="0"
@@ -299,7 +299,7 @@ export default function PageSetupDialog() {
             />
             <label class="page-setup-margin-label">{t('pageSetup.top')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="page-setup-margin-input"
               value={marginTop()}
               min="0"
@@ -308,7 +308,7 @@ export default function PageSetupDialog() {
             />
             <label class="page-setup-margin-label">{t('pageSetup.bottom')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="page-setup-margin-input"
               value={marginBottom()}
               min="0"

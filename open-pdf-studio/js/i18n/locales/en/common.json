@@ -35,6 +35,7 @@
   "saved": "Saved",
   "documentChangedDuringSave": "The document changed while saving. Save again.",
   "documentChangedDuringExport": "The document changed during export. Start again.",
+  "rasterExportProgress": "Rasterizing pages: {{done}} of {{total}}",
   "snippetOutputFailed": "A vector snippet could not be rendered, so the export or print was stopped. Try again.",
   "search": "Search",
   "find": "Find",
@@ -49,7 +50,80 @@
   "percent": "%",
   "webSessionStartsEmpty": "A page reload starts empty: in the browser your document stays on your computer and is not stored.",
   "desktopOnly": "{{feature}} only works in the desktop app. This page is the browser version.",
+  "hostedLinkTitle": "Link",
+  "hostedLinkMessage": "Links cannot be opened from here. Copy the address to open it yourself:",
+  "hostedAttachmentMessage": "Attachments cannot be opened here. \"{{filename}}\" is offered as a download instead.",
   "assistantTitle": "OpenAEC assistant",
+  "assistant": {
+    "greeting": "Hello! I am the **{{title}}**. I can: 🌐 translate, 📝 summarise, ✏️ draw on the drawing, and 🚪 recognise doors. Pick a skill below or ask your question.",
+    "workingIn": "working in",
+    "viaClaude": "via Claude",
+    "notConnected": "not connected",
+    "viaWorkplace": "via the OpenAEC workplace",
+    "keyButton": "Set the Claude (Anthropic) API key",
+    "keyPlaceholder": "Claude (Anthropic) API key — sk-ant-…",
+    "thinking": "Thinking…",
+    "inputPlaceholder": "Ask something about this PDF…",
+    "send": "Send",
+    "noAnswer": "No answer received.",
+    "errorInvalidKey": "Invalid Claude (Anthropic) API key. Check the key with the 🔑 button at the top of the panel.",
+    "errorApi": "The Claude API returned an error.",
+    "errorNoConnection": "No connection to the AI service.",
+    "errorTimeout": "No MCP client answered the question in time.",
+    "errorFailed": "The AI request failed.",
+    "detail": "Detail",
+    "unknownError": "unknown error",
+    "workplaceErrors": {
+      "ongeldige_vraag": "The assistant could not understand the question. Try again or start a new conversation.",
+      "te_groot": "The question is too large for the AI service. Start a new conversation or ask a shorter question.",
+      "geen_tegoed": "Your AI credit is used up. Top up your credit in OpenAEC to keep using the assistant.",
+      "plafond_bereikt": "The AI spending limit has been reached. Ask your administrator to raise it.",
+      "te_druk": "The assistant is busy right now. Try again in a moment.",
+      "te_veel_vragen": "Too many questions in a short time. Wait a minute and try again.",
+      "al_bezig": "Your previous question is still being answered. Wait for it to finish.",
+      "opnieuw_inloggen": "Sign in to OpenAEC again to use the assistant.",
+      "dienst_onbereikbaar": "The AI service cannot be reached right now. Try again later.",
+      "geen_antwoord": "The workplace did not answer in time. Try again.",
+      "geen_contact": "No connection with the workplace. Reload the page and try again."
+    },
+    "skills": {
+      "translate": {
+        "label": "Translate",
+        "hint": "Translate the text of the document",
+        "prompt": "Translate the text of the open document."
+      },
+      "summarize": {
+        "label": "Summarise",
+        "hint": "Summarise the document or drawing",
+        "prompt": "Summarise the open document or drawing."
+      },
+      "draw": {
+        "label": "Draw",
+        "hint": "Draw an element or annotation on the drawing",
+        "prompt": "Draw on the drawing: "
+      },
+      "detect-doors": {
+        "label": "Detect doors",
+        "hint": "Detect the doors in the floor plan and mark them",
+        "prompt": "Recognise the doors in the floor plan and mark them."
+      },
+      "structural-layout": {
+        "label": "Lay out structure",
+        "hint": "Grid, columns, beams, floor fields with span direction and the structural schedule",
+        "prompt": "Lay out the load-bearing structure on the drawing. Brief: "
+      },
+      "structural-overview": {
+        "label": "Structural overview",
+        "hint": "Structural overview per storey on the architect's floor plans: foundation, floors with span, load-bearing walls below, beams and columns, legend and notes",
+        "prompt": "Make a structural overview on this sheet from the architect's floor plans. Source, storeys and structural principle: "
+      },
+      "floorplan": {
+        "label": "Floor plan",
+        "hint": "Draw an architectural floor plan: walls, frames, rooms, dimensions and fittings (sanitary, kitchen)",
+        "prompt": "Draw an architectural floor plan. What to draw: "
+      }
+    }
+  },
   "onlineSymbolLibrary": "Online symbol library",
   "noDocumentOpen": "No document is open.",
   "noPdfLoaded": "No PDF loaded.",
@@ -66,6 +140,20 @@
   "selectedPdfNoPages": "The selected PDF has no pages.",
   "failedToSavePdf": "Failed to save PDF: {{error}}",
   "failedToLoadPdf": "Failed to load PDF: {{error}}",
+  "hostOpenFailed": "The file could not be read from storage. Try again.",
+  "hostInvalidPdf": "{{name}} is not a valid PDF file and could not be opened.",
+  "hostNoContact": "The page around Open PDF Studio does not respond, so files cannot be opened or saved. Reload the page and try again.",
+  "hostSaveConflict": "Someone else saved this file in the meantime. Your changes were saved as a separate copy: {{name}}. Later saves go to that copy.",
+  "hostSaveNotLocked": "This file is not reserved for you, so others can change it at the same time. Your changes are saved as new versions; nothing is overwritten.",
+  "hostReadOnlySave": "This file is open read-only, so changes cannot be saved to it. Use Save As to download a copy.",
+  "hostVersionReadOnly": "Version {{version}} of {{total}} – read-only",
+  "hostVersionReadOnlyShort": "Version {{version}} – read-only",
+  "hostVersionSaveBlocked": "This is an older version of the file, opened read-only, so it cannot be saved. Use Save As to download a copy.",
+  "hostVersionReadOnlyRefused": "The site did not save the file: an older version of it is open read-only. Open the current version again to save, or use Save As to download a copy.",
+  "hostVersionInvalid": "This version of the file cannot be opened: the version number is not valid.",
+  "textEditMissingGlyphs": "The text was not changed: no available font has these characters, so they cannot be saved: {{chars}}",
+  "textEditMissingGlyphsLater": "No available font has these characters, so they cannot be saved: {{chars}}. Change this text; until then the PDF cannot be saved.",
+  "textEditMissingGlyphsSave": "The PDF was not saved: edited text contains characters that no available font has: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Failed to create document: {{error}}",
   "failedToReplacePage": "Failed to replace page: {{error}}",
   "failedToMergeFile": "Failed to merge: {{file}}\n{{error}}",
@@ -198,6 +286,9 @@
     "markupPages": "Markup pages",
     "pageN": "page {{n}}",
     "snapshotBar": "3D markup page: {{name}}",
-    "backTo3D": "Back to 3D model"
+    "backTo3D": "Back to 3D model",
+    "readFailed": "The 3D model could not be read.",
+    "partial": "Some parts of the 3D model could not be read ({{n}} skipped).",
+    "viewerFailed": "The 3D view could not be started."
   }
 }

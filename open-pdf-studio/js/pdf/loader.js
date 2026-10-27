@@ -6,12 +6,14 @@ import { setViewMode, fitPage } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
-import { isTauri, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
+import { isTauri, isMobile, heeftRustRenderer, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
 import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
 import { resumeReaderTracking } from './reader-mode-view.js';
 import { extractFileName } from '../core/platform.js';
+import { foutBericht } from '../core/fout-bericht.js';
+import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import i18next from '../i18n/config.js';
 import { showMessage, refreshAnnotationLayers } from '../bridge.js';
 import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
@@ -19,73 +21,24 @@ import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 // Sub-module imports
 import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
-import { convertPdfAnnotation } from './loader/annotation-converter.js';
-import { statusReplyFromPdfAnnotation, applyStatusReplies } from './loader/status-replies.js';
-import { resolveGroupLinks } from './loader/correction-load.js';
+import { zetPaginaAnnotatiesOm } from './loader/annotaties-omzetten.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
 import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
+import { GAST_MODUS } from '../core/gehost.js';
+import { maakBlobWorker } from '../core/blob-worker.js';
 import { isWachtwoordFout, vraagEnOntsleutel, markeerBeveiligd, isAlleenLezen, isBeveiligdDocument, bronPad } from './wachtwoord-pdf.js';
 
 
-// Convert one batch of pdf.js annotations and push them to doc.annotations,
-// detecting textbox-leader PolyLines (linked via IRT) and attaching them
-// to their parent textbox instead of pushing a standalone annotation.
-// Review-status replies (Text + /IRT + /State, issue #308) worden hier ook
-// herkend: die worden NIET als losse sticky note gepusht maar als status
-// op de doel-annotatie gezet. Een vervanging (invoegteken en doorhaling met
-// /RT /Group, #508) wordt na de lus gekoppeld.
+// Convert one batch of pdf.js annotations and push them to doc.annotations.
+// Het omzetten zelf, met de aanhaallijnen, statussen, antwoorden en
+// koppelingen tussen annotaties, staat in loader/annotaties-omzetten.js.
 // De hele reeks gaat pas aan het eind, in één keer, in doc.annotations (zie
 // annotaties-toevoegen.js): losse pushes lieten per annotatie alles opnieuw
 // rekenen wat de lijst leest.
 async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageMap, annotColorMap, doc) {
-  const textboxByRect = new Map();
-  const byPdfId = new Map();
-  const pendingLeaders = [];
-  const pendingStatuses = [];
-  const groepen = []; // /RT /Group-kinderen, zie resolveGroupLinks
-  const nieuw = [];
-  for (const annot of annots) {
-    const statusReply = statusReplyFromPdfAnnotation(annot);
-    if (statusReply) {
-      pendingStatuses.push(statusReply);
-      continue;
-    }
-    const converted = await convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap);
-    if (!converted) continue;
-    if (converted.__textboxLeader) {
-      pendingLeaders.push(converted);
-      continue;
-    }
-    if (converted.type === 'textbox' && converted._pdfRectKey) {
-      textboxByRect.set(converted._pdfRectKey, converted);
-    }
-    if (annot.id) byPdfId.set(annot.id, converted);
-    if (annot.replyType === 'Group' && annot.inReplyTo) {
-      groepen.push({ converted, inReplyTo: annot.inReplyTo, replyType: annot.replyType });
-    }
-    nieuw.push(converted);
-    // Sommige converters leveren EXTRA annotaties naast de hoofdannotatie
-    // (bv. een legacy meerpunts-betonbalk die in losse tweepunts-balken
-    // gesplitst wordt). Die worden hier mee-gepusht.
-    if (Array.isArray(converted.__extraAnnotations)) {
-      for (const extra of converted.__extraAnnotations) nieuw.push(extra);
-      delete converted.__extraAnnotations;
-    }
-  }
-  for (const pl of pendingLeaders) {
-    const parent = textboxByRect.get(pl.irtRectKey);
-    if (parent) {
-      if (!Array.isArray(parent.leaders)) parent.leaders = [];
-      parent.leaders.push(pl.leader);
-    }
-  }
-  for (const tb of textboxByRect.values()) delete tb._pdfRectKey;
-  applyStatusReplies(pendingStatuses, byPdfId);
-  // Vervangingen (#508): invoegteken + doorhaling, in beide richtingen.
-  resolveGroupLinks(groepen, byPdfId);
-  voegAnnotatiesToe(doc, nieuw);
+  voegAnnotatiesToe(doc, await zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImageMap, annotColorMap));
 }
 
 // Cache for original PDF bytes (used by saver to avoid re-reading)
@@ -139,6 +92,18 @@ export function clearCachedPdfBytes(filePath) {
 pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env?.DEV
   ? '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
   : new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href;
+
+// Gehoste bouw (#704): in de werkplek (opaque origin) start PDF.js zijn
+// worker niet zelf; hij zou een module-worker uit een blob maken, en die
+// weigert Chromium daar. Eén klassieke blob-worker die de worker uit de
+// bundel laadt (core/blob-worker.js), gedeeld door alle documenten.
+if (import.meta.env?.MODE === GAST_MODUS && typeof Worker !== 'undefined') {
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerPort = maakBlobWorker(pdfjsLib.GlobalWorkerOptions.workerSrc, { type: 'module' });
+  } catch (e) {
+    console.warn('[loader] PDF.js-worker uit een blob niet gestart; PDF.js valt terug op de hoofdthread:', e);
+  }
+}
 
 /**
  * Wrap doc.pdfDoc.getPage with a recovery layer that re-loads the doc when
@@ -324,8 +289,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // vóór de progressieve tegels in de rij staan. Het progressieve pad
     // levert de eerste content daar zelf. (isHeavyPage cachet per bestand;
     // de check zelf kost ~100 ms eenmalig.)
+    // Het Rust-pad (PDFium, lopdf) bestaat alleen op het bureaublad; mobiel
+    // slaat pre-render, analyse en prefetch over en tekent met PDF.js (#593).
+    const _rustPad = heeftRustRenderer();
     let _skipPre = false;
-    if (filePath && isTauri()) {
+    if (filePath && _rustPad) {
       try {
         const prog = await import('./progressive-render.js');
         _skipPre = !!(state.preferences && state.preferences.progressiveRender)
@@ -339,11 +307,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // PDF.js parses the same bytes — on large documents that doubles peak
     // memory during boot and can take the whole load down. Skip it then.
     let _poolReady = false;
-    if (filePath && isTauri() && !_skipPre) {
+    if (filePath && _rustPad && !_skipPre) {
       try { _poolReady = await invoke('worker_pool_ready'); } catch { _poolReady = false; }
       if (!_poolReady) console.log('[prog-guard] worker pool not ready → cold-open pre-render skipped');
     }
-    if (filePath && isTauri() && !_skipPre && _poolReady) {
+    if (filePath && _rustPad && !_skipPre && _poolReady) {
       const { renderPdfPage: _renderPdfPage } = await import('./engine-router.js');
       _renderPdfPage({
         path: filePath,
@@ -386,8 +354,6 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       if (isTauri()) {
         // Lock the file to prevent other apps from writing while we have it open
         // (skip on Android — content:// URIs don't support filesystem locking)
-        const { isMobile } = await import('../core/platform.js');
-        if (isClosed()) return;
         if (!isMobile()) {
           await lockFile(filePath);
           if (isClosed()) return;
@@ -477,7 +443,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // time the user navigates anywhere, the result is a cached HashMap
     // lookup. Total batch cost on NKD1a: ~50 ms total instead of ~600 ms
     // × 7 pages sequentially as the user scrolls.
-    if (filePath && isTauri() && doc.pdfDoc.numPages > 1) {
+    if (filePath && _rustPad && doc.pdfDoc.numPages > 1) {
       const _abT0 = performance.now();
       const allPages = Array.from({ length: doc.pdfDoc.numPages }, (_, i) => i);
       window.__TAURI__.core.invoke('analyze_page_type_batch', {
@@ -506,7 +472,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     {
       // Een beveiligde PDF heet naar het origineel, niet naar zijn werkkopie.
       const zichtbaarPad = bronPad(doc);
-      doc.fileName = zichtbaarPad ? zichtbaarPad.split(/[\\/]/).pop() : 'Untitled';
+      doc.fileName = (zichtbaarPad && bestandsnaamUitPad(zichtbaarPad)) || 'Untitled';
     }
 
     // Reset annotation state (per-document)
@@ -780,7 +746,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // analyze_page_type_batch earlier in loadPDF), so the per-page analyze
     // invoke is microseconds. Concurrency=2 keeps interactive renders
     // responsive.
-    if (filePath && isTauri()) {
+    if (filePath && _rustPad) {
       (async () => {
         try {
           const vr = await import('./vector-renderer.js');
@@ -865,7 +831,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     if (isClosed()) return;
     console.error('Error loading PDF:', error);
     if (isActive()) {
-      showMessage(i18next.t('failedToLoadPdf', { error: error.message }));
+      showMessage(i18next.t('failedToLoadPdf', { error: foutBericht(error) }));
     }
   } finally {
     doc._isLoading = false;
@@ -1090,7 +1056,7 @@ export async function createBlankPDF(widthPt, heightPt, numPages) {
 
   } catch (error) {
     console.error('Error creating blank PDF:', error);
-    showMessage(i18next.t('failedToCreateDocument', { error: error.message }));
+    showMessage(i18next.t('failedToCreateDocument', { error: foutBericht(error) }));
   } finally {
     hideLoading();
   }
@@ -1233,6 +1199,26 @@ export async function ensureAnnotationsForPage(pageNum, doc) {
   // deze pagina niet als 'geladen' behandelen (dataverlies-wachter).
   if (doc._annotationPagesReady) doc._annotationPagesReady.add(pageNum);
   console.log(`[PERF] ensureAnnotationsForPage(${pageNum}) DONE: ${(performance.now() - _ea0).toFixed(0)}ms`);
+}
+
+/**
+ * Annotaties van deze pagina's nu laden, met kleuren en stempelbeelden, en
+ * wachten tot ze in het model staan. Voor pagina's die een paginabewerking
+ * nieuw in het document bracht (samenvoegen, invoegen): hun annotaties
+ * staan alleen in de bytes, en het model moet ze hebben vóór er getekend,
+ * ongedaan gemaakt of opgeslagen wordt.
+ * @returns {Promise<import('pdf-lib').PDFDocument|null>} het pdf-lib-document
+ *   als het geladen moest worden (voor de lagen van die annotaties)
+ */
+export async function laadAnnotatiesVoorPaginas(doc, paginas) {
+  if (!doc?.pdfDoc) return null;
+  for (const pageNum of paginas) {
+    if (doc._annotationPagesReady?.has(pageNum)) continue;
+    doc._loadedAnnotationPages.add(pageNum);
+    await loadAnnotationsForSinglePage(doc, pageNum, true);
+    if (doc._annotationPagesReady) doc._annotationPagesReady.add(pageNum);
+  }
+  return doc._sharedPdfLibDoc || null;
 }
 
 // Load existing annotations from PDF

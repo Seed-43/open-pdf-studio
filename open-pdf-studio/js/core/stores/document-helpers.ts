@@ -1,4 +1,5 @@
 import type { DocumentState } from '../../types/document.js';
+import { bestandsnaamUitPad } from '../bestandsnaam.js';
 
 /**
  * Creates a new document state object
@@ -7,7 +8,8 @@ export function createDocument(filePath: string | null = null): DocumentState {
   return {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
     filePath: filePath,
-    fileName: filePath ? filePath.split(/[\\/]/).pop()! : 'Untitled',
+    // content:// (Android) krijgt de weergavenaam, geen opaak id (#596).
+    fileName: (filePath && bestandsnaamUitPad(filePath)) || 'Untitled',
     pdfDoc: null,
     currentPage: 1,
     scale: 1.5,

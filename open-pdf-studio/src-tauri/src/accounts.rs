@@ -276,6 +276,9 @@ fn wait_for_callback(listener: TcpListener) -> Result<(String, String), String> 
 pub async fn accounts_sign_in(app: tauri::AppHandle) -> Result<UserInfo, String> {
     use tauri_plugin_shell::ShellExt;
 
+    // Aanmelden opent de browser van de gebruiker; niet vanuit een headless testinstantie.
+    crate::headless::weiger("accounts_sign_in (browser)")?;
+
     let cfg = load_config();
     let client = reqwest::Client::new();
     let disco = fetch_discovery(&client, &cfg.issuer).await?;

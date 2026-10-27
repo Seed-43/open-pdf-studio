@@ -93,7 +93,22 @@
     "editBookmark": "Sunting Penanda Buku",
     "deleteBookmark": "Padam Penanda Buku",
     "expandAll": "Kembangkan Semua",
-    "collapseAll": "Runtuhkan Semua"
+    "collapseAll": "Runtuhkan Semua",
+    "color": "Warna",
+    "colorDefault": "Lalai",
+    "colorRed": "Merah",
+    "colorOrange": "Oren",
+    "colorGreen": "Hijau",
+    "colorBlue": "Biru",
+    "colorPurple": "Ungu",
+    "colorGray": "Kelabu",
+    "colorCustom": "Tersuai...",
+    "bold": "Tebal",
+    "italic": "Italik",
+    "nestUnderNew": "Sarangkan di bawah penanda buku baharu...",
+    "indent": "Inden",
+    "outdent": "Nyahinden",
+    "deleteBookmarks": "Padam {{count}} penanda buku"
   },
   "thumbnail": {
     "rotateLeft": "Putar Kiri",

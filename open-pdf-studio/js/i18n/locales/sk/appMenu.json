@@ -71,6 +71,12 @@
     "site": "Na tejto lokalite",
     "noSiteDocuments": "Na tejto lokalite nie sú žiadne dokumenty",
     "siteListError": "Dokumenty tejto lokality sa nepodarilo načítať",
+    "versions": "Verzie",
+    "versionNumber": "Verzia {{version}}",
+    "currentVersion": "aktuálna",
+    "noVersions": "Žiadne verzie",
+    "versionsError": "Verzie sa nepodarilo načítať",
+    "olderVersionsHint": "Staršie verzie sa otvárajú len na čítanie; Uložiť ako stiahne kópiu.",
     "save": "Uložiť"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Strana",
     "officeTable": "Tabuľka",
     "officeText": "Text",
-    "officeFailed": "Export dokumentu zlyhal."
+    "officeFailed": "Export dokumentu zlyhal.",
+    "protect": "Chrániť heslom",
+    "protectDesc": "Uložiť kópiu chránenú heslom (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Výstupný profil",
@@ -211,5 +219,9 @@
     "activationFailed": "Neaktívne: {{error}}",
     "viaMcp": "Cez pripojenie AI"
   },
-  "annotateScreenshot": "Anotovať snímku obrazovky zo schránky"
+  "annotateScreenshot": "Anotovať snímku obrazovky zo schránky",
+  "workflows": "Pracovné postupy dokumentov",
+  "drawingSets": "Súbory výkresov",
+  "sheetLinks": "Odkazy medzi výkresmi",
+  "approvalRouting": "Schvaľovací obeh"
 }

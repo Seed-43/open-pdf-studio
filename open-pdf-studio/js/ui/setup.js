@@ -1,6 +1,6 @@
 import { state } from '../core/state.js';
 import { annotationCanvas } from './dom-elements.js';
-import { handlePointerDown, handlePointerMove, handlePointerUp, handleDblClick } from '../tools/tool-dispatcher.js';
+import { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, handleDblClick } from '../tools/tool-dispatcher.js';
 import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
@@ -195,6 +195,8 @@ export function setupEventListeners() {
     annotationCanvas.addEventListener('pointerdown', handlePointerDown);
     annotationCanvas.addEventListener('pointermove', handlePointerMove);
     annotationCanvas.addEventListener('pointerup', handlePointerUp);
+    // Vinger of pen afgebroken (#671): het gebaar netjes afronden.
+    annotationCanvas.addEventListener('pointercancel', handlePointerCancel);
     annotationCanvas.addEventListener('dblclick', handleDblClick);
   }
 

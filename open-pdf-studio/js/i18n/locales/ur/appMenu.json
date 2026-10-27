@@ -71,6 +71,12 @@
     "site": "اس سائٹ پر",
     "noSiteDocuments": "اس سائٹ پر کوئی دستاویز نہیں",
     "siteListError": "اس سائٹ کی دستاویزات لوڈ نہیں ہو سکیں",
+    "versions": "ورژنز",
+    "versionNumber": "ورژن {{version}}",
+    "currentVersion": "موجودہ",
+    "noVersions": "کوئی ورژن نہیں",
+    "versionsError": "ورژنز لوڈ نہیں ہو سکے",
+    "olderVersionsHint": "پرانے ورژن صرف پڑھنے کے لیے کھلتے ہیں؛ \"بطور محفوظ کریں\" ایک نقل ڈاؤن لوڈ کرتا ہے۔",
     "save": "محفوظ کریں"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "صفحہ",
     "officeTable": "جدول",
     "officeText": "متن",
-    "officeFailed": "دستاویز برآمد ناکام ہو گئی۔"
+    "officeFailed": "دستاویز برآمد ناکام ہو گئی۔",
+    "protect": "پاس ورڈ سے محفوظ کریں",
+    "protectDesc": "پاس ورڈ سے محفوظ ایک نقل محفوظ کریں (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "آؤٹ پٹ پروفائل",
@@ -211,5 +219,9 @@
     "activationFailed": "فعال نہیں: {{error}}",
     "viaMcp": "AI کنکشن کے ذریعے"
   },
-  "annotateScreenshot": "کلپ بورڈ اسکرین شاٹ پر تشریح کریں"
+  "annotateScreenshot": "کلپ بورڈ اسکرین شاٹ پر تشریح کریں",
+  "workflows": "دستاویز ورک فلوز",
+  "drawingSets": "ڈرائنگ سیٹس",
+  "sheetLinks": "شیٹوں کے درمیان لنکس",
+  "approvalRouting": "منظوری کی روٹنگ"
 }

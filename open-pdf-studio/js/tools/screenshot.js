@@ -1,17 +1,23 @@
-import { state, getActiveDocument, getPageRotation, imageCache } from '../core/state.js';
+import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, saveFileDialog, writeBinaryFile } from '../core/platform.js';
+import { isTauri, heeftRustRenderer, saveFileDialog, writeBinaryFile } from '../core/platform.js';
 import { render } from 'solid-js/web';
 import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
 import { startScreenshot, endScreenshot } from '../bridge.js';
 import { setLastCaptureAvailable } from '../solid/stores/screenshotStore.js';
-import { renderAnnotationsForPage, redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
+import { openDialog } from '../solid/stores/dialogStore.js';
+import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { generateImageId } from '../utils/helpers.js';
 import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import { viewportGeometrie, rectNaarPagina, normaliseerRotatie, isKwartslag } from '../pdf/weergave-rotatie.js';
-import { paginaMaat, weergaveRotatie, weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+import {
+  paginaMaat, weergaveRotatie, weergaveRectNaarPagina,
+  paginaRectNaarClient, clientRectNaarPagina, paginaOorsprong,
+} from '../pdf/weergave-ruimte.js';
+import i18next from '../i18n/config.js';
+import { kiesPagina, schermDpi, uitvoerMaat, tegelRaster, bestandsnaam } from './screenshot-keuze.js';
 
 // Weergave draaien (#200): een schermafdruk hoort eruit te zien zoals de
 // gebruiker de pagina ziet. De scherpe render gebeurt in de paginaruimte;
@@ -27,36 +33,6 @@ function draaiCanvas(canvas, rotatie) {
   ctx.rotate((r * Math.PI) / 180);
   ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
   return uit;
-}
-
-function mergeCanvases(pdfCanvasEl, annotationCanvasEl) {
-  const merged = document.createElement('canvas');
-  merged.width = pdfCanvasEl.width;
-  merged.height = pdfCanvasEl.height;
-  const ctx = merged.getContext('2d');
-  // Fill with white first — canvas is transparent by default, which renders as black in PNG viewers
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, merged.width, merged.height);
-  ctx.drawImage(pdfCanvasEl, 0, 0);
-  // Doorlopende weergave: het annotatiecanvas is een viewport-uitsnede van de
-  // pagina (clipX/clipY in CSS-px, backing op volle resolutie) — teken hem op
-  // zijn eigen plek, geschaald naar de backing-resolutie van het paginacanvas.
-  const clipX = parseFloat(annotationCanvasEl.dataset?.clipX) || 0;
-  const clipY = parseFloat(annotationCanvasEl.dataset?.clipY) || 0;
-  const pdfCssW = parseFloat(pdfCanvasEl.style.width) || pdfCanvasEl.width;
-  const pdfCssH = parseFloat(pdfCanvasEl.style.height) || pdfCanvasEl.height;
-  const annCssW = parseFloat(annotationCanvasEl.style.width) || annotationCanvasEl.width;
-  const annCssH = parseFloat(annotationCanvasEl.style.height) || annotationCanvasEl.height;
-  const sx = merged.width / pdfCssW;
-  const sy = merged.height / pdfCssH;
-  ctx.drawImage(annotationCanvasEl, clipX * sx, clipY * sy, annCssW * sx, annCssH * sy);
-  return merged;
-}
-
-function canvasToBlob(canvas, mimeType = 'image/png') {
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), mimeType);
-  });
 }
 
 function getCurrentCanvases() {
@@ -81,19 +57,6 @@ function getCurrentCanvases() {
   if (!pdfEl || !annEl) return null;
   return { pdfCanvas: pdfEl, annotationCanvas: annEl, container };
 }
-
-// ─── High-resolution capture ────────────────────────────────────────────────
-// The legacy path cropped the on-screen canvas, so capture quality was capped
-// at the current zoom level (a zoomed-out floor plan yields a handful of
-// blurry pixels). Instead, re-render ONLY the selected region through the
-// existing region renderer (`render_pdf_page_region`, the same command the
-// high-zoom tile path uses) at a guaranteed minimum scale, then draw the
-// page's annotations on top at that same scale. The on-screen crop remains as
-// fallback for in-memory documents (no backing file) or when the region
-// render fails.
-
-const CAPTURE_MIN_SCALE = 3;        // ≥3× (≈216 DPI) even when zoomed out
-const CAPTURE_MAX_AXIS_PX = 4096;   // same safety cap as the render pipeline
 
 function _currentViewScale(doc) {
   const vp = window.__pdfViewport;
@@ -146,287 +109,305 @@ function _selectionToAppRect(sel, container) {
   };
 }
 
-// Clamp an app-space rect to the page bounds; null when nothing remains.
-function _clampAppRect(r) {
-  if (!r || !(r.pageW > 0) || !(r.pageH > 0)) return null;
-  const x = Math.max(0, Math.min(r.x, r.pageW));
-  const y = Math.max(0, Math.min(r.y, r.pageH));
-  const w = Math.min(r.w - (x - r.x), r.pageW - x);
-  const h = Math.min(r.h - (y - r.y), r.pageH - y);
-  if (!(w >= 1) || !(h >= 1)) return null;
-  return { x, y, w, h, pageW: r.pageW, pageH: r.pageH };
-}
+// ─── Screenshot: select an area, render it again from the page ───────────────
+// Home → Screenshot: drag a rectangle over the document view; the dialog
+// (solid/components/dialogs/ScreenshotDialog.jsx) then renders that area again
+// FROM THE PAGE at the chosen resolution — never by enlarging screen pixels —
+// with the annotations as output (no selection frames or handles), and copies
+// it to the clipboard or saves it as PNG/JPEG.
+//
+// One capture = one piece of one page. A selection over two pages (continuous
+// view) is clipped to the page it overlaps most: every pixel then has one
+// paper resolution, and the gap between the pages is not document content.
+// The rules (dpi, size limits, page choice, file name) are in screenshot-keuze.js.
 
-// App-space rect covering the whole current page.
-function _fullPageAppRect(container) {
-  const doc = getActiveDocument();
-  if (!doc) return null;
-  const vp = window.__pdfViewport;
-  if (doc.viewMode !== 'continuous' && vp && vp.active && doc.filePath && vp.pageW > 0 && vp.pageH > 0) {
-    // Paginaruimte: na de paginarotatie (viewport.pageW/pageH zijn de maat daarvóór).
-    const g = viewportGeometrie(vp);
-    return { x: 0, y: 0, w: g.paginaBreedte, h: g.paginaHoogte, pageW: g.paginaBreedte, pageH: g.paginaHoogte };
+const TEGEL_PX = 2048; // region tiles stay well under the render worker's shared memory
+
+/** Page rectangles on screen (client coordinates) that may hold the selection. */
+function _paginasOpScherm(doc) {
+  if (!doc) return [];
+  const volledig = (pageNum) => {
+    const m = paginaMaat(pageNum, doc);
+    if (!m) return null;
+    const r = paginaRectNaarClient(pageNum, { x: 0, y: 0, width: m.breedte, height: m.hoogte }, doc);
+    return r && r.width > 0 && r.height > 0 ? { pageNum, rect: r } : null;
+  };
+  if (doc.viewMode === 'continuous') {
+    const uit = [];
+    for (const w of document.querySelectorAll('#continuous-container .page-wrapper[data-page]')) {
+      const n = Number(w.dataset.page);
+      const p = n > 0 ? volledig(n) : null;
+      if (p) uit.push(p);
+    }
+    return uit;
   }
-  const s = doc.scale || 1.5;
-  const maat = paginaMaat(_capturePageNum(doc), doc);
-  const draai = isKwartslag(weergaveRotatie(doc));
-  const w = maat ? maat.breedte : (draai ? container.offsetHeight : container.offsetWidth) / s;
-  const h = maat ? maat.hoogte : (draai ? container.offsetWidth : container.offsetHeight) / s;
-  if (!(w >= 1) || !(h >= 1)) return null;
-  return { x: 0, y: 0, w, h, pageW: w, pageH: h };
+  const p = volledig(_capturePageNum(doc));
+  return p ? [p] : [];
 }
 
-// Render `appRect` of `pageNum` at high resolution: PDF pixels via the Rust
-// region renderer, annotations via the shared annotation renderer at the same
-// scale. Returns a canvas, or null when high-res capture is unavailable.
-async function _renderRegionHighRes(pageNum, appRect) {
-  const doc = getActiveDocument();
-  if (!isTauri() || !doc?.filePath) return null;
+/**
+ * The page area behind a selection in client coordinates, or null when the
+ * selection is not on a page.
+ * @returns {{doc, pageNum:number, rect:{x,y,width,height}, pageW:number, pageH:number,
+ *            schermDpi:number, afgesneden:boolean} | null}  rect in page space (points)
+ */
+export function gebiedVanSelectie(selectie, doc = getActiveDocument()) {
+  const keuze = kiesPagina(selectie, _paginasOpScherm(doc));
+  if (!keuze) return null;
+  const rect = clientRectNaarPagina(keuze.pageNum, keuze.rect, doc);
+  const m = paginaMaat(keuze.pageNum, doc);
+  if (!rect || !m || !(rect.width > 0) || !(rect.height > 0)) return null;
+  const o = paginaOorsprong(keuze.pageNum, doc);
+  return {
+    doc,
+    pageNum: keuze.pageNum,
+    rect,
+    pageW: m.breedte,
+    pageH: m.hoogte,
+    schermDpi: schermDpi(o?.schaal || 1, window.devicePixelRatio || 1),
+    afgesneden: keuze.afgesneden,
+  };
+}
 
-  const dpr = window.devicePixelRatio || 1;
-  // Never render BELOW what is on screen; guarantee a minimum for zoomed-out
-  // views; stay under the canvas-axis safety cap for large selections.
-  let scale = Math.max(CAPTURE_MIN_SCALE, _currentViewScale(doc) * dpr);
-  scale = Math.min(scale, CAPTURE_MAX_AXIS_PX / Math.max(appRect.w, appRect.h));
-  if (!isFinite(scale) || scale <= 0) return null;
+/** The whole page `pageNum` (default: the current page) as a capture area. */
+export function gebiedVanPagina(doc = getActiveDocument(), pageNum = _capturePageNum(doc)) {
+  const m = doc ? paginaMaat(pageNum, doc) : null;
+  if (!m) return null;
+  const o = paginaOorsprong(pageNum, doc);
+  return {
+    doc,
+    pageNum,
+    rect: { x: 0, y: 0, width: m.breedte, height: m.hoogte },
+    pageW: m.breedte,
+    pageH: m.hoogte,
+    schermDpi: schermDpi(o?.schaal || _currentViewScale(doc), window.devicePixelRatio || 1),
+    afgesneden: false,
+  };
+}
 
-  const rotation = getPageRotation(pageNum) || 0;
-  const rgbaData = await invoke('render_pdf_page_region', {
-    path: doc.filePath,
-    pageIndex: pageNum - 1,
-    scale,
-    rotation,
-    regionXPt: appRect.x,
-    regionYPt: appRect.y,
-    regionWPt: appRect.w,
-    regionHPt: appRect.h,
-  });
-  const bytes = rgbaData instanceof Uint8Array ? rgbaData : new Uint8Array(rgbaData);
+function _leesRegio(res) {
+  const bytes = res instanceof Uint8Array ? res : new Uint8Array(res);
   if (!bytes || bytes.length <= 8) return null;
-  const header = new DataView(bytes.buffer, bytes.byteOffset, 8);
-  const w = header.getUint32(0, true);
-  const h = header.getUint32(4, true);
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);
+  const w = dv.getUint32(0, true);
+  const h = dv.getUint32(4, true);
   if (!(w > 0) || !(h > 0) || w * h * 4 !== bytes.length - 8) return null;
-  const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, bytes.length - 8);
-
-  const out = document.createElement('canvas');
-  out.width = w;
-  out.height = h;
-  const ctx = out.getContext('2d');
-  ctx.putImageData(new ImageData(rgba, w, h), 0, 0);
-
-  // Annotations on their own layer at the same pixel scale (the shared
-  // renderer clears its target, so it cannot draw straight onto the PDF
-  // pixels above). Derive the exact pixel scale from the returned bitmap —
-  // the renderer may round the requested scale slightly.
-  try {
-    const pxScale = w / appRect.w;
-    const annCanvas = document.createElement('canvas');
-    annCanvas.width = w;
-    annCanvas.height = h;
-    const annCtx = annCanvas.getContext('2d');
-    annCtx.save();
-    // Shift page-origin so the crop region lands at (0,0), then let the
-    // shared renderer apply its own `doc.scale × overrideDpr` transform.
-    annCtx.translate(-appRect.x * pxScale, -appRect.y * pxScale);
-    renderAnnotationsForPage(
-      annCtx, pageNum,
-      appRect.pageW * pxScale, appRect.pageH * pxScale,
-      pxScale / (doc.scale || 1)
-    );
-    annCtx.restore();
-    ctx.drawImage(annCanvas, 0, 0);
-  } catch (e) {
-    console.warn('[screenshot] annotation overlay failed (PDF-only capture):', e);
-  }
-  return out;
+  return new ImageData(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4), w, h);
 }
 
-async function copyAndSave(canvas) {
-  const blob = await canvasToBlob(canvas, 'image/png');
-
-  try {
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': blob })
-    ]);
-    updateStatusMessage('Screenshot copied to clipboard');
-  } catch (e) {
-    console.error('Failed to copy to clipboard:', e);
-    updateStatusMessage('Failed to copy to clipboard');
+// The page pixels through the same region renderer as the screen (PDFium
+// worker pool, or the scene engine for heavy sheets), tile by tile. Only for
+// a page without a page rotation of the document: the region renderer knows
+// no rotation (the PDF's own /Rotate it does handle).
+async function _paginaPixelsViaRegio(gebied, schaal, breedte, hoogte) {
+  const { doc, pageNum, rect } = gebied;
+  if (!heeftRustRenderer() || !doc?.filePath || (Number(doc.pageRotations?.[pageNum]) || 0) !== 0) return null;
+  const { invokeTileRegion } = await import('../pdf/progressive-render.js');
+  const uit = document.createElement('canvas');
+  uit.width = breedte;
+  uit.height = hoogte;
+  const ctx = uit.getContext('2d');
+  const tegels = tegelRaster(breedte, hoogte, TEGEL_PX);
+  for (let i = 0; i < tegels.length; i += 4) {
+    await Promise.all(tegels.slice(i, i + 4).map(async (t) => {
+      const beeld = _leesRegio(await invokeTileRegion({
+        path: doc.filePath,
+        pageIndex: pageNum - 1,
+        scale: schaal,
+        rotation: 0,
+        regionXPt: rect.x + t.x / schaal,
+        regionYPt: rect.y + t.y / schaal,
+        regionWPt: t.breedte / schaal,
+        regionHPt: t.hoogte / schaal,
+      }));
+      if (!beeld) throw new Error('region render returned no image');
+      // The renderer rounds up; keep exactly this tile's pixels.
+      ctx.putImageData(beeld, t.x, t.y, 0, 0, Math.min(t.breedte, beeld.width), Math.min(t.hoogte, beeld.height));
+    }));
   }
-
-  if (isTauri()) {
-    try {
-      const savePath = await saveFileDialog(
-        `screenshot-page${getActiveDocument()?.currentPage || 1}.png`,
-        [
-          { name: 'PNG Image', extensions: ['png'] },
-          { name: 'JPEG Image', extensions: ['jpg', 'jpeg'] }
-        ]
-      );
-
-      if (savePath) {
-        const ext = savePath.toLowerCase();
-        const isJpeg = ext.endsWith('.jpg') || ext.endsWith('.jpeg');
-        const mimeType = isJpeg ? 'image/jpeg' : 'image/png';
-        const saveBlob = isJpeg ? await canvasToBlob(canvas, mimeType) : blob;
-        const arrayBuffer = await saveBlob.arrayBuffer();
-        await writeBinaryFile(savePath, new Uint8Array(arrayBuffer));
-        updateStatusMessage(`Screenshot saved to ${savePath}`);
-      }
-    } catch (e) {
-      console.error('Failed to save screenshot:', e);
-      updateStatusMessage('Failed to save screenshot');
-    }
-  }
+  return uit;
 }
 
-export async function screenshotFullPage() {
-  const canvases = getCurrentCanvases();
-  if (!canvases) {
-    updateStatusMessage('No PDF page to capture');
-    return;
-  }
+/**
+ * Render a capture area at `schaal` pixels per point into a canvas of
+ * `breedte` × `hoogte`, in page space (the view rotation is NOT applied).
+ * Page pixels from the region renderer (desktop) or PDF.js (browser, page
+ * rotated in the document, region render failed); annotations, watermarks
+ * and text edits on top as output.
+ */
+export async function renderGebied(gebied, schaal, breedte, hoogte) {
+  const { doc, pageNum, rect } = gebied;
+  if (getActiveDocument() !== doc) throw new Error(i18next.t('dialogs:screenshot.documentChanged'));
+  const { renderPageOffscreen, renderMarkeringenOffscreen } = await import('../pdf/exporter.js');
+  const deel = { x: rect.x * schaal, y: rect.y * schaal, breedte, hoogte };
 
-  // High-res render of the WHOLE page (independent of zoom level and of
-  // which part happens to be visible on screen). Fallback: legacy on-screen
-  // canvas merge (in-memory docs, or region render failure).
-  let out = null;
-  const doc = getActiveDocument();
-  const pageRect = _fullPageAppRect(canvases.container);
+  let canvas = null;
   try {
-    if (doc && pageRect) {
-      out = await _renderRegionHighRes(_capturePageNum(doc), pageRect);
+    const pixels = await _paginaPixelsViaRegio(gebied, schaal, breedte, hoogte);
+    if (pixels) {
+      const ann = await renderMarkeringenOffscreen(pageNum, schaal,
+        { width: gebied.pageW * schaal, height: gebied.pageH * schaal }, { deel });
+      pixels.getContext('2d').drawImage(ann, 0, 0);
+      canvas = pixels;
     }
   } catch (e) {
-    console.warn('[screenshot] high-res page capture failed, using screen crop:', e);
+    console.warn('[screenshot] region render failed, rendering with PDF.js:', e);
+    canvas = null;
   }
-  const rotatie = weergaveRotatie(doc);
-  if (out) {
-    // A full-page capture can be overlaid on another page too (whole-floor
-    // compare): bewaren in de paginaruimte, opslaan zoals op het scherm.
-    _storeLastCapture(out, pageRect, _capturePageNum(doc));
-    await copyAndSave(draaiCanvas(out, rotatie));
-    return;
-  }
-  // Terugval: het scherm staat al in de gedraaide stand.
-  out = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
-  _storeLastCapture(draaiCanvas(out, -rotatie), pageRect, _capturePageNum(doc));
-  await copyAndSave(out);
+  if (!canvas) canvas = await renderPageOffscreen(pageNum, schaal, { deel });
+
+  // White under everything: a transparent pixel reads as black in many viewers
+  // and JPEG has no transparency.
+  const uit = document.createElement('canvas');
+  uit.width = canvas.width;
+  uit.height = canvas.height;
+  const ctx = uit.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, uit.width, uit.height);
+  ctx.drawImage(canvas, 0, 0);
+  return uit;
 }
 
-let disposeSolidOverlay = null;
-
-function ensureOverlayMounted(container) {
-  const mountId = 'screenshot-overlay-root';
-  let mountEl = container.querySelector('#' + mountId);
-  if (!mountEl) {
-    // Dispose any previous Solid render
-    if (disposeSolidOverlay) {
-      disposeSolidOverlay();
-      disposeSolidOverlay = null;
-    }
-    mountEl = document.createElement('div');
-    mountEl.id = mountId;
-    mountEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;';
-    container.appendChild(mountEl);
-    disposeSolidOverlay = render(() => ScreenshotOverlay(), mountEl);
-  }
-  // The overlay itself handles pointer-events via its own styles when active
-  return mountEl;
+/**
+ * Render a capture area at `dpi` as the user sees it (view rotation applied).
+ * @returns {Promise<{canvas: HTMLCanvasElement, paginaCanvas: HTMLCanvasElement,
+ *                    maat: ReturnType<typeof uitvoerMaat>}>}
+ */
+export async function renderSchermafbeelding(gebied, dpi) {
+  const maat = uitvoerMaat(gebied.rect.width, gebied.rect.height, dpi);
+  if (!maat) throw new Error('empty capture area');
+  const paginaCanvas = await renderGebied(gebied, maat.schaal, maat.breedte, maat.hoogte);
+  return { canvas: draaiCanvas(paginaCanvas, weergaveRotatie(gebied.doc)), paginaCanvas, maat };
 }
 
-function cleanupOverlayMount() {
-  if (disposeSolidOverlay) {
-    disposeSolidOverlay();
-    disposeSolidOverlay = null;
-  }
-  const mountEl = document.getElementById('screenshot-overlay-root');
-  if (mountEl) mountEl.remove();
+/** Keep the capture for "Place as overlay" (page space, see below). */
+function _bewaarVoorOverlay(gebied, paginaCanvas) {
+  const r = gebied.rect;
+  _storeLastCapture(paginaCanvas, { x: r.x, y: r.y, w: r.width, h: r.height }, gebied.pageNum);
 }
 
-export function startRegionScreenshot() {
-  const canvases = getCurrentCanvases();
-  if (!canvases) {
-    updateStatusMessage('No PDF page to capture');
-    return;
-  }
+function _blob(canvas, type, kwaliteit) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('image encoding failed'))), type, kwaliteit);
+  });
+}
 
-  const container = canvases.container;
-  container.style.position = container.style.position || 'relative';
+/**
+ * Copy a capture to the clipboard. Always PNG: the clipboard takes a bitmap,
+ * the format choice is for files.
+ */
+export async function kopieerSchermafbeelding(gebied, dpi) {
+  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
+  const blob = await _blob(canvas, 'image/png');
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  _bewaarVoorOverlay(gebied, paginaCanvas);
+  updateStatusMessage(i18next.t('dialogs:screenshot.copied', { width: maat.breedte, height: maat.hoogte, dpi: maat.dpi }));
+  return maat;
+}
 
-  // Clean up any previous overlay mount in a different container
-  cleanupOverlayMount();
+/** Suggested save path: the document's folder (desktop) plus the file name. */
+function _voorstelPad(doc, naam) {
+  const pad = isTauri() ? doc?.filePath : null;
+  const knip = pad ? Math.max(pad.lastIndexOf('\\'), pad.lastIndexOf('/')) : -1;
+  return knip > 0 ? pad.slice(0, knip + 1) + naam : naam;
+}
+
+/**
+ * Save a capture through the native save dialog. A typed extension (.png,
+ * .jpg) wins over the format choice. Resolves to the path, or null when the
+ * dialog was cancelled.
+ */
+export async function bewaarSchermafbeelding(gebied, dpi, formaat = 'png', kwaliteit = 90) {
+  const doc = gebied.doc;
+  const effectief = uitvoerMaat(gebied.rect.width, gebied.rect.height, dpi)?.dpi || dpi;
+  const naam = bestandsnaam(doc?.fileName || doc?.filePath, gebied.pageNum, effectief, formaat);
+  const t = (k) => i18next.t(`dialogs:screenshot.${k}`);
+  const png = { name: t('pngFiles'), extensions: ['png'] };
+  const jpg = { name: t('jpegFiles'), extensions: ['jpg', 'jpeg'] };
+  let pad = await saveFileDialog(_voorstelPad(doc, naam), formaat === 'jpeg' ? [jpg, png] : [png, jpg]);
+  if (!pad) return null;
+  const ext = (pad.match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
+  if (ext === 'jpg' || ext === 'jpeg') formaat = 'jpeg';
+  else if (ext === 'png') formaat = 'png';
+  else pad += formaat === 'jpeg' ? '.jpg' : '.png';
+
+  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
+  const { canvasToBytes } = await import('../pdf/exporter.js');
+  const { imageWithDpi } = await import('../pdf/image-dpi.js');
+  const ruw = await canvasToBytes(canvas, formaat, Math.max(0.01, Math.min(1, kwaliteit / 100)));
+  await writeBinaryFile(pad, imageWithDpi(ruw, formaat, Math.max(1, Math.min(65535, maat.dpi))));
+  _bewaarVoorOverlay(gebied, paginaCanvas);
+  updateStatusMessage(i18next.t('dialogs:screenshot.saved', { path: pad }));
+  return pad;
+}
+
+let _overlayMount = null;
+let _disposeOverlay = null;
+
+function _ruimOverlayOp() {
   endScreenshot();
+  if (_disposeOverlay) { _disposeOverlay(); _disposeOverlay = null; }
+  if (_overlayMount) { _overlayMount.remove(); _overlayMount = null; }
+}
 
-  const mountEl = ensureOverlayMounted(container);
-  mountEl.style.pointerEvents = 'auto';
+/**
+ * Start the area selection over the document view (#pdf-container) — the
+ * whole view in every view mode, so a selection can start on any visible page.
+ * @param {{ snelKopieren?: boolean }} [opties]
+ *   snelKopieren: copy at screen resolution straight away, without the dialog.
+ */
+export function startRegionScreenshot({ snelKopieren = false } = {}) {
+  const doc = getActiveDocument();
+  const kader = document.getElementById('pdf-container');
+  if (!doc?.pdfDoc || !kader) {
+    updateStatusMessage(i18next.t('dialogs:screenshot.noPage'));
+    return;
+  }
+  _ruimOverlayOp();
+  const r = kader.getBoundingClientRect();
+  const mount = document.createElement('div');
+  mount.id = 'screenshot-overlay-root';
+  mount.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:500;`;
+  document.body.appendChild(mount);
+  _overlayMount = mount;
+  _disposeOverlay = render(() => ScreenshotOverlay(), mount);
 
   startScreenshot(
-    container,
+    mount,
     async (sel) => {
-      // Selection complete - render high-res (or crop as fallback) and save
-      const { left: x, top: y, width: w, height: h } = sel;
-
-      if (w < 5 || h < 5) {
-        updateStatusMessage('Selection too small');
-        cleanupOverlayMount();
+      const selectie = { left: sel.left + r.left, top: sel.top + r.top, width: sel.width, height: sel.height };
+      _ruimOverlayOp();
+      const gebied = gebiedVanSelectie(selectie, doc);
+      if (!gebied) {
+        updateStatusMessage(i18next.t('dialogs:screenshot.notOnPage'));
         return;
       }
-
-      // Preferred path: re-render the selected region at high resolution.
-      // Die render staat in de paginaruimte; het scherm kan gedraaid zijn (#200).
-      let cropped = null;
-      let croppedInPaginaruimte = false;
-      const captureDoc = getActiveDocument();
-      const capturePage = _capturePageNum(captureDoc);
-      const appRect = _clampAppRect(_selectionToAppRect(sel, container));
-      try {
-        if (captureDoc && appRect) {
-          cropped = await _renderRegionHighRes(capturePage, appRect);
-          croppedInPaginaruimte = !!cropped;
+      if (snelKopieren) {
+        try {
+          await kopieerSchermafbeelding(gebied, gebied.schermDpi);
+        } catch (e) {
+          console.error('[screenshot] copy failed:', e);
+          updateStatusMessage(i18next.t('dialogs:screenshot.copyFailed'));
         }
-      } catch (e) {
-        console.warn('[screenshot] high-res region capture failed, using screen crop:', e);
+        return;
       }
-
-      // Fallback: crop the on-screen pixels (in-memory docs, render failure).
-      if (!cropped) {
-        const merged = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
-
-        const scaleX = merged.width / container.offsetWidth;
-        const scaleY = merged.height / container.offsetHeight;
-
-        const cropX = Math.round(x * scaleX);
-        const cropY = Math.round(y * scaleY);
-        const cropW = Math.round(w * scaleX);
-        const cropH = Math.round(h * scaleY);
-
-        cropped = document.createElement('canvas');
-        cropped.width = cropW;
-        cropped.height = cropH;
-        const ctx = cropped.getContext('2d');
-        ctx.drawImage(merged, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-      }
-
-      // Keep the capture around so it can be placed as an overlay
-      // annotation on another page ("verdiepingen vergelijken"): in de
-      // paginaruimte, want de overlay landt op dezelfde paginacoördinaten.
-      // Naar het klembord en het bestand gaat hij zoals op het scherm.
-      const rotatie = weergaveRotatie(captureDoc);
-      const paginaBeeld = croppedInPaginaruimte ? cropped : draaiCanvas(cropped, -rotatie);
-      const schermBeeld = croppedInPaginaruimte ? draaiCanvas(cropped, rotatie) : cropped;
-      _storeLastCapture(paginaBeeld, appRect, capturePage);
-
-      cleanupOverlayMount();
-      await copyAndSave(schermBeeld);
+      openDialog('screenshot', { gebied });
     },
     () => {
-      // Cancelled
-      updateStatusMessage('Region screenshot cancelled');
-      cleanupOverlayMount();
-    }
+      _ruimOverlayOp();
+      updateStatusMessage(i18next.t('dialogs:screenshot.cancelled'));
+    },
   );
+}
+
+/** The whole current page in the screenshot dialog. */
+export function screenshotFullPage() {
+  const gebied = gebiedVanPagina();
+  if (!gebied) {
+    updateStatusMessage(i18next.t('dialogs:screenshot.noPage'));
+    return;
+  }
+  openDialog('screenshot', { gebied });
 }
 
 // ─── Region capture → overlay annotation ───────────────────────────────────

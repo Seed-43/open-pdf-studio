@@ -15,9 +15,10 @@
 export const PLATTEGROND_SKILL = {
   id: 'floorplan',
   icon: '🏠',
-  label: 'Plattegrond',
-  hint: 'Teken een bouwkundige plattegrond: wanden, kozijnen, ruimten, maatvoering en inrichting (sanitair, keuken)',
-  invoke: 'Teken een bouwkundige plattegrond. Werk als tekenaar: zet eerst de schaal, teken dan de wanden met hun deuren en ramen erin, laat de ruimten zichzelf herkennen en zet er maatvoering bij. Wat er getekend moet worden: ',
+  // Naam, uitleg en de tekst in het invoervak staan per taal in de locales
+  // (common.assistant.skills.floorplan); de instructie voor het model is
+  // Engels en voor elke taal gelijk.
+  invoke: 'Draw an architectural floor plan. Work like a draughtsman: set the scale first, then draw the walls with their doors and windows in them, let the rooms recognise themselves and add dimensions. What to draw: ',
   needsInput: true,
 };
 

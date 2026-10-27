@@ -93,7 +93,22 @@
     "editBookmark": "बुकमार्क संपादित करें",
     "deleteBookmark": "बुकमार्क हटाएं",
     "expandAll": "सभी विस्तृत करें",
-    "collapseAll": "सभी संक्षिप्त करें"
+    "collapseAll": "सभी संक्षिप्त करें",
+    "color": "रंग",
+    "colorDefault": "डिफ़ॉल्ट",
+    "colorRed": "लाल",
+    "colorOrange": "नारंगी",
+    "colorGreen": "हरा",
+    "colorBlue": "नीला",
+    "colorPurple": "बैंगनी",
+    "colorGray": "स्लेटी",
+    "colorCustom": "कस्टम...",
+    "bold": "बोल्ड",
+    "italic": "इटैलिक",
+    "nestUnderNew": "नए बुकमार्क के अंतर्गत रखें...",
+    "indent": "इंडेंट बढ़ाएँ",
+    "outdent": "इंडेंट घटाएँ",
+    "deleteBookmarks": "{{count}} बुकमार्क हटाएँ"
   },
   "thumbnail": {
     "rotateLeft": "बाएं घुमाएं",

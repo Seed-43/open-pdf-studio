@@ -93,13 +93,9 @@ export default function PreferencesDialog(props) {
     import('../../stores/propertiesStore.js').then(m => m.setPanelVisible(state.preferences.propertiesPanelVisible));
     // Apply tool palette visibility change
     import('../ToolPalette.jsx').then(m => m.initToolPalette());
-    // Re-render pages when thin lines setting changed
-    if (state.preferences.thinLines !== prevThinLines && getActiveDocument()?.pdfDoc) {
-      if (getActiveDocument()?.viewMode === 'continuous') {
-        import('../../../pdf/renderer.js').then(m => m.renderContinuous());
-      } else {
-        import('../../../pdf/renderer.js').then(m => m.renderPage(getActiveDocument()?.currentPage || 1));
-      }
+    // Thin Lines changed (#595): re-render the page view in the new line mode.
+    if (state.preferences.thinLines !== prevThinLines) {
+      import('../../../pdf/thin-lines.js').then(m => m.refreshAfterThinLinesChange());
     }
     // Cached bitmaps already carry the old sharpening: flush and redraw.
     if (state.preferences.pageSharpen !== prevPageSharpen && getActiveDocument()?.pdfDoc) {

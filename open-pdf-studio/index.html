@@ -12,26 +12,6 @@
 <body>
   <div id="app-root"></div>
 
-  <script>
-    // Boot diagnostics — installed BEFORE the module graph loads so even
-    // import-time errors are recorded as privacy-safe startup phases instead
-    // of producing a silent white screen.
-    window.addEventListener('error', function (e) {
-      try {
-        window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke(
-          'startup_diagnostic', { phase: 'frontend-error', detail: e.message || '?' }
-        );
-      } catch (_) {}
-    });
-    window.addEventListener('unhandledrejection', function (e) {
-      try {
-        var r = e.reason || {};
-        window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke(
-          'startup_diagnostic', { phase: 'frontend-rejection', detail: String(r.message || r) }
-        );
-      } catch (_) {}
-    });
-  </script>
   <script src="js/main.js" type="module"></script>
 </body>
 </html>

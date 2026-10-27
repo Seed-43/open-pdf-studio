@@ -71,6 +71,12 @@
     "site": "Na ovom web-mjestu",
     "noSiteDocuments": "Nema dokumenata na ovom web-mjestu",
     "siteListError": "Dokumente ovog web-mjesta nije moguće učitati",
+    "versions": "Verzije",
+    "versionNumber": "Verzija {{version}}",
+    "currentVersion": "trenutna",
+    "noVersions": "Nema verzija",
+    "versionsError": "Verzije se nisu mogle učitati",
+    "olderVersionsHint": "Starije verzije otvaraju se samo za čitanje; Spremi kao preuzima kopiju.",
     "save": "Spremi"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Stranica",
     "officeTable": "Tablica",
     "officeText": "Tekst",
-    "officeFailed": "Izvoz dokumenta nije uspio."
+    "officeFailed": "Izvoz dokumenta nije uspio.",
+    "protect": "Zaštiti lozinkom",
+    "protectDesc": "Spremi kopiju zaštićenu lozinkom (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Izlazni profil",
@@ -211,5 +219,9 @@
     "activationFailed": "Nije aktivno: {{error}}",
     "viaMcp": "Putem AI veze"
   },
-  "annotateScreenshot": "Označi snimku zaslona iz međuspremnika"
+  "annotateScreenshot": "Označi snimku zaslona iz međuspremnika",
+  "workflows": "Tijekovi rada dokumenata",
+  "drawingSets": "Kompleti nacrta",
+  "sheetLinks": "Poveznice između listova",
+  "approvalRouting": "Tijek odobravanja"
 }

@@ -9,7 +9,7 @@
 // concept de bestandslocatie klaar, zodat de gebruiker het bestand er zo in
 // sleept. De app verstuurt zelf nooit mail; er opent alleen een concept.
 import { getActiveDocument } from '../core/state.js';
-import { openExternal } from '../core/platform.js';
+import { openExtern } from '../core/extern-openen.js';
 import { showMessage } from '../bridge.js';
 import { savePDF } from './saver.js';
 import { moetOpslaanVoorVerzenden } from './handtekeningen/opslaan.js';
@@ -48,7 +48,7 @@ export async function emailCurrentPdf() {
   const subject = basename(path);
   const body = i18next.t('emailBody', { filename: basename(path), path });
   try {
-    await openExternal(buildMailtoUrl(subject, body));
+    await openExtern(buildMailtoUrl(subject, body));
   } catch (e) {
     const msg = String(e?.message ?? e);
     showMessage(i18next.t('emailFailed', { error: msg }));

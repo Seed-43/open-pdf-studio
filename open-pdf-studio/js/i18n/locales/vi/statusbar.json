@@ -29,7 +29,8 @@
     "formCheckbox": "Hộp kiểm Biểu mẫu",
     "formRadio": "Nút chọn Biểu mẫu",
     "screenshot": "Chụp màn hình",
-    "pageLabelPick": "Chọn văn bản cho nhãn trang"
+    "pageLabelPick": "Chọn văn bản cho nhãn trang",
+    "proofread": "Hiệu đính"
   },
   "toolLabel": "Công cụ:",
   "annotationsLabel": "Chú thích:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Trang {{page}}",
   "searchHitsOne": "1 kết quả",
   "searchHitsMany": "{{count}} kết quả",
-  "passwordProtectedBar": "Được bảo vệ bằng mật khẩu: đã mở ở chế độ chỉ đọc."
+  "passwordProtectedBar": "Được bảo vệ bằng mật khẩu: đã mở ở chế độ chỉ đọc.",
+  "documentSearch": {
+    "title": "Tìm kiếm tài liệu",
+    "query": "Văn bản tìm kiếm",
+    "scope": "Tìm trong",
+    "active": "Tài liệu hiện tại",
+    "open": "Tài liệu đang mở",
+    "folder": "Thư mục",
+    "choose": "Chọn thư mục",
+    "annotations": "Bao gồm nhận xét",
+    "search": "Tìm kiếm",
+    "cancel": "Hủy",
+    "stale": "Tài liệu đã thay đổi. Hãy chạy lại tìm kiếm.",
+    "folderHint": "Tìm các tệp PDF nằm trực tiếp trong thư mục này mà không mở tab hay thay đổi tệp.",
+    "limited": "Đã đạt giới hạn kết quả. Hãy thu hẹp tìm kiếm.",
+    "cancelled": "Đã hủy tìm kiếm; kết quả chưa đầy đủ.",
+    "ocrHint": "Không có văn bản có thể tìm kiếm trên các trang {{pages}}. Hãy mở tài liệu và chạy OCR thủ công nếu cần.",
+    "status": {
+      "searching": "Đang tìm kiếm",
+      "complete": "Hoàn tất",
+      "needs_ocr": "Có trang không chứa văn bản có thể tìm kiếm",
+      "encrypted": "Cần mật khẩu",
+      "unreadable": "Không thể tìm kiếm",
+      "changed": "Tài liệu đã thay đổi; hãy tìm lại",
+      "cancelled": "Đã hủy",
+      "limited": "Đã đạt giới hạn kết quả"
+    },
+    "failed": "Tìm kiếm thất bại. Hãy kiểm tra truy vấn và thư mục, rồi thử lại.",
+    "prepareOcr": "Mở để chạy OCR…"
+  },
+  "symbolSearch": "Tìm ký hiệu",
+  "findMoreOptions": "Thêm tùy chọn tìm kiếm",
+  "watchActive": "Đang theo dõi {{folder}}",
+  "watchFailed": "Lỗi theo dõi: {{folder}}",
+  "watchTitle": "Quy trình tài liệu đang theo dõi {{input}} và ghi vào {{output}}. Nhấp để dừng theo dõi.",
+  "renderDiagnostics": {
+    "title": "Đi tới thông báo hiển thị tiếp theo. Không có thông báo không đảm bảo hiển thị đầy đủ.",
+    "count": "Thông báo hiển thị: {{count}}",
+    "detail": "Trang {{page}}: {{code}}. Hãy thử thu phóng nhỏ hơn hoặc mở lại tài liệu; không đảm bảo tính đầy đủ."
+  }
 }

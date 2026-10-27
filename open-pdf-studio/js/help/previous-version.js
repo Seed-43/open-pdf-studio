@@ -66,7 +66,7 @@ export function pickDownloadUrl(assets, userAgent) {
 // installer zelf zijn de bevestigingsmomenten. Alleen bij "niets gevonden"
 // of een fout komt een korte systeemmelding.
 export async function installPreviousVersion() {
-  const { openExternal } = await import('../core/platform.js');
+  const { openExtern } = await import('../core/extern-openen.js');
   const i18next = (await import('i18next')).default;
   try {
     const vorige = await fetchPreviousRelease(window.__APP_VERSION__ || '0.0.0');
@@ -78,7 +78,7 @@ export async function installPreviousVersion() {
     }
     const url = pickDownloadUrl(vorige.assets, navigator.userAgent);
     console.log('[vorige-versie] gekozen:', vorige.version, url);
-    if (url) await openExternal(url);
+    if (url) await openExtern(url);
   } catch (e) {
     console.warn('[vorige-versie] mislukt:', e);
     window.__TAURI__?.dialog?.message?.(

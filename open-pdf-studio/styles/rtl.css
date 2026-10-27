@@ -28,7 +28,7 @@
 /* Numeric inputs: digits are inherently LTR, so keep the field LTR for a
    normal caret/selection behavior. text-align: right keeps the value on the
    label side of the row in the mirrored layout. */
-[dir="rtl"] input[type="number"] {
+[dir="rtl"] input[data-getal] {
   direction: ltr;
   text-align: right;
 }
@@ -37,7 +37,7 @@
    first strong character (bidi isolation). Hebrew/Arabic text renders RTL,
    while LTR content (number ranges like "1-5, 8", URLs, untranslated
    English) keeps its reading order instead of getting mirrored. */
-[dir="rtl"] input:not([type="number"])::placeholder,
+[dir="rtl"] input:not([data-getal])::placeholder,
 [dir="rtl"] textarea::placeholder {
   unicode-bidi: plaintext;
   text-align: start;

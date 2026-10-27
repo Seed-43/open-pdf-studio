@@ -110,7 +110,7 @@ export default function CompareDialog() {
               <div class="cmp-page-row">
                 <span class="cmp-page-label">{t('compare.page') || 'Pagina'}</span>
                 <input
-                  type="number"
+                  type="text" inputmode="decimal" data-getal
                   min="1"
                   max={oldMaxPages()}
                   class="cmp-page-input"
@@ -155,7 +155,7 @@ export default function CompareDialog() {
               <div class="cmp-page-row">
                 <span class="cmp-page-label">{t('compare.page') || 'Pagina'}</span>
                 <input
-                  type="number"
+                  type="text" inputmode="decimal" data-getal
                   min="1"
                   max={newMaxPages()}
                   class="cmp-page-input"

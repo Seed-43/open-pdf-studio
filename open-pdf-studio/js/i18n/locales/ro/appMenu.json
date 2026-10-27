@@ -71,6 +71,12 @@
     "site": "Pe acest site",
     "noSiteDocuments": "Niciun document pe acest site",
     "siteListError": "Documentele acestui site nu au putut fi încărcate",
+    "versions": "Versiuni",
+    "versionNumber": "Versiunea {{version}}",
+    "currentVersion": "curentă",
+    "noVersions": "Nicio versiune",
+    "versionsError": "Versiunile nu au putut fi încărcate",
+    "olderVersionsHint": "Versiunile mai vechi se deschid doar pentru citire; Salvare ca descarcă o copie.",
     "save": "Salvare"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Pagină",
     "officeTable": "Tabel",
     "officeText": "Text",
-    "officeFailed": "Exportul documentului a eșuat."
+    "officeFailed": "Exportul documentului a eșuat.",
+    "protect": "Protejare cu parolă",
+    "protectDesc": "Salvați o copie protejată cu parolă (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil de ieșire",
@@ -211,5 +219,9 @@
     "activationFailed": "Inactivă: {{error}}",
     "viaMcp": "Prin conexiunea AI"
   },
-  "annotateScreenshot": "Adnotare captură de ecran din clipboard"
+  "annotateScreenshot": "Adnotare captură de ecran din clipboard",
+  "workflows": "Fluxuri de lucru pentru documente",
+  "drawingSets": "Seturi de planșe",
+  "sheetLinks": "Legături între planșe",
+  "approvalRouting": "Circuit de aprobare"
 }

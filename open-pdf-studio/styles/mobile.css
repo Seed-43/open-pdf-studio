@@ -139,7 +139,7 @@
   align-items: center;
   justify-content: center;
   min-height: 52px;
-  padding: 0 8px;
+  padding: 0 4px;
   padding-bottom: var(--sab);
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
@@ -186,18 +186,27 @@
 .mobile-toolbar-content {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
+  justify-content: space-between;
+  gap: 0;
   padding-top: 4px;
+  /* De hele werkbalk past op een telefoon van 320-412 px breed (#593): de
+     knoppen krimpen mee in plaats van links en rechts buiten beeld te vallen
+     (11 vaste vakken van 44 px waren samen ~447 px). */
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 480px;
 }
 
 .mobile-toolbar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
+  flex: 1 1 0;
+  width: auto;
   height: 44px;
-  min-width: 44px;
+  min-width: 32px;
+  max-width: 48px;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--text-primary);
@@ -214,15 +223,17 @@
 }
 
 .mobile-page-info {
+  flex: 0 0 auto;
+  white-space: nowrap;
   font-size: 13px;
-  min-width: 60px;
+  min-width: 48px;
   text-align: center;
   font-variant-numeric: tabular-nums;
   border: none;
   background: transparent;
   color: var(--text-primary);
   cursor: default;
-  padding: 4px 8px;
+  padding: 4px;
   border-radius: 4px;
 }
 
@@ -231,10 +242,11 @@
 }
 
 .mobile-toolbar-separator {
+  flex: 0 0 1px;
   width: 1px;
   height: 28px;
   background: var(--border-color);
-  margin: 0 4px;
+  margin: 0 2px;
 }
 
 /* Annotation tools dropdown */
@@ -273,6 +285,21 @@
 
 .mobile-tools-item:active {
   background: var(--hover-bg);
+}
+
+.mobile-tools-item.active {
+  color: #0078d4;
+}
+
+.mobile-drawer-item:disabled {
+  opacity: 0.45;
+}
+
+/* Dialogen (feedback, over, meldingen) passen op een telefoonscherm (#593). */
+.mobile-app .modal-dialog {
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  overflow: auto;
 }
 
 /* Slide-out drawer */
@@ -655,7 +682,7 @@
   flex: 1;
 }
 
-.mobile-prefs-row input[type="number"] {
+.mobile-prefs-row input[data-getal] {
   width: 64px;
   padding: 8px 10px;
   font-size: 15px;

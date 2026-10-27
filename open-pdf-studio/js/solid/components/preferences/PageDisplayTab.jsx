@@ -73,7 +73,7 @@ export default function PageDisplayTab(props) {
             a calibration (#520) takes precedence on the screen it was made for. */}
         <div class="pref-row">
           <label>{t('pageDisplay.zoomDpi')}</label>
-          <input type="number" min="50" max="300" value={p.zoomDpi[0]()} onInput={e => p.zoomDpi[1](parseInt(e.target.value) || 96)} />
+          <input type="text" inputmode="decimal" data-getal min="50" max="300" value={p.zoomDpi[0]()} onInput={e => p.zoomDpi[1](parseInt(e.target.value) || 96)} />
         </div>
         <div class="pref-row">
           <span class="pref-status-text">

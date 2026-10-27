@@ -35,7 +35,7 @@ export default function StavenreeksSection() {
 
         <div class="property-group">
           <label>{t('stavenreeks.count')}</label>
-          <input type="number" id="prop-sr-count" step="1" min="1" max="999"
+          <input type="text" inputmode="decimal" data-getal id="prop-sr-count" step="1" min="1" max="999"
             value={annotProps.srCount}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srCount', e.target.value)}
@@ -57,7 +57,7 @@ export default function StavenreeksSection() {
 
         <div class="property-group">
           <label>{t('stavenreeks.barLength')}</label>
-          <input type="number" id="prop-sr-barlength" step="10" min="0"
+          <input type="text" inputmode="decimal" data-getal id="prop-sr-barlength" step="10" min="0"
             value={annotProps.srBarLengthMm}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srBarLengthMm', e.target.value)}
@@ -81,7 +81,7 @@ export default function StavenreeksSection() {
 
         <div class="property-group">
           <label>{t('stavenreeks.legLength')}</label>
-          <input type="number" id="prop-sr-leglength" step="1" min="1" max="200"
+          <input type="text" inputmode="decimal" data-getal id="prop-sr-leglength" step="1" min="1" max="200"
             value={annotProps.srLegLength}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srLegLength', e.target.value)}
@@ -92,7 +92,7 @@ export default function StavenreeksSection() {
             poot doorloopt vóórdat het label begint. 0 = lijn stopt op de poot. */}
         <div class="property-group">
           <label>{t('stavenreeks.lineTail')}</label>
-          <input type="number" id="prop-sr-linetail" step="1" min="0" max="200"
+          <input type="text" inputmode="decimal" data-getal id="prop-sr-linetail" step="1" min="0" max="200"
             value={annotProps.srLineTail}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srLineTail', e.target.value)}
@@ -102,7 +102,7 @@ export default function StavenreeksSection() {
         {/* Tekstgrootte van het label "N ⌀ D" (papier-constant, app-px). */}
         <div class="property-group">
           <label>{t('stavenreeks.fontSize')}</label>
-          <input type="number" id="prop-sr-fontsize" step="1" min="6" max="72"
+          <input type="text" inputmode="decimal" data-getal id="prop-sr-fontsize" step="1" min="6" max="72"
             value={annotProps.srFontSize}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srFontSize', e.target.value)}

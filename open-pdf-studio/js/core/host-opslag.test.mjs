@@ -17,7 +17,7 @@ globalThis.document = {
 const {
   hostOpslag, hostPad, leesHostPad, openHostBestand, hostDocumenten, hostVersies,
   readBinaryFile, writeBinaryFile, writeBinaryFileAtomic, saveFileDialog, fileExists,
-  extractFileName,
+  extractFileName, hostAi, meldHostGeopend, meldBijHost, lockFile, unlockFile,
 } = await import('./platform.js');
 
 /** Een site die documenten in het geheugen bewaart, met versies. */
@@ -56,11 +56,65 @@ async function alsGast(site, fn) {
 test('een pad van de site draagt id en naam, ook met schuine strepen erin', () => {
   const pad = hostPad('Drawing/2026 01', 'map/blad A.pdf');
   assert.equal(pad, 'opds-host://Drawing%2F2026%2001/map_blad A.pdf');
-  assert.deepEqual(leesHostPad(pad), { id: 'Drawing/2026 01', naam: 'map_blad A.pdf' });
+  assert.deepEqual(leesHostPad(pad), { id: 'Drawing/2026 01', naam: 'map_blad A.pdf', versie: null });
   assert.equal(extractFileName(pad), 'map_blad A.pdf', 'tabblad en titel lezen de naam gewoon');
   assert.equal(leesHostPad('C:/docs/a.pdf'), null);
   assert.equal(leesHostPad('opds-host://zonder-naam'), null);
 });
+
+test('een oudere versie (#712) heeft een eigen pad met het versienummer', () => {
+  const pad = hostPad('Drawing/2026 01', 'blad A.pdf', 3);
+  assert.equal(pad, 'opds-host://Drawing%2F2026%2001;versie=3/blad A.pdf');
+  assert.deepEqual(leesHostPad(pad), { id: 'Drawing/2026 01', naam: 'blad A.pdf', versie: '3' });
+  assert.equal(extractFileName(pad), 'blad A.pdf');
+  assert.notEqual(pad, hostPad('Drawing/2026 01', 'blad A.pdf'), 'een eigen tabblad naast het huidige document');
+});
+
+test('een oudere versie openen: open(id, versie) als getal, alleen-lezen, en nooit terugschrijven', () => {
+  const gevraagd = [];
+  const opgeslagen = [];
+  const site = {
+    storage: {
+      async open(id, versie) {
+        gevraagd.push(versie === undefined ? [id] : [id, versie]);
+        return { name: 'Plattegrond.pdf', data: Uint8Array.from([versie ?? 9]), ...(versie !== undefined ? { versie } : {}) };
+      },
+      async save(id, bytes) { opgeslagen.push({ id, lengte: bytes.length }); },
+    },
+  };
+  return alsGast(site, async () => {
+    const oud = await openHostBestand('DOC-1', '2');
+    assert.deepEqual(gevraagd.at(-1), ['DOC-1', 2], 'het versienummer gaat als getal');
+    assert.equal(oud.pad, 'opds-host://DOC-1;versie=2/Plattegrond.pdf');
+    assert.equal(oud.alleenLezen, true);
+    assert.equal(oud.versie, 2);
+    assert.deepEqual([...oud.data], [2]);
+    // De versie herladen opent die versie weer; terugschrijven wordt een download.
+    assert.deepEqual([...(await readBinaryFile(oud.pad))], [2]);
+    assert.deepEqual(gevraagd.at(-1), ['DOC-1', 2]);
+    downloads.length = 0;
+    await writeBinaryFile(oud.pad, Uint8Array.from([1, 2, 3]));
+    assert.equal(opgeslagen.length, 0, 'een oudere versie schrijft nooit naar de site');
+    assert.deepEqual(downloads.filter(Boolean), ['Plattegrond.pdf']);
+    // De huidige versie opent zonder versienummer en schrijft wel terug.
+    const huidig = await openHostBestand('DOC-1');
+    assert.deepEqual(gevraagd.at(-1), ['DOC-1']);
+    assert.equal(huidig.alleenLezen, false);
+    await writeBinaryFile(huidig.pad, Uint8Array.from([4]));
+    assert.deepEqual(opgeslagen, [{ id: 'DOC-1', lengte: 1 }]);
+  });
+});
+
+test('de brug van de werkplek zelf meldt readOnly en version', () => alsGast({
+  storage: {
+    open: async (_id, versie) => ({ name: 'a.pdf', data: Uint8Array.from([1]), version: versie, readOnly: true }),
+    save: async () => {},
+  },
+}, async () => {
+  const r = await openHostBestand('X', 4);
+  assert.equal(r.alleenLezen, true);
+  assert.equal(r.versie, 4);
+}));
 
 test('zonder gastsite is er geen opslagcontract', async () => {
   assert.equal(hostOpslag(), null);
@@ -127,4 +181,71 @@ test('de site mag de bytes als Blob of Uint8Array teruggeven', () => {
     assert.deepEqual([...(await openHostBestand('blob')).data], [4, 2]);
     assert.deepEqual([...(await openHostBestand('u8')).data], [4, 3]);
   });
+});
+
+test('de werkplek (#704): alleen-lezen gaat door; ai, geopend en melding als de site ze kent', async () => {
+  const meldingen = [];
+  const geopend = [];
+  const vraag = async () => ({ bericht: { role: 'assistant', content: 'ja' } });
+  window.__OPDS_HOST__ = {
+    storage: {
+      open: async (id) => ({ name: 'a.pdf', data: Uint8Array.from([1]), alleenLezen: id === 'RO' }),
+      save: async () => {},
+    },
+    ai: { vraag },
+    geopend: async (id) => { geopend.push(id); return true; },
+    melding: async (tekst, toon) => { meldingen.push([tekst, toon]); return true; },
+  };
+  try {
+    assert.equal((await openHostBestand('RO')).alleenLezen, true);
+    assert.equal((await openHostBestand('RW')).alleenLezen, false);
+    assert.equal(hostAi(), vraag);
+    assert.equal(await meldHostGeopend(7), true);
+    assert.deepEqual(geopend, ['7']);
+    assert.equal(await meldBijHost('Kon niet openen', 'fout'), true);
+    assert.deepEqual(meldingen, [['Kon niet openen', 'fout']]);
+
+    // Een weigering van de site verandert niets aan de app.
+    window.__OPDS_HOST__.geopend = async () => { throw new Error('niet toegestaan'); };
+    window.__OPDS_HOST__.melding = async () => { throw new Error('weg'); };
+    assert.equal(await meldHostGeopend('X'), false);
+    assert.equal(await meldBijHost('x'), false);
+  } finally {
+    delete window.__OPDS_HOST__;
+  }
+  // Een site met alleen het opslagcontract (#546): geen assistent, geen berichten.
+  window.__OPDS_HOST__ = { storage: { open: async () => ({}), save: async () => {} } };
+  try {
+    assert.equal(hostAi(), null);
+    assert.equal(await meldHostGeopend('A'), false);
+    assert.equal(await meldBijHost('x'), false);
+  } finally {
+    delete window.__OPDS_HOST__;
+  }
+});
+
+// Bestanden vastzetten bestaat alleen op het bureaublad (#707): in de browser
+// (de webbouw en de werkplek) geen invoke, en dus ook geen waarschuwing in de
+// console bij elk openen en opslaan.
+test('lock_file en unlock_file alleen in Tauri', async () => {
+  const waarschuwingen = [];
+  const warn = console.warn;
+  console.warn = (...a) => waarschuwingen.push(a.join(' '));
+  try {
+    assert.equal(await lockFile('opds-host://DOC-1/a.pdf'), false);
+    assert.equal(await unlockFile('opds-host://DOC-1/a.pdf'), false);
+    assert.equal(await lockFile('a.pdf'), false);
+    assert.equal(await unlockFile('a.pdf'), false);
+    assert.deepEqual(waarschuwingen, []);
+
+    // Op het bureaublad gaat het verzoek wel naar Rust.
+    const verzoeken = [];
+    window.__TAURI__ = { core: { invoke: async (cmd, args) => { verzoeken.push([cmd, args.path]); return true; } } };
+    assert.equal(await lockFile('C:/a.pdf'), true);
+    assert.equal(await unlockFile('C:/a.pdf'), true);
+    assert.deepEqual(verzoeken, [['lock_file', 'C:/a.pdf'], ['unlock_file', 'C:/a.pdf']]);
+  } finally {
+    console.warn = warn;
+    delete window.__TAURI__;
+  }
 });

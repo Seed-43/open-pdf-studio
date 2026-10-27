@@ -2,7 +2,9 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { lineLineIntersection } from '../../annotations/geometry.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify, beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
-import { redrawAnnotations } from '../../annotations/rendering.js';
+// Hertekenen langs de route van de weergave: in de doorlopende weergave staat
+// de overlay van de enkele-paginaweergave niet op het scherm (#616).
+import { redrawForViewMode } from '../preview-target.js';
 
 const _trimState = { cuttingEdge: null };
 
@@ -28,7 +30,7 @@ export const trimTool = {
       _trimState.cuttingEdge = clicked;
       const doc = getActiveDocument();
       if (doc) { doc.selectedAnnotations = [clicked]; doc.selectedAnnotation = clicked; }
-      redrawAnnotations();
+      redrawForViewMode();
       return;
     }
 
@@ -81,7 +83,7 @@ export const trimTool = {
     recordModify(target.id, oldState, target);
     recordModify(cutter.id, oldCutter, cutter);
     endUndoTransaction();
-    redrawAnnotations();
+    redrawForViewMode();
     _trimState.cuttingEdge = null;
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
   },

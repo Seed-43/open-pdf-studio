@@ -2,6 +2,7 @@ import { createSignal, onMount, onCleanup, Show, For } from 'solid-js';
 import { useTranslation } from '../i18n/useTranslation.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isTauri, extractFileName } from '../core/platform.js';
+import { knopUit, meldingTekst } from '../core/webfuncties.js';
 import { loadPDF, loadPDFIfNeeded } from '../pdf/loader.js';
 import { fitWidth, fitPage, goToPage, setZoom } from '../pdf/renderer.js';
 import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
@@ -14,9 +15,20 @@ import { getRecentFiles, addRecentFile, clearRecentFiles } from '../mobile/recen
 import { LANGUAGES } from '../i18n/config.js';
 import { changeLanguage } from '../i18n/useTranslation.js';
 import LoadingOverlay from './components/LoadingOverlay.jsx';
+import DialogHost from './components/DialogHost.jsx';
+import { openDialog } from './stores/dialogStore.js';
+import { setTool } from '../tools/manager.js';
+import { savePDF, savePDFAs } from '../pdf/saver.js';
+import { MOBIELE_GEREEDSCHAPPEN } from '../mobile/mobiele-gereedschappen.js';
+import { foutBericht } from '../core/fout-bericht.js';
+import { startIpcWekker } from '../mobile/ipc-wekker.js';
 
 export default function MobileApp() {
   const { t } = useTranslation('common');
+  const { t: tRibbon } = useTranslation('ribbon');
+  // Feedback gaat naar een andere host: als gast uit, net als in de
+  // titelbalk van het bureaublad (#548). Op Android gewoon aan (#593).
+  const feedbackUit = knopUit('send-feedback', { inTauri: isTauri() });
   const [drawerOpen, setDrawerOpen] = createSignal(false);
   const [toolsOpen, setToolsOpen] = createSignal(false);
   const [darkMode, setDarkMode] = createSignal(false);
@@ -38,8 +50,8 @@ export default function MobileApp() {
   const fileName = () => {
     const doc = currentDoc();
     if (!doc || !doc.filePath) return 'Open PDF Studio';
-    const parts = doc.filePath.replace(/\\/g, '/').split('/');
-    return parts[parts.length - 1];
+    // Ook voor een content://-URI van Android een leesbare naam.
+    return extractFileName(doc.filePath);
   };
 
   onMount(() => {
@@ -64,7 +76,14 @@ export default function MobileApp() {
     };
     document.addEventListener('selectionchange', selectionHandler);
 
+    // Terug uit de bestandskiezer: een wachtend antwoord van de plug-in
+    // doorhalen (#596, zie ipc-wekker.js).
+    const stopWekker = isTauri()
+      ? startIpcWekker({ ping: () => window.__TAURI__?.core?.invoke('plugin:app|version').catch(() => {}) })
+      : () => {};
+
     onCleanup(() => {
+      stopWekker();
       document.removeEventListener('selectionchange', selectionHandler);
       if (barsTimer) clearTimeout(barsTimer);
     });
@@ -122,7 +141,7 @@ export default function MobileApp() {
       addRecentFile(file.name, file.name);
       setRecentFiles(getRecentFiles());
     } catch (err) {
-      alert('Failed to load PDF: ' + (err.message || err));
+      alert('Failed to load PDF: ' + foutBericht(err));
       console.warn('Failed to load PDF:', err);
     }
     e.target.value = '';
@@ -177,19 +196,31 @@ export default function MobileApp() {
     setZoom(newScale);
   }
 
+  // Rechtstreeks aanroepen: de events die hier eerder verstuurd werden
+  // ('save-document', 'show-about', 'set-tool') had niemand opgevangen (#593).
   function handleSave() {
     setDrawerOpen(false);
-    window.dispatchEvent(new CustomEvent('save-document'));
+    savePDF().catch((e) => console.warn('Save failed:', e));
   }
 
   function handleSaveAs() {
     setDrawerOpen(false);
-    window.dispatchEvent(new CustomEvent('save-document-as'));
+    savePDFAs().catch((e) => console.warn('Save as failed:', e));
   }
 
-  function handlePrint() {
+  function handleFeedback() {
     setDrawerOpen(false);
-    window.dispatchEvent(new CustomEvent('print-document'));
+    openDialog('feedback');
+  }
+
+  function handleAbout() {
+    setDrawerOpen(false);
+    openDialog('about');
+  }
+
+  function handlePickTool(tool) {
+    setToolsOpen(false);
+    setTool(tool);
   }
 
   // --- Dark mode toggle ---
@@ -454,30 +485,19 @@ export default function MobileApp() {
       <Show when={toolsOpen()}>
         <div class="mobile-tools-overlay" onClick={() => setToolsOpen(false)}>
           <div class="mobile-tools-menu" onClick={(e) => e.stopPropagation()}>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'highlight' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="6" rx="1" /></svg>
-              <span>Highlight</span>
-            </button>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'underline' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3" /><line x1="4" y1="21" x2="20" y2="21" /></svg>
-              <span>Underline</span>
-            </button>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'strikethrough' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12" /><path d="M6 20V4" /></svg>
-              <span>Strikethrough</span>
-            </button>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'freehand' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /></svg>
-              <span>Freehand</span>
-            </button>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'text' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>
-              <span>Text</span>
-            </button>
-            <button class="mobile-tools-item" onClick={() => { window.dispatchEvent(new CustomEvent('set-tool', { detail: { tool: 'textSelect' } })); setToolsOpen(false); }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h14" /><path d="M5 21h14" /><path d="M12 3v18" /><path d="M8 7l4-4 4 4" /><path d="M8 17l4 4 4-4" /></svg>
-              <span>Select Text</span>
-            </button>
+            <For each={MOBIELE_GEREEDSCHAPPEN}>
+              {(item) => (
+                <button
+                  class="mobile-tools-item"
+                  classList={{ active: state.currentTool === item.tool }}
+                  data-tool={item.tool}
+                  onClick={() => handlePickTool(item.tool)}
+                >
+                  <ToolIcon tool={item.tool} />
+                  <span>{tRibbon(item.label)}</span>
+                </button>
+              )}
+            </For>
           </div>
         </div>
       </Show>
@@ -488,7 +508,7 @@ export default function MobileApp() {
           <div class="mobile-goto-dialog" onClick={(e) => e.stopPropagation()}>
             <h3>Go to Page</h3>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               min="1"
               max={totalPages()}
               value={gotoValue()}
@@ -551,14 +571,6 @@ export default function MobileApp() {
                 </svg>
                 <span>{t('saveAs')}</span>
               </button>
-              <button class="mobile-drawer-item" onClick={handlePrint}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 6 2 18 2 18 9" />
-                  <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
-                  <rect x="6" y="14" width="12" height="8" />
-                </svg>
-                <span>{t('print')}</span>
-              </button>
             </Show>
             <div class="mobile-drawer-divider"></div>
 
@@ -586,15 +598,27 @@ export default function MobileApp() {
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
               </svg>
-              <span>Preferences</span>
+              <span>{t('preferences')}</span>
             </button>
-            <button class="mobile-drawer-item" onClick={() => { setDrawerOpen(false); window.dispatchEvent(new CustomEvent('show-about')); }}>
+            <button
+              class="mobile-drawer-item"
+              id="mobile-send-feedback"
+              disabled={feedbackUit}
+              title={feedbackUit ? meldingTekst(t, t('sendFeedback')) : undefined}
+              onClick={handleFeedback}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              <span>{t('sendFeedback')}</span>
+            </button>
+            <button class="mobile-drawer-item" onClick={handleAbout}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="16" x2="12" y2="12" />
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
-              <span>About</span>
+              <span>{tRibbon('help.about')}</span>
             </button>
           </div>
         </div>
@@ -605,8 +629,24 @@ export default function MobileApp() {
         <MobilePreferences onClose={() => setPrefsOpen(false)} onThemeChange={(theme) => setDarkMode(theme === 'dark')} />
       </Show>
 
+      {/* Dialogen (feedback, over, meldingen, notities): zonder deze host
+          opende openDialog() op mobiel niets (#593). */}
+      <DialogHost />
       <LoadingOverlay />
     </div>
+  );
+}
+
+function ToolIcon(props) {
+  const pad = {
+    select: <path d="M4 3l7 17 2.5-7.5L21 10z" />,
+    highlight: <rect x="3" y="10" width="18" height="6" rx="1" />,
+    draw: <><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /></>,
+    textbox: <><rect x="3" y="4" width="18" height="16" /><polyline points="8 9 8 8 16 8 16 9" /><line x1="12" y1="8" x2="12" y2="16" /></>,
+    comment: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />,
+  }[props.tool];
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">{pad}</svg>
   );
 }
 
@@ -676,7 +716,7 @@ function MobilePreferences(props) {
           </div>
           <div class="mobile-prefs-row">
             <label>{t('annotations.defaultLineWidth')}</label>
-            <input type="number" min="1" max="20" value={state.preferences.defaultLineWidth || 3} onInput={e => update('defaultLineWidth', parseInt(e.target.value) || 3)} />
+            <input type="text" inputmode="decimal" data-getal min="1" max="20" value={state.preferences.defaultLineWidth || 3} onInput={e => update('defaultLineWidth', parseInt(e.target.value) || 3)} />
           </div>
           <div class="mobile-prefs-row">
             <label>{t('annotations.highlightOpacity')}</label>

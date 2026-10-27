@@ -63,6 +63,8 @@
     "strokeColor": "描边颜色",
     "color": "颜色",
     "opacity": "不透明度",
+    "fillOpacity": "填充不透明度",
+    "strokeOpacity": "描边不透明度",
     "borderStyle": "边框样式",
     "cross": "十字",
     "crossHint": "在矩形、圆或椭圆内绘制十字（例如表示洞口）",
@@ -247,6 +249,9 @@
     "linkImageTitle": "链接图像",
     "imageFilter": "图像"
   },
+  "sizeUnit": {
+    "tooltip": "尺寸单位"
+  },
   "multiSelect": "已选择 {{count}} 个批注",
   "pdfText": "PDF 文本",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "导入批注...",
     "exportComments": "将批注导出到数据文件...",
     "exportSelectedComments": "将选定批注导出到数据文件...",
+    "exportListCsv": "将列表导出为 CSV...",
+    "summarizeComingSoon": "即将推出",
+    "listExported": "注释列表已导出为 CSV",
+    "csvPage": "页面",
+    "csvType": "类型",
+    "csvAuthor": "作者",
+    "csvDate": "日期",
+    "csvStatus": "状态",
+    "csvSubject": "主题",
+    "csvContents": "内容",
+    "csvColor": "颜色",
+    "csvLayer": "图层",
     "schedules": "明细表",
     "addPage": "添加页面",
-    "pageLabels": "页面标签（名称生成器）"
+    "pageLabels": "页面标签（名称生成器）",
+    "portfolio": "PDF 文件包",
+    "recognizeForm": "识别表单域"
   },
   "scaleBar": {
     "title": "比例尺",
@@ -403,7 +422,8 @@
       "image": "图像和图章"
     },
     "preview": "预览",
-    "exportCsv": "导出 CSV"
+    "exportCsv": "导出 CSV",
+    "workbookBindings": "电子表格绑定"
   },
   "wizard": {
     "title": "明细表向导",
@@ -585,7 +605,9 @@
       "symbolId": "符号",
       "imageName": "文件名",
       "width": "宽度",
-      "height": "高度"
+      "height": "高度",
+      "location": "位置",
+      "locationSource": "位置来源"
     },
     "type": {
       "line": "线条",
@@ -631,6 +653,8 @@
     "sectionTitle": "符号：{{name}}",
     "symbolLabel": "符号",
     "typeLabel": "类型",
+    "profileType": "型材类型",
+    "profileTypeTitle": "钢型材",
     "unknownSymbol": "未知符号",
     "listNew": "新建",
     "listAdd": "添加",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "此对象已在其他位置更改。表单显示当前值；您的更改未应用。",
     "failed": "无法应用更改：{{error}}"
+  },
+  "location": {
+    "title": "位置",
+    "none": "未分配",
+    "manual": "手动",
+    "computed": "已计算",
+    "override": "手动覆盖（留空将清除位置）",
+    "automatic": "使用自动位置",
+    "zoneName": "将此形状用作命名区域",
+    "parent": "上级区域",
+    "removeZone": "删除区域定义",
+    "invalid": "无法更新位置",
+    "rules": "分配依据标记边界框的中心点（含边缘）。优先选择最深层的区域，其次是面积最小的区域，然后是区域 ID。请使用无孔洞的直边多边形或未旋转的矩形框。无效或重复的区域标识将被排除。",
+    "loading": "正在加载批注：位置可能仍会变化。"
   }
 }

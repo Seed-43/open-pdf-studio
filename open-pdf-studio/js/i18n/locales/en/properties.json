@@ -43,6 +43,8 @@
     "strokeColor": "Stroke Color",
     "color": "Color",
     "opacity": "Opacity",
+    "fillOpacity": "Fill Opacity",
+    "strokeOpacity": "Stroke Opacity",
     "lineWidth": "Line Width",
     "borderWidth": "Border Width",
     "borderStyle": "Border Style",
@@ -279,6 +281,9 @@
     "linkImageTitle": "Link image",
     "imageFilter": "Images"
   },
+  "sizeUnit": {
+    "tooltip": "Unit for sizes"
+  },
   "multiSelect": "{{count}} annotations selected",
   "pdfText": "PDF Text",
   "types": {
@@ -377,13 +382,27 @@
     "importComments": "Import Comments...",
     "exportComments": "Export Comments to Data File...",
     "exportSelectedComments": "Export Selected Comments to Data File...",
+    "exportListCsv": "Export List to CSV...",
+    "summarizeComingSoon": "Coming soon",
+    "listExported": "Comment list exported to CSV",
+    "csvPage": "Page",
+    "csvType": "Type",
+    "csvAuthor": "Author",
+    "csvDate": "Date",
+    "csvStatus": "Status",
+    "csvSubject": "Subject",
+    "csvContents": "Contents",
+    "csvColor": "Color",
+    "csvLayer": "Layer",
     "filterLabel": "Filter",
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
     "annotationsMenu": "Menu",
     "schedules": "Schedules",
     "addPage": "Add page",
-    "pageLabels": "Page labels (name builder)"
+    "pageLabels": "Page labels (name builder)",
+    "portfolio": "PDF portfolio",
+    "recognizeForm": "Recognize form fields"
   },
   "schedules": {
     "title": "Schedules",
@@ -403,7 +422,8 @@
       "image": "Images & stamps"
     },
     "preview": "Preview",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "workbookBindings": "Spreadsheet bindings"
   },
   "wizard": {
     "title": "Schedule wizard",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "File name",
       "width": "Width",
-      "height": "Height"
+      "height": "Height",
+      "location": "Location",
+      "locationSource": "Location source"
     },
     "type": {
       "line": "Line",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
+    "profileType": "Profile type",
+    "profileTypeTitle": "Steel profile",
     "unknownSymbol": "Unknown symbol",
     "listNew": "New",
     "listAdd": "Add",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "This object was changed elsewhere. The form shows the current values; your changes were not applied.",
     "failed": "Could not apply the changes: {{error}}"
+  },
+  "location": {
+    "title": "Location",
+    "none": "Unassigned",
+    "manual": "Manual",
+    "computed": "Computed",
+    "override": "Manual override (empty clears location)",
+    "automatic": "Use automatic location",
+    "zoneName": "Use this shape as a named zone",
+    "parent": "Parent zone",
+    "removeZone": "Remove zone definition",
+    "invalid": "Location could not be updated",
+    "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
+    "loading": "Annotations are loading: locations may still change."
   }
 }

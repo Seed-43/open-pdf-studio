@@ -71,6 +71,12 @@
     "site": "På dette nettstedet",
     "noSiteDocuments": "Ingen dokumenter på dette nettstedet",
     "siteListError": "Kunne ikke laste inn dokumentene på dette nettstedet",
+    "versions": "Versjoner",
+    "versionNumber": "Versjon {{version}}",
+    "currentVersion": "gjeldende",
+    "noVersions": "Ingen versjoner",
+    "versionsError": "Kunne ikke laste inn versjonene",
+    "olderVersionsHint": "Eldre versjoner åpnes skrivebeskyttet; Lagre som laster ned en kopi.",
     "save": "Lagre"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Side",
     "officeTable": "Tabell",
     "officeText": "Tekst",
-    "officeFailed": "Eksport av dokumentet mislyktes."
+    "officeFailed": "Eksport av dokumentet mislyktes.",
+    "protect": "Beskytt med passord",
+    "protectDesc": "Lagre en kopi beskyttet med passord (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",
@@ -211,5 +219,9 @@
     "activationFailed": "Ikke aktiv: {{error}}",
     "viaMcp": "Via AI-tilkoblingen"
   },
-  "annotateScreenshot": "Lag merknad på skjermbilde fra utklippstavlen"
+  "annotateScreenshot": "Lag merknad på skjermbilde fra utklippstavlen",
+  "workflows": "Dokumentarbeidsflyter",
+  "drawingSets": "Tegningssett",
+  "sheetLinks": "Lenker mellom tegninger",
+  "approvalRouting": "Godkjenningsflyt"
 }

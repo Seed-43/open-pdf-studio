@@ -6,6 +6,7 @@ import { savePreferences } from '../../../core/preferences.js';
 import { styleTypesFor, STYLE_TYPES } from '../../../annotations/style-types.js';
 import { PreviewSwatch } from '../properties-panel/DimensionTypeSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { leesGetalBegin } from '../../../core/getal-invoer.js';
 
 // Style-type editor — "Bewerken…" from the type picker. Edits are stored as
 // per-id OVERRIDES on top of the built-in presets (preferences
@@ -92,7 +93,7 @@ export default function StyleTypeEditorDialog(props) {
   }
 
   const ptToMm = (pt) => Math.round(((pt || 0) / MM_TO_PT) * 100) / 100;
-  const mmToPt = (mm) => Math.round((parseFloat(String(mm).replace(',', '.')) || 0) * MM_TO_PT * 100) / 100;
+  const mmToPt = (mm) => Math.round((leesGetalBegin(mm) || 0) * MM_TO_PT * 100) / 100;
 
   // Column layout per kind keeps the rows aligned like a table.
   const gridCols = annType === 'filledArea'
@@ -150,7 +151,7 @@ export default function StyleTypeEditorDialog(props) {
                 }} />
 
               <Show when={annType === 'line' || annType === 'arrow'}>
-                <input type="number" class="ste-field" step="0.05" min="0.05" value={ptToMm(d.props?.lineWidth)}
+                <input type="text" inputmode="decimal" data-getal class="ste-field" step="0.05" min="0.05" value={ptToMm(d.props?.lineWidth)}
                   onChange={(e) => writeEntry(d.id, { props: { lineWidth: mmToPt(e.target.value) } })} />
                 <select class="ste-field" value={d.props?.borderStyle || 'solid'}
                   onChange={(e) => writeEntry(d.id, { props: { borderStyle: e.target.value } })}>
@@ -163,7 +164,7 @@ export default function StyleTypeEditorDialog(props) {
               </Show>
 
               <Show when={annType === 'measureDistance'}>
-                <input type="number" class="ste-field" step="0.1" min="1" value={ptToMm(d.props?.fontSize)}
+                <input type="text" inputmode="decimal" data-getal class="ste-field" step="0.1" min="1" value={ptToMm(d.props?.fontSize)}
                   onChange={(e) => writeEntry(d.id, { props: { fontSize: Math.round(mmToPt(e.target.value)) } })} />
                 <select class="ste-field" value={d.props?.measureUnit || 'mm'}
                   onChange={(e) => writeEntry(d.id, { props: { measureUnit: e.target.value } })}>
@@ -178,7 +179,7 @@ export default function StyleTypeEditorDialog(props) {
                   <input type="checkbox" title={t('styleType.noBackground')} checked={!d.props?.fillColor}
                     onChange={(e) => writeEntry(d.id, { props: { fillColor: e.target.checked ? null : '#ffffff' } })} />
                 </div>
-                <input type="number" class="ste-field" step="5" min="10" max="600" value={d.props?.hatchScale ?? 100}
+                <input type="text" inputmode="decimal" data-getal class="ste-field" step="5" min="10" max="600" value={d.props?.hatchScale ?? 100}
                   onChange={(e) => writeEntry(d.id, { props: { hatchScale: parseInt(e.target.value) || 100 } })} />
               </Show>
 

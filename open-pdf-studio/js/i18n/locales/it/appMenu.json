@@ -71,6 +71,12 @@
     "site": "Su questo sito",
     "noSiteDocuments": "Nessun documento su questo sito",
     "siteListError": "Impossibile caricare i documenti di questo sito",
+    "versions": "Versioni",
+    "versionNumber": "Versione {{version}}",
+    "currentVersion": "attuale",
+    "noVersions": "Nessuna versione",
+    "versionsError": "Impossibile caricare le versioni",
+    "olderVersionsHint": "Le versioni precedenti si aprono in sola lettura; Salva con nome scarica una copia.",
     "save": "Salva"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Pagina",
     "officeTable": "Tabella",
     "officeText": "Testo",
-    "officeFailed": "Esportazione del documento non riuscita."
+    "officeFailed": "Esportazione del documento non riuscita.",
+    "protect": "Proteggi con password",
+    "protectDesc": "Salva una copia protetta da password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profilo di output",
@@ -211,5 +219,9 @@
     "activationFailed": "Non attiva: {{error}}",
     "viaMcp": "Tramite la connessione IA"
   },
-  "annotateScreenshot": "Annota screenshot dagli appunti"
+  "annotateScreenshot": "Annota screenshot dagli appunti",
+  "workflows": "Flussi di lavoro dei documenti",
+  "drawingSets": "Set di tavole",
+  "sheetLinks": "Collegamenti tra tavole",
+  "approvalRouting": "Iter di approvazione"
 }

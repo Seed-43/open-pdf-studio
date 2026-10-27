@@ -3,8 +3,9 @@ import { state, getActiveDocument } from '../core/state.js';
 import { pageTextSpans } from './mcp-page-text.js';
 import { textItemColors } from './mcp-text-color.js';
 import { embedMcpTextFont } from './mcp-text-font.js';
+import { toonBewerkingInTekstlaag } from './tekstlaag-bewerking.js';
 import {
-  MAX_VERVANGINGEN, parseSpanId, vervangingVormFout, planVervanging, proefOpKopie,
+  MAX_VERVANGINGEN, parseSpanId, vervangingVormFout, planVervanging, proefOpKopie, verslag,
 } from './mcp-text-plan.js';
 
 const failure = error => ({ ok: false, error });
@@ -56,6 +57,11 @@ async function pasToe(doc, page, records) {
   }
   markDocumentModified(doc);
   if (getActiveDocument() === doc && doc.currentPage === page) {
+    // De tekstlaag toont de nieuwe tekst, zoals na een bewerking in de editor
+    // en na opnieuw uitvoeren (#719): zoeken en selecteren vinden geen oude tekst.
+    const laag = typeof document !== 'undefined'
+      ? document.querySelector(`.textLayer[data-page="${page}"]`) || document.querySelector('.textLayer') : null;
+    if (laag) for (const record of records) toonBewerkingInTekstlaag(laag, record);
     try {
       const { renderPage } = await import('../pdf/renderer.js');
       if (getActiveDocument() === doc && doc.currentPage === page) await renderPage(page);
@@ -64,14 +70,6 @@ async function pasToe(doc, page, records) {
   }
 }
 
-function verslag(plan) {
-  const { span, record, textColor } = plan;
-  return { spanId: span.id, editId: record.id, originalText: span.text, newText: record.newText,
-    fontUsed: plan.fontUsed, fontFallback: plan.fontFallback, fontSize: record.fontSize,
-    color: textColor, bbox: span.bbox,
-    ...(plan.needsCover ? { rasterBackgroundOverlap: true,
-      warning: 'An image overlaps this text. The vector glyphs will be removed without covering the image; text already baked into image pixels may remain visible.' } : {}) };
-}
 
 export async function replaceTextForMcp({ spanId, expectedText, newText, color } = {}) {
   const item = { spanId, expectedText, newText, color };

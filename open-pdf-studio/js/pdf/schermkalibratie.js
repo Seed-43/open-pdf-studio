@@ -18,6 +18,8 @@
 //
 // Pure module zonder app-imports, zodat hij in node getest wordt.
 
+import { leesGetalBegin } from '../core/getal-invoer.js';
+
 /** PDF-punten per inch. */
 export const PT_PER_INCH = 72;
 export const MM_PER_INCH = 25.4;
@@ -48,7 +50,7 @@ export function dprSleutel(dpr) {
  * @returns {number|null}
  */
 export function geldigePxPerInch(waarde) {
-  const n = typeof waarde === 'string' ? parseFloat(waarde.replace(',', '.')) : Number(waarde);
+  const n = typeof waarde === 'string' ? leesGetalBegin(waarde) : Number(waarde);
   if (!Number.isFinite(n) || n < MIN_PX_PER_INCH || n > MAX_PX_PER_INCH) return null;
   return Math.round(n * 100) / 100;
 }
@@ -101,7 +103,7 @@ export function mmNaarSchermPx(mm, pxPerInch) {
  */
 export function pxPerInchUitLengte(schermPx, gemetenMm) {
   const px = Number(schermPx);
-  const mm = typeof gemetenMm === 'string' ? parseFloat(gemetenMm.replace(',', '.')) : Number(gemetenMm);
+  const mm = typeof gemetenMm === 'string' ? leesGetalBegin(gemetenMm) : Number(gemetenMm);
   if (!(px > 0) || !(mm > 0)) return null;
   return geldigePxPerInch((px * MM_PER_INCH) / mm);
 }

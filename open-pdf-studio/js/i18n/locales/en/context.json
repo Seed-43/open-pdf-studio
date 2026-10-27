@@ -99,7 +99,22 @@
     "editBookmark": "Edit Bookmark",
     "deleteBookmark": "Delete Bookmark",
     "expandAll": "Expand All",
-    "collapseAll": "Collapse All"
+    "collapseAll": "Collapse All",
+    "color": "Color",
+    "colorDefault": "Default",
+    "colorRed": "Red",
+    "colorOrange": "Orange",
+    "colorGreen": "Green",
+    "colorBlue": "Blue",
+    "colorPurple": "Purple",
+    "colorGray": "Gray",
+    "colorCustom": "Custom...",
+    "bold": "Bold",
+    "italic": "Italic",
+    "nestUnderNew": "Nest Under New Bookmark...",
+    "indent": "Indent",
+    "outdent": "Outdent",
+    "deleteBookmarks": "Delete {{count}} Bookmarks"
   },
   "thumbnail": {
     "rotateLeft": "Rotate Left",

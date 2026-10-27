@@ -3,6 +3,7 @@ import { zetRanddikte } from '../../annotations/rendering/textbox-layout.js';
 import { getActiveDocument } from '../../core/state.js';
 import { applyToSelected } from './formatStore.js';
 import { annotProps, updateAnnotProp } from './propertiesStore.js';
+import { heeftVulDekking } from '../../annotations/vul-dekking.js';
 
 /**
  * Named line-style presets (WEERGAVE-stijlen).
@@ -25,7 +26,7 @@ import { annotProps, updateAnnotProp } from './propertiesStore.js';
 
 // Keys a preset may carry. Anything else in a loaded preset is ignored.
 export const STYLE_PRESET_KEYS = [
-  'fillColor', 'strokeColor', 'color', 'opacity', 'lineWidth',
+  'fillColor', 'strokeColor', 'color', 'opacity', 'fillOpacity', 'lineWidth',
   'borderStyle', 'startHead', 'endHead', 'headSize',
 ];
 
@@ -51,6 +52,10 @@ function _captureFromAnnotation(ann) {
   if (ann.strokeColor !== undefined) props.strokeColor = ann.strokeColor;
   if (ann.color !== undefined) props.color = ann.color;
   if (ann.opacity !== undefined) props.opacity = Math.round(ann.opacity * 100);
+  // Eigen vul-dekking (#685), alleen als de vorm er een heeft.
+  if (heeftVulDekking(ann.type) && typeof ann.fillOpacity === 'number') {
+    props.fillOpacity = Math.round(ann.fillOpacity * 100);
+  }
   if (ann.lineWidth !== undefined) props.lineWidth = parseFloat(ann.lineWidth);
   if (ann.borderStyle !== undefined) props.borderStyle = ann.borderStyle;
   if (ann.startHead !== undefined) props.startHead = ann.startHead;
@@ -67,6 +72,9 @@ function _captureFromPanel() {
   if (p.strokeColor && p.strokeColor !== 'mixed') props.strokeColor = p.strokeColor;
   if (p.color && p.color !== 'mixed') props.color = p.color;
   if (p.opacity !== 'mixed' && p.opacity !== undefined) props.opacity = parseInt(p.opacity);
+  if (heeftVulDekking(p.type) && p.fillOpacity !== 'mixed' && p.fillOpacity !== undefined) {
+    props.fillOpacity = parseInt(p.fillOpacity);
+  }
   if (p.lineWidth !== 'mixed' && p.lineWidth !== undefined) props.lineWidth = parseFloat(p.lineWidth);
   if (p.borderStyle && p.borderStyle !== 'mixed') props.borderStyle = p.borderStyle;
   return props;
@@ -110,6 +118,13 @@ function _applyPropsToAnnotation(ann, props) {
     const op = Math.max(0, Math.min(100, parseInt(props.opacity)));
     if (!isNaN(op)) ann.opacity = op / 100;
   }
+  // Vul-dekking (#685): een stijl zonder eigen vul-dekking is één dekking
+  // voor lijn en vulling, zoals een ouder bestand.
+  if (heeftVulDekking(ann.type)) {
+    const vul = props.fillOpacity !== undefined ? parseInt(props.fillOpacity) : NaN;
+    if (!isNaN(vul)) ann.fillOpacity = Math.max(0, Math.min(100, vul)) / 100;
+    else if (props.opacity !== undefined) delete ann.fillOpacity;
+  }
   if (props.lineWidth !== undefined) {
     const lw = parseFloat(props.lineWidth);
     if (!isNaN(lw)) zetRanddikte(ann, lw);
@@ -145,6 +160,7 @@ export function applyStyleToSelection(props) {
     if (props.strokeColor !== undefined) updateAnnotProp('strokeColor', props.strokeColor);
     if (props.fillColor !== undefined) updateAnnotProp('fillColor', props.fillColor);
     if (props.opacity !== undefined) updateAnnotProp('opacity', props.opacity);
+    if (props.fillOpacity !== undefined) updateAnnotProp('fillOpacity', props.fillOpacity);
     if (props.lineWidth !== undefined) updateAnnotProp('lineWidth', props.lineWidth);
     if (props.borderStyle !== undefined) updateAnnotProp('borderStyle', props.borderStyle);
     if (props.startHead !== undefined) updateAnnotProp('startHead', props.startHead);

@@ -29,7 +29,8 @@
     "formCheckbox": "Caseta de bifat formular",
     "formRadio": "Buton radio formular",
     "screenshot": "Captura de ecran",
-    "pageLabelPick": "Alegeți textul pentru eticheta paginii"
+    "pageLabelPick": "Alegeți textul pentru eticheta paginii",
+    "proofread": "Corectură"
   },
   "toolLabel": "Instrument:",
   "annotationsLabel": "Adnotari:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Pagina {{page}}",
   "searchHitsOne": "1 potrivire",
   "searchHitsMany": "Potriviri: {{count}}",
-  "passwordProtectedBar": "Protejat cu parolă: deschis doar în citire."
+  "passwordProtectedBar": "Protejat cu parolă: deschis doar în citire.",
+  "documentSearch": {
+    "title": "Căutare în documente",
+    "query": "Text de căutat",
+    "scope": "Căutare în",
+    "active": "Documentul curent",
+    "open": "Documente deschise",
+    "folder": "Folder",
+    "choose": "Alegere folder",
+    "annotations": "Includere comentarii",
+    "search": "Căutare",
+    "cancel": "Anulare",
+    "stale": "Documentul s-a modificat. Rulați din nou căutarea.",
+    "folderHint": "Caută în fișierele PDF direct din acest folder, fără a deschide file și fără a modifica fișierele.",
+    "limited": "S-a atins limita de rezultate. Restrângeți căutarea.",
+    "cancelled": "Căutare anulată; rezultatele sunt incomplete.",
+    "ocrHint": "Nu există text căutabil pe paginile {{pages}}. Deschideți documentul și rulați explicit OCR, dacă este necesar.",
+    "status": {
+      "searching": "Se caută",
+      "complete": "Finalizat",
+      "needs_ocr": "Conține pagini fără text căutabil",
+      "encrypted": "Necesită parolă",
+      "unreadable": "Nu s-a putut căuta",
+      "changed": "Documentul s-a modificat; căutați din nou",
+      "cancelled": "Anulat",
+      "limited": "Limita de rezultate atinsă"
+    },
+    "failed": "Căutarea a eșuat. Verificați interogarea și folderul, apoi încercați din nou.",
+    "prepareOcr": "Deschidere pentru OCR…"
+  },
+  "symbolSearch": "Găsire simboluri",
+  "findMoreOptions": "Mai multe opțiuni de căutare",
+  "watchActive": "Monitorizare: {{folder}}",
+  "watchFailed": "Eroare de monitorizare: {{folder}}",
+  "watchTitle": "Fluxul de lucru pentru documente monitorizează {{input}} și scrie în {{output}}. Faceți clic pentru a opri monitorizarea.",
+  "renderDiagnostics": {
+    "title": "Mergi la următoarea constatare de randare. Lipsa constatărilor nu garantează o randare completă.",
+    "count": "Constatări de randare: {{count}}",
+    "detail": "Pagina {{page}}: {{code}}. Încercați un zoom mai mic sau redeschideți documentul; completitudinea nu este garantată."
+  }
 }

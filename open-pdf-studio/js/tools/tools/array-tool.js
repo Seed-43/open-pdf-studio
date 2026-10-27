@@ -1,6 +1,8 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { recordBulkAdd } from '../../core/undo-manager.js';
-import { redrawAnnotations } from '../../annotations/rendering.js';
+// Hertekenen langs de route van de weergave: in de doorlopende weergave staat
+// de overlay van de enkele-paginaweergave niet op het scherm (#616).
+import { previewCtx, redrawForViewMode } from '../preview-target.js';
 // Edit-ops contract: duplication via cloneForInsert, translation via the
 // generic applyMove field-walker — NO per-type offset code in tools.
 import { cloneForInsert } from '../edit-ops.js';
@@ -50,16 +52,17 @@ export const arrayTool = {
     doc.annotations.push(...created);
     recordBulkAdd(created);
 
-    redrawAnnotations();
+    redrawForViewMode();
     _arrayState.basePoint = null;
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
   },
 
   onPointerMove(ctx, e) {
     if (_arrayState.basePoint) {
-      redrawAnnotations();
-      const { x, y, canvas } = ctx;
-      const c = canvas.getContext('2d');
+      redrawForViewMode();
+      const { x, y } = ctx;
+      const c = previewCtx(ctx.canvasCtx);
+      if (!c) return;
       const base = _arrayState.basePoint;
       // In paginacoördinaten tekenen met dezelfde transform als de
       // annotatieweergave (viewport, doorlopend, gedraaide weergave #200);

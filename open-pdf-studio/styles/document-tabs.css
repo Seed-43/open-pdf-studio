@@ -84,6 +84,30 @@
   margin-right: 4px;
 }
 
+/* Een oudere versie van een document van de site, alleen-lezen (#712). */
+.document-tab-version {
+  font-size: 10px;
+  padding: 0 4px;
+  margin-right: 4px;
+  border: 1px solid var(--theme-tab-modified, #a0a0a0);
+  color: var(--theme-tab-text);
+  white-space: nowrap;
+}
+
+.document-tab.active .document-tab-version {
+  color: var(--theme-tab-active-text);
+}
+
+/* Hersteld na een onverwachte afsluiting (js/herstel/herstel.js). */
+.document-tab-recovered {
+  font-size: 10px;
+  padding: 0 4px;
+  margin-right: 4px;
+  border: 1px solid var(--theme-active, #0078d7);
+  color: var(--theme-active, #0078d7);
+  white-space: nowrap;
+}
+
 .document-tab-rename-input {
   flex: 1;
   font-size: 12px;

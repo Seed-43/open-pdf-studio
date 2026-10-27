@@ -1,5 +1,7 @@
 import { Portal } from 'solid-js/web';
 import useDropdown from './useDropdown.js';
+import { language } from '../../../i18n/useTranslation.js';
+import { toonGetal } from '../../../core/getal-invoer.js';
 
 export default function PrefComboBox(props) {
   const options = props.options || [100, 80, 60, 40, 20];
@@ -12,13 +14,12 @@ export default function PrefComboBox(props) {
 
   const isDisabled = () => typeof props.disabled === 'function' ? props.disabled() : !!props.disabled;
 
+  // Het veld is een getalveld (zie ui/getal-veld.js): komma en
+  // punt zijn allebei een decimaalteken en e.target.value is de canonieke
+  // tekst ("0.5"), of '' zolang er geen getal staat.
   function handleInput(e) {
     if (isDisabled()) return;
-    const cleaned = e.target.value.replace(/[^0-9.\-]/g, '');
-    if (cleaned !== e.target.value) {
-      e.target.value = cleaned;
-    }
-    let val = parseFloat(cleaned);
+    const val = parseFloat(e.target.value);
     if (!isNaN(val)) {
       const clamped = Math.max(min, Math.min(max, val));
       props.setValue(clamped);
@@ -61,6 +62,8 @@ export default function PrefComboBox(props) {
     <div class="pref-combo" classList={{ disabled: isDisabled() }} ref={setWrapperRef}>
       <input
         type="text"
+        inputmode="decimal"
+        data-getal
         class="pref-combo-input"
         value={props.value() === 'mixed' ? 'Mixed' : props.value()}
         placeholder={props.value() === 'mixed' ? 'Mixed' : undefined}
@@ -85,7 +88,7 @@ export default function PrefComboBox(props) {
               classList={{ selected: props.value() === opt }}
               onMouseDown={() => selectOption(opt)}
             >
-              {opt} {suffix}
+              {toonGetal(opt, language())} {suffix}
             </div>
           ))}
         </div>

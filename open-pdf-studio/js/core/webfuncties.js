@@ -42,6 +42,7 @@ export const BUREAUBLAD_KNOPPEN = Object.freeze({
   'menu-print': 'print',
   'menu-extensions': 'plugins',
   'export-pdfx': 'pdfx',
+  'export-protect': 'protectPdf',
   'export-cad': 'cadExport',
   'import-cad': 'cadImport',
   'prefs-mcp': 'mcp',

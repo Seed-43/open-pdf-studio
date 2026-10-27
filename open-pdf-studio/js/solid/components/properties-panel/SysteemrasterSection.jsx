@@ -86,7 +86,7 @@ export default function SysteemrasterSection() {
         <div class="property-group">
           <label>{isStrook() ? 'Strookbreedte (mm) — type'
             : heeftType() ? 'Celmaat X (mm) — type' : 'Plaatbreedte (mm)'}</label>
-          <input type="number" id="prop-sg-breedte"
+          <input type="text" inputmode="decimal" data-getal id="prop-sg-breedte"
             min={SYSTEEMRASTER_PLAAT_RANGE.min} max={SYSTEEMRASTER_PLAAT_RANGE.max} step="50"
             value={breedteVeld()} placeholder="onbevestigd"
             disabled={locked()}
@@ -97,7 +97,7 @@ export default function SysteemrasterSection() {
         <Show when={!isStrook()}>
           <div class="property-group">
             <label>{heeftType() ? 'Celmaat Y (mm) — type' : 'Plaathoogte (mm)'}</label>
-            <input type="number" id="prop-sg-hoogte"
+            <input type="text" inputmode="decimal" data-getal id="prop-sg-hoogte"
               min={SYSTEEMRASTER_PLAAT_RANGE.min} max={SYSTEEMRASTER_PLAAT_RANGE.max} step="50"
               value={hoogteVeld()} placeholder="onbevestigd"
               disabled={locked()}
@@ -128,7 +128,7 @@ export default function SysteemrasterSection() {
 
         <div class="property-group">
           <label>Rasterhoek (°)</label>
-          <input type="number" id="prop-sg-hoek"
+          <input type="text" inputmode="decimal" data-getal id="prop-sg-hoek"
             min="0" max="360" step="5"
             value={annotProps.sgRasterHoek ?? 0}
             disabled={locked()}
@@ -178,7 +178,7 @@ export default function SysteemrasterSection() {
         <Show when={(annotProps.randConditie || SYSTEEMRASTER_DEFAULTS.randConditie) === 'minmaat'}>
           <div class="property-group">
             <label>Minimale randmaat (mm)</label>
-            <input type="number" id="prop-sg-minrand"
+            <input type="text" inputmode="decimal" data-getal id="prop-sg-minrand"
               min="0" step="50"
               value={annotProps.minRandMm ?? SYSTEEMRASTER_DEFAULTS.minRandMm}
               disabled={locked()}
@@ -281,12 +281,12 @@ export default function SysteemrasterSection() {
               <label>Afmeting sparing (mm)</label>
               <div style={{ display: 'flex', gap: '6px', 'align-items': 'center' }}>
                 <span>B</span>
-                <input type="number" id="prop-sg-sparing-b" style={{ width: '70px' }}
+                <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-b" style={{ width: '70px' }}
                   min="10" step="50" value={Math.round(annotProps.sgSelectedSub.bMm || 0)}
                   disabled={locked()}
                   onChange={(e) => updateAnnotProp('sgSparingB', e.target.value)} />
                 <span>H</span>
-                <input type="number" id="prop-sg-sparing-h" style={{ width: '70px' }}
+                <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-h" style={{ width: '70px' }}
                   min="10" step="50" value={Math.round(annotProps.sgSelectedSub.hMm || 0)}
                   disabled={locked()}
                   onChange={(e) => updateAnnotProp('sgSparingH', e.target.value)} />
@@ -296,12 +296,12 @@ export default function SysteemrasterSection() {
               <label>Positie (mm, t.o.v. linksboven)</label>
               <div style={{ display: 'flex', gap: '6px', 'align-items': 'center' }}>
                 <span>X</span>
-                <input type="number" id="prop-sg-sparing-x" style={{ width: '70px' }}
+                <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-x" style={{ width: '70px' }}
                   step="50" value={Math.round(annotProps.sgSelectedSub.xMm || 0)}
                   disabled={locked()}
                   onChange={(e) => updateAnnotProp('sgSparingX', e.target.value)} />
                 <span>Y</span>
-                <input type="number" id="prop-sg-sparing-y" style={{ width: '70px' }}
+                <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-y" style={{ width: '70px' }}
                   step="50" value={Math.round(annotProps.sgSelectedSub.yMm || 0)}
                   disabled={locked()}
                   onChange={(e) => updateAnnotProp('sgSparingY', e.target.value)} />

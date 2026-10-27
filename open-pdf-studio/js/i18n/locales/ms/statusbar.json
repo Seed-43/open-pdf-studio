@@ -29,7 +29,8 @@
     "formCheckbox": "Kotak Semak Borang",
     "formRadio": "Butang Radio Borang",
     "screenshot": "Tangkap Skrin",
-    "pageLabelPick": "Pilih Teks untuk Label Halaman"
+    "pageLabelPick": "Pilih Teks untuk Label Halaman",
+    "proofread": "Pembacaan Pruf"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Anotasi:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Halaman {{page}}",
   "searchHitsOne": "1 padanan",
   "searchHitsMany": "{{count}} padanan",
-  "passwordProtectedBar": "Dilindungi dengan kata laluan: dibuka dalam mod baca sahaja."
+  "passwordProtectedBar": "Dilindungi dengan kata laluan: dibuka dalam mod baca sahaja.",
+  "documentSearch": {
+    "title": "Cari dokumen",
+    "query": "Teks carian",
+    "scope": "Cari dalam",
+    "active": "Dokumen semasa",
+    "open": "Dokumen terbuka",
+    "folder": "Folder pilihan",
+    "choose": "Pilih folder",
+    "annotations": "Sertakan komen",
+    "search": "Cari",
+    "cancel": "Batal",
+    "stale": "Dokumen telah berubah. Jalankan carian semula.",
+    "folderHint": "Mencari fail PDF terus dalam folder ini, tanpa membuka tab atau mengubah fail.",
+    "limited": "Had hasil dicapai. Perhalusi carian anda.",
+    "cancelled": "Carian dibatalkan; hasil tidak lengkap.",
+    "ocrHint": "Tiada teks boleh dicari pada halaman {{pages}}. Buka dokumen dan jalankan OCR secara eksplisit jika perlu.",
+    "status": {
+      "searching": "Mencari",
+      "complete": "Selesai",
+      "needs_ocr": "Mengandungi halaman tanpa teks boleh dicari",
+      "encrypted": "Kata laluan diperlukan",
+      "unreadable": "Tidak dapat dicari",
+      "changed": "Dokumen berubah; cari semula",
+      "cancelled": "Dibatalkan",
+      "limited": "Had hasil dicapai"
+    },
+    "failed": "Carian gagal. Semak pertanyaan dan folder, kemudian cuba lagi.",
+    "prepareOcr": "Buka untuk OCR…"
+  },
+  "symbolSearch": "Cari simbol",
+  "findMoreOptions": "Lebih banyak pilihan carian",
+  "watchActive": "Memantau {{folder}}",
+  "watchFailed": "Ralat pemantauan: {{folder}}",
+  "watchTitle": "Aliran kerja dokumen sedang memantau {{input}} dan menulis ke {{output}}. Klik untuk berhenti memantau.",
+  "renderDiagnostics": {
+    "title": "Pergi ke dapatan pemaparan seterusnya. Tiada dapatan tidak menjamin pemaparan yang lengkap.",
+    "count": "Dapatan pemaparan: {{count}}",
+    "detail": "Halaman {{page}}: {{code}}. Cuba zum yang lebih rendah atau buka semula dokumen; kelengkapan tidak dijamin."
+  }
 }

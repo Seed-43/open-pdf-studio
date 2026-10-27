@@ -12,7 +12,7 @@ const alle = (re) => [...new Set([...CONSTRUCTIEOVERZICHT_PROMPT.matchAll(re)].m
 test('de vaardigheid staat als chip in het assistentvenster', () => {
   const chip = ASSISTANT_SKILLS.find((s) => s.id === 'structural-overview');
   assert.equal(chip, CONSTRUCTIEOVERZICHT_SKILL, 'als eigen element in de lijst');
-  assert.ok(chip.label && chip.icon && chip.hint, 'een chip heeft een naam, een teken en een uitleg');
+  assert.ok(chip.icon && chip.invoke, 'een chip heeft een teken en een instructie; naam en uitleg staan in de locales (assistant-i18n.test.mjs)');
   assert.equal(chip.needsInput, true, 'de gebruiker vult bron, bouwlagen en constructieprincipe aan');
   assert.equal(new Set(ASSISTANT_SKILLS.map((s) => s.id)).size, ASSISTANT_SKILLS.length, 'geen dubbele id');
   // Naast "Zet constructie uit"; de plattegrond blijft de laatste chip.
@@ -53,7 +53,7 @@ test('de conventies van een constructieoverzicht staan erin', () => {
   for (const stuk of [
     'ONDERLIGGENDE bouwlaag als onderlegger', 'GESTIPPELD', 'zonder lateien', 'opacity:0.2', 'op één lijn',
     'alleen het hellende dak', 'Platte daken op de hoogte van een verdiepingsvloer', 'kolommetjes',
-    'koker 100x100', 'geen Rc-waarden', 'Raster-PDF', 'geen app_structural_layout',
+    'hoekkolom K100/5', 'geen Rc-waarden', 'Raster-PDF', 'geen app_structural_layout',
   ]) assert.ok(CONSTRUCTIEOVERZICHT_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
 });
 

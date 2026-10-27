@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { For, lazy } from 'solid-js';
 import { getDialogs } from '../stores/dialogStore.js';
 import DocPropertiesDialog from './DocPropertiesDialog.jsx';
 import PreferencesDialog from './preferences/PreferencesDialog.jsx';
@@ -7,9 +7,9 @@ import InsertPageDialog from './dialogs/InsertPageDialog.jsx';
 import DeletePagesDialog from './dialogs/DeletePagesDialog.jsx';
 import PagePropertiesDialog from './dialogs/PagePropertiesDialog.jsx';
 import ExtractPagesDialog from './dialogs/ExtractPagesDialog.jsx';
+import SplitDocumentDialog from './dialogs/SplitDocumentDialog.jsx';
 import MergePdfsDialog from './dialogs/MergePdfsDialog.jsx';
 import PrintDialog from './dialogs/PrintDialog.jsx';
-import PrintQueueDialog from './dialogs/PrintQueueDialog.jsx';
 import PageSetupDialog from './dialogs/PageSetupDialog.jsx';
 import WatermarkDialog from './dialogs/WatermarkDialog.jsx';
 import HeaderFooterDialog from './dialogs/HeaderFooterDialog.jsx';
@@ -26,9 +26,11 @@ import ScaleDialog from './dialogs/ScaleDialog.jsx';
 import CropMarginsDialog from './dialogs/CropMarginsDialog.jsx';
 import StraightenDialog from './dialogs/StraightenDialog.jsx';
 import ShiftPageDialog from './dialogs/ShiftPageDialog.jsx';
+import ProtectPdfDialog from './dialogs/ProtectPdfDialog.jsx';
 import OcrLanguageDialog from './dialogs/OcrLanguageDialog.jsx';
 import ResizePagesDialog from './dialogs/ResizePagesDialog.jsx';
 import CompressDialog from './dialogs/CompressDialog.jsx';
+import ScreenshotDialog from './dialogs/ScreenshotDialog.jsx';
 import FeedbackDialog from './dialogs/FeedbackDialog.jsx';
 import MessageDialog from './dialogs/MessageDialog.jsx';
 import AboutDialog from './dialogs/AboutDialog.jsx';
@@ -37,6 +39,7 @@ import ShortcutsDialog from './dialogs/ShortcutsDialog.jsx';
 import ExtensionsDialog from './dialogs/ExtensionsDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
 import PasswordDialog from './dialogs/PasswordDialog.jsx';
+import RecoveryDialog from './dialogs/RecoveryDialog.jsx';
 import HandtekeningDetailDialog from './dialogs/HandtekeningDetailDialog.jsx';
 import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
 import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
@@ -47,6 +50,7 @@ import CompareDialog from './compare/CompareDialog.jsx';
 import CadExportDialog from './dialogs/CadExportDialog.jsx';
 import CadImportDialog from './dialogs/CadImportDialog.jsx';
 import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
+import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
 import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
@@ -59,7 +63,27 @@ import SysteemtypenDialog from './dialogs/SysteemtypenDialog.jsx';
 import SysteemPaneelComponentDialog from './dialogs/SysteemPaneelComponentDialog.jsx';
 import PrintProgressToast from './PrintProgressToast.jsx';
 
+// Feature dialogs that are opened rarely: loaded on first use, with their
+// services, so they stay out of the main chunk.
+const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
+const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
+const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
+const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
+const ApprovalRoutingDialog = lazy(() => import('./dialogs/ApprovalRoutingDialog.jsx'));
+const PortfolioDialog = lazy(() => import('./dialogs/PortfolioDialog.jsx'));
+const FormRecognitionDialog = lazy(() => import('./dialogs/FormRecognitionDialog.jsx'));
+const SymbolSearchDialog = lazy(() => import('./dialogs/SymbolSearchDialog.jsx'));
+const WorkbookBindingsDialog = lazy(() => import('./dialogs/WorkbookBindingsDialog.jsx'));
+
 const DIALOG_MAP = {
+  'portfolio': PortfolioDialog,
+  'form-recognition': FormRecognitionDialog,
+  'symbol-search': SymbolSearchDialog,
+  'workbook-bindings': WorkbookBindingsDialog,
+  'document-workflows': DocumentWorkflowsDialog,
+  'drawing-sets': DrawingSetsDialog,
+  'sheet-links': SheetLinksDialog,
+  'approval-routing': ApprovalRoutingDialog,
   'doc-properties': DocPropertiesDialog,
   'preferences': PreferencesDialog,
   'new-doc': NewDocDialog,
@@ -71,9 +95,9 @@ const DIALOG_MAP = {
   'delete-pages': DeletePagesDialog,
   'page-properties': PagePropertiesDialog,
   'extract-pages': ExtractPagesDialog,
+  'split-document': SplitDocumentDialog,
   'merge-pdfs': MergePdfsDialog,
   'print': PrintDialog,
-  'print-queue': PrintQueueDialog,
   'page-setup': PageSetupDialog,
   'watermark': WatermarkDialog,
   'header-footer': HeaderFooterDialog,
@@ -90,9 +114,12 @@ const DIALOG_MAP = {
   'crop-margins': CropMarginsDialog,
   'straighten-page': StraightenDialog,
   'shift-page': ShiftPageDialog,
+  'protect-pdf': ProtectPdfDialog,
   'ocr-language': OcrLanguageDialog,
+  'ocr-review': OcrReviewDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
+  'screenshot': ScreenshotDialog,
   'feedback': FeedbackDialog,
   'message': MessageDialog,
   'about': AboutDialog,
@@ -110,7 +137,9 @@ const DIALOG_MAP = {
   'cad-export': CadExportDialog,
   'cad-import': CadImportDialog,
   'annotation-layer-delete': AnnotationLayerDeleteDialog,
+  'flatten-all': FlattenAllDialog,
   'pdf-password': PasswordDialog,
+  'recovery': RecoveryDialog,
 };
 
 export default function DialogHost() {

@@ -57,7 +57,7 @@ export default function BetonbalkSection() {
 
         <div class="property-group">
           <label>Breedte (mm)</label>
-          <input type="number" id="prop-bb-breedte"
+          <input type="text" inputmode="decimal" data-getal id="prop-bb-breedte"
             min={BETONBALK_BREEDTE_RANGE.min} max={BETONBALK_BREEDTE_RANGE.max} step="10"
             value={breedte()}
             disabled={locked()}
@@ -67,7 +67,7 @@ export default function BetonbalkSection() {
 
         <div class="property-group">
           <label>Hoogte (mm)</label>
-          <input type="number" id="prop-bb-hoogte"
+          <input type="text" inputmode="decimal" data-getal id="prop-bb-hoogte"
             min={BETONBALK_HOOGTE_RANGE.min} max={BETONBALK_HOOGTE_RANGE.max} step="10"
             value={hoogte()}
             disabled={locked()}

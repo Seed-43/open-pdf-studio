@@ -61,16 +61,45 @@ function toBytes(content) {
  * @returns {Uint8Array}
  */
 export function zipStore(entries, modDate) {
+  return buildZip(entries.map((entry) => {
+    const data = toBytes(entry.data);
+    return { name: entry.name, method: 0, crc: crc32(data), size: data.length, payload: data };
+  }), modDate);
+}
+
+async function deflateRaw(bytes) {
+  const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+/**
+ * Build a ZIP archive with DEFLATE entries (STORE where deflating does not
+ * make an entry smaller), via the platform-native CompressionStream.
+ * @param {Array<{name: string, data: (Uint8Array|ArrayBuffer|string)}>} entries
+ * @param {Date} [modDate]
+ * @returns {Promise<Uint8Array>}
+ */
+export async function zipDeflate(entries, modDate) {
+  const prepared = [];
+  for (const entry of entries) {
+    const data = toBytes(entry.data);
+    const packed = await deflateRaw(data);
+    const deflated = packed.length < data.length;
+    prepared.push({ name: entry.name, method: deflated ? 8 : 0, crc: crc32(data), size: data.length, payload: deflated ? packed : data });
+  }
+  return buildZip(prepared, modDate);
+}
+
+function buildZip(prepared, modDate) {
   const { time, date } = dosDateTime(modDate);
   const localParts = [];
   const central = [];
   let offset = 0;
 
-  for (const entry of entries) {
+  for (const entry of prepared) {
     const nameBytes = textEncoder.encode(entry.name);
-    const data = toBytes(entry.data);
-    const crc = crc32(data);
-    const size = data.length;
+    const data = entry.payload;
+    const { crc, size, method } = entry;
 
     // Local file header (30 bytes + name).
     const lh = new Uint8Array(30 + nameBytes.length);
@@ -78,11 +107,11 @@ export function zipStore(entries, modDate) {
     lv.setUint32(0, 0x04034b50, true);
     lv.setUint16(4, 20, true);        // version needed
     lv.setUint16(6, 0x0800, true);    // flags: UTF-8 filename
-    lv.setUint16(8, 0, true);         // method: store
+    lv.setUint16(8, method, true);    // method: 0 store, 8 deflate
     lv.setUint16(10, time, true);
     lv.setUint16(12, date, true);
     lv.setUint32(14, crc, true);
-    lv.setUint32(18, size, true);     // compressed size
+    lv.setUint32(18, data.length, true); // compressed size
     lv.setUint32(22, size, true);     // uncompressed size
     lv.setUint16(26, nameBytes.length, true);
     lv.setUint16(28, 0, true);        // extra length
@@ -97,11 +126,11 @@ export function zipStore(entries, modDate) {
     cv.setUint16(4, 20, true);        // version made by
     cv.setUint16(6, 20, true);        // version needed
     cv.setUint16(8, 0x0800, true);    // flags
-    cv.setUint16(10, 0, true);        // method
+    cv.setUint16(10, method, true);   // method
     cv.setUint16(12, time, true);
     cv.setUint16(14, date, true);
     cv.setUint32(16, crc, true);
-    cv.setUint32(20, size, true);
+    cv.setUint32(20, data.length, true);
     cv.setUint32(24, size, true);
     cv.setUint16(28, nameBytes.length, true);
     cv.setUint16(30, 0, true);        // extra length
@@ -124,8 +153,8 @@ export function zipStore(entries, modDate) {
   ev.setUint32(0, 0x06054b50, true);
   ev.setUint16(4, 0, true);
   ev.setUint16(6, 0, true);
-  ev.setUint16(8, entries.length, true);
-  ev.setUint16(10, entries.length, true);
+  ev.setUint16(8, prepared.length, true);
+  ev.setUint16(10, prepared.length, true);
   ev.setUint32(12, centralSize, true);
   ev.setUint32(16, centralOffset, true);
   ev.setUint16(20, 0, true);

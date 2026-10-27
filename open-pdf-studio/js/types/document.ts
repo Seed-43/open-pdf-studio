@@ -19,7 +19,8 @@ export interface OcrWord {
   top: number;
   width: number;
   height: number;
-  confidence: number;
+  confidence: number | null;
+  review?: { status: 'accepted' | 'corrected'; originalText: string };
 }
 
 export interface Watermark {
@@ -86,6 +87,12 @@ export interface DocumentState {
   /** OCR word results keyed by 1-based page number, written into an invisible
    *  searchable text layer on save (see js/pdf/ocr.js, saver/ocr-text-layer.js). */
   ocrResults: Record<number, OcrWord[]>;
+  /** Reviews stored in the file without the full word list (shown read-only). */
+  ocrReviewArchive?: Record<number, OcrWord[]>;
+  /** Pages whose own OCR layer an earlier save of this session wrote. */
+  ocrLayerPages?: number[];
+  /** Fingerprint of the OCR results the last save wrote (saver/ocr-text-layer.js). */
+  ocrLayerSignature?: string;
   bookmarks: Bookmark[];
   /** Paginalabels (bladnamen, #580), index 0 = pagina 1; null = gewone paginanummers. */
   pageLabels?: string[] | null;

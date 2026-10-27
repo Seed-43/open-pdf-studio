@@ -17,6 +17,9 @@ import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 const reorderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="4"/><rect x="3" y="10" width="6" height="4"/><rect x="3" y="17" width="6" height="4"/><path d="M14 5l4 4-4 4M14 13l4 4-4 4M18 9H10M18 17H10" stroke-linecap="round"/></svg>`;
 const compressIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>`;
 
+// Eén blad dat in twee delen uiteenvalt (Document splitsen, #381).
+const splitDocumentIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 3h7v7H4z"/><path d="M13 14h7v7h-7z"/><path d="M11 6.5h3.5a2 2 0 012 2V12" stroke-linecap="round"/><path d="M14.5 10l2 2 2-2" stroke-linecap="round"/></svg>`;
+
 const scanTextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8.5 9.5h7M12 9.5v6"/></svg>`;
 
 export default function OrganizeTab() {
@@ -98,6 +101,8 @@ export default function OrganizeTab() {
             onClick={() => { const doc = getActiveDocument(); openDialog('delete-pages', { totalPages: doc?.pdfDoc?.numPages, currentPage: doc?.currentPage || 1 }); }} />
           <RibbonButton id="extract-pages" title={t('organize.extractPages')} icon={extractPagesIcon} label={t('organize.extractLabel')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => showExtractPagesDialog()} />
+          <RibbonButton id="split-document" title={t('organize.splitDocument')} icon={splitDocumentIcon} label={t('organize.splitLabel')}
+            disabled={noPdf()} onClick={() => openDialog('split-document', {})} />
           <RibbonButton id="reorder-pages"
             title={t('organize.reorderPagesTitle') || 'Open thumbnails to drag pages into a new order'}
             icon={reorderIcon}

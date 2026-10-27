@@ -29,7 +29,8 @@
     "formCheckbox": "Formular-Kontrollkästchen",
     "formRadio": "Formular-Optionsschaltfläche",
     "screenshot": "Bildschirmfoto",
-    "pageLabelPick": "Text für Seitenbeschriftung wählen"
+    "pageLabelPick": "Text für Seitenbeschriftung wählen",
+    "proofread": "Korrektur"
   },
   "toolLabel": "Werkzeug:",
   "annotationsLabel": "Anmerkungen:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Seite {{page}}",
   "searchHitsOne": "1 Treffer",
   "searchHitsMany": "{{count}} Treffer",
-  "passwordProtectedBar": "Mit Kennwort geschützt: schreibgeschützt geöffnet."
+  "passwordProtectedBar": "Mit Kennwort geschützt: schreibgeschützt geöffnet.",
+  "documentSearch": {
+    "title": "Dokumente durchsuchen",
+    "query": "Suchtext",
+    "scope": "Suchen in",
+    "active": "Aktuelles Dokument",
+    "open": "Geöffnete Dokumente",
+    "folder": "Ordner",
+    "choose": "Ordner auswählen",
+    "annotations": "Kommentare einbeziehen",
+    "search": "Suchen",
+    "cancel": "Abbrechen",
+    "stale": "Das Dokument wurde geändert. Führen Sie die Suche erneut aus.",
+    "folderHint": "Durchsucht PDF-Dateien direkt in diesem Ordner, ohne Tabs zu öffnen oder Dateien zu ändern.",
+    "limited": "Ergebnisgrenze erreicht. Verfeinern Sie Ihre Suche.",
+    "cancelled": "Suche abgebrochen; die Ergebnisse sind unvollständig.",
+    "ocrHint": "Kein durchsuchbarer Text auf den Seiten {{pages}}. Öffnen Sie das Dokument und führen Sie bei Bedarf ausdrücklich OCR aus.",
+    "status": {
+      "searching": "Suche läuft",
+      "complete": "Abgeschlossen",
+      "needs_ocr": "Enthält Seiten ohne durchsuchbaren Text",
+      "encrypted": "Kennwort erforderlich",
+      "unreadable": "Suche nicht möglich",
+      "changed": "Dokument geändert; erneut suchen",
+      "cancelled": "Abgebrochen",
+      "limited": "Ergebnisgrenze erreicht"
+    },
+    "failed": "Suche fehlgeschlagen. Prüfen Sie Suchbegriff und Ordner und versuchen Sie es erneut.",
+    "prepareOcr": "Für OCR öffnen…"
+  },
+  "symbolSearch": "Symbole suchen",
+  "findMoreOptions": "Weitere Suchoptionen",
+  "watchActive": "Überwache {{folder}}",
+  "watchFailed": "Überwachungsfehler: {{folder}}",
+  "watchTitle": "Der Dokument-Workflow überwacht {{input}} und schreibt nach {{output}}. Klicken, um die Überwachung zu beenden.",
+  "renderDiagnostics": {
+    "title": "Zum nächsten Darstellungshinweis wechseln. Keine Hinweise garantieren keine vollständige Darstellung.",
+    "count": "Darstellungshinweise: {{count}}",
+    "detail": "Seite {{page}}: {{code}}. Versuchen Sie einen kleineren Zoom oder öffnen Sie das Dokument erneut; die Vollständigkeit ist nicht garantiert."
+  }
 }

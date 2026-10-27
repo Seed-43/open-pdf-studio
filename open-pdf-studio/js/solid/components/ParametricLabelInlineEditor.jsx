@@ -122,7 +122,9 @@ export default function ParametricLabelInlineEditor() {
             <span>{field.label}</span>
             <input
               ref={(element) => { if (index() === 0) firstInputRef = element; }}
-              type={field.type === 'number' ? 'number' : 'text'}
+              type="text"
+              inputmode={field.type === 'number' ? 'decimal' : undefined}
+              data-getal={field.type === 'number' ? '' : undefined}
               min={field.min}
               max={field.max}
               step={field.step}

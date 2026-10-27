@@ -63,6 +63,8 @@
     "strokeColor": "رنگ خط",
     "color": "رنگ",
     "opacity": "شفافیت",
+    "fillOpacity": "شفافیت پر کردن",
+    "strokeOpacity": "شفافیت خط",
     "lineWidth": "عرض خط",
     "borderWidth": "عرض حاشیه",
     "borderStyle": "سبک حاشیه",
@@ -247,6 +249,9 @@
     "linkImageTitle": "پیوند تصویر",
     "imageFilter": "تصاویر"
   },
+  "sizeUnit": {
+    "tooltip": "واحد اندازه‌ها"
+  },
   "multiSelect": "{{count}} حاشیه‌نویسی انتخاب شده",
   "pdfText": "متن PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "وارد کردن نظرات...",
     "exportComments": "صادر کردن نظرات به فایل داده...",
     "exportSelectedComments": "صادر کردن نظرات انتخاب‌شده به فایل داده...",
+    "exportListCsv": "صدور فهرست به CSV...",
+    "summarizeComingSoon": "به‌زودی",
+    "listExported": "فهرست نظرها به CSV صادر شد",
+    "csvPage": "صفحه",
+    "csvType": "نوع",
+    "csvAuthor": "نویسنده",
+    "csvDate": "تاریخ",
+    "csvStatus": "وضعیت",
+    "csvSubject": "موضوع",
+    "csvContents": "محتوا",
+    "csvColor": "رنگ",
+    "csvLayer": "لایه",
     "schedules": "جدول‌های مقادیر",
     "addPage": "افزودن صفحه",
-    "pageLabels": "برچسب‌های صفحه (سازنده نام)"
+    "pageLabels": "برچسب‌های صفحه (سازنده نام)",
+    "portfolio": "پرتفولیوی PDF",
+    "recognizeForm": "شناسایی فیلدهای فرم"
   },
   "scaleBar": {
     "title": "نوار مقیاس",
@@ -403,7 +422,8 @@
       "image": "تصاویر و مهرها"
     },
     "preview": "پیش‌نمایش",
-    "exportCsv": "صدور CSV"
+    "exportCsv": "صدور CSV",
+    "workbookBindings": "اتصال‌های صفحه‌گسترده"
   },
   "wizard": {
     "title": "راهنمای جدول",
@@ -585,7 +605,9 @@
       "symbolId": "نماد",
       "imageName": "نام فایل",
       "width": "عرض",
-      "height": "ارتفاع"
+      "height": "ارتفاع",
+      "location": "مکان",
+      "locationSource": "منبع مکان"
     },
     "type": {
       "line": "خط",
@@ -631,6 +653,8 @@
     "sectionTitle": "نماد: {{name}}",
     "symbolLabel": "نماد",
     "typeLabel": "نوع",
+    "profileType": "نوع پروفیل",
+    "profileTypeTitle": "پروفیل فولادی",
     "unknownSymbol": "نماد ناشناخته",
     "listNew": "جدید",
     "listAdd": "افزودن",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "این شیء در جای دیگری تغییر کرده است. فرم مقادیر فعلی را نشان می‌دهد؛ تغییرات شما اعمال نشد.",
     "failed": "اعمال تغییرات ممکن نشد: {{error}}"
+  },
+  "location": {
+    "title": "مکان",
+    "none": "تخصیص‌نیافته",
+    "manual": "دستی",
+    "computed": "محاسبه‌شده",
+    "override": "بازنویسی دستی (خالی بودن، مکان را پاک می‌کند)",
+    "automatic": "استفاده از مکان خودکار",
+    "zoneName": "استفاده از این شکل به‌عنوان یک ناحیه نام‌دار",
+    "parent": "ناحیه والد",
+    "removeZone": "حذف تعریف ناحیه",
+    "invalid": "مکان به‌روزرسانی نشد",
+    "rules": "تخصیص از مرکز کادر محصورکننده نشانه‌گذاری، با احتساب لبه‌ها، استفاده می‌کند. عمیق‌ترین ناحیه برنده است، سپس کوچک‌ترین مساحت، سپس شناسه ناحیه. از چندضلعی‌های راست‌خط بدون حفره یا کادرهای بدون چرخش استفاده کنید. هویت‌های ناحیه نامعتبر یا تکراری کنار گذاشته می‌شوند.",
+    "loading": "حاشیه‌نویسی‌ها در حال بارگذاری‌اند: مکان‌ها ممکن است هنوز تغییر کنند."
   }
 }

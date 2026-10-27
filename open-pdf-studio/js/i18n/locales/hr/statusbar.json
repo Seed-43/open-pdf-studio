@@ -29,7 +29,8 @@
     "formCheckbox": "Potvrdni okvir obrasca",
     "formRadio": "Radio gumb obrasca",
     "screenshot": "Snimka zaslona",
-    "pageLabelPick": "Odabir teksta za oznaku stranice"
+    "pageLabelPick": "Odabir teksta za oznaku stranice",
+    "proofread": "Korektura"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Oznake:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Stranica {{page}}",
   "searchHitsOne": "1 podudaranje",
   "searchHitsMany": "Podudaranja: {{count}}",
-  "passwordProtectedBar": "Zaštićeno lozinkom: otvoreno samo za čitanje."
+  "passwordProtectedBar": "Zaštićeno lozinkom: otvoreno samo za čitanje.",
+  "documentSearch": {
+    "title": "Pretraži dokumente",
+    "query": "Tekst za pretraživanje",
+    "scope": "Pretraži u",
+    "active": "Trenutačni dokument",
+    "open": "Otvoreni dokumenti",
+    "folder": "Mapa",
+    "choose": "Odaberi mapu",
+    "annotations": "Uključi komentare",
+    "search": "Pretraži",
+    "cancel": "Odustani",
+    "stale": "Dokument je promijenjen. Ponovno pokrenite pretraživanje.",
+    "folderHint": "Pretražuje PDF datoteke izravno u ovoj mapi, bez otvaranja kartica ili mijenjanja datoteka.",
+    "limited": "Dosegnuto je ograničenje rezultata. Suzite pretraživanje.",
+    "cancelled": "Pretraživanje je prekinuto; rezultati su nepotpuni.",
+    "ocrHint": "Nema teksta za pretraživanje na stranicama {{pages}}. Po potrebi otvorite dokument i izričito pokrenite OCR.",
+    "status": {
+      "searching": "Pretraživanje",
+      "complete": "Dovršeno",
+      "needs_ocr": "Sadrži stranice bez teksta za pretraživanje",
+      "encrypted": "Potrebna je lozinka",
+      "unreadable": "Pretraživanje nije moguće",
+      "changed": "Dokument je promijenjen; pretražite ponovno",
+      "cancelled": "Prekinuto",
+      "limited": "Dosegnuto je ograničenje rezultata"
+    },
+    "failed": "Pretraživanje nije uspjelo. Provjerite upit i mapu pa pokušajte ponovno.",
+    "prepareOcr": "Otvori za OCR…"
+  },
+  "symbolSearch": "Pronađi simbole",
+  "findMoreOptions": "Više mogućnosti pretraživanja",
+  "watchActive": "Praćenje: {{folder}}",
+  "watchFailed": "Pogreška praćenja: {{folder}}",
+  "watchTitle": "Tijek rada dokumenta prati {{input}} i zapisuje u {{output}}. Kliknite za zaustavljanje praćenja.",
+  "renderDiagnostics": {
+    "title": "Idi na sljedeći nalaz iscrtavanja. Bez nalaza ne jamči potpuno iscrtavanje.",
+    "count": "Nalazi iscrtavanja: {{count}}",
+    "detail": "Stranica {{page}}: {{code}}. Pokušajte manje uvećanje ili ponovno otvorite dokument; potpunost nije zajamčena."
+  }
 }

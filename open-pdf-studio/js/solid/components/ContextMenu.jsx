@@ -1,4 +1,4 @@
-import { createEffect, onMount, onCleanup, Show, Switch, Match, For } from 'solid-js';
+import { createEffect, createMemo, onMount, onCleanup, Show, Switch, Match, For } from 'solid-js';
 import { showConfirm } from '../../ui/chrome/confirm-dialog.js';
 import {
   visible, menuType, position, targetAnnotation, multiSelectCount, targetPage, hideMenu, vertexContext
@@ -23,6 +23,7 @@ import { selecteerRuimteVanTag } from '../../plattegrond/ruimte-selectie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
+import { verwijderVeelhoekHoekpunt, voegVeelhoekHoekpuntIn, VEELHOEK_MIN_PUNTEN } from '../../annotations/veelhoek-punten.js';
 import { commitAnnotationMutation, deleteAnnotationsWithUndo } from '../../annotations/mutations.js';
 import { expandCorrectionGroups } from '../../annotations/corrections/model.js';
 import { recordModify, recordBulkModify } from '../../core/undo-manager.js';
@@ -53,6 +54,9 @@ import { layersVersion, moveAnnotationsToAnnotationLayer } from '../stores/annot
 import { layerRows, layerOf } from '../../annotations/annotatie-lagen.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import i18next from '../../i18n/config.js';
+import { tree as bookmarkTree, selectedIds as bookmarkSelectedIds, toolbarDisabled as bookmarkToolbarDisabled } from '../stores/panels/bookmarksStore.js';
+import { inspringDoel, kanUitspringen } from '../../ui/panels/bladwijzer-boom.js';
+import { BLADWIJZER_KLEUREN, kleurLabelSleutel, stijlVanSelectie } from '../../ui/panels/bladwijzer-stijl.js';
 import { gevelPreset } from '../../gevelelement/herkenning.js';
 import { paneelTypenVoor, typeNaam } from '../../gevelelement/catalogus.js';
 import { indeling, veldBij, voegStijlToe, verwijderStijl, wisselPaneel } from '../../gevelelement/indeling.js';
@@ -194,6 +198,37 @@ function AnnotationMenuContent() {
     if (!v || !a || a.id !== v.annotationId) return null;
     // Wand-context draagt alleen het klikpunt (zie wandEind hieronder).
     if (v.kind === 'wand') return null;
+    // Veelhoek (#622): rechtsklik op een hoekpunt haalt het weg (er blijven
+    // er minstens drie), op een zijde komt er een hoekpunt bij, op de plek
+    // van de klik.
+    if (v.kind === 'veelhoekHoek' || v.kind === 'veelhoekZijde') {
+      const pasToe = (nieuw) => {
+        if (nieuw) {
+          const before = cloneAnnotation(a);
+          Object.assign(a, nieuw);
+          a.modifiedAt = new Date().toISOString();
+          recordModify(a.id, before, cloneAnnotation(a));
+          redraw();
+          showProperties(a);
+        }
+        hideMenu();
+      };
+      return (
+        <>
+          <Show when={v.kind === 'veelhoekHoek'}>
+            <MenuItem icon={deleteIcon} label={t('contextMenu.deleteVertex') || 'Delete vertex'}
+              disabled={isLocked() || !((a.points?.length || 0) > VEELHOEK_MIN_PUNTEN)}
+              onClick={() => pasToe(verwijderVeelhoekHoekpunt(a, v.nodeIndex))} />
+          </Show>
+          <Show when={v.kind === 'veelhoekZijde'}>
+            <MenuItem label={t('contextMenu.insertVertex') || 'Insert vertex here'}
+              disabled={isLocked()}
+              onClick={() => pasToe(voegVeelhoekHoekpuntIn(a, v.edgeIndex, v.punt))} />
+          </Show>
+          <Separator />
+        </>
+      );
+    }
     // Systeem-paneel (rechtsklik op een cel van een systeemraster/-plafond):
     // paneeltype direct wisselen — het ASSORTIMENT komt als data van het
     // systeemtype (typeDef.paneelTypen) — of het paneel vervangen door een
@@ -1009,23 +1044,88 @@ function PageMenuContent() {
   );
 }
 
+// Een gekleurd vierkantje als menu-icoon; zonder kleur (Standaard) een leeg vak.
+function kleurIcoon(hex) {
+  return hex
+    ? `<svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" fill="${hex}" stroke="#808080"/></svg>`
+    : '<svg viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" fill="none" stroke="#808080"/></svg>';
+}
+
+// Eigen kleur (#689): de kleurkiezer van het systeem. Synchroon in de klik
+// openen, anders staat de webview hem niet toe.
+function kiesEigenBladwijzerKleur(huidig) {
+  const invoer = document.createElement('input');
+  invoer.type = 'color';
+  invoer.value = huidig || '#000000';
+  invoer.style.cssText = 'position:fixed;left:-100px;top:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(invoer);
+  const opruimen = () => invoer.remove();
+  invoer.addEventListener('change', () => {
+    const waarde = invoer.value;
+    opruimen();
+    import('../../ui/panels/bookmarks.js').then(m => m.setBookmarkStyle({ color: waarde }));
+  }, { once: true });
+  invoer.addEventListener('blur', () => setTimeout(opruimen, 0), { once: true });
+  invoer.click();
+}
+
 function BookmarkMenuContent() {
   const { t } = useTranslation('context');
+  // Kleur, stijl en verplaatsen werken op de hele selectie (#689, #690); uit
+  // zonder selectie of in PDF/A. Bewerken en subbladwijzer: precies één.
+  const uit = () => bookmarkToolbarDisabled();
+  const stijlUit = () => uit().style;
+  const lijst = () => { bookmarkTree(); return getActiveDocument()?.bookmarks || []; };
+  const aantal = () => bookmarkSelectedIds().length;
+  // Vinkjes uit het model; de boom verandert na elke stijlwijziging mee.
+  const stijl = () => stijlVanSelectie(lijst(), bookmarkSelectedIds());
+  const zet = (wijziging) => import('../../ui/panels/bookmarks.js').then(m => m.setBookmarkStyle(wijziging));
 
   return (
     <>
       <MenuItem label={t('bookmark.addBookmark')} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.addBookmark());
       }} />
-      <MenuItem label={t('bookmark.addChildBookmark')} onClick={() => {
+      <MenuItem label={t('bookmark.addChildBookmark')} disabled={uit().addChild} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.addChildBookmark());
       }} />
       <Separator />
-      <MenuItem label={t('bookmark.editBookmark')} onClick={() => {
+      <MenuItem label={t('bookmark.editBookmark')} disabled={uit().edit} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.editBookmark());
       }} />
-      <MenuItem label={t('bookmark.deleteBookmark')} onClick={() => {
-        import('../../ui/panels/bookmarks.js').then(m => m.deleteBookmark());
+      <MenuItem label={aantal() > 1 ? t('bookmark.deleteBookmarks', { count: aantal() }) : t('bookmark.deleteBookmark')}
+        disabled={uit().delete} onClick={() => {
+          import('../../ui/panels/bookmarks.js').then(m => m.deleteBookmark());
+        }} />
+      <Separator />
+      <MenuItem label={t('bookmark.nestUnderNew')} disabled={stijlUit()} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.nestBookmarksUnderNew());
+      }} />
+      <MenuItem label={t('bookmark.indent')} disabled={stijlUit() || inspringDoel(lijst(), bookmarkSelectedIds()) == null} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.indentBookmarks());
+      }} />
+      <MenuItem label={t('bookmark.outdent')} disabled={stijlUit() || !kanUitspringen(lijst(), bookmarkSelectedIds())} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.outdentBookmarks());
+      }} />
+      <Separator />
+      <Submenu icon={kleurIcoon(stijl().color || null)} label={t('bookmark.color')} disabled={stijlUit()}>
+        <MenuItem icon={kleurIcoon(null)} label={t('bookmark.colorDefault')} checkbox={true}
+          checked={stijl().color === null} disabled={stijlUit()} onClick={() => zet({ color: null })} />
+        <For each={BLADWIJZER_KLEUREN}>
+          {(k) => (
+            <MenuItem icon={kleurIcoon(k.hex)} label={t(kleurLabelSleutel(k.sleutel))} checkbox={true}
+              checked={stijl().color === k.hex} disabled={stijlUit()} onClick={() => zet({ color: k.hex })} />
+          )}
+        </For>
+        <Separator />
+        <MenuItem label={t('bookmark.colorCustom')} disabled={stijlUit()}
+          onClick={() => kiesEigenBladwijzerKleur(stijl().color)} />
+      </Submenu>
+      <MenuItem label={t('bookmark.bold')} checkbox={true} checked={stijl().bold} disabled={stijlUit()} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.toggleBookmarkBold());
+      }} />
+      <MenuItem label={t('bookmark.italic')} checkbox={true} checked={stijl().italic} disabled={stijlUit()} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.toggleBookmarkItalic());
       }} />
       <Separator />
       <MenuItem label={t('bookmark.expandAll')} onClick={() => {
@@ -1235,6 +1335,10 @@ function TextSelectionMenuContent() {
 
 export default function ContextMenu() {
   let menuRef;
+  // De inhoud pas opbouwen als het menu voor het eerst opengaat, en daarna
+  // laten staan. Het verborgen menu (standaard het annotatiemenu) kostte bij
+  // de start zo'n vijfde van het opbouwen van het hele venster (#707).
+  const inhoudOpgebouwd = createMemo((eerder) => eerder || visible(), false);
 
   // Position the menu when it becomes visible
   createEffect(() => {
@@ -1294,26 +1398,28 @@ export default function ContextMenu() {
       classList={{ visible: visible() }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <Switch>
-        <Match when={menuType() === 'annotation'}>
-          <AnnotationMenuContent />
-        </Match>
-        <Match when={menuType() === 'annotationMulti'}>
-          <MultiAnnotationMenuContent />
-        </Match>
-        <Match when={menuType() === 'page'}>
-          <PageMenuContent />
-        </Match>
-        <Match when={menuType() === 'textSelection'}>
-          <TextSelectionMenuContent />
-        </Match>
-        <Match when={menuType() === 'bookmark'}>
-          <BookmarkMenuContent />
-        </Match>
-        <Match when={menuType() === 'thumbnail'}>
-          <ThumbnailMenuContent />
-        </Match>
-      </Switch>
+      <Show when={inhoudOpgebouwd()}>
+        <Switch>
+          <Match when={menuType() === 'annotation'}>
+            <AnnotationMenuContent />
+          </Match>
+          <Match when={menuType() === 'annotationMulti'}>
+            <MultiAnnotationMenuContent />
+          </Match>
+          <Match when={menuType() === 'page'}>
+            <PageMenuContent />
+          </Match>
+          <Match when={menuType() === 'textSelection'}>
+            <TextSelectionMenuContent />
+          </Match>
+          <Match when={menuType() === 'bookmark'}>
+            <BookmarkMenuContent />
+          </Match>
+          <Match when={menuType() === 'thumbnail'}>
+            <ThumbnailMenuContent />
+          </Match>
+        </Switch>
+      </Show>
     </div>
   );
 }

@@ -350,7 +350,7 @@
 
 .form-validation-text {
   font-size: 12px;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--ui-font);
   color: #333;
   line-height: 1.5;
   padding-top: 6px;
@@ -366,7 +366,7 @@
   border: 1px solid #d4d4d4;
   background: #ffffff;
   cursor: pointer;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--ui-font);
 }
 
 .form-validation-ok-btn:hover {

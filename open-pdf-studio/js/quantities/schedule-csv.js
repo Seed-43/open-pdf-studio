@@ -4,9 +4,15 @@
 import { formatCell, fmtTotal, isImageCell } from './schedule-templates.js';
 import { qLabel } from './categories.js';
 
+// A number, optionally negative and with a unit ("-1.50 m"), is data.
+const NUMBER = /^-?\d+(?:[.,]\d+)*(?: [\p{L}\p{N}²³/%.·]+)?$/u;
+
+// Like bindingCsv: a cell that a spreadsheet application would evaluate as a
+// formula (=, +, -, @, tab, carriage return first) gets a leading quote.
 function csvCell(s) {
   s = String(s ?? '');
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  if (/^[=+\-@\t\r]/.test(s) && !NUMBER.test(s)) s = `'${s}`;
+  return /^'|[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 // Cel-tekst voor CSV: beeld-data-URL's worden vervangen door een placeholder

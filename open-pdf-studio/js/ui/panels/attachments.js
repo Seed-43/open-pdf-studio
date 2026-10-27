@@ -2,6 +2,8 @@ import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { isTauri, writeBinaryFile, readBinaryFile } from '../../core/platform.js';
+import { slaOverInHeadless } from '../../core/headless.js';
+import { biedDownloadAan, biedBijlageAan } from '../../core/extern-openen.js';
 import { markDocumentModified } from '../chrome/tabs.js';
 import { wijzigingenVan, vrijeNaam, metToegevoegd, metVerwijderd, zichtbareBijlagen } from '../../pdf/bijlagen.js';
 import {
@@ -91,20 +93,14 @@ async function saveAttachmentToDisk(filename, content) {
       console.error('Failed to save attachment:', e);
     }
   } else {
-    const blob = new Blob([content]);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    biedDownloadAan(filename, content);
   }
 }
 
 // Open attachment in default application
 async function openAttachmentExternal(filename, content) {
+  // Headless (testinstantie): geen ander programma naar voren halen.
+  if (slaOverInHeadless(`open attachment ${filename}`)) return;
   if (isTauri() && window.__TAURI__?.fs && window.__TAURI__?.path && window.__TAURI__?.shell) {
     try {
       const tempDir = await window.__TAURI__.path.tempDir();
@@ -116,17 +112,8 @@ async function openAttachmentExternal(filename, content) {
       saveAttachmentToDisk(filename, content);
     }
   } else {
-    const ext = filename.split('.').pop().toLowerCase();
-    const mimeTypes = {
-      pdf: 'application/pdf', txt: 'text/plain', html: 'text/html', htm: 'text/html',
-      png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
-      svg: 'image/svg+xml', json: 'application/json', xml: 'application/xml',
-    };
-    const mime = mimeTypes[ext] || 'application/octet-stream';
-    const blob = new Blob([content], { type: mime });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    // Webversie: een tabblad; als gast een download met een melding (#695).
+    await biedBijlageAan(filename, content);
   }
 }
 

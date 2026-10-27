@@ -87,7 +87,7 @@ export default function InsertPageDialog() {
         <div class="insert-page-row">
           <label class="insert-page-label">{t('insertPage.count')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="insert-page-input"
             value={count()}
             min="1"

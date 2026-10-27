@@ -15,6 +15,8 @@
 // de §12.5.5-mapping A tot een identiteit maakt.
 
 /** Standaard wapeningsstaaf-diameters (mm). */
+import { leesGetal } from '../core/getal-invoer.js';
+
 export const STAVENREEKS_DIAMETERS = [6, 8, 10, 12, 16, 20, 25, 32, 40];
 
 /**
@@ -40,9 +42,9 @@ export function sanitizeCountInput(value, fallback = STAVENREEKS_DEFAULTS.count)
     ? Math.max(STAVENREEKS_COUNT_RANGE.min, Math.min(STAVENREEKS_COUNT_RANGE.max, back))
     : STAVENREEKS_DEFAULTS.count;
   if (value === null || value === undefined) return safeBack;
-  const raw = String(value).trim().replace(',', '.');
+  const raw = String(value).trim();
   if (raw === '') return safeBack;
-  const n = Number(raw);
+  const n = leesGetal(raw);
   if (!Number.isFinite(n)) return safeBack;
   return clamp(Math.round(n), STAVENREEKS_COUNT_RANGE.min, STAVENREEKS_COUNT_RANGE.max);
 }
@@ -66,9 +68,9 @@ export function sanitizeDiameterInput(value, fallback = STAVENREEKS_DEFAULTS.dia
   const safeBack = Number.isFinite(backNum) && backNum > 0
     ? nearest(backNum) : STAVENREEKS_DEFAULTS.diameter;
   if (value === null || value === undefined) return safeBack;
-  const raw = String(value).trim().replace(',', '.');
+  const raw = String(value).trim();
   if (raw === '') return safeBack;
-  const n = Number(raw);
+  const n = leesGetal(raw);
   if (!Number.isFinite(n) || !(n > 0)) return safeBack;
   return nearest(n);
 }
@@ -89,9 +91,9 @@ export function sanitizeFontSizeInput(value, fallback = STAVENREEKS_DEFAULTS.fon
   const safeBack = Number.isFinite(back)
     ? clamp(back, R.min, R.max) : STAVENREEKS_DEFAULTS.fontSize;
   if (value === null || value === undefined) return safeBack;
-  const raw = String(value).trim().replace(',', '.');
+  const raw = String(value).trim();
   if (raw === '') return safeBack;
-  const n = Number(raw);
+  const n = leesGetal(raw);
   if (!Number.isFinite(n) || !(n > 0)) return safeBack;
   return clamp(Math.round(n), R.min, R.max);
 }

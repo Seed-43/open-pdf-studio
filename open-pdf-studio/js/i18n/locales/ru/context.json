@@ -93,7 +93,22 @@
     "editBookmark": "Редактировать закладку",
     "deleteBookmark": "Удалить закладку",
     "expandAll": "Развернуть все",
-    "collapseAll": "Свернуть все"
+    "collapseAll": "Свернуть все",
+    "color": "Цвет",
+    "colorDefault": "По умолчанию",
+    "colorRed": "Красный",
+    "colorOrange": "Оранжевый",
+    "colorGreen": "Зеленый",
+    "colorBlue": "Синий",
+    "colorPurple": "Фиолетовый",
+    "colorGray": "Серый",
+    "colorCustom": "Другое...",
+    "bold": "Полужирный",
+    "italic": "Курсив",
+    "nestUnderNew": "Вложить в новую закладку...",
+    "indent": "Увеличить отступ",
+    "outdent": "Уменьшить отступ",
+    "deleteBookmarks": "Удалить закладки: {{count}}"
   },
   "thumbnail": {
     "rotateLeft": "Повернуть влево",

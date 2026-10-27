@@ -93,7 +93,22 @@
     "editBookmark": "Редагувати закладку",
     "deleteBookmark": "Видалити закладку",
     "expandAll": "Розгорнути все",
-    "collapseAll": "Згорнути все"
+    "collapseAll": "Згорнути все",
+    "color": "Колір",
+    "colorDefault": "За замовчуванням",
+    "colorRed": "Червоний",
+    "colorOrange": "Помаранчевий",
+    "colorGreen": "Зелений",
+    "colorBlue": "Синій",
+    "colorPurple": "Пурпурний",
+    "colorGray": "Сірий",
+    "colorCustom": "Користувацький...",
+    "bold": "Жирний",
+    "italic": "Курсив",
+    "nestUnderNew": "Вкласти в нову закладку...",
+    "indent": "Збільшити відступ",
+    "outdent": "Зменшити відступ",
+    "deleteBookmarks": "Видалити закладки: {{count}}"
   },
   "thumbnail": {
     "rotateLeft": "Повернути ліворуч",

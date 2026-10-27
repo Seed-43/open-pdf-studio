@@ -274,6 +274,14 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // (opt-in; off by default because a global hotkey is intrusive).
   interceptPrintScreen: false,
 
+  // Home → Screenshot: the last choices in the capture dialog (resolution
+  // 'screen' = what the view shows, or a dpi; copy or save on Enter).
+  screenshotResolution: 'screen',
+  screenshotCustomDpi: 300,
+  screenshotFormat: 'png',
+  screenshotJpegQuality: 90,
+  screenshotDefaultAction: 'copy',
+
   // AI-koppeling (MCP): standaard aan, zodat een AI-assistent meteen kan
   // koppelen. De koppeling luistert alleen op deze computer (127.0.0.1) en is
   // uit te zetten in Instellingen → Algemeen. Wie de koppeling eerder uitzette,
@@ -301,6 +309,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   zoomDpi: 110,
   // Page text sharpening 0-4 (0 = as rendered).
   pageSharpen: 2,
+  // Unit for paper sizes in the properties panel (image width/height, scale
+  // bar height): 'mm' | 'cm' | 'in' | 'pt' (#598). Display only — the model
+  // stays in page points.
+  paperSizeUnit: 'pt',
 
   // Panels
   propertiesPanelVisible: true,

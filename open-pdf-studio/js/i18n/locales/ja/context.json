@@ -93,7 +93,22 @@
     "editBookmark": "ブックマークを編集",
     "deleteBookmark": "ブックマークを削除",
     "expandAll": "すべて展開",
-    "collapseAll": "すべて折りたたみ"
+    "collapseAll": "すべて折りたたみ",
+    "color": "色",
+    "colorDefault": "デフォルト",
+    "colorRed": "赤",
+    "colorOrange": "オレンジ",
+    "colorGreen": "緑",
+    "colorBlue": "青",
+    "colorPurple": "紫",
+    "colorGray": "灰色",
+    "colorCustom": "カスタム...",
+    "bold": "太字",
+    "italic": "斜体",
+    "nestUnderNew": "新しいしおりの下に入れる...",
+    "indent": "インデント",
+    "outdent": "インデント解除",
+    "deleteBookmarks": "{{count}} 件のしおりを削除"
   },
   "thumbnail": {
     "rotateLeft": "左に回転",

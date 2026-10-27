@@ -9,13 +9,15 @@ import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../so
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
-import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { hatchUitExtra, vormHatchUitExtra } from '../saver/hatch-meta.js';
+import { tellingUitExtra } from '../saver/telling.js';
 import { wandJoinUitExtra } from '../saver/wand-join-meta.js';
 import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { vlakSchaalUitMeasure } from '../../annotations/vlak-zijden.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
+import { migreerProfielParams } from '../../symbols/koker-notatie.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
 import { linksUitJson } from '../../annotations/systeem-instance-links.js';
 import { systeemTypeFromJson, ifcPredefinedNaLaden } from '../../annotations/systeem-typen.js';
@@ -34,10 +36,13 @@ import {
   maatlijnUitBestand, lijnBreedteUitBestand, pijlKopVullingUitBestand, meetlijnKoppenUitBestand,
 } from './maatlijn-uit-bestand.js';
 import { eigenTekststempel, tekststempelKleur } from './stempel-tekst.js';
-import { koppenUitBestand } from '../lijnkoppen.js';
+import { koppenUitBestand, calloutKoppenUitBestand } from '../lijnkoppen.js';
 import { kiesTekstvakTekst, runsZonderInspringing } from './tekstvak-tekst.js';
 import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/rendering/textbox-layout.js';
 import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
+import { algemeneEigenschappen } from './annotatie-algemeen.js';
+import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
+import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -49,9 +54,40 @@ import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
   const omgezet = zonderDubbeleOpmerking(
     await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
+  // Naam, onderwerp, alternatieve tekst en IFC-categorie voor elke soort
+  // (#619, zie annotatie-algemeen.js); na zonderDubbeleOpmerking, want een
+  // tekstvak houdt zijn onderwerp in /Subj.
+  if (omgezet && typeof omgezet === 'object' && !omgezet.__textboxLeader) {
+    Object.assign(omgezet, algemeneEigenschappen(extraVoorAnnotatie(annotColorMap, annot), omgezet));
+  }
   // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
   // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
   return zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
+}
+
+/**
+ * Middelpunt, straal en hoeken van een boog uit de eigen sleutels (#619).
+ * Die staan in de app-ruimte van de ongedraaide pagina (y omlaag vanaf de
+ * bovenkant van de CropBox); het middelpunt gaat via de PDF-ruimte naar de
+ * weergave. De beginhoek komt van het eerste punt van /Vertices, zodat ook een
+ * gedraaide pagina klopt; de zwaai blijft die uit het bestand. Zonder draaiing
+ * blijven de hoeken precies zoals ze opgeslagen zijn.
+ * @returns {null|{centerX,centerY,radius,startAngle,endAngle}}
+ */
+function boogUitBestand(e, punten, convertPoint, viewport) {
+  const velden = [e.opsCenterX, e.opsCenterY, e.opsRadius, e.opsStartAngle, e.opsEndAngle];
+  if (!velden.every(Number.isFinite) || !(e.opsRadius > 0) || !punten?.length) return null;
+  const vb = viewport.viewBox || [0, 0, 0, 0];
+  const [centerX, centerY] = convertPoint(vb[0] + e.opsCenterX, vb[3] - e.opsCenterY);
+  const radius = e.opsRadius * (viewport.scale || 1);
+  const volle = 2 * Math.PI;
+  const zwaai = (e.opsEndAngle < e.opsStartAngle ? e.opsEndAngle + volle : e.opsEndAngle) - e.opsStartAngle;
+  const hoek0 = Math.atan2(punten[0].y - centerY, punten[0].x - centerX);
+  const verschil = ((((hoek0 - e.opsStartAngle) % volle) + volle + Math.PI) % volle) - Math.PI;
+  if (Math.abs(verschil) < 1e-3) {
+    return { centerX, centerY, radius, startAngle: e.opsStartAngle, endAngle: e.opsEndAngle };
+  }
+  return { centerX, centerY, radius, startAngle: hoek0, endAngle: hoek0 + zwaai };
 }
 
 // Convert PDF annotation to our format
@@ -131,6 +167,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
     // gezet als de PDF hem echt apart opgeeft; anders volgt de vulling gewoon
     // `opacity`. Zie extractApAlphas() in color-extraction.js.
     ...(extraColors.fillOpacity !== undefined ? { fillOpacity: extraColors.fillOpacity } : {}),
+    // Mengmodus (/BM in de appearance, #614) — voor elke soort.
+    ...(extraColors.blendMode ? { blendMode: extraColors.blendMode } : {}),
     locked: !!(annot.annotationFlags & 128),      // Bit 8: Locked
     printable: !!(annot.annotationFlags & 4),       // Bit 3: Print
     readOnly: !!(annot.annotationFlags & 64),       // Bit 7: ReadOnly
@@ -209,6 +247,27 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       const squareImageData = squareImgEntry?.dataUrl ?? null;
       if (squareImageData) {
         const imageRect = convertRect(rect);
+        // Vak en draaiing uit de appearance, zoals bij een stempel
+        // (stempel-geometrie.js): die tekent de afbeelding vaak gedraaid,
+        // rechtop op een gedraaid blad.
+        const sqGeometrie = stempelGeometrie({
+          rect, paginaRotatie: viewport.rotation || 0, ap: extraColors.stempelAp, soort: 'beeld',
+        });
+        const sqWeergave = kiesStempelWeergave({ geometrie: sqGeometrie, paginaRotatie: viewport.rotation || 0, rect });
+        let sqRotatie = 0;
+        let sqRuimte = squareImgEntry.space;
+        if (sqWeergave) {
+          if (sqWeergave.vak === 'ap') {
+            const schaal = viewport.scale || 1;
+            const [mx, my] = convertPoint(sqGeometrie.midden.x, sqGeometrie.midden.y);
+            imageRect.width = sqGeometrie.breedte * schaal;
+            imageRect.height = sqGeometrie.hoogte * schaal;
+            imageRect.x = mx - imageRect.width / 2;
+            imageRect.y = my - imageRect.height / 2;
+          }
+          sqRotatie = sqWeergave.rotation;
+          sqRuimte = 'visual';
+        }
         const imageId = generateImageId();
         const img = new Image();
         img.src = squareImageData;
@@ -218,7 +277,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           type: 'image',
           // In welke ruimte de pixels staan ('pdf' of 'visual') — bepaalt of
           // de saver pagina-/Rotate-compensatie in de appearance schrijft.
-          apImageSpace: squareImgEntry.space,
+          apImageSpace: sqRuimte,
+          ...(sqRotatie ? { rotation: sqRotatie } : {}),
           x: imageRect.x,
           y: imageRect.y,
           width: imageRect.width,
@@ -239,6 +299,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         const symbolId = extraColors.opsSymbolId || '';
         let params = {};
         try { if (extraColors.opsParams) params = JSON.parse(extraColors.opsParams); } catch (_) {}
+        // Oude kokermaat ("Koker 100x100x5") → huidige naam ("K100/5").
+        params = migreerProfielParams(symbolId, params);
         const symbol = createAnnotation({
           ...baseProps,
           type: 'parametricSymbol',
@@ -292,7 +354,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       // mark (rendered as a red hatched overlay; overlayColor is the black-out
       // colour used when the redaction is applied).
       if (extraColors.opsSubtype === 'redaction') {
-        const rdRect = convertRect(annot.rect);
+        // Gedraaid (#619): /Rect is de omhullende, de maat staat in de appearance.
+        const rdRect = extraColors.rotation ? echteVormMaat(convertRect(annot.rect)) : convertRect(annot.rect);
         return createAnnotation({
           ...baseProps,
           type: 'redaction',
@@ -300,6 +363,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           y: rdRect.y,
           width: rdRect.width,
           height: rdRect.height,
+          ...(extraColors.rotation ? { rotation: Math.round(extraColors.rotation) } : {}),
           overlayColor: extraColors.ic || '#000000',
         });
       }
@@ -340,8 +404,15 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           tekeningtypeId: extraColors.opsTekeningtype || undefined,
           label: extraColors.opsLabel || annot.contentsObj?.str || '',
           color: colorArrayToHex(annot.color, '#ff9800'),
+          // Vulling (#611): eigen kleur uit /IC, eigen doorzichtigheid alleen
+          // uit OPS_FillOpacity. De alfa in de appearance is afgeleid; zonder
+          // sleutel blijft het oude uiterlijk (10 % van de doorzichtigheid).
+          fillColor: extraColors.ic || undefined,
+          fillOpacity: extraColors.opsFillOpacity,
           lineWidth: extraColors.opsLineWidth || 1.5,
-          opacity: annot.opacity ?? 1,
+          // /CA via baseProps (pdf.js geeft hier geen annot.opacity; dat
+          // maakte elke doorzichtigheid na heropenen weer 100 %).
+          opacity: baseProps.opacity ?? 1,
           borderStyle: 'dashed',
         });
       }
@@ -420,6 +491,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         borderStyle: mapBorderStyle(annot, extraColors)
       };
       if (sqRotation) sqProps.rotation = sqRotation;
+      // Arcering (#621): eigen sleutels of een bekend /PatternName.
+      Object.assign(sqProps, vormHatchUitExtra(extraColors));
       if (extraColors.cross && sqProps.type === 'box') sqProps.cross = true;
       // Vorm zonder rand (#431): strokeColor 'none' met de lijndikte-instelling.
       Object.assign(sqProps, randloosUitExtra(extraColors));
@@ -429,6 +502,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
     }
 
     case 'Circle': {
+      // Telmarkering van de app (#621, saver/telling.js).
+      const telling = tellingUitExtra(extraColors, convertRect(annot.rect));
+      if (telling) {
+        const kleur = colorArrayToHex(annot.color, '#e11d48');
+        return createAnnotation({ ...baseProps, ...telling, color: kleur, strokeColor: kleur });
+      }
       const crRect = convertRect(annot.rect);
       let crX = crRect.x, crY = crRect.y, crW = crRect.width, crH = crRect.height;
       let crRotation = 0;
@@ -463,6 +542,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         borderStyle: mapBorderStyle(annot, extraColors)
       };
       if (crRotation) crProps.rotation = crRotation;
+      Object.assign(crProps, vormHatchUitExtra(extraColors)); // arcering (#621)
       if (extraColors.cross) crProps.cross = true;
       Object.assign(crProps, randloosUitExtra(extraColors)); // zonder rand (#431)
       // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
@@ -729,6 +809,23 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 1,
             borderStyle: mapBorderStyle(annot, extraColors),
           });
+        }
+
+        // Boog (#619): de saver schrijft /Vertices als benadering en de echte
+        // boog in eigen sleutels. Zonder deze tak kwam hij terug als polylijn.
+        if (extraColors.opsSubtype === 'arc') {
+          const boog = boogUitBestand(extraColors, plPoints, convertPoint, viewport);
+          if (boog) {
+            return createAnnotation({
+              ...baseProps,
+              type: 'arc',
+              ...boog,
+              color: colorArrayToHex(annot.color, '#000000'),
+              strokeColor: colorArrayToHex(annot.color, '#000000'),
+              lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 1,
+              borderStyle: mapBorderStyle(annot, extraColors),
+            });
+          }
         }
 
         return createAnnotation({
@@ -1013,6 +1110,18 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
                        : extraColors.borderCloudy ? 'cloud'
                        : 'polygon';
 
+        // Gedraaide veelhoek of wolk (#619): /Vertices zijn de gedraaide
+        // hoekpunten en /OPS_Rotation de hoek. Het model houdt de ongedraaide
+        // vorm met de hoek ernaast, zoals het scherm hem tekent (zie
+        // saver/vorm-draaiing.js). Een vrije wolk draait de app niet.
+        const polyRotatie = polyType !== 'cloudPolyline' && extraColors.rotation ? extraColors.rotation : 0;
+        if (polyRotatie) {
+          const terug = ontdraaiVorm(polyPoints, polyRotatie);
+          polyPoints.splice(0, polyPoints.length, ...terug);
+          minX = Math.min(...terug.map((p) => p.x)); maxX = Math.max(...terug.map((p) => p.x));
+          minY = Math.min(...terug.map((p) => p.y)); maxY = Math.max(...terug.map((p) => p.y));
+        }
+
         const polyProps = {
           ...baseProps,
           type: polyType,
@@ -1030,9 +1139,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           fillColor: extraColors.ic || null,
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
           borderStyle: mapBorderStyle(annot, extraColors),
-          ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
+          ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {}),
+          ...(polyRotatie ? { rotation: polyRotatie } : {}),
         };
         Object.assign(polyProps, randloosUitExtra(extraColors)); // zonder rand (#431)
+        // Arcering (#621); een vrije wolk biedt het paneel niet aan.
+        if (polyType !== 'cloudPolyline') Object.assign(polyProps, vormHatchUitExtra(extraColors));
 
         // Rechthoekige wolk: het vak terug, de punten weg (#434). Een wolk
         // tekent en raakt op zijn vak, dus punten die niets meer zeggen dan
@@ -1080,7 +1192,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         color: colorArrayToHex(annot.color, '#FFFF00'),
         fillColor: colorArrayToHex(annot.color, '#FFFF00'),
         icon: iconName,
-        popupOpen: annot.open || false
+        popupOpen: annot.open || false,
+        // Draaiing van het pictogram: eigen sleutel /OPS_Rotation (#619).
+        ...(extraColors.rotation ? { rotation: extraColors.rotation } : {}),
       });
     }
 
@@ -1133,8 +1247,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (extraColors.fontItalic) fontItalic = true;
       // Use DS font-size as fallback if DA didn't provide one
       if (!fontSizeFromPdf && extraColors.dsFontSize) fontSize = extraColors.dsFontSize;
-      let fontUnderline = extraColors.fontUnderline || false;
-      let fontStrikethrough = extraColors.fontStrikethrough || false;
+      // Onderstreept/doorgehaald: /RC beschrijft de tekst zelf en wint, /DS
+      // geldt voor het hele vak (#619).
+      let fontUnderline = extraColors.fontUnderline ?? extraColors.dsUnderline ?? false;
+      let fontStrikethrough = extraColors.fontStrikethrough ?? extraColors.dsStrikethrough ?? false;
+      // Uitlijning uit /Q (#619); zonder /Q links, de standaard van de app.
+      const textAlign = { 1: 'center', 2: 'right' }[extraColors.q];
 
       // /Contents draagt de getypte tekst (met witregels, zonder de
       // afbrekingen van de appearance); de appearance-regels zijn de
@@ -1286,6 +1404,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           lineSpacing: coPas.lineSpacing || undefined,
           fontUnderline: fontUnderline,
           fontStrikethrough: fontStrikethrough,
+          ...(textAlign ? { textAlign } : {}),
           arrowX: clArrowVx,
           arrowY: clArrowVy,
           kneeX: clKneeVx,
@@ -1294,6 +1413,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           armOriginY: clArmVy,
           // Ronde aanhaallijn: restore curved leader when the private key is set.
           ...(extraColors.opsLeaderStyle === 'curved' ? { leaderStyle: 'curved' } : {}),
+          // Koppen (#612): /LE (de punt) en /OPS_LineHeads (beide), kopgrootte.
+          ...calloutKoppenUitBestand(extraColors.calloutLE, extraColors.opsLineHeads, { eigenBestand: !!extraColors.opsRotationKey }),
+          ...(extraColors.opsHeadSize > 0 ? { headSize: extraColors.opsHeadSize } : {}),
           ...(extraColors.borderCloudy ? {
             borderEffect: 'cloudy',
             ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
@@ -1350,6 +1472,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         lineSpacing: ftPas.lineSpacing || undefined,
         fontUnderline: fontUnderline,
         fontStrikethrough: fontStrikethrough,
+        ...(textAlign ? { textAlign } : {}),
         ...(typemachine ? { noWrap: true } : {}),
         ...(extraColors.borderCloudy ? {
           borderEffect: 'cloudy',
@@ -1429,10 +1552,10 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
 
       // Image stamp - extracted from PDF structure via pdf-lib
       const stRect = convertRect(annot.rect);
-      const x = stRect.x;
-      const y = stRect.y;
-      const w = stRect.width;
-      const h = stRect.height;
+      let x = stRect.x;
+      let y = stRect.y;
+      let w = stRect.width;
+      let h = stRect.height;
 
       const gevondenBeeld = findImageEntryForAnnotation(stampImageMap, annot, 'stamp');
       // Een tekststempel van de app: de uitsnede van de weergave is geen bron.
@@ -1442,21 +1565,57 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       });
       const stampImgEntry = eigenTekst ? null : gevondenBeeld;
       const dataUrl = stampImgEntry?.dataUrl ?? null;
+      // Pixelruimte van de bitmap; zie de saver en stempel-geometrie.js.
+      let stImageSpace = stampImgEntry?.space;
+
+      // Vak en draaiing (stempel-geometrie.js): stempelGeometrie leest hoe
+      // elke lezer de stempel tekent, kiesStempelWeergave wat de app daarvan
+      // toont (zoals getekend, behalve een oude /OPS_Rotation en oude
+      // schermafdrukken op een gedraaid blad). Een
+      // uitsnede van de weergave (source 'render') ligt al zoals op het
+      // scherm en vult de /Rect; alleen een oude /OPS_Rotation draait hem nog.
+      const opsRotatie = Number.isFinite(extraColors.rotation) ? extraColors.rotation : undefined;
+      let stWeergave = null;
+      let stGeometrie = null;
+      if (stampImgEntry?.source !== 'render' && (eigenTekst || stampImgEntry)) {
+        stGeometrie = stempelGeometrie({
+          rect: annot.rect,
+          paginaRotatie: viewport.rotation || 0,
+          ap: extraColors.stempelAp,
+          soort: eigenTekst ? 'tekst' : 'beeld',
+          crop: eigenTekst ? null : {
+            left: extraColors.cropLeft, top: extraColors.cropTop,
+            right: extraColors.cropRight, bottom: extraColors.cropBottom,
+          },
+        });
+        stWeergave = kiesStempelWeergave({
+          geometrie: stGeometrie, paginaRotatie: viewport.rotation || 0,
+          opsRotation: opsRotatie, matrixHoek: extraColors.matrixAngle, rect: annot.rect,
+        });
+      }
 
       let stRotation = 0;
-      if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
-        stRotation = Math.round(extraColors.rotation);
-      } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
-        // Zelfde conventie als het FreeText-pad hierboven: de /Matrix-hoek is
-        // een hoek in PDF-ruimte, en de pagina-/Rotate draait het hele blad
-        // mee. Zichtbaar is dus het verschil van die twee. Zonder deze
-        // verrekening stond een stempel met matrix +90 op een /Rotate-90-blad
-        // (extern rechtop) hier een kwartslag gedraaid.
-        const stPageRot = (((viewport.rotation || 0) % 360) + 360) % 360;
-        stRotation = -(Math.round(extraColors.matrixAngle) - stPageRot);
-        while (stRotation > 180) stRotation -= 360;
-        while (stRotation < -180) stRotation += 360;
-        if (Math.abs(stRotation) <= 1) stRotation = 0;
+      if (stampImgEntry?.source === 'render') {
+        stRotation = opsRotatie ? Math.round(opsRotatie) : 0;
+      } else if (stWeergave) {
+        if (stWeergave.vak === 'ap') {
+          const schaal = viewport.scale || 1;
+          const [mx, my] = convertPoint(stGeometrie.midden.x, stGeometrie.midden.y);
+          w = stGeometrie.breedte * schaal;
+          h = stGeometrie.hoogte * schaal;
+          x = mx - w / 2;
+          y = my - h / 2;
+        }
+        stRotation = stWeergave.rotation;
+        // De pixels liggen rechtop in dit vak: 'visual'. De saver schrijft
+        // ze zo terug dat elke lezer ze toont zoals de app.
+        if (stampImgEntry) stImageSpace = 'visual';
+      } else {
+        // Geen eenduidig vak in de appearance: zoals altijd (een oude
+        // /OPS_Rotation, anders /Matrix verrekend met de pagina-/Rotate).
+        stRotation = oudeStempelDraaiing({
+          opsRotation: opsRotatie, matrixHoek: extraColors.matrixAngle, paginaRotatie: viewport.rotation || 0,
+        });
       }
 
       // Reverse-map PDF standard names back to app stamp names
@@ -1486,7 +1645,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         rotation: stRotation,
         // Pixelruimte van de geëxtraheerde bitmap ('pdf' of 'visual') — de
         // saver kiest daarop of hij pagina-/Rotate-compensatie schrijft.
-        apImageSpace: stampImgEntry?.space
+        apImageSpace: stImageSpace
       };
 
       // IFC-classificatie van symboolstempels (NEN 1414 e.d.). Voorkeur:

@@ -52,8 +52,8 @@ const KEYWORD_RULES = [
   [/\btrap|stairs|traptrede/, 'IfcStair'],
   // Ruimte (IfcSpace)
   [/\bruimte\b|ifc-?space|\bspace\b/, 'IfcSpace'],
-  // Constructie — stalen profielen
-  [/\bhea\b|\bheb\b|\bipe\b|\bunp\b|\bkoker\b|staalprofiel|staal-/, 'IfcMember'],
+  // Constructie — stalen profielen (koker ook kort geschreven: K100/5)
+  [/\bhea\b|\bheb\b|\bipe\b|\bunp\b|\bkoker\b|\bk\d{2,3}\/\d|staalprofiel|staal-/, 'IfcMember'],
   // Constructie — houten balk / ligger
   [/houten balk|hout-?balk|\bligger\b|\bbalk\b/, 'IfcBeam'],
   // Constructie — palen / fundering

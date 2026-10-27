@@ -21,9 +21,41 @@ import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
 import { getEffectiveScale } from './effective-scale.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { vulDekkingUitVoorkeur } from '../annotations/vul-dekking.js';
 import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
 import { documentHeeftSchaal } from '../annotations/schaal-op-punt.js';
+import { veelhoekUitPunten, regelmatigeVeelhoekPunten } from '../annotations/veelhoek-punten.js';
+
+/**
+ * Opmaak van een nieuwe veelhoek uit de voorkeuren (rand, vulling,
+ * lijndikte, lijnstijl, dekking): dezelfde voor een sleep en voor een
+ * veelhoek die hoek voor hoek getekend is (#622).
+ */
+export function veelhoekOpmaak(prefs = state.preferences || {}) {
+  return {
+    ...randkleurenUitVoorkeur(prefs, 'polygon', 'polygon', getColorPickerValue()),
+    fillColor: prefs.polygonFillNone ? null : (prefs.polygonFillColor || null),
+    lineWidth: prefs.polygonLineWidth || getLineWidthValue(),
+    borderStyle: prefs.polygonBorderStyle || 'solid',
+    opacity: (prefs.polygonOpacity || 100) / 100,
+    ...vulDekkingUitVoorkeur(prefs, 'polygon'),
+  };
+}
+
+/**
+ * De velden van een veelhoek met deze hoekpunten, zoals de veelhoek-tool hem
+ * na het laatste hoekpunt aanmaakt (#622). Nog zonder createAnnotation().
+ */
+export function buildPolygonFromPoints(points, page = getActiveDocument()?.currentPage || 1) {
+  return {
+    type: 'polygon',
+    page,
+    ...veelhoekUitPunten(points),
+    ...veelhoekOpmaak(),
+    ...(state.toolOverrides || {}),
+  };
+}
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -62,11 +94,12 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
   switch (tool) {
     case 'draw':
       if (state.currentPath.length > 1) {
-        // Ribbon values take precedence so the live color/width pickers in the
-        // Comment tab actually drive the freehand stroke. prefs.* serves as the
-        // fallback default applied at startup to seed the ribbon signals.
-        const _drawColor = getColorPickerValue() || prefs.drawStrokeColor || '#000000';
-        const _drawWidth = getLineWidthValue() || prefs.drawLineWidth || 2;
+        // De eigen voorkeur van het gereedschap gaat voor, net als bij elk
+        // ander gereedschap: kleur en dikte in het lint schrijven die voorkeur
+        // zolang de vrije hand actief is (#668). De lintwaarde is alleen nog
+        // de terugval.
+        const _drawColor = prefs.drawStrokeColor || getColorPickerValue() || '#000000';
+        const _drawWidth = prefs.drawLineWidth || getLineWidthValue() || 2;
         return {
           type: 'draw',
           page: getActiveDocument()?.currentPage || 1,
@@ -200,6 +233,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         lineWidth: prefs.circleBorderWidth,
         borderStyle: prefs.circleBorderStyle,
         opacity: prefs.circleOpacity / 100,
+        ...vulDekkingUitVoorkeur(prefs, 'circle'),
         ...o
       };
     }
@@ -218,6 +252,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         lineWidth: prefs.circleBorderWidth,
         borderStyle: prefs.circleBorderStyle,
         opacity: (prefs.circleOpacity / 100) * 0.5,
+        ...vulDekkingUitVoorkeur(prefs, 'circle', 0.5),
         ...o
       };
     }
@@ -233,6 +268,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         lineWidth: prefs.rectBorderWidth,
         borderStyle: prefs.rectBorderStyle,
         opacity: prefs.rectOpacity / 100,
+        ...vulDekkingUitVoorkeur(prefs, 'rect'),
         ...o
       };
     }
@@ -257,16 +293,18 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
     }
 
     case 'polygon':
+      // Een sleep met de veelhoek-tool: de regelmatige zeshoek in het
+      // gesleepte vak, met zijn hoekpunten in het model zodat ze daarna net
+      // zo verschuifbaar zijn als die van een hoek voor hoek getekende
+      // veelhoek (#622). Het vak is de omhullende van die hoekpunten, zoals
+      // de lader het na heropenen ook maakt. Genormaliseerd: naar links/boven
+      // slepen gaf een negatieve maat.
       return {
         type: 'polygon',
         page: getActiveDocument()?.currentPage || 1,
-        // Genormaliseerd: naar links/boven slepen gaf een negatieve maat, en
-        // daar kunnen raaktest, ruimtelijke index en opslaan niet mee overweg.
-        ...bbox(startX, startY, endX, endY),
-        sides: 6,
-        ...randkleurenUitVoorkeur(prefs, 'polygon', 'polygon', getColorPickerValue()),
-        lineWidth: prefs.polygonLineWidth || getLineWidthValue(),
-        opacity: (prefs.polygonOpacity || 100) / 100
+        ...veelhoekUitPunten(regelmatigeVeelhoekPunten(bbox(startX, startY, endX, endY), 6)),
+        ...veelhoekOpmaak(),
+        ...o
       };
 
     case 'lshape': {
@@ -309,7 +347,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         ...b,
         ...randkleurenUitVoorkeur(prefs, 'cloud', 'cloud', getColorPickerValue()),
         lineWidth: prefs.cloudLineWidth || getLineWidthValue(),
-        opacity: (prefs.cloudOpacity || 100) / 100
+        opacity: (prefs.cloudOpacity || 100) / 100,
+        ...vulDekkingUitVoorkeur(prefs, 'cloud'),
       };
     }
 

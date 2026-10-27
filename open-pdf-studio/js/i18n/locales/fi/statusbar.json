@@ -29,7 +29,8 @@
     "formCheckbox": "Lomakkeen valintaruutu",
     "formRadio": "Lomakkeen valintapainike",
     "screenshot": "Kuvakaappaus",
-    "pageLabelPick": "Valitse teksti sivun nimiöön"
+    "pageLabelPick": "Valitse teksti sivun nimiöön",
+    "proofread": "Oikoluku"
   },
   "toolLabel": "Työkalu:",
   "annotationsLabel": "Merkinnät:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Sivu {{page}}",
   "searchHitsOne": "1 osuma",
   "searchHitsMany": "{{count}} osumaa",
-  "passwordProtectedBar": "Suojattu salasanalla: avattu vain luku -tilassa."
+  "passwordProtectedBar": "Suojattu salasanalla: avattu vain luku -tilassa.",
+  "documentSearch": {
+    "title": "Hae asiakirjoista",
+    "query": "Hakuteksti",
+    "scope": "Hae kohteesta",
+    "active": "Nykyinen asiakirja",
+    "open": "Avoimet asiakirjat",
+    "folder": "Kansio",
+    "choose": "Valitse kansio",
+    "annotations": "Sisällytä kommentit",
+    "search": "Hae",
+    "cancel": "Peruuta",
+    "stale": "Asiakirja on muuttunut. Suorita haku uudelleen.",
+    "folderHint": "Hakee tämän kansion PDF-tiedostoista suoraan avaamatta välilehtiä tai muuttamatta tiedostoja.",
+    "limited": "Tulosraja saavutettu. Tarkenna hakua.",
+    "cancelled": "Haku peruutettu; tulokset ovat puutteellisia.",
+    "ocrHint": "Ei haettavaa tekstiä sivuilla {{pages}}. Avaa asiakirja ja suorita OCR tarvittaessa erikseen.",
+    "status": {
+      "searching": "Haetaan",
+      "complete": "Valmis",
+      "needs_ocr": "Sisältää sivuja ilman haettavaa tekstiä",
+      "encrypted": "Salasana vaaditaan",
+      "unreadable": "Hakua ei voitu suorittaa",
+      "changed": "Asiakirja muuttunut; hae uudelleen",
+      "cancelled": "Peruutettu",
+      "limited": "Tulosraja saavutettu"
+    },
+    "failed": "Haku epäonnistui. Tarkista hakulauseke ja kansio ja yritä uudelleen.",
+    "prepareOcr": "Avaa OCR:ää varten…"
+  },
+  "symbolSearch": "Etsi symboleja",
+  "findMoreOptions": "Lisää hakuasetuksia",
+  "watchActive": "Valvotaan: {{folder}}",
+  "watchFailed": "Valvontavirhe: {{folder}}",
+  "watchTitle": "Asiakirjatyönkulku valvoo kohdetta {{input}} ja kirjoittaa kohteeseen {{output}}. Lopeta valvonta napsauttamalla.",
+  "renderDiagnostics": {
+    "title": "Siirry seuraavaan piirtohavaintoon. Havaintojen puuttuminen ei takaa täydellistä piirtoa.",
+    "count": "Piirtohavainnot: {{count}}",
+    "detail": "Sivu {{page}}: {{code}}. Kokeile pienempää zoomausta tai avaa asiakirja uudelleen; täydellisyyttä ei taata."
+  }
 }

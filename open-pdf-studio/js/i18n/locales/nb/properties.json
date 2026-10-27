@@ -63,6 +63,8 @@
     "strokeColor": "Strekfarge",
     "color": "Farge",
     "opacity": "Ugjennomsiktighet",
+    "fillOpacity": "Ugjennomsiktighet for fyll",
+    "strokeOpacity": "Ugjennomsiktighet for strek",
     "lineWidth": "Linjebredde",
     "borderWidth": "Kantlinjebredde",
     "borderStyle": "Kantlinjestil",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Koble bilde",
     "imageFilter": "Bilder"
   },
+  "sizeUnit": {
+    "tooltip": "Enhet for mål"
+  },
   "multiSelect": "{{count}} merknader valgt",
   "pdfText": "PDF-tekst",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importer kommentarer...",
     "exportComments": "Eksporter kommentarer til datafil...",
     "exportSelectedComments": "Eksporter valgte kommentarer til datafil...",
+    "exportListCsv": "Eksporter listen til CSV...",
+    "summarizeComingSoon": "Kommer snart",
+    "listExported": "Kommentarlisten er eksportert til CSV",
+    "csvPage": "Side",
+    "csvType": "Type",
+    "csvAuthor": "Forfatter",
+    "csvDate": "Dato",
+    "csvStatus": "Status",
+    "csvSubject": "Emne",
+    "csvContents": "Innhold",
+    "csvColor": "Farge",
+    "csvLayer": "Lag",
     "schedules": "Lister",
     "addPage": "Legg til side",
-    "pageLabels": "Sideetiketter (navnebygger)"
+    "pageLabels": "Sideetiketter (navnebygger)",
+    "portfolio": "PDF-portefølje",
+    "recognizeForm": "Gjenkjenn skjemafelt"
   },
   "scaleBar": {
     "title": "Målestokklinjal",
@@ -403,7 +422,8 @@
       "image": "Bilder og stempler"
     },
     "preview": "Forhåndsvisning",
-    "exportCsv": "Eksporter CSV"
+    "exportCsv": "Eksporter CSV",
+    "workbookBindings": "Regnearkkoblinger"
   },
   "wizard": {
     "title": "Listeveiviser",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Filnavn",
       "width": "Bredde",
-      "height": "Høyde"
+      "height": "Høyde",
+      "location": "Plassering",
+      "locationSource": "Kilde for plassering"
     },
     "type": {
       "line": "Linje",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
+    "profileType": "Profiltype",
+    "profileTypeTitle": "Stålprofil",
     "unknownSymbol": "Ukjent symbol",
     "listNew": "Ny",
     "listAdd": "Legg til",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Dette objektet er endret et annet sted. Skjemaet viser gjeldende verdier; endringene dine ble ikke tatt i bruk.",
     "failed": "Kunne ikke ta i bruk endringene: {{error}}"
+  },
+  "location": {
+    "title": "Plassering",
+    "none": "Ikke tildelt",
+    "manual": "Manuell",
+    "computed": "Beregnet",
+    "override": "Manuell overstyring (tom fjerner plasseringen)",
+    "automatic": "Bruk automatisk plassering",
+    "zoneName": "Bruk denne figuren som en navngitt sone",
+    "parent": "Overordnet sone",
+    "removeZone": "Fjern sonedefinisjon",
+    "invalid": "Plasseringen kunne ikke oppdateres",
+    "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
+    "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
   }
 }

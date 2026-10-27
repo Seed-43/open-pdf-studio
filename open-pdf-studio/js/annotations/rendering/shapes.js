@@ -228,7 +228,7 @@ export function computeTextboxContentHeight(annotation) {
 // /AP appearance stream whose line breaks + vertical placement match what OPDS
 // draws on screen — so other viewers show the same thing (no overflow).
 // Returns { lines:[{text,width}], fontSize, lineHeight, padding,
-//           ascent, descent, halfLeading, maxWidth }.
+//           ascent, descent, halfLeading, maxWidth, fontFor, measure }.
 export function layoutTextboxForExport(annotation) {
   const text = annotation.text || '';
   const width = annotation.width || 150;
@@ -263,7 +263,7 @@ export function layoutTextboxForExport(annotation) {
   const lines = layoutTextboxLines(annotation, maxWidth, measure).map(l => ({
     text: l.chunks.map(c => c.text).join(''), width: l.width, chunks: l.chunks,
   }));
-  return { lines, fontSize, lineHeight, padding, ascent, descent, halfLeading, maxWidth, fontFor };
+  return { lines, fontSize, lineHeight, padding, ascent, descent, halfLeading, maxWidth, fontFor, measure };
 }
 
 // Draw textbox content with word wrap

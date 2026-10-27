@@ -18,11 +18,11 @@ import {
   restrokeSvg, svgBaseStrokeWidth, svgViewBoxWidth,
   strokeUnitsForLineWidth, lineWidthForStroke,
 } from '../annotations/svg-stroke-width.js';
+import { isBlendMode } from '../annotations/blend-modes.js';
 
 /** De opties die de werkbalk tijdens het invoegen instelt. */
 export const INSERT_FORMAT_KEYS = Object.freeze(['strokeColor', 'lineWidth', 'opacity', 'blendMode']);
 
-const BLEND_MODES = new Set(['normal', 'multiply']);
 const MAX_LINE_WIDTH = 50;
 const TERUGVAL = Object.freeze({ strokeColor: '#000000', lineWidth: 1, opacity: 1, blendMode: 'normal' });
 
@@ -49,7 +49,7 @@ function normaliseer(key, waarde) {
       return Number.isFinite(v) && v >= 0 && v <= 1 ? { ok: true, waarde: v } : { ok: false };
     }
     case 'blendMode':
-      return BLEND_MODES.has(waarde) ? { ok: true, waarde } : { ok: false };
+      return isBlendMode(waarde) ? { ok: true, waarde } : { ok: false };
     default:
       return { ok: false };
   }

@@ -234,8 +234,11 @@ export function buildToolContext(e, coords) {
     startPan,
     startContinuousPan,
 
-    // Drawing
-    drawShapePreview,
+    // Drawing — het voorbeeld op het canvas onder de cursor: in de
+    // doorlopende weergave het paginacanvas, niet de onzichtbare overlay
+    // (#616). Een eigen doel van de aanroeper blijft winnen.
+    drawShapePreview: (currentX, currentY, e, doelCtx) =>
+      drawShapePreview(currentX, currentY, e, doelCtx || coords.canvasCtx),
     getAnnotationType,
     getColorPickerValue,
     getLineWidthValue,

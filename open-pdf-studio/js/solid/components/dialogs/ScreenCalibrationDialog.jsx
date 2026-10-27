@@ -121,7 +121,7 @@ export default function ScreenCalibrationDialog(props) {
           <button class="pref-btn pref-btn-secondary" style={knopStijl}
             title={t('screenCalibration.larger')} onClick={() => zet(ppi() + STAP)}>+</button>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="screen-cal-number"
             min={MIN_PX_PER_INCH} max={MAX_PX_PER_INCH} step={STAP}
             value={ppi()}

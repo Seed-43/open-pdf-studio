@@ -93,7 +93,22 @@
     "editBookmark": "Upraviť záložku",
     "deleteBookmark": "Odstrániť záložku",
     "expandAll": "Rozbaliť všetky",
-    "collapseAll": "Zbaliť všetky"
+    "collapseAll": "Zbaliť všetky",
+    "color": "Farba",
+    "colorDefault": "Predvolené",
+    "colorRed": "Červená",
+    "colorOrange": "Oranžová",
+    "colorGreen": "Zelená",
+    "colorBlue": "Modrá",
+    "colorPurple": "Fialová",
+    "colorGray": "Sivá",
+    "colorCustom": "Vlastné...",
+    "bold": "Tučné",
+    "italic": "Kurzíva",
+    "nestUnderNew": "Vnoriť pod novú záložku...",
+    "indent": "Zväčšiť odsadenie",
+    "outdent": "Zmenšiť odsadenie",
+    "deleteBookmarks": "Odstrániť záložky ({{count}})"
   },
   "thumbnail": {
     "rotateLeft": "Otočiť doľava",

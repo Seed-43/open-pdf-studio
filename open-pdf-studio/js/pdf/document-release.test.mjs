@@ -6,7 +6,7 @@ import test from 'node:test';
 
 import {
   padNogInGebruik, vrijgaveplan, sleutelsMetPad, isWerkbestand, onthoudWerkbestand, vergeetWerkbestand,
-  losgelatenWerkbestanden, ruimWerkbestandenOp,
+  losgelatenWerkbestanden, ruimWerkbestandenOp, houdWerkbestandVast, laatWerkbestandLos,
 } from './document-release.js';
 
 const doc = (id, filePath, extra = {}) => ({ id, filePath, pdfDoc: { id }, ...extra });
@@ -213,9 +213,32 @@ test('de opruiming bij de start neemt oude werkbestanden van import en paginabew
   assert.ok(ouderdomWerkbestand(`opds-edit-${nu - 2 * dag}.pdf`, nu) > dag);
   assert.ok(ouderdomWerkbestand(`opds-edit-${nu - 1000}.pdf`, nu) < dag, 'een werkbestand van nu blijft staan');
   // Geen werkbestand van de app: nooit aankomen.
-  for (const naam of ['opds-import-notitie.pdf', 'opds-edit-17.pdf', 'opds-import-1700000000000-plan.dwg', 'mijn-opds-edit-1700000000001.pdf', 'opds-print-1700000000000.pdf', '', null]) {
+  assert.ok(ouderdomWerkbestand('opds-lagen-1700000000004-ab12cd.pdf', nu) > dag, 'ook een weergavekopie van lagen (#684)');
+  for (const naam of ['opds-import-notitie.pdf', 'opds-lagen-x.pdf', 'opds-edit-17.pdf', 'opds-import-1700000000000-plan.dwg', 'mijn-opds-edit-1700000000001.pdf', 'opds-print-1700000000000.pdf', '', null]) {
     assert.equal(ouderdomWerkbestand(naam, nu), null, String(naam));
   }
   // Een tijd in de toekomst (klok verzet) is geen reden om op te ruimen.
   assert.equal(ouderdomWerkbestand(`opds-edit-${nu + dag}.pdf`, nu), -dag);
+});
+
+test('de weergavekopie van geschakelde lagen (#684) blijft staan zolang de app eruit tekent', async () => {
+  const echt = 'C:/docs/tekening.pdf';
+  const kopie = 'C:/Temp/opds-lagen-1700000000003-k3x9.pdf';
+  assert.equal(isWerkbestand(kopie), true);
+  const d = doc(1, echt);
+  onthoudWerkbestand(d, kopie);
+  houdWerkbestandVast(kopie);
+  // Een opslag of paginabewerking ruimt losgelaten werkbestanden op; de
+  // kopie waar Rust nu uit tekent hoort daar niet bij, ook al verwijst het
+  // document er niet naar.
+  assert.deepEqual(losgelatenWerkbestanden(d, []), []);
+  laatWerkbestandLos(kopie);
+  assert.deepEqual(losgelatenWerkbestanden(d, []), [kopie]);
+  // Bij sluiten gaat ze altijd weg, en daarna is ze ook niet meer vastgehouden.
+  houdWerkbestandVast(kopie);
+  assert.deepEqual(vrijgaveplan(d, []).werkbestanden, [kopie]);
+  const schijf = nepSchijf([kopie]);
+  assert.equal(await ruimWerkbestandenOp(d, [kopie], schijf.middelen), 1);
+  onthoudWerkbestand(d, kopie);
+  assert.deepEqual(losgelatenWerkbestanden(d, []), [kopie]);
 });

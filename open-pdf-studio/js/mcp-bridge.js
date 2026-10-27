@@ -137,7 +137,13 @@ async function compositeCurrentView(maxWidth = 2000) {
   ctx.fillRect(0, 0, outW, outH);
   ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
   if (hlCanvas && hlCanvas.width > 0 && hlCanvas.height > 0) {
+    // Zoals het scherm: de markeerlaag vermenigvuldigt met de pagina (CSS
+    // mix-blend-mode). Met source-over zag een controle hier een andere
+    // pagina dan de gebruiker (#614). Gemengde annotaties staan al gemengd
+    // op de annotatielaag (rendering/mengen-tegen-pagina.js).
+    ctx.globalCompositeOperation = 'multiply';
     ctx.drawImage(hlCanvas, 0, 0, outW, outH);
+    ctx.globalCompositeOperation = 'source-over';
   }
   if (annCanvas && annCanvas.width > 0 && annCanvas.height > 0) {
     ctx.drawImage(annCanvas, 0, 0, outW, outH);
@@ -304,6 +310,51 @@ async function handleZoomOut() {
   const vp = window.__pdfViewport;
   const actual = vp?.active ? vp.zoom : (stateMod.getActiveDocument()?.scale ?? null);
   return { ok: true, actual };
+}
+
+/** app_capture_region: a page area (or the whole page) as an image file,
+ *  rendered again from the page at the requested dpi with the annotations —
+ *  the same route as Home → Screenshot (tools/screenshot.js). Returned as
+ *  base64, or written to `path`. */
+async function handleCaptureRegion(params) {
+  const { getActiveDocument } = await import('./core/state.js');
+  const doc = getActiveDocument();
+  const { leesOpnameArgumenten, snijRechthoeken, mimeType } = await import('./tools/screenshot-keuze.js');
+  const a = leesOpnameArgumenten(params, { aantalPaginas: doc?.pdfDoc?.numPages || 0, huidigePagina: doc?.currentPage || 1 });
+  if (a.error) return { ok: false, error: a.error };
+  const shot = await import('./tools/screenshot.js');
+  const gebied = shot.gebiedVanPagina(doc, a.page);
+  if (!gebied) return { ok: false, error: `size of page ${a.page} is unknown` };
+  if (a.rect) {
+    const s = snijRechthoeken(
+      { left: a.rect.x, top: a.rect.y, width: a.rect.width, height: a.rect.height },
+      { left: 0, top: 0, width: gebied.pageW, height: gebied.pageH });
+    if (!s) return { ok: false, error: 'the area is outside the page' };
+    gebied.rect = { x: s.left, y: s.top, width: s.width, height: s.height };
+  }
+  try {
+    const { canvas, maat } = await shot.renderSchermafbeelding(gebied, a.dpi);
+    const { canvasToBytes } = await import('./pdf/exporter.js');
+    const { imageWithDpi } = await import('./pdf/image-dpi.js');
+    const bytes = imageWithDpi(await canvasToBytes(canvas, a.formaat, a.kwaliteit / 100), a.formaat, Math.max(1, Math.min(65535, maat.dpi)));
+    const uit = {
+      ok: true, page: a.page, rect: gebied.rect, width: canvas.width, height: canvas.height,
+      dpi: maat.dpi, limited: maat.beperkt, mime: mimeType(a.formaat),
+    };
+    if (a.pad) {
+      const { writeBinaryFile } = await import('./core/platform.js');
+      await writeBinaryFile(a.pad, bytes);
+      uit.path = a.pad;
+      uit.bytes = bytes.length;
+    } else {
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      uit.image_base64 = btoa(bin);
+    }
+    return uit;
+  } catch (e) {
+    return { ok: false, error: `capture failed: ${e?.message ?? e}` };
+  }
 }
 
 async function handleScreenshotView(params) {
@@ -718,6 +769,7 @@ async function handleGetViewportState() {
     selectedCount,
     pageCount,
     statusMessage,
+    renderDiagnostics: (await import('./pdf/render-diagnostics.js')).readRenderDiagnostics(activeDocPath),
     // Engine + timing — what the user sees in the status-bar chip.
     engine: renderEngine,
     renderTiming,
@@ -1221,7 +1273,6 @@ async function _buildCreateProps(type, page, props) {
     case 'circle':
     case 'highlight':
     case 'cloud':
-    case 'polygon':
     case 'textbox': {
       const lineLike = type === 'line' || type === 'arrow' || type === 'wall' || type === 'betonbalk';
       const bad = lineLike ? needLine() : needRect();
@@ -1232,6 +1283,25 @@ async function _buildCreateProps(type, page, props) {
         : creators.buildAnnotationProps(type, p.x, p.y, p.x + p.width, p.y + p.height, null);
       if (!base) return { error: `could not build '${type}' props` };
       return { base };
+    }
+
+    case 'polygon': {
+      // Veelhoek (#622): de hoekpunten zoals de tool ze hoek voor hoek
+      // plaatst (points, minstens drie), of een vak voor een regelmatige
+      // veelhoek (sides, standaard zes), zoals een sleep met de tool.
+      const creators = await import('./tools/annotation-creators.js');
+      const vh = await import('./annotations/veelhoek-punten.js');
+      if (p.points !== undefined) {
+        if (!_validPoints(p.points, 3)) {
+          return { error: "type 'polygon' requires props.points: [{x,y}, ...] (>= 3) or x, y, width > 0, height > 0" };
+        }
+        return { base: creators.buildPolygonFromPoints(p.points, page), veelhoekPunten: true };
+      }
+      const bad = needRect();
+      if (bad) return { error: "type 'polygon' requires props.points: [{x,y}, ...] (>= 3) or x, y, width > 0, height > 0" };
+      const zijden = _isNum(p.sides) ? Math.max(3, Math.min(64, Math.round(p.sides))) : 6;
+      const punten = vh.regelmatigeVeelhoekPunten({ x: p.x, y: p.y, width: p.width, height: p.height }, zijden);
+      return { base: creators.buildPolygonFromPoints(punten, page), veelhoekPunten: true };
     }
 
     case 'polyline': {
@@ -1572,6 +1642,11 @@ async function handleCreateAnnotation(params) {
 
   // Caller props win over tool defaults; type and the page param are pinned.
   const merged = { ...built.base, ...props, type, page };
+  // Veelhoek: de geometrie (punten, vak, zijden) komt uit de bouwer — een
+  // meegegeven vak of zijdenaantal beschreef alleen waar de punten liggen.
+  if (built.veelhoekPunten) {
+    for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
+  }
   // parametricSymbol without an explicit rect: (x,y) was an INSERT POINT —
   // the builder centred a real-size bbox on it. Keep that computed bbox
   // instead of letting the raw x/y overwrite it as a top-left corner.
@@ -1781,6 +1856,15 @@ async function handleUpdateAnnotation(params) {
   // koppeling van de uiteinden blijft staan tenzij de patch haar zelf noemt.
   if (koppelMod.isStramien(ann) && patch.params && typeof patch.params === 'object') {
     patch = { ...patch, params: koppelMod.bewaarKoppeling(ann.params, patch.params) };
+  }
+  // Nieuwe hoekpunten van een veelhoek (#622): het vak en het aantal zijden
+  // volgen eruit, anders tekent het scherm ze in het oude vak.
+  if (ann.type === 'polygon' && 'points' in patch) {
+    if (!_validPoints(patch.points, 3)) {
+      return { ok: false, error: "polygon points must be [{x,y}, ...] with at least 3 corners" };
+    }
+    const vh = await import('./annotations/veelhoek-punten.js');
+    patch = { ...patch, ...vh.veelhoekUitPunten(patch.points) };
   }
   const andereDikte = 'lineWidth' in patch && patch.lineWidth !== ann.lineWidth;
   Object.assign(ann, patch);
@@ -2071,7 +2155,9 @@ async function handleSavePdf(params) {
   } catch { /* best-effort */ }
   let success;
   try {
-    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true }, doc);
+    success = path
+      ? await saverMod.savePDFAs(doc, path, { zonderHandtekeningVraag: true })
+      : await saverMod.savePDF(null, { zonderHandtekeningVraag: true }, doc);
   } catch (e) {
     return { ok: false, error: `savePDF: ${e?.message ?? e}` };
   }
@@ -2537,6 +2623,10 @@ async function handleStructuralLayout(params) {
       merged.y = built.base.y;
       merged.width = built.base.width;
       merged.height = built.base.height;
+    }
+    // Veelhoek (#622): de geometrie komt uit de bouwer (punten en vak samen).
+    if (built.veelhoekPunten) {
+      for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
     }
     klaar.push({ opgave, merged });
   }
@@ -3394,9 +3484,10 @@ async function bereidPrintVoor(params, naarBestand, controle = null) {
     if (mis) return mis;
   }
 
-  const { parsePageRange } = await import('./pdf/exporter.js');
+  // Het printbereik zoals getypt, met volgorde en herhalingen (#606).
+  const { printPaginaBereik } = await import('./pdf/print-bereik.js');
   const keuze = opdrachtMod.kiesPaginas(opdracht, {
-    totaal: doc.pdfDoc.numPages, huidig: doc.currentPage || 1, bereik: parsePageRange,
+    totaal: doc.pdfDoc.numPages, huidig: doc.currentPage || 1, bereik: printPaginaBereik,
   });
   if (!keuze.ok) return keuze;
 
@@ -3629,11 +3720,78 @@ async function handleGetSystemGeometry(params) {
 }
 
 const HANDLERS = {
+  'mcp:search-documents': async (p) => {
+    try { return { ok: true, ...(await (await import('./search/document-search-service.js')).searchWorkspace(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:locations': async (p) => {
+    try {
+      const service = await import('./annotations/spatial-zones-service.js');
+      return { ok: true, ...(p.action === 'list' ? service.inspectLocations() : service.updateLocation(p)) };
+    } catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:hidden-information': async (p) => {
+    try {
+      const service = await import('./pdf/hidden-information-service.js');
+      if (p.action === 'inspect') return { ok: true, ...(await service.inspectCurrentHiddenInformation(p.documentId)) };
+      if (p.action === 'export') return { ok: true, ...(await service.exportHiddenCopy(p.documentId, p.categories, p.outputPath)) };
+      return { ok: false, error: 'INVALID_ACTION' };
+    } catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:print-preflight': async (p) => {
+    try {
+      const service = await import('./pdf/print-preflight-service.js');
+      if (p.action === 'inspect') return { ok: true, ...(await service.preflightCurrent(p.documentId, p.profile)) };
+      if (p.action === 'fixTrimBoxes') return { ok: true, ...(await service.exportTrimCopy(p.documentId, p.profile, p.outputPath)) };
+      return { ok: false, error: 'INVALID_ACTION' };
+    } catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:review-ocr': async (p) => {
+    try {
+      const service = await import('./pdf/ocr-review-service.js');
+      return { ok: true, ...(await (p.action === 'list'
+        ? service.listOcrReview(p.documentId, p.threshold ?? 80, p)
+        : service.updateOcrReview(p))) };
+    } catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:portfolio': async (p) => {
+    try { const { portfolioRequest } = await import('./pdf/portfolio-service.js'); return { ok: true, ...(await portfolioRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:recognize-form': async (p) => {
+    try { const { formRecognitionRequest } = await import('./pdf/form-recognition-service.js'); return { ok: true, ...(await formRecognitionRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:search-symbols': async (p) => {
+    try { const { symbolSearchRequest } = await import('./search/symbol-search-service.js'); return { ok: true, ...(await symbolSearchRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:workbook-bindings': async (p) => {
+    try { const { workbookBindingRequest } = await import('./quantities/workbook-binding-service.js'); return { ok: true, ...(await workbookBindingRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:document-workflows': async (p) => {
+    try { const { workflowRequest } = await import('./workflows/workflow-service.js'); return { ok: true, ...(await workflowRequest(p)) }; }
+    catch { return { ok: false, error: 'WORKFLOW_REQUEST_FAILED' }; }
+  },
+  'mcp:drawing-sets': async (p) => {
+    try { const { drawingSetRequest } = await import('./drawing-sets/service.js'); return { ok: true, ...(await drawingSetRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:sheet-links': async (p) => {
+    try { const { sheetLinkRequest } = await import('./sheet-links/service.js'); return { ok: true, ...(await sheetLinkRequest(p)) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
+  'mcp:approval-routing': async (p) => {
+    try { const { approvalRequest } = await import('./approval-routing/service.js'); return { ok: true, ...(await approvalRequest(p, { origin: 'mcp' })) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  },
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
   'mcp:zoom-in':            handleZoomIn,
   'mcp:zoom-out':           handleZoomOut,
   'mcp:screenshot-view':    handleScreenshotView,
+  'mcp:capture-region':     handleCaptureRegion,
   'mcp:mouse-move':         handleMouseMove,
   'mcp:mouse-click':        handleMouseClick,
   'mcp:mouse-drag':         handleMouseDrag,

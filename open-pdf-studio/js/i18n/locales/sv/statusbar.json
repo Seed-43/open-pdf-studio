@@ -29,7 +29,8 @@
     "formCheckbox": "Formulärkryssruta",
     "formRadio": "Formuläralternativknapp",
     "screenshot": "Skärmbild",
-    "pageLabelPick": "Välj text för sidetikett"
+    "pageLabelPick": "Välj text för sidetikett",
+    "proofread": "Korrektur"
   },
   "toolLabel": "Verktyg:",
   "annotationsLabel": "Anteckningar:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Sida {{page}}",
   "searchHitsOne": "1 träff",
   "searchHitsMany": "{{count}} träffar",
-  "passwordProtectedBar": "Skyddad med lösenord: öppnad skrivskyddad."
+  "passwordProtectedBar": "Skyddad med lösenord: öppnad skrivskyddad.",
+  "documentSearch": {
+    "title": "Sök i dokument",
+    "query": "Söktext",
+    "scope": "Sök i",
+    "active": "Aktuellt dokument",
+    "open": "Öppna dokument",
+    "folder": "Mapp",
+    "choose": "Välj mapp",
+    "annotations": "Inkludera kommentarer",
+    "search": "Sök",
+    "cancel": "Avbryt",
+    "stale": "Dokumentet har ändrats. Kör sökningen igen.",
+    "folderHint": "Söker i PDF-filer direkt i den här mappen utan att öppna flikar eller ändra filer.",
+    "limited": "Resultatgränsen har nåtts. Förfina sökningen.",
+    "cancelled": "Sökningen avbröts; resultaten är ofullständiga.",
+    "ocrHint": "Ingen sökbar text på sidorna {{pages}}. Öppna dokumentet och kör OCR uttryckligen vid behov.",
+    "status": {
+      "searching": "Söker",
+      "complete": "Klar",
+      "needs_ocr": "Innehåller sidor utan sökbar text",
+      "encrypted": "Lösenord krävs",
+      "unreadable": "Kunde inte söka",
+      "changed": "Dokumentet ändrat; sök igen",
+      "cancelled": "Avbruten",
+      "limited": "Resultatgränsen nådd"
+    },
+    "failed": "Sökningen misslyckades. Kontrollera sökfrågan och mappen och försök igen.",
+    "prepareOcr": "Öppna för OCR…"
+  },
+  "symbolSearch": "Hitta symboler",
+  "findMoreOptions": "Fler sökalternativ",
+  "watchActive": "Bevakar {{folder}}",
+  "watchFailed": "Bevakningsfel: {{folder}}",
+  "watchTitle": "Dokumentarbetsflödet bevakar {{input}} och skriver till {{output}}. Klicka för att sluta bevaka.",
+  "renderDiagnostics": {
+    "title": "Gå till nästa renderingsanmärkning. Inga anmärkningar garanterar inte en fullständig rendering.",
+    "count": "Renderingsanmärkningar: {{count}}",
+    "detail": "Sida {{page}}: {{code}}. Prova en lägre zoom eller öppna dokumentet igen; fullständigheten är inte garanterad."
+  }
 }

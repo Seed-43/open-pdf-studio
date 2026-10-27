@@ -5,18 +5,24 @@ import {
   openDialog, closeDialog, showMessage,
   openAppMenu, setAppMenuPanel as setActivePanel,
   setLoadingVisible as setVisible, setLoadingMessage as setMessage,
+  setLoadingProgress as setProgress, setLoadingCancelHandler as setCancelHandler,
 } from '../../bridge.js';
 import i18next from '../../i18n/config.js';
 
-// Show loading overlay
-export function showLoading(message = 'Loading...') {
+// Show loading overlay. Met `voortgang` (0..1) een voortgangsbalk, met
+// `annuleren` (functie) een knop Annuleren; zonder opties alleen de cirkel.
+export function showLoading(message = 'Loading...', { voortgang = null, annuleren = null } = {}) {
   setMessage(message);
+  setProgress(Number.isFinite(voortgang) ? Math.max(0, Math.min(1, voortgang)) : null);
+  setCancelHandler(() => (typeof annuleren === 'function' ? annuleren : null));
   setVisible(true);
 }
 
 // Hide loading overlay
 export function hideLoading() {
   setVisible(false);
+  setProgress(null);
+  setCancelHandler(() => null);
 }
 
 // ============================================

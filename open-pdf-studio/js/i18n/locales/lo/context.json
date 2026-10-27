@@ -99,7 +99,22 @@
     "editBookmark": "ແກ້ໄຂບ່ອນໝາຍໜ້າ",
     "deleteBookmark": "ລຶບບ່ອນໝາຍໜ້າ",
     "expandAll": "ຂະຫຍາຍທັງໝົດ",
-    "collapseAll": "ຫຍໍ້ທັງໝົດ"
+    "collapseAll": "ຫຍໍ້ທັງໝົດ",
+    "color": "ສີ",
+    "colorDefault": "ຄ່າເລີ່ມຕົ້ນ",
+    "colorRed": "ສີແດງ",
+    "colorOrange": "ສີສົ້ມ",
+    "colorGreen": "ສີຂຽວ",
+    "colorBlue": "ສີຟ້າ",
+    "colorPurple": "ສີມ່ວງ",
+    "colorGray": "ສີເທົາ",
+    "colorCustom": "ກຳນົດເອງ...",
+    "bold": "ໜາ",
+    "italic": "ອຽງ",
+    "nestUnderNew": "ຈັດໄວ້ພາຍໃຕ້ບຸກມາກໃໝ່...",
+    "indent": "ຍໍ້ໜ້າເຂົ້າ",
+    "outdent": "ຍໍ້ໜ້າອອກ",
+    "deleteBookmarks": "ລຶບ {{count}} ບຸກມາກ"
   },
   "thumbnail": {
     "rotateLeft": "ໝູນຊ້າຍ",

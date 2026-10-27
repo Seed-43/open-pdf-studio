@@ -6,8 +6,9 @@
 // getOrder(): de volgorde uit /OCProperties /D /Order, waarin een geneste
 // groep {name, order} is. Een groep met een naam wordt een kop; groepen die
 // niet in /Order staan, zet pdf.js achteraan in een groep zonder naam.
-// `visible` is de stand volgens de standaardconfiguratie van het document;
-// PDFium tekent een laag die daar uit staat ook niet.
+// `visible` is de stand in de meegegeven config: de beginstand van het
+// document (PDFium tekent een laag die daar uit staat ook niet), of de stand
+// na schakelen in het paneel (#684).
 
 /**
  * @param {object|null} config  de OptionalContentConfig van pdf.js

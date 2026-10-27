@@ -96,7 +96,7 @@ export default function GeneralTab(props) {
         </div>
         <div class="pref-row">
           <label>{t('general.aiLinkPort')}</label>
-          <input type="number" min="1024" max="65535" style={{ width: '90px' }}
+          <input type="text" inputmode="decimal" data-getal min="1024" max="65535" style={{ width: '90px' }}
             value={p.mcpPort[0]()}
             onInput={e => { const n = parseInt(e.target.value, 10); if (n >= 1024 && n <= 65535) p.mcpPort[1](n); }} />
           <span style={{ 'margin-left': '8px', color: '#666' }}>{statusTekst()}</span>

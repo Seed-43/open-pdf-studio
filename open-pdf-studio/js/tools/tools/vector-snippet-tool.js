@@ -10,8 +10,6 @@
  * het knipsel op het klembord en kun je het in een ander tabblad plakken.
  */
 import { getActiveDocument, getPageRotation } from '../../core/state.js';
-import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
-import { annotationCtx } from '../../ui/dom-elements.js';
 import { getCachedPdfBytes } from '../../pdf/loader.js';
 import { knipselAlsMiniPdf, appVakNaarPdfVak, paginaRotatie } from '../../pdf/vector-embed.js';
 import { bewaar } from '../../annotations/vector-snippet-store.js';
@@ -19,25 +17,23 @@ import { zetKnipselOpKlembord } from '../../annotations/vector-snippet-clipboard
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import i18next from '../../i18n/config.js';
 import { applyToolTransform } from '../tool-transform.js';
+import { getEffectiveScale } from '../effective-scale.js';
+import { previewCtx, redrawForViewMode } from '../preview-target.js';
 
 /** Kleiner dan dit in app-punten is een misklik, geen knipsel. */
 const MIN_SLEEP_PT = 8;
 
-function redraw() {
-  const doc = getActiveDocument();
-  if (doc?.viewMode === 'continuous') redrawContinuous();
-  else redrawAnnotations();
-}
-
 const _plaatsing = { firstX: null, firstY: null };
 const _reset = () => { _plaatsing.firstX = _plaatsing.firstY = null; };
 
-function _tekenVoorbeeld(curX, curY) {
-  if (_plaatsing.firstX === null || !annotationCtx) return;
-  redraw();
-  const vp = window.__pdfViewport;
-  const doc = getActiveDocument();
-  const ctx = annotationCtx;
+// Het kader op het canvas dat de gebruiker ziet: `doelCtx` is de canvasCtx
+// van de gereedschapscontext — in de doorlopende weergave het paginacanvas,
+// niet de overlay die daar niet op het scherm staat (#616).
+function _tekenVoorbeeld(curX, curY, doelCtx = null) {
+  if (_plaatsing.firstX === null) return;
+  const ctx = previewCtx(doelCtx);
+  if (!ctx) return;
+  redrawForViewMode();
   ctx.save();
   // Zelfde transform als de annotatieweergave (ook met een gedraaide weergave, #200).
   applyToolTransform(ctx);
@@ -45,7 +41,9 @@ function _tekenVoorbeeld(curX, curY) {
   const y1 = Math.min(_plaatsing.firstY, curY);
   const w = Math.abs(curX - _plaatsing.firstX);
   const h = Math.abs(curY - _plaatsing.firstY);
-  const eenheid = 1 / (vp?.zoom || doc?.scale || 1.5);
+  // Schermpixels van de weergave; een inactieve viewport (doorlopend) houdt
+  // een oude zoom vast.
+  const eenheid = 1 / (getEffectiveScale() || 1.5);
   ctx.strokeStyle = '#1565c0';
   ctx.fillStyle = 'rgba(21, 101, 192, 0.08)';
   ctx.lineWidth = 1.5 * eenheid;
@@ -112,7 +110,7 @@ export const vectorSnippetTool = {
     if (_plaatsing.firstX === null) {
       _plaatsing.firstX = ctx.x;
       _plaatsing.firstY = ctx.y;
-      _tekenVoorbeeld(ctx.x, ctx.y);
+      _tekenVoorbeeld(ctx.x, ctx.y, ctx.canvasCtx);
       return;
     }
 
@@ -144,7 +142,7 @@ export const vectorSnippetTool = {
 
   onPointerMove(ctx) {
     if (_plaatsing.firstX === null) return;
-    _tekenVoorbeeld(ctx.x, ctx.y);
+    _tekenVoorbeeld(ctx.x, ctx.y, ctx.canvasCtx);
   },
 
   onEscape(ctx) {

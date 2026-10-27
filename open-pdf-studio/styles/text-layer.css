@@ -14,6 +14,10 @@
   transform-origin: 0 0;
   z-index: 5;
   pointer-events: auto;
+  /* De laag als één groep vermenigvuldigen met de pagina eronder; zie
+     ::selection hieronder. In de enkele pagina blijft dat binnen
+     #canvas-container (isolation: isolate in layout.css). */
+  mix-blend-mode: multiply;
 
   /* PDF.js TextLayer CSS variable system */
   --min-font-size: 1;
@@ -91,12 +95,19 @@
   top: 0;
 }
 
-/* A solid pastel avoids darker bands where PDF.js text runs overlap at word
-   boundaries. Render the selected glyphs in the text layer so the PDF canvas
-   text remains legible beneath the opaque selection background. */
+/* Selectiemarkering (#506). PDF.js maakt een span per tekstrun en elke span
+   tekent zijn eigen selectievlak; op woordgrenzen overlappen die vlakken.
+   - Een doorschijnende kleur telt in de overlap op: donkere verticale banden.
+   - Een dekkende kleur met eigen glyphkleur verbergt de PDF-tekst en tekent
+     hem opnieuw in een vervangend lettertype (cursief weg, ander font).
+   Daarom, zoals de klassieke PDF.js-viewer (dekkende ::selection, één
+   transparantie voor de hele laag): een dekkende pastel zonder glyphs, en de
+   laag als geheel vermenigvuldigd met de pagina (mix-blend-mode op
+   .textLayer). Overlap blijft één tint, wit papier wordt lichtblauw en de
+   echte glyphs blijven zichtbaar (zwart × blauw = zwart). */
 .textLayer ::selection {
   background: #b8d8ff;
-  color: #171c25;
+  color: transparent;
 }
 
 .textLayer br::selection {
@@ -110,11 +121,9 @@
    los van de eigenlijke tekst. Echte spaties tussen woorden zitten IN de
    woord-span zelf en blijven dus gewoon oplichten.
 
-   `!important` is VERPLICHT: het vector-viewport-pad (pdf-viewport.js) injecteert
-   een inline <style> met `.textLayer ::selection { ... !important }`. Zonder
-   `!important` hier zou die geïnjecteerde regel deze neutralisatie overrulen
-   (important wint altijd van niet-important) en keerde de marge-spook-selectie
-   terug. */
+   `!important` houdt deze neutralisatie boven elke andere ::selection-regel
+   (vroeger injecteerde pdf-viewport.js er een met `!important`; zonder deze
+   `!important` keerde de marge-spook-selectie dan terug). */
 .textLayer span[data-ws]::-moz-selection {
   background: transparent !important;
 }
@@ -175,4 +184,29 @@
 
 .linkLayer .pdf-link:hover {
   background: rgba(255, 255, 0, 0.3);
+}
+
+/* Proofreading mode (#508): inline input for an insert or a replace.
+   Windows style: square corners, no shadow; the border shows the kind. */
+.proofread-input {
+  position: fixed;
+  z-index: 10050;
+  box-sizing: border-box;
+  min-width: 80px;
+  max-width: 480px;
+  height: 22px;
+  padding: 1px 4px;
+  margin: 0;
+  border: 1px solid #0066FF;
+  border-radius: 0;
+  background: #ffffff;
+  color: #000000;
+  font-size: 13px;
+  font-family: var(--ui-font);
+  outline: none;
+  box-shadow: none;
+}
+
+.proofread-input.replace {
+  border-color: #9900CC;
 }

@@ -93,7 +93,22 @@
     "editBookmark": "แก้ไขบุ๊กมาร์ก",
     "deleteBookmark": "ลบบุ๊กมาร์ก",
     "expandAll": "ขยายทั้งหมด",
-    "collapseAll": "ยุบทั้งหมด"
+    "collapseAll": "ยุบทั้งหมด",
+    "color": "สี",
+    "colorDefault": "ค่าเริ่มต้น",
+    "colorRed": "แดง",
+    "colorOrange": "ส้ม",
+    "colorGreen": "เขียว",
+    "colorBlue": "น้ำเงิน",
+    "colorPurple": "ม่วง",
+    "colorGray": "เทา",
+    "colorCustom": "กำหนดเอง...",
+    "bold": "ตัวหนา",
+    "italic": "ตัวเอียง",
+    "nestUnderNew": "ซ้อนไว้ใต้บุ๊กมาร์กใหม่...",
+    "indent": "เพิ่มการเยื้อง",
+    "outdent": "ลดการเยื้อง",
+    "deleteBookmarks": "ลบบุ๊กมาร์ก {{count}} รายการ"
   },
   "thumbnail": {
     "rotateLeft": "หมุนซ้าย",

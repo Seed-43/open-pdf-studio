@@ -71,6 +71,12 @@
     "site": "Di laman ini",
     "noSiteDocuments": "Tiada dokumen di laman ini",
     "siteListError": "Dokumen laman ini tidak dapat dimuatkan",
+    "versions": "Versi",
+    "versionNumber": "Versi {{version}}",
+    "currentVersion": "semasa",
+    "noVersions": "Tiada versi",
+    "versionsError": "Versi tidak dapat dimuatkan",
+    "olderVersionsHint": "Versi lama dibuka baca sahaja; Simpan Sebagai memuat turun salinan.",
     "save": "Simpan"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Halaman",
     "officeTable": "Jadual",
     "officeText": "Teks",
-    "officeFailed": "Eksport dokumen gagal."
+    "officeFailed": "Eksport dokumen gagal.",
+    "protect": "Lindungi dengan Kata Laluan",
+    "protectDesc": "Simpan salinan yang dilindungi kata laluan (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil output",
@@ -211,5 +219,9 @@
     "activationFailed": "Tidak aktif: {{error}}",
     "viaMcp": "Melalui sambungan AI"
   },
-  "annotateScreenshot": "Anotasi Tangkapan Skrin Papan Keratan"
+  "annotateScreenshot": "Anotasi Tangkapan Skrin Papan Keratan",
+  "workflows": "Aliran kerja dokumen",
+  "drawingSets": "Set lukisan",
+  "sheetLinks": "Pautan antara helaian",
+  "approvalRouting": "Penghalaan kelulusan"
 }

@@ -65,11 +65,46 @@ function StramienKoppeling() {
   );
 }
 
+// Profieltype van een staalprofiel (#697): HEA, HEB, IPE, UNP, koker,
+// hoeklijn … uit dezelfde profielgroep. Wisselen houdt positie en stijl en
+// kiest de maat met de dichtstbijzijnde profielhoogte; bij een meervoudige
+// selectie wisselen alle profielen mee.
+function ProfielTypeVeld() {
+  const { t } = useTranslation('properties');
+  const { t: tCommon } = useTranslation('common');
+  const naam = (typ) => typ.name + (typ.nameEn && typ.nameEn !== typ.name ? ` / ${typ.nameEn}` : '');
+  return (
+    <div class="property-group">
+      <label>{t('parametricSymbol.profileType')}</label>
+      <select
+        id="prop-profile-type"
+        value={annotProps.profielType}
+        disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+        onChange={(e) => updateAnnotProp('profielType', e.target.value)}
+      >
+        <Show when={annotProps.profielType === 'mixed'}>
+          <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
+        </Show>
+        <For each={annotProps.profielTypen}>{(typ) => (
+          <option value={typ.id}>{naam(typ)}</option>
+        )}</For>
+      </select>
+    </div>
+  );
+}
+
 export default function ParametricSymbolSection() {
   const { t } = useTranslation('properties');
 
   return (
-    <Show when={annotProps.annotationType === 'parametricSymbol'}>
+    <>
+    {/* Meervoudige selectie van staalprofielen (#697): alleen het profieltype. */}
+    <Show when={annotProps.multiCount > 0 && annotProps.profielTypen?.length > 0}>
+      <CollapsibleSection title={t('parametricSymbol.profileTypeTitle')} name="parametricSymbol" id="prop-parametric-section">
+        <ProfielTypeVeld />
+      </CollapsibleSection>
+    </Show>
+    <Show when={annotProps.annotationType === 'parametricSymbol' && !(annotProps.multiCount > 0)}>
       {(() => {
         const template = getTemplate(annotProps.symbolId);
         if (!template) {
@@ -85,10 +120,14 @@ export default function ParametricSymbolSection() {
         }
         return (
           <CollapsibleSection title={t('parametricSymbol.sectionTitle', { name: template.name })} name="parametricSymbol" id="prop-parametric-section">
-            <div class="property-group">
-              <label>{t('parametricSymbol.typeLabel')}</label>
-              <input type="text" readonly value={template.name + (template.nameEn ? ` / ${template.nameEn}` : '')} />
-            </div>
+            <Show when={annotProps.profielTypen?.length > 0 && annotProps.id !== '__tool-defaults__'} fallback={
+              <div class="property-group">
+                <label>{t('parametricSymbol.typeLabel')}</label>
+                <input type="text" readonly value={template.name + (template.nameEn ? ` / ${template.nameEn}` : '')} />
+              </div>
+            }>
+              <ProfielTypeVeld />
+            </Show>
             <For each={template.params.filter(p => !p.hidden)}>{(p) => (
               <Show when={p.type !== 'list'} fallback={
                 // Lijst-parameter (onderdelen van een aanrecht): kop plus een
@@ -115,7 +154,7 @@ export default function ParametricSymbolSection() {
                     need the same per-locale treatment as the labels. */}
                 <label title={p.labelEn || ''}>{p.label}{p.unit ? ` (${p.unit})` : ''}</label>
                 <Show when={p.type === 'number'}>
-                  <input type="number"
+                  <input type="text" inputmode="decimal" data-getal
                     step={p.step ?? 1}
                     min={p.min}
                     max={p.max}
@@ -157,5 +196,6 @@ export default function ParametricSymbolSection() {
         );
       })()}
     </Show>
+    </>
   );
 }

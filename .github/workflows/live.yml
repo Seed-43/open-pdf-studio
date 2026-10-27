@@ -27,7 +27,7 @@ jobs:
       # `cargo build -p pdfium-worker`, en die vindt geen Cargo.toml omdat de
       # deploy alleen de map open-pdf-studio uitcheckt. De website heeft die
       # native worker niet nodig.
-      build_command: cd open-pdf-studio && npx vite build
+      build_command: cd open-pdf-studio && npx vite build && node scripts/web-statistics.mjs
       checkout_sparse: |
         open-pdf-studio
     secrets:

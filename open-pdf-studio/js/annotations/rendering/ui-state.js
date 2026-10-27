@@ -5,6 +5,7 @@ import {
 } from '../../bridge.js';
 import { getMeasureScale } from '../measurement.js';
 import { checkSymbolInsertActive } from '../../symbols/symbol-insert-format-store.js';
+import { gereedschapMetOpmaak } from '../../tools/gereedschap-opmaak.js';
 
 // No-op: TitleBar.jsx now derives button states from reactive state
 export function updateQuickAccessButtons() {}
@@ -28,6 +29,10 @@ let _prevSelSig = null;
 // geplaatst (en automatisch geselecteerd) symbool.
 const SYMBOL_INSERT_SIG = 'symbol-insert';
 
+// Idem voor een actief tekengereedschap (#668). Dat kies je in het lint zelf:
+// het Opmaak-tabblad komt erbij, maar het lint springt er niet heen.
+const TOOL_FORMAT_SIG = 'tool-format';
+
 function selectionSignature(sel) {
   if (!sel || sel.length === 0) return null;
   // id + type of every selected annotation, order-independent per redraw.
@@ -43,15 +48,27 @@ export function updateContextualTabs() {
   // de volgende plaatsingen, ook zonder selectie (#587). syncFormatStore leest
   // dan de invoegsessie in plaats van de selectie.
   const symbolInsert = checkSymbolInsertActive();
-  setContextualTabsVisible(hasSelection || symbolInsert);
-  if (hasSelection || symbolInsert) {
+  // Zonder selectie toont het Opmaak-tabblad tijdens het tekenen de opmaak
+  // van het volgende object van het actieve gereedschap (#668).
+  const toolFormat = !hasSelection && !symbolInsert && !!_uiDoc
+    && gereedschapMetOpmaak(state.currentTool) != null;
+  const zichtbaar = hasSelection || symbolInsert || toolFormat;
+  if (!zichtbaar) {
+    // Eerst terug naar het vorige tabblad, dán pas de contextuele tabbladen
+    // verbergen: het vangnet in ribbonStore.js draait synchroon binnen
+    // setContextualTabsVisible(false) en zette het lint anders al op Start
+    // voordat het vorige tabblad terug kon komen (#674).
+    autoActivateContextualTab(_uiSel, symbolInsert, toolFormat);
+  }
+  setContextualTabsVisible(zichtbaar);
+  if (zichtbaar) {
     syncFormatStore(_uiSel);
   }
   // Contextual "Afbeelding" tab: visible only for a single image selection.
   syncImageEditTab(_uiSel);
 
   // Auto-activate the right contextual tab on a *real* selection change only.
-  autoActivateContextualTab(_uiSel, symbolInsert);
+  if (zichtbaar) autoActivateContextualTab(_uiSel, symbolInsert, toolFormat);
 }
 
 // Automatically switch to the contextual tab that matches the current
@@ -59,8 +76,9 @@ export function updateContextualTabs() {
 // selection, and back to the last non-contextual tab when nothing is selected.
 // Only acts when the selection actually changed since the last call so it never
 // overrides a manual tab switch on subsequent redraws.
-function autoActivateContextualTab(sel, symbolInsert = false) {
-  const sig = symbolInsert ? SYMBOL_INSERT_SIG : selectionSignature(sel);
+function autoActivateContextualTab(sel, symbolInsert = false, toolFormat = false) {
+  const sig = symbolInsert ? SYMBOL_INSERT_SIG
+    : (toolFormat ? TOOL_FORMAT_SIG : selectionSignature(sel));
   if (sig === _prevSelSig) return; // no real selection change → leave tabs alone
   _prevSelSig = sig;
 
@@ -80,6 +98,7 @@ function autoActivateContextualTab(sel, symbolInsert = false) {
   if (!CONTEXTUAL_TABS.has(cur)) {
     _lastNormalTab = cur;
   }
+  if (sig === TOOL_FORMAT_SIG) return;
 
   const isSingleImage = !symbolInsert && sel.length === 1 && sel[0].type === 'image';
   setRibbonActiveTab(isSingleImage ? 'image' : 'format');

@@ -17,17 +17,20 @@
 
 import { state } from '../core/state.js';
 import { invoke } from '../core/platform.js';
+import { thinLinesOn } from './thin-lines.js';
 
 /**
  * Render one whole page via the user-selected engine.
- * @param {{path:string, pageIndex:number, scale:number, rotation?:number}} args
+ * `thinLines` (Thin Lines view mode, #595) defaults to the preference; a
+ * caller that caches the result passes the flag it keyed the cache on.
+ * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean}} args
  * @returns {Promise<Uint8Array>} `[w:u32 LE][h:u32 LE][rgba…]` wire format
  */
-export async function renderPdfPage({ path, pageIndex, scale, rotation = 0 }) {
+export async function renderPdfPage({ path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn() }) {
   const command = (state?.renderEngineOverride === 'rust-skia')
     ? 'render_pdf_page_skia'
     : 'render_pdf_page';
-  return invoke(command, { path, pageIndex, scale, rotation });
+  return invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines });
 }
 
 /**

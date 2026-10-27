@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { OPS } from 'pdfjs-dist';
 import { getPageRotation } from '../core/state.js';
 import { slaSnapExtractieOver } from './snap-extractie-beleid.js';
+import { maakSnapGeometrieCache } from './snap-geometrie-cache.js';
 
 /**
  * PDF Vector Geometry Snap Extractor
@@ -20,7 +21,8 @@ import { slaSnapExtractieOver } from './snap-extractie-beleid.js';
  *   0=moveTo(x,y), 1=lineTo(x,y), 2=curveTo(6 args),
  *   3=quadraticCurveTo(4 args), 4=closePath(0 args)
  *
- * Results are cached per page and cleared on document switch.
+ * Results are cached per document and page (snap-geometrie-cache.js) and
+ * released when the document closes (document-release.js).
  */
 
 // DrawOPS constants (used inside constructPath interleaved data)
@@ -30,8 +32,10 @@ const DRAW_CURVETO = 2;
 const DRAW_QUADRATIC = 3;
 const DRAW_CLOSEPATH = 4;
 
-// Cache: pageNum → { points: [...], edges: [...], index: {...} }
-const pageCache = new Map();
+// Cache: "<filePath>:<pageNum>" → { points: [...], edges: [...], index: {...} }.
+// Alleen bewaren zolang het document open staat (#705).
+const isOpen = (doc) => (state.documents || []).includes(doc);
+const pageCache = maakSnapGeometrieCache({ isOpen });
 
 // Spatial-hash cell size in annotation space (CSS px at scale=1). Snap queries
 // only ever inspect cells overlapping the cursor's snap radius (~12 px), so
@@ -47,28 +51,14 @@ const EDGE_CELL_SPAN_CAP = 256;
 function _cellCoord(v) { return Math.floor(v / GRID_CELL); }
 function _cellKey(cx, cy) { return cx + ',' + cy; }
 
-// Currently running extraction promises (to avoid duplicate work)
-const pendingExtractions = new Map();
-
 /**
  * Prefetch PDF vector geometry for a single page (fire-and-forget).
+ * Gebonden aan het document dat nu voor staat: na een tabwissel loopt de
+ * extractie door voor dát document, na sluiten breekt ze af (#705).
  */
-export function prefetchPdfVectorGeometry(pageNum) {
-  if (pageCache.has(pageNum)) return;
-  if (pendingExtractions.has(pageNum)) return;
-
-  const promise = extractPageGeometry(pageNum)
-    .then(result => {
-      pageCache.set(pageNum, result);
-    })
-    .catch(() => {
-      // Silently ignore extraction errors
-    })
-    .finally(() => {
-      pendingExtractions.delete(pageNum);
-    });
-
-  pendingExtractions.set(pageNum, promise);
+export function prefetchPdfVectorGeometry(pageNum, doc = getActiveDocument()) {
+  if (!doc?.pdfDoc) return;
+  pageCache.laad(doc, pageNum, () => extractPageGeometry(pageNum, { blijvendDocument: doc }));
 }
 
 /**
@@ -76,18 +66,16 @@ export function prefetchPdfVectorGeometry(pageNum) {
  * Called on-demand when user activates snap-to-drawing.
  */
 export async function loadAllPdfSnapData() {
-  const pdfDoc = getActiveDocument()?.pdfDoc;
+  const doc = getActiveDocument();
+  const pdfDoc = doc?.pdfDoc;
   if (!pdfDoc) return;
 
   const total = pdfDoc.numPages;
   const promises = [];
   for (let p = 1; p <= total; p++) {
-    if (!pageCache.has(p) && !pendingExtractions.has(p)) {
-      prefetchPdfVectorGeometry(p);
-    }
-    if (pendingExtractions.has(p)) {
-      promises.push(pendingExtractions.get(p));
-    }
+    prefetchPdfVectorGeometry(p, doc);
+    const lopend = pageCache.lopend(doc, p);
+    if (lopend) promises.push(lopend);
   }
   await Promise.all(promises);
 }
@@ -96,7 +84,7 @@ export async function loadAllPdfSnapData() {
  * Check if snap data is loaded for the current page.
  */
 export function isPdfSnapLoaded(pageNum) {
-  return pageCache.has(pageNum);
+  return pageCache.heeft(getActiveDocument(), pageNum);
 }
 
 /**
@@ -106,7 +94,7 @@ export function isPdfSnapLoaded(pageNum) {
  * accessor is for one-shot consumers (e.g. move-session candidate caching).
  */
 export function getCachedPdfSnapPoints(pageNum) {
-  const cached = pageCache.get(pageNum);
+  const cached = pageCache.get(getActiveDocument(), pageNum);
   return cached ? cached.points : [];
 }
 
@@ -115,7 +103,7 @@ export function getCachedPdfSnapPoints(pageNum) {
  * Returns empty array if not yet extracted.
  */
 export function getCachedPdfEdgeSegments(pageNum) {
-  const cached = pageCache.get(pageNum);
+  const cached = pageCache.get(getActiveDocument(), pageNum);
   return cached ? cached.edges : [];
 }
 
@@ -124,7 +112,7 @@ export function getCachedPdfEdgeSegments(pageNum) {
  * Uses the spatial index so cost scales with local density, not page total.
  */
 export function getPdfSnapPointsNear(pageNum, x, y, radius) {
-  const cached = pageCache.get(pageNum);
+  const cached = pageCache.get(getActiveDocument(), pageNum);
   if (!cached) return [];
   const idx = cached.index;
   if (!idx) return cached.points; // legacy cache without index — fall back
@@ -147,7 +135,7 @@ export function getPdfSnapPointsNear(pageNum, x, y, radius) {
  * several queried cells). Includes page-spanning "oversized" edges.
  */
 export function getPdfEdgeSegmentsNear(pageNum, x, y, radius) {
-  const cached = pageCache.get(pageNum);
+  const cached = pageCache.get(getActiveDocument(), pageNum);
   if (!cached) return [];
   const idx = cached.index;
   if (!idx) return cached.edges; // legacy cache without index — fall back
@@ -223,23 +211,36 @@ async function buildSpatialIndex(points, edges, checkActive = () => {}) {
 }
 
 /**
- * Clear the entire cache (call on document switch).
+ * Clear the entire cache (all documents; e.g. after the pages of a document
+ * were replaced). Running extractions are not stored afterwards.
  */
 export function clearPdfVectorCache() {
-  pageCache.clear();
-  pendingExtractions.clear();
+  pageCache.wis();
+}
+
+/** Snap-geometrie van een gesloten document weg (document-release.js). */
+export function vergeetSnapGeometrie(pad) {
+  pageCache.vergeetPad(pad);
 }
 
 /**
  * Extract vector geometry from a PDF page's operator list.
  * Transforms all coordinates to annotation-space (CSS pixels at scale=1).
+ *
+ * options.document: breekt af zodra dit document niet meer voor staat.
+ * options.blijvendDocument: voor dit document, ook na een tabwissel.
+ * Altijd: breekt af zodra het document gesloten is. Een extractie op een
+ * zware tekening (MV-03: ~5 miljoen padoperaties) liep na het sluiten nog
+ * tientallen seconden door en hield zolang de hele operatorlijst (~1,4 GB
+ * heap) vast; wie het bestand intussen opnieuw opende, liep tegen de
+ * geheugengrens van de WebView aan (#705).
  */
 export async function extractPageGeometry(pageNum, options = {}) {
-  const doc = options.document || getActiveDocument();
+  const doc = options.document || options.blijvendDocument || getActiveDocument();
   const pdfDoc = doc?.pdfDoc;
   if (!pdfDoc) return { points: [], edges: [] };
   const checkActive = () => {
-    if (options.signal?.aborted || (options.document && getActiveDocument() !== doc)) {
+    if (options.signal?.aborted || (options.document && getActiveDocument() !== doc) || !isOpen(doc)) {
       throw new DOMException('Vector extraction aborted', 'AbortError');
     }
   };
@@ -266,7 +267,9 @@ export async function extractPageGeometry(pageNum, options = {}) {
   checkActive();
 
   // Get viewport at scale 1 (annotation coordinate system)
-  const extraRotation = getPageRotation(pageNum);
+  const extraRotation = doc === getActiveDocument()
+    ? getPageRotation(pageNum)
+    : (Number(doc.pageRotations?.[pageNum]) || 0);
   const vpOpts = { scale: 1 };
   if (extraRotation) {
     vpOpts.rotation = (page.rotate + extraRotation) % 360;
@@ -275,8 +278,20 @@ export async function extractPageGeometry(pageNum, options = {}) {
   const viewportTransform = viewport.transform;
 
   const opList = await page.getOperatorList();
-  checkActive();
+  try {
+    checkActive();
+    return await geometrieUitOperatorlijst(opList, viewportTransform, checkActive);
+  } finally {
+    // De operatorlijst is na de extractie niet meer nodig, maar PDF.js houdt
+    // hem per pagina vast tot het document sluit: bij MV-03 ~1,4 GB heap
+    // zolang het tabblad open staat (#705). cleanup() geeft hem vrij; loopt
+    // er nog een PDF.js-render op deze pagina, dan wacht PDF.js daar zelf op.
+    try { page.cleanup(); } catch { /* document al gesloten */ }
+  }
+}
 
+/** Snap-punten en -randen uit een PDF.js-operatorlijst. */
+async function geometrieUitOperatorlijst(opList, viewportTransform, checkActive) {
   // PDF transform matrix stack
   const matrixStack = [];
   let ctm = [1, 0, 0, 1, 0, 0];

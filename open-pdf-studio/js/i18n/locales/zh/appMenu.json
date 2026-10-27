@@ -71,6 +71,12 @@
     "site": "此站点",
     "noSiteDocuments": "此站点上没有文档",
     "siteListError": "无法加载此站点的文档",
+    "versions": "版本",
+    "versionNumber": "版本 {{version}}",
+    "currentVersion": "当前",
+    "noVersions": "没有版本",
+    "versionsError": "无法加载版本",
+    "olderVersionsHint": "较早版本以只读方式打开；“另存为”会下载一个副本。",
     "save": "保存"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "页",
     "officeTable": "表格",
     "officeText": "文本",
-    "officeFailed": "文档导出失败。"
+    "officeFailed": "文档导出失败。",
+    "protect": "使用密码保护",
+    "protectDesc": "保存一份受密码保护的副本 (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "输出配置文件",
@@ -211,5 +219,9 @@
     "activationFailed": "未激活：{{error}}",
     "viaMcp": "通过 AI 连接"
   },
-  "annotateScreenshot": "批注剪贴板截图"
+  "annotateScreenshot": "批注剪贴板截图",
+  "workflows": "文档工作流",
+  "drawingSets": "图纸集",
+  "sheetLinks": "跨图纸链接",
+  "approvalRouting": "审批流转"
 }

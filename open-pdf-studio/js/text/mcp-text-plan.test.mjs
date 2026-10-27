@@ -108,6 +108,32 @@ test('ontbrekende tekens in het lettertype gaan via een volledig lettertype, en 
   assert.match(lang.error, /does not fit/);
 });
 
+// Een vette kop in een niet-ingebed standaardfont (Helvetica-Bold, zonder
+// /Widths): de vervanging gaat via het volledige terugvalfont. PDF.js meldt
+// alleen 'sans-serif', dus de vetheid moet uit de BaseFont komen.
+test('een vette kop houdt met het terugvalfont zijn vetheid', async () => {
+  const pdf = await PDFDocument.create();
+  const vet = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const page = pdf.addPage([420, 250]);
+  page.drawText('TITELBLOK KOP', { x: 50, y: 160, size: 16, font: vet });
+  const bytes = await pdf.save();
+  const gerenderd = await getDocument({ data: Uint8Array.from(bytes), useSystemFonts: true }).promise;
+  const pagina = await gerenderd.getPage(1);
+  const inhoud = await pagina.getTextContent();
+  const spans = pageTextSpans(inhoud.items, inhoud.styles, pagina.getViewport({ scale: 1 }), 'doc-8', 1);
+  await gerenderd.loadingTask.destroy();
+  const read = { ok: true, documentId: 'doc-8', page: 1, spans };
+  const kop = spans.find((s) => s.text === 'TITELBLOK KOP');
+  const plan = planVervanging(read, { spanId: kop.id, expectedText: 'TITELBLOK KOP', newText: 'TITELBLOK TITEL', color: '#000000' }, []);
+  let gevraagd = null;
+  await proefOpKopie(Uint8Array.from(bytes), [plan], {
+    embedFont: async (doc, tekst, opts) => { gevraagd = opts; return { name: 'LiberationSans-Bold', font: await doc.embedFont(StandardFonts.HelveticaBold) }; },
+  });
+  assert.equal(plan.error, undefined);
+  assert.deepEqual(gevraagd, { bold: true, italic: false });
+  assert.match(plan.record.fontFamily, /Bold/);
+});
+
 test('app_translate_page staat in de brug, de Rust-server, de metatabel, tools.json en de manifest', () => {
   const REPO = new URL('../../../', import.meta.url);
   const lees = (pad) => readFileSync(new URL(pad, REPO), 'utf8');

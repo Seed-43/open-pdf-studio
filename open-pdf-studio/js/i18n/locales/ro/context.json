@@ -93,7 +93,22 @@
     "editBookmark": "Editare semn de carte",
     "deleteBookmark": "Stergere semn de carte",
     "expandAll": "Expandare tot",
-    "collapseAll": "Restranger tot"
+    "collapseAll": "Restranger tot",
+    "color": "Culoare",
+    "colorDefault": "Implicit",
+    "colorRed": "Rosu",
+    "colorOrange": "Portocaliu",
+    "colorGreen": "Verde",
+    "colorBlue": "Albastru",
+    "colorPurple": "Violet",
+    "colorGray": "Gri",
+    "colorCustom": "Personalizat...",
+    "bold": "Aldin",
+    "italic": "Cursiv",
+    "nestUnderNew": "Imbricare sub un marcaj nou...",
+    "indent": "Mărire indent",
+    "outdent": "Micșorare indent",
+    "deleteBookmarks": "Ștergere {{count}} marcaje"
   },
   "thumbnail": {
     "rotateLeft": "Rotire la stanga",

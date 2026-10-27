@@ -70,8 +70,11 @@ test('loader.js vraagt extra gegevens voor /Caret en koppelt vervangingen', () =
   const lijsten = lader.match(/needsExtraData = annotations\.some\(a => \[[^\]]*\]\.includes\(a\.subtype\)\)/g) || [];
   assert.equal(lijsten.length, 3, 'drie needsExtraData-lijsten');
   for (const lijst of lijsten) assert.match(lijst, /'Caret'/);
-  assert.match(lader, /resolveGroupLinks\(/);
-  assert.match(lader, /from '\.\/loader\/correction-load\.js'/);
+  // Het omzetten van een pagina staat sinds #619 in loader/annotaties-omzetten.js.
+  assert.match(lader, /zetPaginaAnnotatiesOm\(/);
+  const omzetten = bron('./loader/annotaties-omzetten.js');
+  assert.match(omzetten, /resolveGroupLinks\(/);
+  assert.match(omzetten, /from '\.\/correction-load\.js'/);
 });
 
 test("SOORTEN_MET_EIGEN_TEKST bevat 'caret'", () => {

@@ -23,6 +23,7 @@
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 /// Naam van de omgevingsvariabele die de lokale datamap overschrijft.
 pub const OVERRIDE_VAR: &str = "OPDS_DATA_DIR";
@@ -41,10 +42,41 @@ pub fn override_map() -> Option<PathBuf> {
     override_uit_waarde(std::env::var_os(OVERRIDE_VAR))
 }
 
+/// Schrijfbare datamap van de app op mobiel, bij het opstarten gezet uit de
+/// Tauri-padresolver (#596). Op Android wijst `dirs::data_local_dir()` naar
+/// een pad onder `/` dat alleen-lezen is (os error 30): voorkeuren en sessie
+/// gingen daar verloren. Op het bureaublad blijft deze leeg.
+static PLATFORM_MAP: OnceLock<PathBuf> = OnceLock::new();
+
+/// Zet de schrijfbare app-datamap van het platform (mobiel). Eenmalig.
+pub fn zet_platform_map(pad: PathBuf) {
+    let _ = PLATFORM_MAP.set(pad);
+}
+
+/// Pure keuzeregel voor de basis: de override wint, dan de app-datamap van
+/// het platform (mobiel), dan de lokale datamap van het OS (bureaublad).
+pub fn kies_basis(
+    override_map: Option<PathBuf>,
+    platform_map: Option<PathBuf>,
+    os_map: Option<PathBuf>,
+) -> Option<PathBuf> {
+    override_map.or(platform_map).or(os_map)
+}
+
+/// Lokale datamap van het OS. Niet op Android: daar is die alleen-lezen.
+fn os_datamap() -> Option<PathBuf> {
+    if cfg!(target_os = "android") {
+        None
+    } else {
+        dirs::data_local_dir()
+    }
+}
+
 /// Basis voor app-eigen lokale data (bevat de submap `OpenPDFStudio`):
-/// `OPDS_DATA_DIR` als die gezet is, anders de lokale datamap van het OS.
+/// `OPDS_DATA_DIR` als die gezet is, op mobiel de app-datamap, anders de
+/// lokale datamap van het OS.
 pub fn lokale_datamap() -> Option<PathBuf> {
-    override_map().or_else(dirs::data_local_dir)
+    kies_basis(override_map(), PLATFORM_MAP.get().cloned(), os_datamap())
 }
 
 /// Welke Tauri-map bedoeld is.
@@ -108,6 +140,26 @@ mod tests {
     fn gezette_waarde_wint() {
         let pad = if cfg!(windows) { r"C:\tmp\rig-data" } else { "/tmp/rig-data" };
         assert_eq!(override_uit_waarde(Some(OsString::from(pad))), Some(PathBuf::from(pad)));
+    }
+
+    #[test]
+    fn basis_override_wint_van_platform_en_os() {
+        let o = Some(PathBuf::from("override"));
+        let p = Some(PathBuf::from("platform"));
+        let os = Some(PathBuf::from("os"));
+        assert_eq!(kies_basis(o.clone(), p.clone(), os.clone()), o);
+        assert_eq!(kies_basis(None, p.clone(), os.clone()), p);
+        assert_eq!(kies_basis(None, None, os.clone()), os);
+        assert_eq!(kies_basis(None, None, None), None);
+    }
+
+    #[test]
+    fn bureaublad_gebruikt_de_os_map() {
+        // Op het bureaublad wordt geen platformmap gezet; de basis blijft de
+        // lokale datamap van het OS (ongewijzigd gedrag, #596).
+        if !cfg!(target_os = "android") {
+            assert_eq!(os_datamap(), dirs::data_local_dir());
+        }
     }
 
     #[test]

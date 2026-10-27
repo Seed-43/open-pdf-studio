@@ -7,6 +7,7 @@
 
 #[tauri::command]
 pub async fn email_pdf(path: String, subject: Option<String>) -> Result<(), String> {
+    crate::headless::weiger("email_pdf")?;
     let subject = subject.unwrap_or_default();
     // MAPISendMail is blocking (it shows the client's compose window), so run
     // it off the async runtime.

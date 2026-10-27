@@ -239,7 +239,7 @@ export default function WatermarkDialog(props) {
           <div class="watermark-row">
             <label class="watermark-label">{t('watermark.fontSize')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={fontSize()}
               min="8"
@@ -271,7 +271,7 @@ export default function WatermarkDialog(props) {
           <div class="watermark-row">
             <label class="watermark-label">{t('watermark.rotation')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={rotation()}
               min="-180"
@@ -298,13 +298,13 @@ export default function WatermarkDialog(props) {
             <div class="watermark-row wm-custom-pos">
               <label class="watermark-label">{t('watermark.xyLabel')}</label>
               <input
-                type="number"
+                type="text" inputmode="decimal" data-getal
                 class="watermark-input watermark-input-sm"
                 value={customX()}
                 onInput={(e) => setCustomX(e.target.value)}
               />
               <input
-                type="number"
+                type="text" inputmode="decimal" data-getal
                 class="watermark-input watermark-input-sm"
                 value={customY()}
                 onInput={(e) => setCustomY(e.target.value)}
@@ -401,7 +401,7 @@ export default function WatermarkDialog(props) {
           <div class="watermark-row">
             <label class="watermark-label">{t('watermark.rotation')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={imgRotation()}
               min="-180"
@@ -428,13 +428,13 @@ export default function WatermarkDialog(props) {
             <div class="watermark-row wm-img-custom-pos">
               <label class="watermark-label">{t('watermark.xyLabel')}</label>
               <input
-                type="number"
+                type="text" inputmode="decimal" data-getal
                 class="watermark-input watermark-input-sm"
                 value={imgCustomX()}
                 onInput={(e) => setImgCustomX(e.target.value)}
               />
               <input
-                type="number"
+                type="text" inputmode="decimal" data-getal
                 class="watermark-input watermark-input-sm"
                 value={imgCustomY()}
                 onInput={(e) => setImgCustomY(e.target.value)}

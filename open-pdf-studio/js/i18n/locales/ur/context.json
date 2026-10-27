@@ -93,7 +93,22 @@
     "editBookmark": "بک مارک میں ترمیم کریں",
     "deleteBookmark": "بک مارک حذف کریں",
     "expandAll": "سب پھیلائیں",
-    "collapseAll": "سب سمیٹیں"
+    "collapseAll": "سب سمیٹیں",
+    "color": "رنگ",
+    "colorDefault": "پہلے سے طے شدہ",
+    "colorRed": "سرخ",
+    "colorOrange": "نارنجی",
+    "colorGreen": "سبز",
+    "colorBlue": "نیلا",
+    "colorPurple": "ارغوانی",
+    "colorGray": "سرمئی",
+    "colorCustom": "حسب ضرورت...",
+    "bold": "بولڈ",
+    "italic": "ترچھا",
+    "nestUnderNew": "نئے بک مارک کے تحت رکھیں...",
+    "indent": "انڈینٹ بڑھائیں",
+    "outdent": "انڈینٹ گھٹائیں",
+    "deleteBookmarks": "{{count}} بک مارکس حذف کریں"
   },
   "thumbnail": {
     "rotateLeft": "بائیں گھمائیں",

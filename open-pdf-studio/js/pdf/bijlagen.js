@@ -158,7 +158,13 @@ function ruimOp(context, specRef) {
   const spec = context.lookup(specRef);
   const ef = spec instanceof PDFDict ? spec.lookup(PDFName.of('EF')) : null;
   if (ef instanceof PDFDict) {
-    for (const [, stroom] of ef.entries()) if (stroom instanceof PDFRef) context.delete(stroom);
+    for (const [, stroom] of ef.entries()) {
+      if (!(stroom instanceof PDFRef)) continue;
+      // Multiple filespecs can share one embedded stream. Removing a component
+      // must not corrupt the bytes of the remaining component.
+      const gedeeld = context.enumerateIndirectObjects().some(([ref, obj]) => ref !== specRef && verwijstNaar(obj, stroom));
+      if (!gedeeld) context.delete(stroom);
+    }
   }
   context.delete(specRef);
 }

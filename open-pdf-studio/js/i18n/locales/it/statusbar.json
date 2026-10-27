@@ -29,7 +29,8 @@
     "formCheckbox": "Casella di controllo modulo",
     "formRadio": "Pulsante di opzione modulo",
     "screenshot": "Cattura schermata",
-    "pageLabelPick": "Scegli il testo per l'etichetta di pagina"
+    "pageLabelPick": "Scegli il testo per l'etichetta di pagina",
+    "proofread": "Revisione"
   },
   "toolLabel": "Strumento:",
   "annotationsLabel": "Annotazioni:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Pagina {{page}}",
   "searchHitsOne": "1 corrispondenza",
   "searchHitsMany": "{{count}} corrispondenze",
-  "passwordProtectedBar": "Protetto da password: aperto in sola lettura."
+  "passwordProtectedBar": "Protetto da password: aperto in sola lettura.",
+  "documentSearch": {
+    "title": "Cerca nei documenti",
+    "query": "Testo da cercare",
+    "scope": "Cerca in",
+    "active": "Documento corrente",
+    "open": "Documenti aperti",
+    "folder": "Cartella",
+    "choose": "Scegli cartella",
+    "annotations": "Includi commenti",
+    "search": "Cerca",
+    "cancel": "Annulla",
+    "stale": "Il documento è cambiato. Esegui di nuovo la ricerca.",
+    "folderHint": "Cerca nei file PDF presenti direttamente in questa cartella, senza aprire schede né modificare file.",
+    "limited": "Limite di risultati raggiunto. Affina la ricerca.",
+    "cancelled": "Ricerca annullata; i risultati sono incompleti.",
+    "ocrHint": "Nessun testo ricercabile nelle pagine {{pages}}. Apri il documento ed esegui esplicitamente l'OCR se necessario.",
+    "status": {
+      "searching": "Ricerca in corso",
+      "complete": "Completata",
+      "needs_ocr": "Contiene pagine senza testo ricercabile",
+      "encrypted": "Password richiesta",
+      "unreadable": "Impossibile eseguire la ricerca",
+      "changed": "Documento modificato; cerca di nuovo",
+      "cancelled": "Annullata",
+      "limited": "Limite di risultati raggiunto"
+    },
+    "failed": "Ricerca non riuscita. Controlla la query e la cartella, quindi riprova.",
+    "prepareOcr": "Apri per OCR…"
+  },
+  "symbolSearch": "Trova simboli",
+  "findMoreOptions": "Altre opzioni di ricerca",
+  "watchActive": "Monitoraggio di {{folder}}",
+  "watchFailed": "Errore di monitoraggio: {{folder}}",
+  "watchTitle": "Il flusso di lavoro dei documenti monitora {{input}} e scrive in {{output}}. Fai clic per interrompere il monitoraggio.",
+  "renderDiagnostics": {
+    "title": "Vai alla segnalazione di rendering successiva. L’assenza di segnalazioni non garantisce un rendering completo.",
+    "count": "Segnalazioni di rendering: {{count}}",
+    "detail": "Pagina {{page}}: {{code}}. Prova uno zoom inferiore o riapri il documento; la completezza non è garantita."
+  }
 }

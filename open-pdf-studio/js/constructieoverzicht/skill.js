@@ -15,9 +15,10 @@
 export const CONSTRUCTIEOVERZICHT_SKILL = {
   id: 'structural-overview',
   icon: '📐',
-  label: 'Constructieoverzicht',
-  hint: 'Constructieoverzicht per bouwlaag op de plattegronden van de architect: fundering, vloeren met overspanning, onderliggende dragende wanden, liggers en kolommen, legenda en toelichting',
-  invoke: 'Maak een constructieoverzicht op dit blad met knipsels uit de plattegronden van de architect, per bouwlaag en volgens de conventies. Bron, bouwlagen en constructieprincipe: ',
+  // Naam, uitleg en de tekst in het invoervak staan per taal in de locales
+  // (common.assistant.skills.structural-overview); de instructie voor het
+  // model is Engels en voor elke taal gelijk.
+  invoke: 'Make a structural overview on this sheet with snippets from the architect\'s floor plans, per storey and following the conventions. Source, storeys and structural principle: ',
   needsInput: true,
 };
 
@@ -36,7 +37,7 @@ export const CONSTRUCTIEOVERZICHT_PROMPT =
   'Dragende wanden en kolommen:\n' +
   '- Teken de dragende wanden van de onderliggende laag als penanten tussen de kozijnen, zonder lateien, GESTIPPELD: app_create_annotation type "box" met fillColor null, borderStyle "dashed", lineWidth 0.8 en color en strokeColor "#000000". De breedte is de wanddikte op schaal: kalkzandsteen 120 mm = 3,4 pt op 1:100.\n' +
   '- De penanten volgen uit de arcering van de architectentekening: bij kalkzandsteen diagonale lijntjes op circa 10 pt, met het midden op de hartlijn van de wand. Neem alle bouwdelen mee, ook een aanbouw.\n' +
-  '- Kolom: rood gevuld vierkant (8 x 8 pt) met een label met het profiel, bijvoorbeeld "hoekkolom koker 100x100". Bij een glazen hoek of pui: een ligger boven de pui en kolommetjes op de stijlen van het kozijn.\n' +
+  '- Kolom: rood gevuld vierkant (8 x 8 pt) met een label met het profiel, bijvoorbeeld "hoekkolom K100/5" (vierkante koker: K<breedte>/<wanddikte>). Bij een glazen hoek of pui: een ligger boven de pui en kolommetjes op de stijlen van het kozijn.\n' +
   'Vloeren en daken:\n' +
   '- Per vloerveld een rode dubbele pijl in de overspanningsrichting: type "arrow" met startHead en endHead "closed", lineWidth 2 en headSize 7. Alle pijlen van één plattegrond op één lijn, ongeveer midden in de vloervelden, elk met een label met systeem en dikte (bijvoorbeeld "BPV 240"). Op de begane grond ook de overspanning h.o.h. funderingsbalken (bijvoorbeeld "ribcassettevloer l = 5,9 m").\n' +
   '- Platte daken op de hoogte van een verdiepingsvloer (aanbouw, uitbouw) horen op de plattegrond van die verdieping, niet op het dakplan; een plat dak tussen de kappen hoort op de plattegrond van de laag waarop het ligt. Het dakplan toont alleen het hellende dak: kap, spanten en de doorgezette kap boven een veranda.\n' +

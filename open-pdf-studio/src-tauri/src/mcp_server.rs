@@ -751,6 +751,25 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
+                "name": "app_capture_region",
+                "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees. Coordinates are app points (page space, top-left origin, 100% zoom); leave x, y, width and height out for the whole page. Very large images are scaled down to at most 16384 px per side and 64 megapixels (`limited` is then true and `dpi` the resolution used). Returns { page, rect, width, height, dpi, limited, mime } plus image_base64, or with `path` the image is written to that file and { path, bytes } is returned instead of the base64. Nothing is put on the clipboard.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "page":    { "type": "integer", "minimum": 1, "description": "Page number (default: the current page)." },
+                        "x":       { "type": "number", "description": "Left edge in app points." },
+                        "y":       { "type": "number", "description": "Top edge in app points." },
+                        "width":   { "type": "number", "description": "Width in app points." },
+                        "height":  { "type": "number", "description": "Height in app points." },
+                        "dpi":     { "type": "number", "minimum": 10, "maximum": 2400, "default": 150, "description": "Resolution in pixels per inch of paper." },
+                        "format":  { "type": "string", "enum": ["png", "jpeg"], "default": "png" },
+                        "quality": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90, "description": "JPEG quality." },
+                        "path":    { "type": "string", "description": "Absolute file path to write the image to, instead of returning it as base64." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
                 "name": "app_mouse_move",
                 "description": "Dispatch a synthetic mousemove at viewport CSS coordinates (x, y) inside the LIVE WebView. Returns the element under the cursor.",
                 "inputSchema": {
@@ -1055,7 +1074,7 @@ fn handle_tools_list() -> Value {
             agent_task_result_tool(),
             {
                 "name": "app_create_annotation",
-                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/textbox/callout/scaleRegion need x/y/width/height; polygon takes its corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional sides, default 6) for a regular polygon in that box; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1259,6 +1278,949 @@ fn handle_tools_list() -> Value {
                     "additionalProperties": false
                 }
             },
+{
+    "name": "app_portfolio",
+    "description": "Inspect or save a PDF Collection copy, preserving component bytes, folders, schema, sort and metadata. Save pending edits first. add[].path reads each named file from an explicit absolute local path (document and data types only) and embeds it. Folders use numeric parentId (0 for a new root); new IDs increase from the current maximum. Unsupported components are exported, never executed. saveCopy/exportComponent require a new absolute output path; existing files are refused. exportComponent writes document and data types only (no programs, scripts or shortcuts), never into autostart folders, and marks the file as downloaded. New collections get a fallback cover.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "inspect",
+                    "saveCopy",
+                    "exportComponent"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "outputPath": {
+                "type": "string"
+            },
+            "key": {
+                "type": "string"
+            },
+            "add": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "folderId": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "description": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "name"
+                    ],
+                    "additionalProperties": false
+                },
+                "maxItems": 1000
+            },
+            "remove": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "folders": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "parentId": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "parentId"
+                    ],
+                    "additionalProperties": false
+                },
+                "maxItems": 1000
+            },
+            "descriptions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "key",
+                        "description"
+                    ],
+                    "additionalProperties": false
+                },
+                "maxItems": 1000
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_recognize_form",
+    "description": "Detect heuristic form-field candidates on selected saved PDF pages, excluding existing fields. Review/correct labels, type, bounds in unrotated PDF points, required flags, radio grouping and order before setting accepted=true. saveCopy requires the returned revision and sourceId plus a NEW PDF outputPath. Existing fields/artwork remain. OCR labels require desktop OCR; no fields are accepted automatically.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "detect",
+                    "saveCopy"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "pages": {
+                "type": "array",
+                "items": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "minItems": 1,
+                "maxItems": 50
+            },
+            "ocr": {
+                "type": "boolean"
+            },
+            "lang": {
+                "type": "string"
+            },
+            "revision": {
+                "type": "integer"
+            },
+            "sourceId": {
+                "type": "string"
+            },
+            "outputPath": {
+                "type": "string"
+            },
+            "candidates": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "page": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "text",
+                                "checkbox",
+                                "radio"
+                            ]
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "label": {
+                            "type": "string"
+                        },
+                        "required": {
+                            "type": "boolean"
+                        },
+                        "accepted": {
+                            "type": "boolean"
+                        },
+                        "order": {
+                            "type": "number"
+                        },
+                        "group": {
+                            "type": "string"
+                        },
+                        "groupLabel": {
+                            "type": "string"
+                        },
+                        "option": {
+                            "type": "string"
+                        },
+                        "bounds": {
+                            "type": "object",
+                            "properties": {
+                                "x": {
+                                    "type": "number"
+                                },
+                                "y": {
+                                    "type": "number"
+                                },
+                                "width": {
+                                    "type": "number"
+                                },
+                                "height": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "x",
+                                "y",
+                                "width",
+                                "height"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": [
+                        "page",
+                        "type",
+                        "name",
+                        "label",
+                        "accepted",
+                        "order",
+                        "bounds"
+                    ],
+                    "additionalProperties": true
+                },
+                "maxItems": 1000
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_search_symbols",
+    "description": "Search page artwork for a selected symbol rectangle in current page-view coordinates at scale 1. Review candidates before accept, which creates undoable standard count annotations without duplicating same-category counts at the same location. Search bounded to 20 pages, 1200 pixels per edge and 1000 results. Similarity is not certainty. Results expire after 20 minutes or source changes. navigate reveals a result.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "search",
+                    "accept",
+                    "navigate"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "templatePage": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "rect": {
+                "type": "object",
+                "properties": {
+                    "x": {
+                        "type": "number"
+                    },
+                    "y": {
+                        "type": "number"
+                    },
+                    "width": {
+                        "type": "number"
+                    },
+                    "height": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "height"
+                ],
+                "additionalProperties": false
+            },
+            "pages": {
+                "type": "array",
+                "items": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "maxItems": 20
+            },
+            "threshold": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 1
+            },
+            "rotations": {
+                "type": "array",
+                "items": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        90,
+                        180,
+                        270
+                    ]
+                },
+                "maxItems": 4
+            },
+            "scales": {
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 2
+                },
+                "maxItems": 3
+            },
+            "queryId": {
+                "type": "string"
+            },
+            "id": {
+                "type": "string"
+            },
+            "ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "maxItems": 1000
+            },
+            "category": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "markerStyle": {
+                        "type": "string",
+                        "enum": [
+                            "dot"
+                        ]
+                    }
+                },
+                "required": [
+                    "id"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_workbook_bindings",
+    "description": "Persist mappings from a named schedule on a source PDF to numeric XLSX cells. list reports source/schedule/workbook status; bind creates or explicitly rebinds an id to the active source. preview returns fresh values, CSV and provenance without writing. refresh explicitly updates only mapped workbook cells (desktop, source must be active), preserving other formulas/formatting and requesting recalculation. Formula/merged/protected targets are refused. inspectWorkbook lists worksheets; export returns portable binding data; remove disconnects.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "list",
+                    "bind",
+                    "preview",
+                    "refresh",
+                    "inspectWorkbook",
+                    "export",
+                    "remove"
+                ]
+            },
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "scheduleId": {
+                "type": "string"
+            },
+            "workbookPath": {
+                "type": "string"
+            },
+            "sheet": {
+                "type": "string"
+            },
+            "path": {
+                "type": "string"
+            },
+            "mappings": {
+                "type": "array",
+                "maxItems": 1000,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "field": {
+                            "type": "string"
+                        },
+                        "cell": {
+                            "type": "string"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "field",
+                        "cell",
+                        "unit"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_document_workflows",
+    "description": "Save/export (list) named version-1 document workflows, remove by name, run selected PDF paths into a separate output folder, start explicit watched input/output folders, or stop/cancel. Supported ordered steps: rotate {angle:0|90|180|270}, cropMargins {left,right,top,bottom} in unrotated PDF points, metadata {title,author,subject}. Workflow has version:1,name,suffix (letters/digits/_/-),steps. New outputs only, deterministic names and retry detection; no uploads. Watch requires the desktop app to stay open and does not resume automatically.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "list",
+                    "save",
+                    "remove",
+                    "run",
+                    "watch",
+                    "stop"
+                ]
+            },
+            "name": {
+                "type": "string"
+            },
+            "workflow": {
+                "type": "object"
+            },
+            "paths": {
+                "type": "array",
+                "maxItems": 1000,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "input": {
+                "type": "string"
+            },
+            "output": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_drawing_sets",
+    "description": "Manage a portable version-1 multi-file drawing set. list returns manifest/root/report; capture stages active PDF pages; import validates a manifest; root selects local package root; preview returns matches/base; commit requires that base, sheets and one resolution per sheet (existing id/new/ignore). open accepts sheet id and version index. transferPreview requires source/target version records and optional dx/dy in points, both documents open and target active; transferApply requires preview id, selected source annotation ids and confirmed:true. No PDF writes; transferred markups are one undo step.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "list",
+                    "capture",
+                    "import",
+                    "root",
+                    "preview",
+                    "commit",
+                    "open",
+                    "transferPreview",
+                    "transferApply"
+                ]
+            },
+            "manifest": {
+                "type": "object"
+            },
+            "root": {
+                "type": "string"
+            },
+            "sheets": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "resolutions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "base": {
+                "type": "string"
+            },
+            "id": {
+                "type": "string"
+            },
+            "version": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "source": {
+                "type": "object"
+            },
+            "target": {
+                "type": "object"
+            },
+            "dx": {
+                "type": "number"
+            },
+            "dy": {
+                "type": "number"
+            },
+            "selected": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "confirmed": {
+                "type": "boolean"
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_sheet_links",
+    "description": "Build reviewed relative PDF links across a package. index lists open saved PDFs and editable page labels; scan accepts files [{documentId,path}] and index [{id,path,page,label,region:null|[left,bottom,right,top]}], optional literal prefix and caseSensitive. Existing OCR text layers are included. Returns immutable hit ids with resolved/ambiguous/missing targets and existing-link overlaps. export accepts scan id, selections [{hitId,targetId}], optional replaceExisting and a new desktop outputPath ending .zip; exports all source copies with relative GoTo/GoToR links and report, never edits originals. cancel stops scanning. Max 100 pages, 250 MB and 2000 hits.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "index",
+                    "scan",
+                    "cancel",
+                    "export"
+                ]
+            },
+            "files": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "index": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "prefix": {
+                "type": "string"
+            },
+            "caseSensitive": {
+                "type": "boolean"
+            },
+            "id": {
+                "type": "string"
+            },
+            "selections": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "replaceExisting": {
+                "type": "boolean"
+            },
+            "outputPath": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+{
+    "name": "app_approval_routing",
+    "description": "Local-file-v1 electronic approval routing, no network sending or certificate signing. Explicit configure adapter/enabled:true first. draft captures the active saved PDF hash with title/revision, sequential|parallel mode, nullable expiresAt, recipients [{id,name,email}], fields [{id,recipientId,page,x,y,width,height,label}]. list shows immutable document identity, state and audit. submit requires id and confirmedHash after exact-source review; it releases for manual handoff only. receipt imports a self-reported decision bound to request/document/recipient. cancel and supersede track distinct states. createReceipt requires confirmed:true, the explicit confirmation the dialog asks for; events created over MCP record MCP as the actor. verify checks an exported record hash chain, not identity authenticity. export writes original PDF plus audit/request JSON into a new desktop ZIP outputPath; no permanent login.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "configure",
+                    "draft",
+                    "list",
+                    "submit",
+                    "receipt",
+                    "cancel",
+                    "supersede",
+                    "verify",
+                    "export",
+                    "createReceipt"
+                ]
+            },
+            "adapter": {
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "title": {
+                "type": "string"
+            },
+            "revision": {
+                "type": "string"
+            },
+            "mode": {
+                "type": "string",
+                "enum": [
+                    "sequential",
+                    "parallel"
+                ]
+            },
+            "expiresAt": {
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "recipients": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "fields": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                }
+            },
+            "id": {
+                "type": "string"
+            },
+            "confirmedHash": {
+                "type": "string"
+            },
+            "receipt": {
+                "type": "object"
+            },
+            "replacementId": {
+                "type": "string"
+            },
+            "record": {
+                "type": "object"
+            },
+            "outputPath": {
+                "type": "string"
+            },
+            "recipientId": {
+                "type": "string"
+            },
+            "decision": {
+                "type": "string",
+                "enum": [
+                    "approved",
+                    "rejected"
+                ]
+            },
+            "comment": {
+                "type": "string"
+            },
+            "confirmed": {
+                "type": "boolean"
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+            {
+                "name": "app_search_documents",
+                "description": "Search text and optional comments in the active PDF, all open PDFs, or PDF files directly in a desktop folder. Reads open unsaved documents in memory; never saves or uploads. Returns grouped file statuses and bounded matches with page labels, snippets and coordinates. Encrypted, unreadable and textless pages are reported separately. No persistent index. Refine the query when truncated.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "scope": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "open",
+                                "folder"
+                            ],
+                            "default": "open"
+                        },
+                        "folder": {
+                            "type": "string",
+                            "description": "Required for folder scope; desktop only, non-recursive."
+                        },
+                        "annotations": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "matchCase": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "wholeWord": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2000,
+                            "default": 500
+                        }
+                    },
+                    "required": [
+                        "query"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            {
+    "name": "app_locations",
+    "description": "List computed markup locations or edit named spatial zones and explicit location overrides. Mutations require the active documentId and annotationId. Zones use existing straight polygons or unrotated boxes. Reuses undo and saves metadata with the PDF.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "list",
+                    "zone",
+                    "removeZone",
+                    "override",
+                    "automatic"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "annotationId": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "parentId": {
+                "type": "string"
+            },
+            "value": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "action"
+        ],
+        "additionalProperties": false
+    }
+},
+            {
+    "name": "app_hidden_information",
+    "description": "Inspect structural metadata, comments, embedded files, actions and optional-content indicators in the saved active PDF. Export selected removable categories to a NEW PDF and JSON report; existing files are never overwritten. Pending changes must be saved first. Hidden/covered text, image pixels and optional-content layers are not removed; existing signatures cannot survive rewriting.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "inspect",
+                    "export"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "categories": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "metadata",
+                        "comments",
+                        "attachments",
+                        "actions"
+                    ]
+                }
+            },
+            "outputPath": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
+            {
+    "name": "app_print_preflight",
+    "description": "Inspect the saved active PDF against a reusable print profile. Reports page/object, severity, expected and observed values for fonts, image DPI, color, transparency, page boxes and output intent. Not a PDF/X or PDF/A certificate. fixTrimBoxes explicitly writes a NEW copy and report and rechecks; existing files are refused. Save pending edits first.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "inspect",
+                    "fixTrimBoxes"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "profile": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "integer",
+                        "enum": [
+                            1
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "minDpi": {
+                        "type": "number",
+                        "minimum": 36,
+                        "maximum": 2400
+                    },
+                    "embeddedFonts": {
+                        "type": "boolean"
+                    },
+                    "allowRgb": {
+                        "type": "boolean"
+                    },
+                    "allowTransparency": {
+                        "type": "boolean"
+                    },
+                    "outputIntent": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "outputPath": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
+            {
+    "name": "app_review_ocr",
+    "description": "List low/unknown-confidence OCR words with page coordinates and review state, or accept/correct one word. Requires documentId; mutations also require revision and expectedText from the list to reject stale edits. Save afterward to replace the invisible OCR text layer. Never paints over the scan. Results are paginated.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": [
+                    "list",
+                    "accept",
+                    "correct"
+                ]
+            },
+            "documentId": {
+                "type": "string"
+            },
+            "threshold": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+            },
+            "offset": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+            },
+            "revision": {
+                "type": "integer"
+            },
+            "page": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "index": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "expectedText": {
+                "type": "string"
+            },
+            "text": {
+                "type": "string",
+                "maxLength": 2000
+            }
+        },
+        "required": [
+            "action",
+            "documentId"
+        ],
+        "additionalProperties": false
+    }
+},
             {
                 "name": "app_get_page_text",
                 "description": "Read existing PDF page text without mouse automation. Returns document-bound span IDs, readable merged text, page-space bounding boxes, PDF anchors, font family/size, rotation and fill colour when recoverable. Pass a page number or omit it for the current page. Text is never sent outside the local MCP connection.",
@@ -1272,7 +2234,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_replace_text",
-                "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
+                "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. On a scanned page with an invisible OCR layer the scanned word is covered and the replacement is drawn visibly, as in the editor (reply: coveredScannedText). Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1358,7 +2320,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_structural_layout",
-                "description": "Set out a structural floor plan in one undoable step: the grid (lettered and numbered grid lines with bubbles), columns on the grid intersections, beams along the grid lines, a span-direction arrow per floor bay carrying the real span, spot elevations, position tags (position number / section / level) and - unless switched off - a quantity schedule grouped by IFC category. Bay sizes are REAL millimetres; the app converts them to page points at `scale` and also calibrates the measuring scale so later measurements agree. Profiles: \"HE200B\", \"HEA 200\", \"IPE 300\", \"UNP 200\", \"Koker 100x100x5\", \"L 100x100x10\" (steel) or \"300x500\" (concrete b x h in mm). Use dryRun to see what would be placed without touching the drawing.",
+                "description": "Set out a structural floor plan in one undoable step: the grid (lettered and numbered grid lines with bubbles), columns on the grid intersections, beams along the grid lines, a span-direction arrow per floor bay carrying the real span, spot elevations, position tags (position number / section / level) and - unless switched off - a quantity schedule grouped by IFC category. Bay sizes are REAL millimetres; the app converts them to page points at `scale` and also calibrates the measuring scale so later measurements agree. Profiles: \"HE200B\", \"HEA 200\", \"IPE 300\", \"UNP 200\", \"K100/5\" (square hollow section; rectangular: \"Koker 100x50x5\"), \"L 100x100x10\" (steel) or \"300x500\" (concrete b x h in mm). Use dryRun to see what would be placed without touching the drawing.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1597,6 +2559,8 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_zoom_in" => tool_app_request(state, "mcp:zoom-in", &arguments, Duration::from_secs(15)).await,
         "app_zoom_out" => tool_app_request(state, "mcp:zoom-out", &arguments, Duration::from_secs(15)).await,
         "app_screenshot_view" => tool_app_request(state, "mcp:screenshot-view", &arguments, Duration::from_secs(30)).await,
+        // A page at a high dpi can take a while to render.
+        "app_capture_region"  => tool_app_request(state, "mcp:capture-region",  &arguments, Duration::from_secs(120)).await,
         "app_mouse_move"  => tool_app_request(state, "mcp:mouse-move",  &arguments, Duration::from_secs(10)).await,
         "app_mouse_click" => tool_app_request(state, "mcp:mouse-click", &arguments, Duration::from_secs(10)).await,
         "app_mouse_drag"  => tool_app_request(state, "mcp:mouse-drag",  &arguments, Duration::from_secs(30)).await,
@@ -1643,6 +2607,19 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_fit_page"           => tool_app_request(state, "mcp:fit-page",           &arguments, Duration::from_secs(15)).await,
         "app_fit_width"          => tool_app_request(state, "mcp:fit-width",          &arguments, Duration::from_secs(15)).await,
         "app_get_page_count"     => tool_app_request(state, "mcp:get-page-count",     &arguments, Duration::from_secs(5)).await,
+        "app_search_documents"   => tool_app_request(state, "mcp:search-documents", &arguments, Duration::from_secs(300)).await,
+        "app_locations"          => tool_app_request(state, "mcp:locations", &arguments, Duration::from_secs(30)).await,
+        "app_hidden_information" => tool_app_request(state, "mcp:hidden-information", &arguments, Duration::from_secs(300)).await,
+        "app_print_preflight"    => tool_app_request(state, "mcp:print-preflight", &arguments, Duration::from_secs(300)).await,
+        "app_review_ocr"         => tool_app_request(state, "mcp:review-ocr", &arguments, Duration::from_secs(60)).await,
+        "app_portfolio"          => tool_app_request(state, "mcp:portfolio", &arguments, Duration::from_secs(300)).await,
+        "app_recognize_form"     => tool_app_request(state, "mcp:recognize-form", &arguments, Duration::from_secs(300)).await,
+        "app_search_symbols"     => tool_app_request(state, "mcp:search-symbols", &arguments, Duration::from_secs(300)).await,
+        "app_workbook_bindings"  => tool_app_request(state, "mcp:workbook-bindings", &arguments, Duration::from_secs(300)).await,
+        "app_document_workflows" => tool_app_request(state, "mcp:document-workflows", &arguments, Duration::from_secs(300)).await,
+        "app_drawing_sets" => tool_app_request(state, "mcp:drawing-sets", &arguments, Duration::from_secs(300)).await,
+        "app_sheet_links" => tool_app_request(state, "mcp:sheet-links", &arguments, Duration::from_secs(300)).await,
+        "app_approval_routing" => tool_app_request(state, "mcp:approval-routing", &arguments, Duration::from_secs(300)).await,
         "app_get_page_text"      => tool_app_request(state, "mcp:get-page-text",      &arguments, Duration::from_secs(60)).await,
         "app_replace_text"       => tool_app_request(state, "mcp:replace-text",       &arguments, Duration::from_secs(120)).await,
         "app_translate_page"     => tool_app_request(state, "mcp:translate-page",     &arguments, Duration::from_secs(300)).await,
@@ -2366,11 +3343,19 @@ mod tests {
     }
 
     #[test]
+    fn publieke_catalogus_is_gelijk_aan_verpakte_tools() {
+        let publiek = tools_list_voor(Profiel::Publiek);
+        let verpakt: Value = serde_json::from_str(include_str!("../../../mcp-stdio/tools.json"))
+            .expect("valid packaged MCP catalog");
+        assert_eq!(publiek["tools"], verpakt, "native and stdio schemas/metadata/order must match");
+    }
+
+    #[test]
     fn publiek_profiel_laat_ontwikkelgereedschap_weg_en_annoteert_alles() {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 75);
+        assert_eq!(arr.len(), 89);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);

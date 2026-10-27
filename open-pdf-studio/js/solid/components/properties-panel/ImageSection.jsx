@@ -2,6 +2,7 @@ import { Show } from 'solid-js';
 import { annotProps, sectionVis, updateAnnotProp, resetImageSize, cycleSelectNext } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import PrefComboBox from '../preferences/PrefComboBox.jsx';
+import { PapierMaatInvoer, PapierEenheidKeuze, PapierEenheidLabel } from './PapierMaat.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import i18next from '../../../i18n/config.js';
 import { getActiveDocument } from '../../../core/state.js';
@@ -50,18 +51,22 @@ export default function ImageSection() {
   return (
     <Show when={sectionVis.image}>
       <CollapsibleSection title={t('image.title')} name="image" id="prop-image-section">
+        {/* Breedte en hoogte in de gekozen papiereenheid (#598); het model
+            blijft in paginapunten. */}
         <div class="property-group">
           <label>{t('image.width')}</label>
-          <input type="number" min="0.01" step="any"
-            value={annotProps.imageWidth} disabled={isLocked()}
-            onInput={(e) => updateAnnotProp('imageWidth', e.target.value)} />
+          <PapierMaatInvoer pt={() => annotProps.imageWidth} bron={() => annotProps.id}
+            disabled={isLocked()}
+            onInvoer={(tekst) => updateAnnotProp('imageWidth', tekst)} />
+          <PapierEenheidKeuze />
         </div>
 
         <div class="property-group">
           <label>{t('image.height')}</label>
-          <input type="number" min="0.01" step="any"
-            value={annotProps.imageHeight} disabled={isLocked()}
-            onInput={(e) => updateAnnotProp('imageHeight', e.target.value)} />
+          <PapierMaatInvoer pt={() => annotProps.imageHeight} bron={() => annotProps.id}
+            disabled={isLocked()}
+            onInvoer={(tekst) => updateAnnotProp('imageHeight', tekst)} />
+          <PapierEenheidLabel />
         </div>
 
         <div class="property-group">
@@ -116,28 +121,28 @@ export default function ImageSection() {
             gangbare kantoorsoftware. */}
         <div class="property-group">
           <label>{t('image.cropLeft')}</label>
-          <input type="number" min="0" max="90" step="1"
+          <input type="text" inputmode="decimal" data-getal min="0" max="90" step="1"
             value={annotProps.cropLeft} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('cropLeft', e.target.value)} />
         </div>
 
         <div class="property-group">
           <label>{t('image.cropRight')}</label>
-          <input type="number" min="0" max="90" step="1"
+          <input type="text" inputmode="decimal" data-getal min="0" max="90" step="1"
             value={annotProps.cropRight} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('cropRight', e.target.value)} />
         </div>
 
         <div class="property-group">
           <label>{t('image.cropTop')}</label>
-          <input type="number" min="0" max="90" step="1"
+          <input type="text" inputmode="decimal" data-getal min="0" max="90" step="1"
             value={annotProps.cropTop} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('cropTop', e.target.value)} />
         </div>
 
         <div class="property-group">
           <label>{t('image.cropBottom')}</label>
-          <input type="number" min="0" max="90" step="1"
+          <input type="text" inputmode="decimal" data-getal min="0" max="90" step="1"
             value={annotProps.cropBottom} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('cropBottom', e.target.value)} />
         </div>

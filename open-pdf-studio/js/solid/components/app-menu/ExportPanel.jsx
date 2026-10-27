@@ -7,6 +7,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { showMessage, openDialog } from '../../stores/dialogStore.js';
 import { isTauri, invoke, openFileDialog, isNietInBrowser } from '../../../core/platform.js';
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import { opslaanGeweigerd } from '../../../pdf/wachtwoord-pdf.js';
 import { savePreferences } from '../../../core/preferences.js';
 import {
   herstelPdfxInstellingen, listCmykProfiles, inspectCmykProfile, profileErrorMessage, INTENTS,
@@ -132,6 +133,23 @@ export default function ExportPanel() {
     if (!r.ok && r.reden === 'doel-is-geopend') showMessage(i18next.t('dialogs:print.targetIsOpenFile'));
   };
 
+  // Beveiligde kopie met een wachtwoord (js/pdf/protect-pdf.js); alleen op het bureaublad.
+  const handleProtect = () => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) {
+      showMessage(tCommon('noDocumentOpen'));
+      return;
+    }
+    // Met een wachtwoord geopend: alleen-lezen, ook geen beveiligde kopie
+    // (wachtwoord-pdf.js). Meteen melden, vóór de gebruiker wachtwoorden typt.
+    if (opslaanGeweigerd(doc)) {
+      showMessage(tCommon('protectedPdfReadOnly'));
+      return;
+    }
+    closeAppMenu();
+    openDialog('protect-pdf');
+  };
+
   const handleCardClick = (type) => {
     setExportType(type);
     setShowOptions(true);
@@ -241,6 +259,21 @@ export default function ExportPanel() {
           <div class="bs-export-card-info">
             <h3>{t('exportPanel.exportFlat')}</h3>
             <p>{t('exportPanel.exportFlatDesc')}</p>
+          </div>
+        </div>
+
+        <div class={`bs-export-card${uit('export-protect') ? ' geen-webvariant' : ''}`}
+          title={uit('export-protect') ? meld(t('exportPanel.protect')) : undefined}
+          onClick={() => { if (!uit('export-protect')) handleProtect(); }}>
+          <div class="bs-export-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="11" width="14" height="10" rx="1"/>
+              <path d="M8 11V7a4 4 0 018 0v4"/>
+            </svg>
+          </div>
+          <div class="bs-export-card-info">
+            <h3>{t('exportPanel.protect')}</h3>
+            <p>{t('exportPanel.protectDesc')}</p>
           </div>
         </div>
 

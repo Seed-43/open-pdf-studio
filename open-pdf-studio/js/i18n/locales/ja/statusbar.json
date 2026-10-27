@@ -29,7 +29,8 @@
     "formCheckbox": "フォームチェックボックス",
     "formRadio": "フォームラジオボタン",
     "screenshot": "スクリーンショット",
-    "pageLabelPick": "ページラベルの文字を選択"
+    "pageLabelPick": "ページラベルの文字を選択",
+    "proofread": "校正"
   },
   "toolLabel": "ツール：",
   "annotationsLabel": "注釈：",
@@ -108,5 +109,44 @@
   "searchResultPage": "{{page}} ページ",
   "searchHitsOne": "1 件",
   "searchHitsMany": "{{count}} 件",
-  "passwordProtectedBar": "パスワードで保護されています: 読み取り専用で開きました。"
+  "passwordProtectedBar": "パスワードで保護されています: 読み取り専用で開きました。",
+  "documentSearch": {
+    "title": "ドキュメントを検索",
+    "query": "検索テキスト",
+    "scope": "検索対象",
+    "active": "現在のドキュメント",
+    "open": "開いているドキュメント",
+    "folder": "フォルダー",
+    "choose": "フォルダーを選択",
+    "annotations": "コメントを含める",
+    "search": "検索",
+    "cancel": "キャンセル",
+    "stale": "ドキュメントが変更されました。もう一度検索を実行してください。",
+    "folderHint": "タブを開いたりファイルを変更したりせずに、このフォルダー直下の PDF ファイルを検索します。",
+    "limited": "結果の上限に達しました。検索条件を絞り込んでください。",
+    "cancelled": "検索をキャンセルしました。結果は不完全です。",
+    "ocrHint": "{{pages}} ページに検索可能なテキストがありません。必要に応じてドキュメントを開き、OCR を明示的に実行してください。",
+    "status": {
+      "searching": "検索中",
+      "complete": "完了",
+      "needs_ocr": "検索可能なテキストのないページを含みます",
+      "encrypted": "パスワードが必要です",
+      "unreadable": "検索できませんでした",
+      "changed": "ドキュメントが変更されました。もう一度検索してください",
+      "cancelled": "キャンセル済み",
+      "limited": "結果の上限に達しました"
+    },
+    "failed": "検索に失敗しました。検索語とフォルダーを確認して、もう一度お試しください。",
+    "prepareOcr": "OCR 用に開く…"
+  },
+  "symbolSearch": "記号を検索",
+  "findMoreOptions": "その他の検索オプション",
+  "watchActive": "{{folder}} を監視中",
+  "watchFailed": "監視エラー：{{folder}}",
+  "watchTitle": "ドキュメントワークフローが {{input}} を監視し、{{output}} に書き込んでいます。クリックすると監視を停止します。",
+  "renderDiagnostics": {
+    "title": "次の描画に関する通知へ移動します。通知がなくても完全な描画は保証されません。",
+    "count": "描画に関する通知: {{count}}",
+    "detail": "ページ {{page}}: {{code}}。ズームを下げるか、文書を開き直してください。完全性は保証されません。"
+  }
 }

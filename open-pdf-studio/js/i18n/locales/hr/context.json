@@ -93,7 +93,22 @@
     "editBookmark": "Uredi knjižnu oznaku",
     "deleteBookmark": "Obriši knjižnu oznaku",
     "expandAll": "Proširi sve",
-    "collapseAll": "Sažmi sve"
+    "collapseAll": "Sažmi sve",
+    "color": "Boja",
+    "colorDefault": "Zadano",
+    "colorRed": "Crvena",
+    "colorOrange": "Narančasta",
+    "colorGreen": "Zelena",
+    "colorBlue": "Plava",
+    "colorPurple": "Ljubičasta",
+    "colorGray": "Siva",
+    "colorCustom": "Prilagođeno...",
+    "bold": "Podebljano",
+    "italic": "Kurziv",
+    "nestUnderNew": "Ugnijezdi pod novu knjižnu oznaku...",
+    "indent": "Povećaj uvlaku",
+    "outdent": "Smanji uvlaku",
+    "deleteBookmarks": "Izbriši knjižne oznake ({{count}})"
   },
   "thumbnail": {
     "rotateLeft": "Rotiraj lijevo",

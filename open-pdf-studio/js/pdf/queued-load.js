@@ -67,6 +67,20 @@ export function queuedLoadTarget(documents, doc) {
 }
 
 /**
+ * May openFiles() open this path? A PDF path, or on Android a content:// URI:
+ * "Open with" from another app hands over a URI without a file name, often
+ * without ".pdf" at the end (.../document/msf%3A1234). The intent filter only
+ * lets application/pdf through, so the URI itself is the PDF (#593).
+ * @param {unknown} filePath
+ * @returns {boolean}
+ */
+export function isOpenableDocumentPath(filePath) {
+  if (typeof filePath !== 'string' || !filePath) return false;
+  if (/^content:\/\//i.test(filePath)) return true;
+  return filePath.toLowerCase().endsWith('.pdf');
+}
+
+/**
  * The queue behind openFiles(): the tabs appear at once, the files load one by
  * one. One queue per app, so loads stay serialized across separate calls (the
  * single-instance plugin sends one open-files event per file).
@@ -89,7 +103,7 @@ export function createFileOpenQueue({ documents, createTab, switchToTab, loadPDF
     // 1. Create all tabs instantly (synchronous) so the tab bar updates right away
     const pending = [];
     for (const filePath of filePaths) {
-      if (filePath && filePath.toLowerCase().endsWith('.pdf')) {
+      if (isOpenableDocumentPath(filePath)) {
         const { index } = createTab(filePath, false); // don't auto-switch
         // Keep the document itself, read back from the live list: tabs can be
         // closed or reordered while the loads below wait in the queue. NOT the

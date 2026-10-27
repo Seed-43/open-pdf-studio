@@ -1,3 +1,4 @@
+import { readRenderDiagnostics } from '../pdf/render-diagnostics.js';
 /**
  * Plugin API
  *
@@ -206,6 +207,20 @@ function koppelAgentTaken() {
   });
 }
 
+/** The code of a failed feature call: an error code, or OPERATION_FAILED. */
+function featureErrorCode(error) {
+  if (typeof error?.code === 'string' && error.code) return error.code;
+  if (error?.name === 'AbortError') return 'ABORTED';
+  const message = error?.message;
+  return typeof message === 'string' && /^[A-Z][A-Z0-9_]*$/.test(message) ? message : 'OPERATION_FAILED';
+}
+
+/** Load a feature service, after checking that the request names a known action. */
+function withAction(request, actions, load) {
+  if (!actions.includes(request?.action)) throw new Error('INVALID_ACTION');
+  return load();
+}
+
 export function createPluginApi(pluginId) {
   // System types (#567): registry, native tool, native editor and the
   // geometry of system instances as the host. See docs/plugin-systeemtypen.md
@@ -262,6 +277,23 @@ export function createPluginApi(pluginId) {
     });
   }
 
+  // Document feature calls (searchDocuments … approvalRouting) follow the
+  // same contract as the view-navigation calls: they resolve to
+  // { ok: true, ... } or { ok: false, code, message } and never throw. The
+  // service is loaded on first use; the API must still be active afterwards.
+  async function featureCall(kind, load, call) {
+    try {
+      scope.eisActief(kind, pluginId);
+      const service = await load();
+      scope.eisActief(kind, pluginId);
+      const result = await call(service);
+      const fields = result && typeof result === 'object' && !Array.isArray(result) ? result : { result };
+      return { ...fields, ok: true };
+    } catch (error) {
+      return { ok: false, code: featureErrorCode(error), message: error?.message || String(error) };
+    }
+  }
+
   function emit(type, event) {
     for (const listener of documentListeners.get(type) || []) {
       try { listener(event); } catch (error) { console.warn(`[plugin] ${type} listener failed`, error); }
@@ -283,6 +315,19 @@ export function createPluginApi(pluginId) {
       pluginDocumentEvents: true,
       systemTypes: true,
       viewNavigation: true,
+      documentSearch: true,
+      spatialLocations: true,
+      hiddenInformation: true,
+      printPreflight: true,
+      ocrVerification: true,
+      portfolio: true,
+      recognizeForm: true,
+      searchSymbols: true,
+      workbookBindings: true,
+      documentWorkflows: true,
+      drawingSets: true,
+      sheetLinks: true,
+      approvalRouting: true,
       ribbonTabs: true,
       structuredCommands: true,
       systemInstanceLinks: true,
@@ -437,7 +482,7 @@ export function createPluginApi(pluginId) {
       // revision: verandert bij elke stap in de undo-geschiedenis; geef hem als
       // revisionContext.documentRevision mee aan een wijzigende opdracht (#575).
       return doc ? { id: doc.id, pageCount: doc.numPages || doc.pdfDoc?.numPages || 0, currentPage: doc.currentPage,
-        name: doc.fileName || null, revision: documentRevisie(doc) } : null;
+        name: doc.fileName || null, revision: documentRevisie(doc), renderDiagnostics: readRenderDiagnostics(doc.filePath) } : null;
     },
 
     getPageInfo(pageNum, options = {}) {
@@ -562,6 +607,85 @@ export function createPluginApi(pluginId) {
 
     unregisterSystemInstancePanel(id) {
       return typeof id === 'string' ? scope.verwijder('systemInstancePanel', id) : false;
+    },
+
+    // --- Document features ---
+    // Search across documents, spatial locations, hidden information, print
+    // preflight, OCR verification, portfolios, form recognition, symbol
+    // search, workbook bindings, workflows, drawing sets, sheet links and
+    // approval routing. Each call resolves to { ok: true, ... } or
+    // { ok: false, code, message } (see featureCall).
+    searchDocuments(request, options = {}) {
+      return featureCall('documentSearch', () => import('../search/document-search-service.js'),
+        (service) => service.searchWorkspace(request, { signal: options.signal }));
+    },
+
+    locations(request = { action: 'list' }) {
+      return featureCall('locations', () => import('../annotations/spatial-zones-service.js'),
+        (service) => (request?.action === 'list' ? service.inspectLocations() : service.updateLocation(request)));
+    },
+
+    hiddenInformation(request) {
+      return featureCall('hiddenInformation',
+        () => withAction(request, ['inspect', 'export'], () => import('../pdf/hidden-information-service.js')),
+        (service) => (request.action === 'inspect'
+          ? service.inspectCurrentHiddenInformation(request.documentId)
+          : service.exportHiddenCopy(request.documentId, request.categories, request.outputPath)));
+    },
+
+    printPreflight(request, options = {}) {
+      return featureCall('printPreflight',
+        () => withAction(request, ['inspect', 'fixTrimBoxes'], () => import('../pdf/print-preflight-service.js')),
+        (service) => (request.action === 'inspect'
+          ? service.preflightCurrent(request.documentId, request.profile, { signal: options.signal })
+          : service.exportTrimCopy(request.documentId, request.profile, request.outputPath)));
+    },
+
+    reviewOcr(request) {
+      return featureCall('ocrVerification', () => import('../pdf/ocr-review-service.js'),
+        (service) => (request?.action === 'list'
+          ? service.listOcrReview(request.documentId, request.threshold ?? 80, request)
+          : service.updateOcrReview(request)));
+    },
+
+    portfolio(request) {
+      return featureCall('portfolio', () => import('../pdf/portfolio-service.js'),
+        (service) => service.portfolioRequest(request));
+    },
+
+    recognizeForm(request, options = {}) {
+      return featureCall('recognizeForm', () => import('../pdf/form-recognition-service.js'),
+        (service) => service.formRecognitionRequest(request, options));
+    },
+
+    searchSymbols(request, options = {}) {
+      return featureCall('searchSymbols', () => import('../search/symbol-search-service.js'),
+        (service) => service.symbolSearchRequest(request, options));
+    },
+
+    workbookBindings(request) {
+      return featureCall('workbookBindings', () => import('../quantities/workbook-binding-service.js'),
+        (service) => service.workbookBindingRequest(request));
+    },
+
+    documentWorkflows(request) {
+      return featureCall('documentWorkflows', () => import('../workflows/workflow-service.js'),
+        (service) => service.workflowRequest(request));
+    },
+
+    drawingSets(request) {
+      return featureCall('drawingSets', () => import('../drawing-sets/service.js'),
+        (service) => service.drawingSetRequest(request));
+    },
+
+    sheetLinks(request) {
+      return featureCall('sheetLinks', () => import('../sheet-links/service.js'),
+        (service) => service.sheetLinkRequest(request));
+    },
+
+    approvalRouting(request) {
+      return featureCall('approvalRouting', () => import('../approval-routing/service.js'),
+        (service) => service.approvalRequest(request, { origin: 'plugin' }));
     },
 
     // --- View navigation and selection (#557) ---

@@ -15,6 +15,7 @@ pub const PAYLOAD_CAP: usize = SHM_SIZE - HEADER_SIZE;
 /// Computed in u128 so absurd sizes cannot overflow (an overflow would panic
 /// in a debug build). Non-positive sizes count as 0 bytes; PDFium rejects
 /// those itself with a clean error.
+#[cfg(test)]
 pub fn ensure_bitmap_fits(width: i32, height: i32) -> Result<()> {
     let bytes = (width.max(0) as u128) * (height.max(0) as u128) * 4;
     if bytes > PAYLOAD_CAP as u128 {

@@ -56,7 +56,7 @@
 .chat-title {
   font-size: 13px;
   font-weight: 700;
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-family: var(--ui-font);
   color: var(--theme-text, #1e1e1e);
   white-space: nowrap;
 }

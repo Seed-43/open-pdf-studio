@@ -14,6 +14,7 @@ import {
   twoPointEndpoints,
 } from '../symbols/two-point.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
+import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt } from './veelhoek-punten.js';
 import {
   MIN_GEBIED_PX, schaalRechthoekMetGreep, schermPxNaarPt, veiligeVerhouding,
   tekstvakMinimum, nietNul,
@@ -303,6 +304,23 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'cloud':
     case 'redaction':
     case 'textbox':
+      // Hoekpunt van een veelhoek (#622): alleen dat hoekpunt verschuift, op
+      // het scherm (ook bij een gedraaide veelhoek); het vak volgt de punten.
+      // Shift = 45°-stappen, en dicht bij de x of y van een ander hoekpunt
+      // lijnt het uit, zoals bij de polylijn.
+      if (annotation.type === 'polygon' && typeof handleType === 'string'
+          && handleType.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_') && isBewerkbareVeelhoek(originalAnn)) {
+        const hoekIdx = parseInt(handleType.split('_').pop(), 10);
+        const zoom = (Number.isFinite(opties?.schaal) && opties.schaal > 0)
+          ? opties.schaal : (state.documents?.[state.activeDocumentIndex]?.scale || 1.5);
+        const nieuw = verplaatsVeelhoekHoekpunt(originalAnn, hoekIdx, deltaX, deltaY,
+          { shift: shiftKey, uitlijnTol: 3 / zoom });
+        if (nieuw) {
+          Object.assign(annotation, nieuw);
+          annotation.modifiedAt = new Date().toISOString();
+        }
+        return;
+      }
       // Textbox leader tip/knee drag: update only that point on the matching leader.
       if (annotation.type === 'textbox' && typeof handleType === 'string' &&
           (handleType.startsWith(HANDLE_TYPES.LEADER_TIP + '_') ||
@@ -1185,6 +1203,13 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
     return { ...p, x: rotX(p.x, p.y), y: rotY(p.x, p.y) };
   };
 
+  // Een veelhoek met eigen hoekpunten (#622) draait zoals een rechthoek: via
+  // zijn hoek, om het midden van zijn vak. Zijn (ongedraaide) punten mogen
+  // dus niet óók nog om het draaipunt draaien; ze schuiven mee met het vak.
+  const veelhoekPuntenMee = annotation.type === 'polygon' && isBewerkbareVeelhoek(annotation)
+    && typeof annotation.width === 'number' && typeof annotation.height === 'number';
+  const oudVakX = annotation.x, oudVakY = annotation.y;
+
   // Anchor (x/y): rect-anchored types orbit by centre; bare x/y is a point.
   if (typeof annotation.x === 'number' && typeof annotation.y === 'number') {
     if (typeof annotation.width === 'number' && typeof annotation.height === 'number') {
@@ -1224,6 +1249,11 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
     }
   }
   for (const k of _MOVE_POINT_ARRAYS) {
+    if (veelhoekPuntenMee && k === 'points') {
+      const sx = annotation.x - oudVakX, sy = annotation.y - oudVakY;
+      annotation.points = annotation.points.map(p => ({ ...p, x: p.x + sx, y: p.y + sy }));
+      continue;
+    }
     if (Array.isArray(annotation[k])) {
       annotation[k] = annotation[k].map(rotPoint);
     }

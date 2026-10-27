@@ -9,6 +9,14 @@ CDP-poort via `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=…
 de vergelijkings-sweep verwacht CDP op 9222). Vite-dev-server vers gestart
 (een herstart van Vite breekt draaiende vensters — herstart die daarna ook).
 
+Start elke testinstantie headless: `OPDS_HEADLESS=1` naast `OPDS_DETACHED=1`
+(of `--mcp-server`). Het venster staat dan buiten elke monitor, heeft geen
+taakbalkknop, pakt nooit de focus en native dialogen worden geweigerd met een
+logregel (`[headless] … suppressed`); renderen, MCP en CDP-schermafdrukken
+werken gewoon. `OPDS_HEADLESS_SIZE=BxH` (standaard `1200x800`) zet de
+vaste binnenmaat. Een gewone start zonder `--mcp-server`/`OPDS_DETACHED=1`
+negeert de variabele. Zie `open-pdf-studio/src-tauri/src/headless.rs`.
+
 ## 1. Unit-tests
 
 ```bash

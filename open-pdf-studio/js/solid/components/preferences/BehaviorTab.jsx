@@ -9,7 +9,7 @@ export default function BehaviorTab(props) {
         <legend>{t('behavior.snapping')}</legend>
         <div class="pref-row">
           <label>{t('behavior.angleSnap')}</label>
-          <input type="number" min="1" max="90" value={p.angleSnapDegrees[0]()} onInput={e => p.angleSnapDegrees[1](parseInt(e.target.value) || 30)} />
+          <input type="text" inputmode="decimal" data-getal min="1" max="90" value={p.angleSnapDegrees[0]()} onInput={e => p.angleSnapDegrees[1](parseInt(e.target.value) || 30)} />
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
@@ -19,7 +19,7 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row">
           <label>{t('behavior.gridSize')}</label>
-          <input type="number" min="5" max="100" value={p.gridSize[0]()} onInput={e => p.gridSize[1](parseInt(e.target.value) || 10)} />
+          <input type="text" inputmode="decimal" data-getal min="5" max="100" value={p.gridSize[0]()} onInput={e => p.gridSize[1](parseInt(e.target.value) || 10)} />
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
@@ -45,11 +45,11 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row">
           <label>{t('behavior.polarIncrement') || 'Polar increment (°)'}</label>
-          <input type="number" min="1" max="180" step="1" value={p.polarIncrement[0]()} onInput={e => p.polarIncrement[1](parseFloat(e.target.value) || 45)} disabled={!p.polarTrackingEnabled[0]()} />
+          <input type="text" inputmode="decimal" data-getal min="1" max="180" step="1" value={p.polarIncrement[0]()} onInput={e => p.polarIncrement[1](parseFloat(e.target.value) || 45)} disabled={!p.polarTrackingEnabled[0]()} />
         </div>
         <div class="pref-row">
           <label>{t('behavior.polarTolerance') || 'Polar tolerance (°)'}</label>
-          <input type="number" min="0.5" max="15" step="0.5" value={p.polarTolerance[0]()} onInput={e => p.polarTolerance[1](parseFloat(e.target.value) || 3)} disabled={!p.polarTrackingEnabled[0]()} />
+          <input type="text" inputmode="decimal" data-getal min="0.5" max="15" step="0.5" value={p.polarTolerance[0]()} onInput={e => p.polarTolerance[1](parseFloat(e.target.value) || 3)} disabled={!p.polarTrackingEnabled[0]()} />
         </div>
       </fieldset>
 
@@ -117,7 +117,7 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row">
           <label>{t('behavior.objectSnapRadius')}</label>
-          <input type="number" min="5" max="30" value={p.objectSnapRadius[0]()} onInput={e => p.objectSnapRadius[1](parseInt(e.target.value) || 12)} disabled={!p.enableObjectSnap[0]()} />
+          <input type="text" inputmode="decimal" data-getal min="5" max="30" value={p.objectSnapRadius[0]()} onInput={e => p.objectSnapRadius[1](parseInt(e.target.value) || 12)} disabled={!p.enableObjectSnap[0]()} />
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">

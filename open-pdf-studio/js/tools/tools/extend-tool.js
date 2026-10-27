@@ -4,7 +4,9 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { lineLineIntersection } from '../../annotations/geometry.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
-import { redrawAnnotations } from '../../annotations/rendering.js';
+// Hertekenen langs de route van de weergave: in de doorlopende weergave staat
+// de overlay van de enkele-paginaweergave niet op het scherm (#616).
+import { redrawForViewMode } from '../preview-target.js';
 
 const _extState = { boundary: null };
 
@@ -44,7 +46,7 @@ export const extendTool = {
       _extState.boundary = clicked;
       const doc = getActiveDocument();
       if (doc) { doc.selectedAnnotations = [clicked]; doc.selectedAnnotation = clicked; }
-      redrawAnnotations();
+      redrawForViewMode();
       _bericht('Extend: boundary set — now click the line to extend',
         'drawing.extendTargetHint');
       return;
@@ -71,7 +73,7 @@ export const extendTool = {
       _bericht('Extend: those lines do not intersect — pick another boundary',
         'drawing.extendNoIntersection');
       _extState.boundary = null;
-      redrawAnnotations();
+      redrawForViewMode();
       return;
     }
 
@@ -87,7 +89,7 @@ export const extendTool = {
 
     target.modifiedAt = new Date().toISOString();
     recordModify(target.id, oldState, target);
-    redrawAnnotations();
+    redrawForViewMode();
     _extState.boundary = null;
     _bericht('Extended to the boundary', 'drawing.extendDone');
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());

@@ -1,5 +1,10 @@
+import { isObservedRenderCommand, observeNativeRender } from '../pdf/render-diagnostics.js';
 import { leesOpslag, verwijderOpslag } from './opslag.js';
+import { bestandsnaamUitPad } from './bestandsnaam.js';
 import { gastObject } from './gehost.js';
+import { versieVoorOpen } from './host-brug.js';
+import { rustRenderPadBeschikbaar } from '../pdf/render-route.js';
+import { slaOverInHeadless } from './headless.js';
 
 /**
  * Tauri API wrapper module
@@ -30,7 +35,7 @@ export function cacheWebFile(name, data) {
 //
 //   window.__OPDS_HOST__ = {
 //     storage: {
-//       open(id)                  -> Promise<{ name, data }>  data: Uint8Array |
+//       open(id, versie?)         -> Promise<{ name, data }>  data: Uint8Array |
 //                                    ArrayBuffer | Blob
 //       save(id, bytes, { name }) -> Promise<unknown>  schrijft over het
 //                                    geopende document heen (nieuwe versie)
@@ -38,7 +43,18 @@ export function cacheWebFile(name, data) {
 //       versions(id) (optioneel)  -> Promise<[{ version, modified?, author? }]>
 //     },
 //     document: '<id>',  // optioneel: dit document gaat bij de start open
+//     // optioneel, van de brug naar de werkplek (core/host-brug.js, #704):
+//     ai: { vraag(vraag) -> Promise<{ bericht, stop, vraag_id }> },
+//     geopend(id)          -> Promise<true>  dit document staat open
+//     melding(tekst, toon) -> Promise<true>  melding in de statusbalk van de site
 //   };
+//
+// open() mag ook `alleenLezen: true` (of `readOnly: true`) meegeven: dan
+// opent het document alleen-lezen (pdf/host-document.js). Met een tweede
+// argument `versie` (#712) geeft de site een oudere versie, altijd
+// alleen-lezen. Die heeft als pad `opds-host://<id>;versie=<n>/<naam>` (een
+// ';' komt in een gecodeerd id niet voor): een eigen tabblad naast het
+// huidige document, dat nooit terugschrijft naar de site.
 //
 // Een document van de site heeft als pad `opds-host://<id>/<naam>`: de naam
 // achteraan houdt alles wat een bestandsnaam uit het pad haalt (tabbladen,
@@ -58,20 +74,28 @@ export function hostOpslag() {
     : null;
 }
 
-/** Pad van een document van de site. */
-export function hostPad(id, naam) {
+/** Pad van een document van de site; met `versie` dat van een oudere versie. */
+export function hostPad(id, naam, versie = null) {
   const veilig = String(naam || 'document.pdf').replace(/[\\/]/g, '_').trim() || 'document.pdf';
-  return `${HOST_SCHEMA}${encodeURIComponent(String(id))}/${veilig}`;
+  const deel = versie === null || versie === undefined ? '' : `;versie=${encodeURIComponent(String(versie))}`;
+  return `${HOST_SCHEMA}${encodeURIComponent(String(id))}${deel}/${veilig}`;
 }
 
-/** `{ id, naam }` uit een pad van de site, of null. */
+/** `{ id, naam, versie }` uit een pad van de site (versie null: de huidige), of null. */
 export function leesHostPad(pad) {
   if (typeof pad !== 'string' || !pad.startsWith(HOST_SCHEMA)) return null;
   const rest = pad.slice(HOST_SCHEMA.length);
   const schuin = rest.indexOf('/');
   if (schuin <= 0) return null;
+  const [idDeel, ...extra] = rest.slice(0, schuin).split(';');
+  if (!idDeel) return null;
+  const versieDeel = extra.find((e) => e.startsWith('versie='));
   try {
-    return { id: decodeURIComponent(rest.slice(0, schuin)), naam: rest.slice(schuin + 1) };
+    return {
+      id: decodeURIComponent(idDeel),
+      naam: rest.slice(schuin + 1),
+      versie: versieDeel === undefined ? null : decodeURIComponent(versieDeel.slice('versie='.length)),
+    };
   } catch {
     return null;
   }
@@ -86,18 +110,66 @@ async function naarBytes(data) {
 }
 
 /**
- * Haal een document van de site op.
- * @returns {Promise<{ pad: string, naam: string, data: Uint8Array }>}
+ * Haal een document van de site op; met `versie` een oudere versie (#712),
+ * altijd alleen-lezen, met een eigen pad dat nooit terugschrijft.
+ * @returns {Promise<{ pad: string, naam: string, data: Uint8Array, alleenLezen: boolean, versie: unknown }>}
  */
-export async function openHostBestand(id) {
+export async function openHostBestand(id, versie = null) {
   const opslag = hostOpslag();
   if (!opslag) throw new Error('This page has no site storage');
-  const antwoord = await opslag.open(String(id));
+  const metVersie = versie !== null && versie !== undefined;
+  // Als getal: zo vraagt het protocol het (een pad of de lijst geeft tekst).
+  const antwoord = metVersie
+    ? await opslag.open(String(id), versieVoorOpen(versie))
+    : await opslag.open(String(id));
   const data = await naarBytes(antwoord?.data ?? antwoord?.bytes ?? antwoord);
   const naam = String(antwoord?.name || 'document.pdf');
-  const pad = hostPad(id, naam);
-  _hostPaden.set(pad, String(id));
-  return { pad, naam, data };
+  // Het nummer zoals de site het teruggeeft (deze brug: `versie`, de brug van
+  // de werkplek zelf: `version`), anders het gevraagde.
+  const gekregen = antwoord?.versie ?? antwoord?.version ?? null;
+  const pad = metVersie ? hostPad(id, naam, versie) : hostPad(id, naam);
+  if (!metVersie) _hostPaden.set(pad, String(id));
+  return {
+    pad,
+    naam,
+    data,
+    alleenLezen: metVersie || antwoord?.alleenLezen === true || antwoord?.readOnly === true,
+    versie: metVersie ? (gekregen ?? versie) : gekregen,
+  };
+}
+
+/** De assistent van de site (`ai.vraag`), of null als de site er geen heeft. */
+export function hostAi() {
+  const vraag = gastObject()?.ai?.vraag;
+  return typeof vraag === 'function' ? vraag : null;
+}
+
+/**
+ * Vertel de site dat document `id` open staat. Alleen ter informatie: een
+ * weigering of een site zonder dit bericht verandert niets aan de app.
+ */
+export async function meldHostGeopend(id) {
+  const geopend = gastObject()?.geopend;
+  if (typeof geopend !== 'function') return false;
+  try {
+    await geopend(String(id));
+    return true;
+  } catch (e) {
+    console.warn('[gast] geopend niet gemeld:', e?.message || e);
+    return false;
+  }
+}
+
+/** Een melding in de statusbalk van de site, als die dat kent. */
+export async function meldBijHost(tekst, toon = 'fout') {
+  const melding = gastObject()?.melding;
+  if (typeof melding !== 'function') return false;
+  try {
+    return (await melding(String(tekst ?? ''), toon)) !== false;
+  } catch (e) {
+    console.warn('[gast] melding niet doorgegeven:', e?.message || e);
+    return false;
+  }
 }
 
 /** De documenten die de site aanbiedt (leeg als het contract geen lijst kent). */
@@ -119,16 +191,9 @@ export async function hostVersies(id) {
 // Extract a display-friendly file name from a path or content:// URI
 export function extractFileName(pathOrUri) {
   if (!pathOrUri) return 'Document';
-  // content:// URIs: try to decode and extract last segment
-  if (pathOrUri.startsWith('content://')) {
-    const decoded = decodeURIComponent(pathOrUri);
-    // Try common patterns: .../document/primary:Download/file.pdf or raw:/storage/.../file.pdf
-    const match = decoded.match(/[/:]([^/:]+\.pdf)$/i);
-    if (match) return match[1];
-    // Fallback: last path segment
-    const segments = decoded.split(/[/:]+/).filter(Boolean);
-    return segments[segments.length - 1] || 'Document';
-  }
+  // content:// URIs (Android): de weergavenaam van de ContentResolver, of
+  // een leesbare naam uit de URI zelf (#596).
+  if (pathOrUri.startsWith('content://')) return bestandsnaamUitPad(pathOrUri);
   // Regular filesystem path
   const parts = pathOrUri.replace(/\\/g, '/').split('/');
   return parts[parts.length - 1] || 'Document';
@@ -162,6 +227,12 @@ export function isMobile() {
   return _isMobile;
 }
 
+// Kan het Rust-renderpad (PDFium) hier draaien? Niet in de browser en niet op
+// Android/iOS: daar zit geen PDFium in de app (#593). Zie pdf/render-route.js.
+export function heeftRustRenderer() {
+  return rustRenderPadBeschikbaar({ inTauri: isTauri(), mobiel: isMobile() });
+}
+
 // Get Tauri APIs from global object
 function getTauriWindow() {
   if (!isTauri()) return null;
@@ -176,6 +247,8 @@ function getTauriCore() {
 // Window controls
 export async function minimizeWindow() {
   if (!isTauri()) return;
+  // Headless (testinstantie): een geminimaliseerd venster rendert niet meer.
+  if (slaOverInHeadless('minimize')) return;
   const win = getTauriWindow();
   if (win) {
     const currentWindow = win.getCurrentWindow();
@@ -185,6 +258,8 @@ export async function minimizeWindow() {
 
 export async function maximizeWindow() {
   if (!isTauri()) return;
+  // Headless: maximaliseren zet het venster op een monitor.
+  if (slaOverInHeadless('maximize')) return;
   const win = getTauriWindow();
   if (win) {
     const currentWindow = win.getCurrentWindow();
@@ -227,6 +302,8 @@ export async function setWindowFullscreen(enabled) {
     }
     return;
   }
+  // Headless: volledig scherm zet het venster op een monitor.
+  if (slaOverInHeadless('fullscreen')) return;
   const win = getTauriWindow();
   if (!win) return;
   try {
@@ -374,6 +451,8 @@ export async function readBinaryFile(path) {
   // veranderde (bv. een recent bestand na een herlaadbeurt).
   const host = leesHostPad(path);
   if (host && hostOpslag()) {
+    // Een oudere versie blijft die versie en schrijft nooit terug (#712).
+    if (host.versie !== null) return (await openHostBestand(host.id, host.versie)).data;
     const { data } = await openHostBestand(host.id);
     _hostPaden.set(path, host.id);
     return data;
@@ -447,6 +526,38 @@ export async function writeBinaryFileAtomic(path, data) {
   return true;
 }
 
+// An existing destination surfaces as CHOOSE_NEW_FILE (os error 17 on Unix,
+// 80/183 on Windows).
+async function invokeNew(command, path, data, headers = {}) {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  const mobile = window.__TAURI__?.os?.type?.() === 'android';
+  try {
+    await getTauriCore().invoke(command, mobile ? { data: Array.from(bytes) } : bytes, {
+      headers: { 'x-opds-path': encodeURIComponent(path), ...headers },
+    });
+  } catch (e) {
+    const message = String(e?.message ?? e);
+    if (/already exists|file exists|os error (17|80|183)\b/i.test(message)) throw new Error('CHOOSE_NEW_FILE');
+    throw e instanceof Error ? e : new Error(message);
+  }
+  return true;
+}
+
+// Workflows and new-copy exports must fail on collisions, including races
+// after an existence check.
+export async function writeBinaryFileNew(path, data) {
+  if (!isTauri()) throw new Error('DESKTOP_REQUIRED');
+  return invokeNew('write_file_new', path, data);
+}
+
+// Untrusted bytes (a component of a PDF collection): never replaces a file,
+// refuses autostart folders and, when `restrict` is set, programs and scripts;
+// marked as downloaded content on Windows (src-tauri/src/export_policy.rs).
+export async function writeDownloadedFileNew(path, data, { restrict = true } = {}) {
+  if (!isTauri()) throw new Error('DESKTOP_REQUIRED');
+  return invokeNew('write_downloaded_file_new', path, data, { 'x-opds-restrict': restrict ? '1' : '0' });
+}
+
 export async function fileExists(path) {
   if (leesHostPad(path)) return hostOpslag() !== null;
   if (!isTauri()) return false;
@@ -465,26 +576,7 @@ export async function fileExists(path) {
   return await invoke('file_exists', { path });
 }
 
-// Shell operations
-export async function openExternal(url) {
-  if (!isTauri()) {
-    window.open(url, '_blank');
-    return;
-  }
-
-  // Try using the shell plugin
-  if (window.__TAURI__.shell) {
-    try {
-      await window.__TAURI__.shell.open(url);
-      return;
-    } catch (e) {
-      console.error('Shell plugin error:', e);
-    }
-  }
-
-  // Fallback: use invoke
-  await invoke('open_url', { url });
-}
+// Iets buiten de app openen (webadres, bijlage): core/extern-openen.js (#695).
 
 // ── Contract van invoke() buiten Tauri ──────────────────────────────────────
 // De webversie heeft geen Rust-kant. Een aanroep KAN daar dus niet slagen.
@@ -515,8 +607,8 @@ export function isNietInBrowser(fout) {
 export async function invoke(cmd, args = {}, options = undefined) {
   const core = getTauriCore();
   if (!core) throw new NietInBrowserError(cmd);
-  if (options === undefined) return await core.invoke(cmd, args);
-  return await core.invoke(cmd, args, options);
+  const run = () => options === undefined ? core.invoke(cmd, args) : core.invoke(cmd, args, options);
+  return isObservedRenderCommand(cmd) ? observeNativeRender(cmd, args, run) : run();
 }
 
 // App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie
@@ -759,8 +851,16 @@ export async function listPdfFiles(dir) {
   return await invoke('list_pdf_files', { dir });
 }
 
-// File locking - prevent other apps from writing to an open file
+/** PDF files directly in `dir` as [{path, size, mtimeMs}]. */
+export async function listPdfFileStats(dir) {
+  return await invoke('list_pdf_file_stats', { dir });
+}
+
+// File locking - prevent other apps from writing to an open file.
+// Alleen op het bureaublad: de browser (webbouw, werkplek) kent geen
+// vergrendelde bestanden; daar niets vragen en dus ook niets in de console (#707).
 export async function lockFile(path) {
+  if (!isTauri()) return false;
   try {
     return await invoke('lock_file', { path });
   } catch (e) {
@@ -774,6 +874,7 @@ export async function renameFile(oldPath, newPath) {
 }
 
 export async function unlockFile(path) {
+  if (!isTauri()) return false;
   try {
     return await invoke('unlock_file', { path });
   } catch (e) {

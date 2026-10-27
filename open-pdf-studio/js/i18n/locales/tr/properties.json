@@ -63,6 +63,8 @@
     "strokeColor": "Çizgi Rengi",
     "color": "Renk",
     "opacity": "Opasite",
+    "fillOpacity": "Dolgu Opasitesi",
+    "strokeOpacity": "Çizgi Opasitesi",
     "borderStyle": "Kenarlık Stili",
     "cross": "Çarpı",
     "crossHint": "Dikdörtgen, daire veya elipsin içine çarpı çizer (örn. bir boşluk)",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Görüntü bağla",
     "imageFilter": "Görüntüler"
   },
+  "sizeUnit": {
+    "tooltip": "Boyut birimi"
+  },
   "multiSelect": "{{count}} açıklama seçildi",
   "pdfText": "PDF Metni",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Yorumları içe aktar...",
     "exportComments": "Yorumları veri dosyasına aktar...",
     "exportSelectedComments": "Seçili yorumları veri dosyasına aktar...",
+    "exportListCsv": "Listeyi CSV olarak dışa aktar...",
+    "summarizeComingSoon": "Yakında",
+    "listExported": "Yorum listesi CSV olarak dışa aktarıldı",
+    "csvPage": "Sayfa",
+    "csvType": "Tür",
+    "csvAuthor": "Yazar",
+    "csvDate": "Tarih",
+    "csvStatus": "Durum",
+    "csvSubject": "Konu",
+    "csvContents": "İçerik",
+    "csvColor": "Renk",
+    "csvLayer": "Katman",
     "schedules": "Çizelgeler",
     "addPage": "Sayfa ekle",
-    "pageLabels": "Sayfa etiketleri (ad oluşturucu)"
+    "pageLabels": "Sayfa etiketleri (ad oluşturucu)",
+    "portfolio": "PDF portföyü",
+    "recognizeForm": "Form alanlarını tanı"
   },
   "scaleBar": {
     "title": "Ölçek Çubuğu",
@@ -403,7 +422,8 @@
       "image": "Görüntüler ve damgalar"
     },
     "preview": "Önizleme",
-    "exportCsv": "CSV dışa aktar"
+    "exportCsv": "CSV dışa aktar",
+    "workbookBindings": "Elektronik tablo bağlamaları"
   },
   "wizard": {
     "title": "Çizelge sihirbazı",
@@ -585,7 +605,9 @@
       "symbolId": "Sembol",
       "imageName": "Dosya adı",
       "width": "Genişlik",
-      "height": "Yükseklik"
+      "height": "Yükseklik",
+      "location": "Konum",
+      "locationSource": "Konum kaynağı"
     },
     "type": {
       "line": "Çizgi",
@@ -631,6 +653,8 @@
     "sectionTitle": "Sembol: {{name}}",
     "symbolLabel": "Sembol",
     "typeLabel": "Tür",
+    "profileType": "Profil türü",
+    "profileTypeTitle": "Çelik profil",
     "unknownSymbol": "Bilinmeyen sembol",
     "listNew": "Yeni",
     "listAdd": "Ekle",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Bu nesne başka bir yerde değiştirildi. Form geçerli değerleri gösteriyor; değişiklikleriniz uygulanmadı.",
     "failed": "Değişiklikler uygulanamadı: {{error}}"
+  },
+  "location": {
+    "title": "Konum",
+    "none": "Atanmamış",
+    "manual": "Elle",
+    "computed": "Hesaplanan",
+    "override": "Elle geçersiz kılma (boş bırakmak konumu temizler)",
+    "automatic": "Otomatik konumu kullan",
+    "zoneName": "Bu şekli adlandırılmış bölge olarak kullan",
+    "parent": "Üst bölge",
+    "removeZone": "Bölge tanımını kaldır",
+    "invalid": "Konum güncellenemedi",
+    "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
+    "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
   }
 }

@@ -1,5 +1,8 @@
-// Pure page-selection and geometry logic for Shift Page — no imports, so it's
-// testable under plain `node --test` without resolving core/state.ts.
+// Pure page-selection and geometry logic for Shift Page — no app imports
+// (only the pure number parser), so it's testable under plain `node --test`
+// without resolving core/state.ts.
+
+import { leesGetalBegin } from '../core/getal-invoer.js';
 
 export const MM_TO_POINTS = 72 / 25.4;
 
@@ -147,7 +150,7 @@ export function shiftOffsetPoints(dxMm, dyMm) {
  * positive number. Always finite and within ±MAX_SHIFT_MM.
  */
 export function parseShiftInput(text) {
-  const value = parseFloat(String(text ?? "").trim().replace(",", "."));
+  const value = leesGetalBegin(String(text ?? ""));
   if (Number.isNaN(value)) return 0;
   return Math.max(-MAX_SHIFT_MM, Math.min(MAX_SHIFT_MM, value));
 }

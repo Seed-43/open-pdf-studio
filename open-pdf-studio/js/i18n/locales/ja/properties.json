@@ -63,6 +63,8 @@
     "strokeColor": "線の色",
     "color": "色",
     "opacity": "不透明度",
+    "fillOpacity": "塗りつぶしの不透明度",
+    "strokeOpacity": "線の不透明度",
     "lineWidth": "線の幅",
     "borderWidth": "枠線の幅",
     "borderStyle": "枠線スタイル",
@@ -247,6 +249,9 @@
     "linkImageTitle": "画像をリンク",
     "imageFilter": "画像"
   },
+  "sizeUnit": {
+    "tooltip": "サイズの単位"
+  },
   "multiSelect": "{{count}}個の注釈を選択中",
   "pdfText": "PDFテキスト",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "コメントのインポート...",
     "exportComments": "コメントをデータファイルにエクスポート...",
     "exportSelectedComments": "選択したコメントをデータファイルにエクスポート...",
+    "exportListCsv": "リストを CSV にエクスポート...",
+    "summarizeComingSoon": "近日公開",
+    "listExported": "コメントリストを CSV にエクスポートしました",
+    "csvPage": "ページ",
+    "csvType": "種類",
+    "csvAuthor": "作成者",
+    "csvDate": "日付",
+    "csvStatus": "ステータス",
+    "csvSubject": "件名",
+    "csvContents": "内容",
+    "csvColor": "色",
+    "csvLayer": "レイヤー",
     "schedules": "集計表",
     "addPage": "ページを追加",
-    "pageLabels": "ページラベル (名前ビルダー)"
+    "pageLabels": "ページラベル (名前ビルダー)",
+    "portfolio": "PDF ポートフォリオ",
+    "recognizeForm": "フォームフィールドの認識"
   },
   "scaleBar": {
     "title": "スケールバー",
@@ -403,7 +422,8 @@
       "image": "画像とスタンプ"
     },
     "preview": "プレビュー",
-    "exportCsv": "CSV をエクスポート"
+    "exportCsv": "CSV をエクスポート",
+    "workbookBindings": "スプレッドシートのバインド"
   },
   "wizard": {
     "title": "集計表ウィザード",
@@ -585,7 +605,9 @@
       "symbolId": "シンボル",
       "imageName": "ファイル名",
       "width": "幅",
-      "height": "高さ"
+      "height": "高さ",
+      "location": "場所",
+      "locationSource": "場所の取得元"
     },
     "type": {
       "line": "線",
@@ -631,6 +653,8 @@
     "sectionTitle": "シンボル：{{name}}",
     "symbolLabel": "シンボル",
     "typeLabel": "タイプ",
+    "profileType": "形鋼の種類",
+    "profileTypeTitle": "形鋼",
     "unknownSymbol": "不明なシンボル",
     "listNew": "新規",
     "listAdd": "追加",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "このオブジェクトは別の場所で変更されました。フォームには現在の値が表示されています。変更は適用されていません。",
     "failed": "変更を適用できませんでした: {{error}}"
+  },
+  "location": {
+    "title": "場所",
+    "none": "未割り当て",
+    "manual": "手動",
+    "computed": "計算済み",
+    "override": "手動で上書き（空欄にすると場所を消去）",
+    "automatic": "自動の場所を使用",
+    "zoneName": "この図形を名前付きゾーンとして使用",
+    "parent": "親ゾーン",
+    "removeZone": "ゾーンの定義を削除",
+    "invalid": "場所を更新できませんでした",
+    "rules": "割り当てにはマークアップの境界ボックスの中心（辺上を含む）が使用されます。最も深い階層のゾーンが優先され、次に面積が最小のゾーン、その次にゾーン ID の順で決まります。穴のない直線の多角形か、回転していないボックスを使用してください。無効または重複したゾーン識別子は除外されます。",
+    "loading": "注釈を読み込み中です。場所が変わる可能性があります。"
   }
 }

@@ -15,6 +15,7 @@
 //     papier-mm, en 1 papier-mm is MM_TO_PX punten. De pagina ís het papier.
 
 import { MM_TO_PX } from '../tekeningtype.js';
+import { leesGetal, leesGetalBegin } from '../../core/getal-invoer.js';
 
 export { MM_TO_PX };
 
@@ -51,12 +52,12 @@ export function schaalNoemer(schaal) {
   const tekst = String(schaal ?? '').trim();
   const verhouding = tekst.match(/^(\d+(?:[.,]\d+)?)\s*[:/]\s*(\d+(?:[.,]\d+)?)$/);
   if (verhouding) {
-    const teller = parseFloat(verhouding[1].replace(',', '.'));
-    const noemer = parseFloat(verhouding[2].replace(',', '.'));
+    const teller = leesGetal(verhouding[1]);
+    const noemer = leesGetal(verhouding[2]);
     if (teller > 0 && noemer > 0) return noemer / teller;
     throw new RasterFout('schaal', `ongeldige schaal: ${tekst}`);
   }
-  const kaal = parseFloat(tekst.replace(',', '.'));
+  const kaal = leesGetalBegin(tekst);
   if (Number.isFinite(kaal) && kaal > 0) return kaal;
   throw new RasterFout('schaal', `ongeldige schaal: ${tekst} (verwacht bijvoorbeeld "1:100")`);
 }
@@ -86,7 +87,7 @@ export function meetschaalVoor(schaal) {
 }
 
 function leesMaat(tekst) {
-  const n = parseFloat(String(tekst).replace(',', '.'));
+  const n = leesGetalBegin(String(tekst));
   return Number.isFinite(n) ? n : NaN;
 }
 

@@ -400,7 +400,7 @@ export default function NewDocDialog() {
           <div class="new-doc-row new-doc-custom-row">
             <label class="new-doc-label">{t('newDoc.widthMm')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="new-doc-input"
               value={customWidth()}
               min="10"
@@ -410,7 +410,7 @@ export default function NewDocDialog() {
             />
             <label class="new-doc-label new-doc-label-inline">{t('newDoc.heightMm')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="new-doc-input"
               value={customHeight()}
               min="10"
@@ -448,7 +448,7 @@ export default function NewDocDialog() {
         <div class="new-doc-row" style={stijl() ? 'opacity:0.45;pointer-events:none' : ''}>
           <label class="new-doc-label">{t('newDoc.pagesCount')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="new-doc-input"
             value={numPages()}
             min="1"

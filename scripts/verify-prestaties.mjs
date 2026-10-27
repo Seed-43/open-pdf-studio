@@ -109,6 +109,8 @@ async function wachtOpInkt(evalJs, maxMs, minInkt = 5) {
 // niets in het profiel van de gebruiker schrijft en geen sessie van de
 // gebruiker herstelt. LET OP: builds van vóór OPDS_DATA_DIR negeren de
 // variabele en schrijven wél in het echte profiel — meet die niet.
+// OPDS_HEADLESS=1: het meetvenster blijft buiten beeld, zonder taakbalkknop
+// en zonder focus (src-tauri/src/headless.rs); het rendert gewoon door.
 function isolatieMappen() {
   const basis = path.join(os.tmpdir(), 'opds-prestatie-isolatie');
   const data = path.join(basis, 'data');
@@ -123,6 +125,7 @@ async function meetRun(exe, bestand) {
     ...process.env,
     OPS_ENABLE_MCP: '1',
     OPDS_DETACHED: '1',
+    OPDS_HEADLESS: '1',
     OPDS_DATA_DIR: iso.data,
     WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${CDP_POORT}`,
     WEBVIEW2_USER_DATA_FOLDER: iso.webview,

@@ -93,7 +93,22 @@
     "editBookmark": "Edita el marcador",
     "deleteBookmark": "Suprimeix el marcador",
     "expandAll": "Expandeix-ho tot",
-    "collapseAll": "Replega-ho tot"
+    "collapseAll": "Replega-ho tot",
+    "color": "Color",
+    "colorDefault": "Per defecte",
+    "colorRed": "Vermell",
+    "colorOrange": "Taronja",
+    "colorGreen": "Verd",
+    "colorBlue": "Blau",
+    "colorPurple": "Porpra",
+    "colorGray": "Gris",
+    "colorCustom": "Personalitzat...",
+    "bold": "Negreta",
+    "italic": "Cursiva",
+    "nestUnderNew": "Niua sota un marcador nou...",
+    "indent": "Augmenta el sagnat",
+    "outdent": "Redueix el sagnat",
+    "deleteBookmarks": "Suprimeix {{count}} marcadors"
   },
   "thumbnail": {
     "rotateLeft": "Gira a l'esquerra",

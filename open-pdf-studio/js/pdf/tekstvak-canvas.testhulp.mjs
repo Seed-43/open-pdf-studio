@@ -31,7 +31,15 @@ const helvetica = {
 function helveticaBreedte(tekst, grootte, vet) {
   const font = vet ? helvetica.vet : helvetica.normaal;
   let breedte = 0;
-  for (const glyph of font.encodeTextAsGlyphs(tekst)) breedte += font.widthOfGlyph(glyph.name);
+  for (const teken of tekst) {
+    // Een teken dat Helvetica niet kan coderen (Chinees e.d.) meet een vol
+    // em-vierkant, zoals in een CJK-font.
+    try {
+      for (const glyph of font.encodeTextAsGlyphs(teken)) breedte += font.widthOfGlyph(glyph.name);
+    } catch {
+      breedte += 1000;
+    }
+  }
   return breedte * grootte / 1000;
 }
 

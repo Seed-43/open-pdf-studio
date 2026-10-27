@@ -13,10 +13,9 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordBulkModify } from '../../core/undo-manager.js';
-import { redrawAnnotations } from '../../annotations/rendering.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
-import { annotationCtx } from '../../ui/dom-elements.js';
 import { applyToolTransform } from '../tool-transform.js';
+import { previewCtx, redrawForViewMode } from '../preview-target.js';
 import i18next from '../../i18n/config.js';
 import { verticesOf, stretchAnnotation, canStretch } from '../../annotations/stretch-geometry.js';
 import {
@@ -104,11 +103,15 @@ function _rekUit(doelen, dx, dy, test) {
   }
 }
 
-/** Tijdelijke tekening van de crossing window (dashed rechthoek). */
-function _tekenRuit(x1, y1, x2, y2) {
-  const c = annotationCtx;
+/**
+ * Tijdelijke tekening van de crossing window (dashed rechthoek), op het
+ * canvas dat de gebruiker ziet: `doelCtx` is de canvasCtx van de
+ * gereedschapscontext — in de doorlopende weergave het paginacanvas (#616).
+ */
+function _tekenRuit(x1, y1, x2, y2, doelCtx = null) {
+  const c = previewCtx(doelCtx);
   if (!c) return;
-  redrawAnnotations();
+  redrawForViewMode();
   try {
     c.save();
     applyToolTransform(c);
@@ -155,7 +158,7 @@ export const stretchTool = {
     if (!state.isDrawing) return;
 
     if (_s.fase === 'ruit' && _s.start) {
-      _tekenRuit(_s.start.x, _s.start.y, ctx.x, ctx.y);
+      _tekenRuit(_s.start.x, _s.start.y, ctx.x, ctx.y, ctx.canvasCtx);
       return;
     }
 
@@ -262,7 +265,8 @@ function _commitVerschuiving() {
   const ppu = getMeasureScale(page, ax, ay).pixelsPerUnit || 1;
   _rekUit(_s.doelen, dx * ppu, dy * ppu, _inRuit(_s.ruit));
   recordBulkModify(_s.doelen.map((t) => t.ann), _s.doelen.map((t) => t.orig));
-  redrawAnnotations();
+  // Ook in de doorlopende weergave meteen zichtbaar (#616).
+  redrawForViewMode();
   _bericht('Stretched — drag another window, or press Escape', 'drawing.stretchDone');
   _reset();
 }

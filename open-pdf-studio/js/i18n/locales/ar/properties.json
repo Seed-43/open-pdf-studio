@@ -63,6 +63,8 @@
     "strokeColor": "لون الحد",
     "color": "اللون",
     "opacity": "الشفافية",
+    "fillOpacity": "شفافية التعبئة",
+    "strokeOpacity": "شفافية الحد",
     "lineWidth": "عرض الخط",
     "borderWidth": "عرض الحد",
     "borderStyle": "نمط الحد",
@@ -247,6 +249,9 @@
     "linkImageTitle": "ربط صورة",
     "imageFilter": "الصور"
   },
+  "sizeUnit": {
+    "tooltip": "وحدة الأبعاد"
+  },
   "multiSelect": "{{count}} تعليقات محددة",
   "pdfText": "نص PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "استيراد التعليقات...",
     "exportComments": "تصدير التعليقات إلى ملف بيانات...",
     "exportSelectedComments": "تصدير التعليقات المحددة إلى ملف بيانات...",
+    "exportListCsv": "تصدير القائمة إلى CSV...",
+    "summarizeComingSoon": "قريبًا",
+    "listExported": "تم تصدير قائمة التعليقات إلى CSV",
+    "csvPage": "الصفحة",
+    "csvType": "النوع",
+    "csvAuthor": "المؤلف",
+    "csvDate": "التاريخ",
+    "csvStatus": "الحالة",
+    "csvSubject": "الموضوع",
+    "csvContents": "المحتوى",
+    "csvColor": "اللون",
+    "csvLayer": "الطبقة",
     "schedules": "جداول الكميات",
     "addPage": "إضافة صفحة",
-    "pageLabels": "تسميات الصفحات (منشئ الأسماء)"
+    "pageLabels": "تسميات الصفحات (منشئ الأسماء)",
+    "portfolio": "حافظة PDF",
+    "recognizeForm": "التعرف على حقول النموذج"
   },
   "scaleBar": {
     "title": "شريط المقياس",
@@ -403,7 +422,8 @@
       "image": "الصور والأختام"
     },
     "preview": "معاينة",
-    "exportCsv": "تصدير CSV"
+    "exportCsv": "تصدير CSV",
+    "workbookBindings": "روابط جداول البيانات"
   },
   "wizard": {
     "title": "معالج الجداول",
@@ -585,7 +605,9 @@
       "symbolId": "الرمز",
       "imageName": "اسم الملف",
       "width": "العرض",
-      "height": "الارتفاع"
+      "height": "الارتفاع",
+      "location": "الموقع",
+      "locationSource": "مصدر الموقع"
     },
     "type": {
       "line": "خط",
@@ -631,6 +653,8 @@
     "sectionTitle": "الرمز: {{name}}",
     "symbolLabel": "الرمز",
     "typeLabel": "النوع",
+    "profileType": "نوع المقطع",
+    "profileTypeTitle": "مقطع فولاذي",
     "unknownSymbol": "رمز غير معروف",
     "listNew": "جديد",
     "listAdd": "إضافة",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "تم تغيير هذا الكائن في مكان آخر. يعرض النموذج القيم الحالية؛ لم يتم تطبيق تغييراتك.",
     "failed": "تعذر تطبيق التغييرات: {{error}}"
+  },
+  "location": {
+    "title": "الموقع",
+    "none": "غير معيّن",
+    "manual": "يدوي",
+    "computed": "محسوب",
+    "override": "تجاوز يدوي (الترك فارغاً يمسح الموقع)",
+    "automatic": "استخدام الموقع التلقائي",
+    "zoneName": "استخدام هذا الشكل كمنطقة مسماة",
+    "parent": "المنطقة الأم",
+    "removeZone": "إزالة تعريف المنطقة",
+    "invalid": "تعذّر تحديث الموقع",
+    "rules": "يستخدم التعيين مركز المربع المحيط بالعلامة، بما في ذلك الحواف. تفوز المنطقة الأعمق، ثم الأصغر مساحة، ثم معرّف المنطقة. استخدم مضلعات مستقيمة بدون ثقوب أو مربعات غير مدوّرة. تُستبعد هويات المناطق غير الصالحة أو المكررة.",
+    "loading": "جارٍ تحميل التعليقات التوضيحية: قد تتغير المواقع."
   }
 }

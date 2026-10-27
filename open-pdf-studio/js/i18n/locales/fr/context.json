@@ -93,7 +93,22 @@
     "editBookmark": "Modifier le signet",
     "deleteBookmark": "Supprimer le signet",
     "expandAll": "Tout développer",
-    "collapseAll": "Tout réduire"
+    "collapseAll": "Tout réduire",
+    "color": "Couleur",
+    "colorDefault": "Par défaut",
+    "colorRed": "Rouge",
+    "colorOrange": "Orange",
+    "colorGreen": "Vert",
+    "colorBlue": "Bleu",
+    "colorPurple": "Violet",
+    "colorGray": "Gris",
+    "colorCustom": "Personnalisé...",
+    "bold": "Gras",
+    "italic": "Italique",
+    "nestUnderNew": "Imbriquer sous un nouveau signet...",
+    "indent": "Augmenter le retrait",
+    "outdent": "Diminuer le retrait",
+    "deleteBookmarks": "Supprimer {{count}} signets"
   },
   "thumbnail": {
     "rotateLeft": "Rotation à gauche",

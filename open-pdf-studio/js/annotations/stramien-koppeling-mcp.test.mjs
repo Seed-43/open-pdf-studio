@@ -58,7 +58,7 @@ test('het schema van beide opdrachten noemt de koppeling, in Rust en in tools.js
 });
 
 test('de constructieskill legt de koppeling uit', () => {
-  assert.match(SKILLS_SYSTEM_PROMPT, /GEKOPPELD/);
+  assert.match(SKILLS_SYSTEM_PROMPT, /COUPLED/);
   assert.match(SKILLS_SYSTEM_PROMPT, /alignStart: false/);
   assert.match(SKILLS_SYSTEM_PROMPT, /alignEnd/);
   assert.match(SKILLS_SYSTEM_PROMPT, /gridAlignment/);

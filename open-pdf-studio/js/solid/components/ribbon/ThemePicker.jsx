@@ -3,6 +3,7 @@ import { state } from '../../../core/state.js';
 import { applyTheme, savePreferences } from '../../../core/preferences.js';
 import { currentTheme } from '../../stores/ribbonStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { volgPopup } from './ribbon-popup.js';
 
 const THEME_OPTIONS = [
   { value: 'default', labelKey: 'theme.default', swatches: ['#36363E', '#44444C', '#D97706', '#FAFAF9'] },
@@ -18,6 +19,10 @@ export default function ThemePicker() {
   const { t } = useTranslation('ribbon');
   const [open, setOpen] = createSignal(false);
   let pickerRef;
+  // De lijst staat met position: fixed buiten de klip van de ribbon (#617).
+  let toggleRef;
+  let dropdownRef;
+  volgPopup(() => dropdownRef, () => toggleRef, open);
 
   onMount(() => {
     const handler = (e) => {
@@ -54,6 +59,7 @@ export default function ThemePicker() {
         <button
           class="theme-picker-toggle"
           id="theme-picker-toggle"
+          ref={toggleRef}
           type="button"
           onClick={(e) => { e.stopPropagation(); setOpen(!open()); }}
         >
@@ -67,7 +73,7 @@ export default function ThemePicker() {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 9l6 6 6-6"/>
           </svg>
         </button>
-        <div class={`theme-picker-dropdown${open() ? ' open' : ''}`} id="theme-picker-dropdown" onClick={(e) => e.stopPropagation()}>
+        <div class={`theme-picker-dropdown${open() ? ' open' : ''}`} id="theme-picker-dropdown" ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
           <For each={THEME_OPTIONS}>
             {(option) => (
               <div

@@ -5,7 +5,14 @@
 // section into the current bbox so manual resizing still behaves.
 //
 // Tables: [maat, h, b, tw, tf, r] in mm (European hot-rolled sections).
-// Koker (cold-formed hollow sections): [maat, h, b, t] in mm.
+// Koker (cold-formed hollow sections): [maat, h, b, t] in mm. Names follow
+// symbols/koker-notatie.js: square "K100/5", rectangular "Koker 100x50x5".
+
+import { normaliseerKokerNaam, oudeKokerNaam, migreerProfielParams } from '../koker-notatie.js';
+
+// Profielgroep (#697): binnen één groep kan een geplaatst profiel van type
+// wisselen (UNP → HEB, koker, hoeklijn …), zie symbols/profieltype.js.
+export const NL_STAAL_GROEP = 'nl-staal';
 
 const HEA = [
   ['HEA 100', 96, 100, 5, 8, 12],
@@ -103,23 +110,25 @@ const UNP = [
   ['UNP 400', 400, 110, 14, 18, 18],
 ];
 
-// Square + common rectangular hollow sections: [maat, h, b, t]
+// Square + common rectangular hollow sections: [maat, h, b, t]. Older
+// documents store square sizes as "Koker 100x100x5"; rij() in
+// _kokerTemplate() maps them onto these rows.
 const KOKER = [
-  ['Koker 40x40x3', 40, 40, 3],
-  ['Koker 50x50x3', 50, 50, 3],
-  ['Koker 60x60x4', 60, 60, 4],
-  ['Koker 70x70x4', 70, 70, 4],
-  ['Koker 80x80x4', 80, 80, 4],
-  ['Koker 90x90x5', 90, 90, 5],
-  ['Koker 100x100x5', 100, 100, 5],
-  ['Koker 120x120x6', 120, 120, 6],
-  ['Koker 140x140x6', 140, 140, 6],
-  ['Koker 150x150x8', 150, 150, 8],
-  ['Koker 160x160x8', 160, 160, 8],
-  ['Koker 180x180x8', 180, 180, 8],
-  ['Koker 200x200x10', 200, 200, 10],
-  ['Koker 250x250x10', 250, 250, 10],
-  ['Koker 300x300x12.5', 300, 300, 12.5],
+  ['K40/3', 40, 40, 3],
+  ['K50/3', 50, 50, 3],
+  ['K60/4', 60, 60, 4],
+  ['K70/4', 70, 70, 4],
+  ['K80/4', 80, 80, 4],
+  ['K90/5', 90, 90, 5],
+  ['K100/5', 100, 100, 5],
+  ['K120/6', 120, 120, 6],
+  ['K140/6', 140, 140, 6],
+  ['K150/8', 150, 150, 8],
+  ['K160/8', 160, 160, 8],
+  ['K180/8', 180, 180, 8],
+  ['K200/10', 200, 200, 10],
+  ['K250/10', 250, 250, 10],
+  ['K300/12.5', 300, 300, 12.5],
   ['Koker 50x30x3', 30, 50, 3],
   ['Koker 60x40x4', 40, 60, 4],
   ['Koker 80x40x4', 40, 80, 4],
@@ -298,6 +307,7 @@ function _iProfileTemplate(id, familyName, table, defaultMaat, sectionPtsFn = _i
     name: familyName,
     nameEn: familyName,
     category: 'NL Constructie',
+    profielGroep: NL_STAAL_GROEP,
     defaultSize: { width: 60, height: 60 },
     // No graphic resize handles — size comes from maat × schaal (real mm).
     fixedSize: true,
@@ -372,12 +382,15 @@ function _iProfileTemplate(id, familyName, table, defaultMaat, sectionPtsFn = _i
 
 function _kokerTemplate() {
   const byName = new Map(KOKER.map(row => [row[0], row]));
-  const defaultMaat = 'Koker 100x100x5';
+  const defaultMaat = 'K100/5';
+  // Exact name first, then the old notation ("Koker 100x100x5", "SHS ...").
+  const rij = (maat) => byName.get(maat) || byName.get(normaliseerKokerNaam(maat)) || byName.get(defaultMaat);
   return {
     id: 'staal-koker',
     name: 'Koker',
     nameEn: 'Hollow section',
     category: 'NL Constructie',
+    profielGroep: NL_STAAL_GROEP,
     defaultSize: { width: 60, height: 60 },
     fixedSize: true,
     params: [
@@ -388,8 +401,13 @@ function _kokerTemplate() {
       },
       ..._COMMON_PARAMS,
     ],
+    // Search terms for the symbol palette: every size in both notations, so
+    // "koker 100" and "K100" both find this symbol.
+    zoektermen: KOKER.flatMap(r => [r[0], oudeKokerNaam(r[0])]),
+    // Stored params from older documents → current size name.
+    migrateParams: (params) => migreerProfielParams('staal-koker', params),
     realSizeMm(params) {
-      const row = byName.get(params?.maat) || byName.get(defaultMaat);
+      const row = rij(params?.maat);
       if (!row) return null;
       const f = _schaalOf(params);
       const az = params?.aanzicht || 'doorsnede';
@@ -402,7 +420,7 @@ function _kokerTemplate() {
     },
     snapPoints: _snapPoints,
     render(params, bbox) {
-      const row = byName.get(params?.maat) || byName.get(defaultMaat);
+      const row = rij(params?.maat);
       if (!row) return [];
       const [maat, H, B, t] = row;
       const az = params?.aanzicht || 'doorsnede';
@@ -495,6 +513,7 @@ function _hoeklijnTemplate() {
     name: 'Hoeklijn',
     nameEn: 'Angle',
     category: 'NL Constructie',
+    profielGroep: NL_STAAL_GROEP,
     defaultSize: { width: 60, height: 60 },
     fixedSize: true,
     params: [
@@ -558,7 +577,7 @@ export const ipeTemplate = _iProfileTemplate('staal-ipe', 'IPE', IPE, 'IPE 200')
 export const unpTemplate = _iProfileTemplate('staal-unp', 'UNP', UNP, 'UNP 200', _uSectionPts);
 export const kokerTemplate = _kokerTemplate();
 export const hoeklijnTemplate = _hoeklijnTemplate();
-export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL };
+export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL, KOKER as KOKER_TABEL };
 
 // Geometry/behaviour helpers, reused by the catalog-driven steel templates
 // (js/symbols/steel-catalog.js) so downloaded country catalogs render and

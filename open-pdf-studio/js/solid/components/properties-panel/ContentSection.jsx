@@ -21,7 +21,7 @@ export default function ContentSection() {
         <Show when={sectionVis.fontSizeGroup}>
           <div class="property-group">
             <label>{t('content.fontSize')}</label>
-            <input type="number" min="8" max="72"
+            <input type="text" inputmode="decimal" data-getal min="8" max="72"
               value={annotProps.fontSize} disabled={isLocked()}
               onInput={(e) => updateAnnotProp('fontSize', e.target.value)} />
           </div>

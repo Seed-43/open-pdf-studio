@@ -75,6 +75,14 @@ export function opslaanVraagSoort(doc, doelPad) {
   return vergelijkbaarPad(doelPad) === vergelijkbaarPad(origineel) ? 'overschrijven' : 'kopie';
 }
 
+/**
+ * Vraagt "Opslaan" om een plek? Ja voor een naamloos document (ook als het in
+ * een tijdelijk bestand staat) en voor een document zonder pad.
+ */
+export function opslaanVraagtOpslaanAls(doc) {
+  return !doc?.filePath || !!doc?.isUntitled;
+}
+
 /** Verzenden per e-mail: alleen opslaan als het bestand op schijf niet actueel is. */
 export function moetOpslaanVoorVerzenden(doc) {
   return !!doc && (!!doc.modified || !!doc.isUntitled || !doc.filePath);

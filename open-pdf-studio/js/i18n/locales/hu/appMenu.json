@@ -71,6 +71,12 @@
     "site": "Ezen a webhelyen",
     "noSiteDocuments": "Nincsenek dokumentumok ezen a webhelyen",
     "siteListError": "A webhely dokumentumait nem sikerült betölteni",
+    "versions": "Verziók",
+    "versionNumber": "{{version}}. verzió",
+    "currentVersion": "aktuális",
+    "noVersions": "Nincsenek verziók",
+    "versionsError": "A verziókat nem sikerült betölteni",
+    "olderVersionsHint": "A régebbi verziók csak olvasásra nyílnak meg; a Mentés másként letölt egy másolatot.",
     "save": "Mentés"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Oldal",
     "officeTable": "Táblázat",
     "officeText": "Szöveg",
-    "officeFailed": "A dokumentum exportálása sikertelen."
+    "officeFailed": "A dokumentum exportálása sikertelen.",
+    "protect": "Védelem jelszóval",
+    "protectDesc": "Jelszóval védett másolat mentése (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Kimeneti profil",
@@ -211,5 +219,9 @@
     "activationFailed": "Nem aktív: {{error}}",
     "viaMcp": "Az MI-kapcsolaton keresztül"
   },
-  "annotateScreenshot": "Vágólapon lévő képernyőkép jegyzetelése"
+  "annotateScreenshot": "Vágólapon lévő képernyőkép jegyzetelése",
+  "workflows": "Dokumentum-munkafolyamatok",
+  "drawingSets": "Rajzkészletek",
+  "sheetLinks": "Rajzlapok közötti hivatkozások",
+  "approvalRouting": "Jóváhagyási útvonal"
 }

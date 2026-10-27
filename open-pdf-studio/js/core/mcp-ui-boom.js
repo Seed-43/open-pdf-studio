@@ -18,6 +18,12 @@
 
 import { tabNaam } from './mcp-lint-opdrachten.js';
 
+/**
+ * Wat de boom toont in plaats van de inhoud van een gevuld wachtwoordveld. Vast,
+ * zodat ook de lengte niet uitlekt; een leeg veld blijft leeg.
+ */
+export const WACHTWOORD_MASKER = '********';
+
 export const UI_GRENZEN = Object.freeze({
   maxDepth: Object.freeze({ standaard: 12, min: 1, max: 40 }),
   maxNodes: Object.freeze({ standaard: 400, min: 1, max: 3000 }),
@@ -90,6 +96,11 @@ const plat = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
 export function kort(tekst, max) {
   const t = plat(tekst);
   return t.length > max ? `${t.slice(0, Math.max(1, max - 1))}…` : t;
+}
+
+/** Een <input type="password">, via de eigenschap of het attribuut. */
+function isWachtwoordVeld(el) {
+  return tag(el) === 'input' && String(el.type || attr(el, 'type') || '').toLowerCase() === 'password';
 }
 
 /** De rol van een element: expliciet, impliciet of app-specifiek; null = geen eigen rol. */
@@ -224,7 +235,10 @@ export function bouwUiBoom(gebieden, invoer = {}) {
       const gekozen = opties.find((o) => o.selected === true);
       if (gekozen) uit.valueText = kap(tekstVan(gekozen));
     } else if (t === 'textarea' || t === 'option' || (t === 'input' && !['button', 'checkbox', 'radio'].includes(rol))) {
-      if (el.value !== undefined && el.value !== null) uit.value = kap(el.value);
+      if (el.value !== undefined && el.value !== null) {
+        // Een wachtwoordveld geeft nooit zijn inhoud prijs: alleen of het gevuld is.
+        uit.value = isWachtwoordVeld(el) ? (String(el.value) ? WACHTWOORD_MASKER : '') : kap(el.value);
+      }
     }
     const nu = attr(el, 'aria-valuenow');
     if (nu !== null && uit.value === undefined) uit.value = kap(nu);

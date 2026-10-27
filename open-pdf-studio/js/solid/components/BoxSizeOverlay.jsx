@@ -2,10 +2,11 @@ import { Show, createSignal, createEffect, onCleanup, onMount } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../stores/propertiesStore.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
-import { useTranslation } from '../../i18n/useTranslation.js';
+import { useTranslation, language } from '../../i18n/useTranslation.js';
 import { klemMaat } from '../../annotations/minimummaat.js';
 import { beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
 import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
+import { leesGetalBegin, toonGetal } from '../../core/getal-invoer.js';
 
 // Floating width/height "dimensions" for a selected shape — two small
 // editable fields floating next to the selection. Values are in measured
@@ -52,7 +53,9 @@ export default function BoxSizeOverlay() {
     setUnit(u);
     // Zes significante cijfers in plaats van twee decimalen: bij eenheid "m"
     // was twee decimalen (10 mm) te grof om een kleine maat te tonen.
-    const toon = (n) => (Number.isFinite(n) ? String(Number(n.toPrecision(6))) : '');
+    // In de notatie van de taal ("0,1" in het Nederlands); invoer leest
+    // komma en punt allebei (core/getal-invoer.js).
+    const toon = (n) => (Number.isFinite(n) ? toonGetal(Number(n.toPrecision(6)), language()) : '');
     setWVal(toon(ann.width / k));
     setHVal(toon(ann.height / k));
     // Model is weer leidend: geen openstaande wijziging meer.
@@ -88,7 +91,7 @@ export default function BoxSizeOverlay() {
   function commit(which, raw) {
     const ann = selectedBox();
     if (!ann || ann.locked) { setWDirty(false); setHDirty(false); return; }
-    const v = parseFloat(String(raw).replace(',', '.'));
+    const v = leesGetalBegin(raw);
     if (!isFinite(v) || v <= 0) { refreshValues(); return; }
     const { ppu: k } = ppu(ann);
     // Elke positieve waarde mag; alleen de technische ondergrens geldt.

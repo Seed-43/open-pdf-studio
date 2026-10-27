@@ -184,19 +184,31 @@ pub fn ontsleutel(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<
         // negeren en mogelijk een korter wachtwoord accepteren.
         return Err(OntsleutelFout::VerkeerdWachtwoord);
     }
-    let mut ww: Zeroizing<Vec<u8>> = Zeroizing::new(Vec::with_capacity(wachtwoord.len() + 1));
-    ww.extend_from_slice(wachtwoord.as_bytes());
-    ww.push(0);
+    // PDFium bereidt een wachtwoord niet voor. Een bestand van een schrijver die
+    // het volgens PDF 2.0 voorbereidde (SASLprep-toewijzing, NFKC, 127 bytes)
+    // opent dan niet met wat de gebruiker typt; daarom ook die vormen proberen
+    // (pdf_beveiliging::wachtwoord_vormen), zoals pdf.js dat doet.
+    let vormen = crate::pdf_beveiliging::wachtwoord_vormen(wachtwoord);
 
     let functies = Functies::laad(bibliotheek)?;
     // In-proc PDFium-werk gaat altijd achter dezelfde vergrendeling langs.
     let _guard = crate::pdfium_renderer::inproc_guard();
     unsafe {
-        let doc = match functies.open(bytes, Some(&ww)) {
-            Ok(d) => d,
-            Err(FPDF_ERR_PASSWORD) => return Err(OntsleutelFout::VerkeerdWachtwoord),
-            Err(code) => return Err(OntsleutelFout::Mislukt(format!("PDFium error {code}"))),
-        };
+        let mut geopend = None;
+        for vorm in &vormen {
+            let mut ww: Zeroizing<Vec<u8>> = Zeroizing::new(Vec::with_capacity(vorm.len() + 1));
+            ww.extend_from_slice(vorm);
+            ww.push(0);
+            match functies.open(bytes, Some(&ww)) {
+                Ok(d) => {
+                    geopend = Some(d);
+                    break;
+                }
+                Err(FPDF_ERR_PASSWORD) => continue,
+                Err(code) => return Err(OntsleutelFout::Mislukt(format!("PDFium error {code}"))),
+            }
+        }
+        let Some(doc) = geopend else { return Err(OntsleutelFout::VerkeerdWachtwoord) };
         let mut resultaat = None;
         for vlag in [FPDF_REMOVE_SECURITY, FPDF_REMOVE_SECURITY_OUD] {
             if let Some(uit) = functies.bewaar_zonder_beveiliging(doc, vlag) {

@@ -1,7 +1,8 @@
 import i18next from '../../i18n/config.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
-import { isTauri, saveFileDialog, writeBinaryFile, openExternal } from '../../core/platform.js';
+import { isTauri, saveFileDialog, writeBinaryFile } from '../../core/platform.js';
+import { openExtern } from '../../core/extern-openen.js';
 import {
   setLinkGroups as setGroups, setLinkCountText as setCountText,
   setLinkEmptyMessage as setEmptyMessage, setLinkSelectedIndex as setSelectedIndex,
@@ -241,7 +242,7 @@ export async function navigateToLink(index) {
   const isExternal = !!link.url;
 
   if (isExternal && link.url) {
-    openExternal(link.url);
+    openExtern(link.url);
   } else if (link.destPage !== null) {
     goToPage(link.destPage);
   } else if (link.destName) {
@@ -271,7 +272,7 @@ export function gotoSelectedLink() {
 export function openSelectedLink() {
   const link = getSelectedLink();
   if (link && link.url) {
-    openExternal(link.url);
+    openExtern(link.url);
   }
 }
 

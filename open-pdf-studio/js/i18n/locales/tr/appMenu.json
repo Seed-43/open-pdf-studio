@@ -71,6 +71,12 @@
     "site": "Bu sitede",
     "noSiteDocuments": "Bu sitede belge yok",
     "siteListError": "Bu sitenin belgeleri yüklenemedi",
+    "versions": "Sürümler",
+    "versionNumber": "Sürüm {{version}}",
+    "currentVersion": "geçerli",
+    "noVersions": "Sürüm yok",
+    "versionsError": "Sürümler yüklenemedi",
+    "olderVersionsHint": "Eski sürümler salt okunur açılır; Farklı Kaydet bir kopya indirir.",
     "save": "Kaydet"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Sayfa",
     "officeTable": "Tablo",
     "officeText": "Metin",
-    "officeFailed": "Belge dışa aktarılamadı."
+    "officeFailed": "Belge dışa aktarılamadı.",
+    "protect": "Parolayla koru",
+    "protectDesc": "Parolayla korunan bir kopya kaydet (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Çıktı profili",
@@ -211,5 +219,9 @@
     "activationFailed": "Etkin değil: {{error}}",
     "viaMcp": "Yapay zekâ bağlantısı üzerinden"
   },
-  "annotateScreenshot": "Panodaki Ekran Görüntüsüne Açıklama Ekle"
+  "annotateScreenshot": "Panodaki Ekran Görüntüsüne Açıklama Ekle",
+  "workflows": "Belge iş akışları",
+  "drawingSets": "Çizim setleri",
+  "sheetLinks": "Paftalar arası bağlantılar",
+  "approvalRouting": "Onay akışı"
 }

@@ -26,6 +26,9 @@ window.addEventListener('unhandledrejection', (e) => {
 // Snellere pdf-lib-standaarden voor elke load en save (#581); als eerste,
 // vóór elk module dat pdf-lib gebruikt.
 import './pdf/pdf-lib-snelheid.js';
+// Polyfills voor oudere Android-WebViews (#596): vóór PDF.js en de rest van
+// de app (pdf-lib hierboven heeft ze niet nodig).
+import './core/oude-webview-start.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initDomElements } from './ui/dom-elements.js';
@@ -78,7 +81,9 @@ import { initFontDropdowns } from './utils/fonts.js';
 import { initMcpBridge } from './mcp-bridge.js';
 
 // i18n
-import './i18n/config.js';
+import i18next from './i18n/config.js';
+import { language } from './i18n/useTranslation.js';
+import { installeerGetalVelden, herformatteerGetalVelden } from './ui/getal-veld.js';
 
 // Solid.js
 import { render } from 'solid-js/web';
@@ -88,9 +93,15 @@ import App from './solid/App.jsx';
 import { addRecentFile } from './mobile/recent-files.js';
 
 // Tauri API
-import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName } from './core/platform.js';
+import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { instantieRol, taakToegestaan } from './core/instantie-rol.js';
+import { volgendeTaak } from './core/volgende-taak.js';
+import { meldSchoonAfsluiten } from './herstel/haken.js';
 import { sessieHerstelBeleid } from './core/sessie-herstel.js';
 import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
+// De brug naar de gastpagina (#694): alleen in de gehoste bouw.
+import { startHostBrug } from './core/host-brug-start.js';
+import { installeerWorkerShim } from './core/blob-worker.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -107,6 +118,10 @@ const openFiles = createFileOpenQueue({
     if (state.documents.some(d => d.pdfDoc && bronPad(d) === filePath)) {
       addRecentFile(filePath, extractFileName(filePath));
     }
+    // Op een telefoon past de pagina in het scherm, net als bij Openen in de
+    // mobiele weergave; "Openen met" uit een andere app komt hier binnen (#593).
+    const actief = state.documents[state.activeDocumentIndex];
+    if (isMobile() && actief?.pdfDoc && bronPad(actief) === filePath) fitPage();
   },
 });
 
@@ -181,6 +196,19 @@ function disableBrowserShortcuts() {
 
 // Initialize application
 async function init() {
+  // Gehoste bouw in een iframe met `#ouder=…`: het opslagcontract met de
+  // gastpagina neerzetten vóór iets het leest (core/host-brug.js, #694). De
+  // gewone bouw kent deze regel niet: Vite vult de modus in en de tak valt weg.
+  if (import.meta.env.MODE === 'hosted') {
+    // Elke worker uit een blob: in de werkplek (opaque origin) start een
+    // worker van een http-adres niet (core/blob-worker.js, #704).
+    installeerWorkerShim(window);
+    startHostBrug();
+  }
+  // Getalvelden accepteren komma én punt; ze tonen het decimaalteken van de
+  // app-taal en schakelen mee bij een taalwissel (ui/getal-veld.js).
+  installeerGetalVelden({ taal: () => language() });
+  i18next.on('languageChanged', () => queueMicrotask(() => herformatteerGetalVelden()));
   // Dev: versienummer live uit package.json zodat de titelbalk na een
   // versie-bump klopt zonder Vite-herstart.
   import('./core/app-version.js').then((m) => m.initDevVersionSync()).catch(() => {});
@@ -216,8 +244,19 @@ async function init() {
 
   // Load user preferences (before render so theme is applied)
   await loadPreferences();
+  // Hoofdinstantie of tweede instantie (losgemaakt tabblad)? Een tweede
+  // instantie laat sessie, AI-koppeling, printwachtrij en PrtScn aan de
+  // hoofdinstantie over (core/instantie-rol.js).
+  const rol = isTauri() ? await instantieRol(invoke) : { tweede: false };
   // AI-koppeling volgens de instelling (niet wachten: bindt alleen een poort).
-  import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
+  if (taakToegestaan('mcp-koppeling', rol)) {
+    import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
+  }
+
+  // In de browser liep alles tot hier (de modules laden) en het opbouwen van
+  // het venster als één lange taak: eerst de beurt teruggeven (#707). Op het
+  // bureaublad gaf loadPreferences() die beurt al terug.
+  if (!isTauri()) await volgendeTaak();
 
   // Single render call — mounts the entire UI tree
   // render() is synchronous, so DOM elements exist immediately after
@@ -242,9 +281,11 @@ async function init() {
 
   // Screenshot-annotate mode: wire the PrtScn hotkey event and apply the
   // (opt-in) preference. No-op outside Tauri. Lazy so it never blocks startup.
-  import('./tools/screenshot-annotate.js')
-    .then(m => m.initScreenshotAnnotate())
-    .catch(() => {});
+  if (taakToegestaan('prtscn', rol)) {
+    import('./tools/screenshot-annotate.js')
+      .then(m => m.initScreenshotAnnotate())
+      .catch(() => {});
+  }
 
   // Wire the MCP <-> WebView bridge early. The bridge is just
   // event-listener registration on window.__TAURI__.event — it does not need
@@ -256,9 +297,16 @@ async function init() {
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
   // application pop the in-app sort/merge dialog. No-op when the virtual
   // printer isn't installed.
-  import('./solid/stores/printQueueStore.js')
-    .then(m => m.startPrintQueueWatcher())
-    .catch(() => {});
+  if (taakToegestaan('printwachtrij', rol)) {
+    import('./solid/stores/printQueueStore.js')
+      .then(m => m.startPrintQueueWatcher())
+      .catch(() => {});
+    // The printer window ("Open printer settings") asks this window to show
+    // the Virtual printer tab of the preferences.
+    import('./solid/stores/printQueueStore.js')
+      .then(m => m.listenForPrinterSettingsRequests())
+      .catch(() => {});
+  }
 
   // Lazy-load printer enumeration so the print dialog shows the OS default
   // printer instantly (Ctrl+P) instead of waiting on PowerShell/lpstat.
@@ -365,7 +413,16 @@ async function init() {
     // the whole app FEEL frozen until every previously-open tab finished
     // reloading. Tabs still appear and load the same way, just without
     // blocking "ready" on it. restoreLastSession() has its own try/catch.
-    restoreLastSession();
+    if (taakToegestaan('sessie-herstellen', rol)) restoreLastSession();
+  }
+
+  // Herstel van niet-opgeslagen werk (js/herstel/): momentopnamen in elke
+  // instantie, het aanbod na een onverwachte afsluiting alleen in de
+  // hoofdinstantie (een losgemaakt tabblad toont het niet nog eens).
+  if (isTauri()) {
+    import('./herstel/herstel.js')
+      .then((m) => m.startHerstel({ hoofd: taakToegestaan('herstel-aanbieden', rol) }))
+      .catch((e) => console.warn('[herstel] start failed:', e));
   }
 
   // Dev convenience: ALWAYS have Desktop\test.pdf open on boot — the standing
@@ -401,7 +458,7 @@ async function init() {
 
   // Desktop-only: check default PDF app (deferred to avoid blocking startup)
   if (!mobile) {
-    setTimeout(() => checkDefaultPdfApp(), 3000);
+    if (taakToegestaan('standaard-app', rol)) setTimeout(() => checkDefaultPdfApp(), 3000);
     // Geen automatische update-check meer bij het opstarten: het update-venster
     // verscheen ongevraagd. Updaten kan nog handmatig via Help → Controleren op
     // updates (checkForUpdates(false)).
@@ -447,6 +504,9 @@ function setupSessionSaveOnClose() {
               return;
             }
           }
+          // Alles opgeslagen of bewust verworpen: een nette afsluiting, de
+          // herstelmomentopnamen en de markering "draait" mogen weg.
+          await meldSchoonAfsluiten();
           await saveSessionData();
         });
       }
@@ -463,6 +523,9 @@ function setupSessionSaveOnClose() {
 // Save session data to disk
 async function saveSessionData() {
   try {
+    // Een tweede instantie (losgemaakt tabblad) schrijft de sessie niet: ze
+    // zou de tabbladen van de hoofdinstantie overschrijven.
+    if (!taakToegestaan('sessie-bewaren', await instantieRol(invoke))) return;
     // Skip untitled docs: their filePath is a temp file that gets deleted on
     // close — restoring it next launch would open a dangling/empty path.
     // A PDF opened with a password is stored by its ORIGINAL path, never by

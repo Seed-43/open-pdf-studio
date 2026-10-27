@@ -67,6 +67,20 @@ export function herschikLabels(labels, pageMapping, aantal) {
   return normaliseerLabels(uit, aantal);
 }
 
+/**
+ * Labels van ingevoegde pagina's erbij (samenvoegen): `ingevoegd` is
+ * paginanummer → label, zoals het samengevoegde bestand ze heeft. De andere
+ * pagina's houden hun label, of hun nummer.
+ */
+export function vulLabelsAan(labels, ingevoegd, aantal) {
+  if (!(ingevoegd instanceof Map) || ingevoegd.size === 0) return labels ?? null;
+  const uit = Array.from({ length: aantal }, (_, i) => labelVan(labels, i + 1));
+  for (const [pagina, label] of ingevoegd) {
+    if (pagina >= 1 && pagina <= aantal && typeof label === 'string') uit[pagina - 1] = label;
+  }
+  return normaliseerLabels(uit, aantal);
+}
+
 // ── Labels als /PageLabels-reeksen ───────────────────────────────────────
 
 const ROMEINS = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'],

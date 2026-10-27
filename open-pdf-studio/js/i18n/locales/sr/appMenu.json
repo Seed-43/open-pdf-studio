@@ -71,6 +71,12 @@
     "site": "На овом сајту",
     "noSiteDocuments": "Нема докумената на овом сајту",
     "siteListError": "Документи овог сајта нису могли да се учитају",
+    "versions": "Верзије",
+    "versionNumber": "Верзија {{version}}",
+    "currentVersion": "тренутна",
+    "noVersions": "Нема верзија",
+    "versionsError": "Верзије нису могле да се учитају",
+    "olderVersionsHint": "Старије верзије се отварају само за читање; Сачувај као преузима копију.",
     "save": "Сачувај"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Страница",
     "officeTable": "Табела",
     "officeText": "Текст",
-    "officeFailed": "Извоз документа није успео."
+    "officeFailed": "Извоз документа није успео.",
+    "protect": "Заштити лозинком",
+    "protectDesc": "Сачувај копију заштићену лозинком (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Излазни профил",
@@ -211,5 +219,9 @@
     "activationFailed": "Није активно: {{error}}",
     "viaMcp": "Преко AI везе"
   },
-  "annotateScreenshot": "Анотирај снимак екрана из оставе"
+  "annotateScreenshot": "Анотирај снимак екрана из оставе",
+  "workflows": "Радни токови докумената",
+  "drawingSets": "Комплети цртежа",
+  "sheetLinks": "Везе између листова",
+  "approvalRouting": "Ток одобравања"
 }

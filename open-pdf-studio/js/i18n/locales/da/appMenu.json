@@ -71,6 +71,12 @@
     "site": "På dette websted",
     "noSiteDocuments": "Ingen dokumenter på dette websted",
     "siteListError": "Dokumenterne på dette websted kunne ikke indlæses",
+    "versions": "Versioner",
+    "versionNumber": "Version {{version}}",
+    "currentVersion": "aktuel",
+    "noVersions": "Ingen versioner",
+    "versionsError": "Versionerne kunne ikke indlæses",
+    "olderVersionsHint": "Ældre versioner åbnes skrivebeskyttet; Gem som downloader en kopi.",
     "save": "Gem"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Side",
     "officeTable": "Tabel",
     "officeText": "Tekst",
-    "officeFailed": "Eksport af dokumentet mislykkedes."
+    "officeFailed": "Eksport af dokumentet mislykkedes.",
+    "protect": "Beskyt med adgangskode",
+    "protectDesc": "Gem en kopi beskyttet med adgangskode (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Outputprofil",
@@ -211,5 +219,9 @@
     "activationFailed": "Ikke aktiv: {{error}}",
     "viaMcp": "Via AI-forbindelsen"
   },
-  "annotateScreenshot": "Annotér skærmbillede fra udklipsholderen"
+  "annotateScreenshot": "Annotér skærmbillede fra udklipsholderen",
+  "workflows": "Dokumentarbejdsgange",
+  "drawingSets": "Tegningssæt",
+  "sheetLinks": "Links mellem tegninger",
+  "approvalRouting": "Godkendelsesforløb"
 }

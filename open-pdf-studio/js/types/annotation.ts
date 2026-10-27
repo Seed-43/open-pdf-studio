@@ -20,6 +20,10 @@ export interface Point {
 }
 
 export interface AnnotationBase {
+  /** Named spatial zone on an existing polygon/box; coordinates remain in page space. */
+  spatialZone?: { version: 1; id: string; name: string; parentId: string };
+  /** Absent means computed; an empty string is an explicit empty override. */
+  locationOverride?: string;
   id: string;
   type: AnnotationType;
   page: number;
@@ -41,6 +45,13 @@ export interface AnnotationBase {
   rotation?: number;
   /** Annotatielaag (#468): id uit doc.annotationLayers; ontbreekt = standaardlaag. */
   layer?: string;
+  // Gedeelde eigenschappen die opslaan overleven (#619, saver/annotatie-algemeen.js)
+  nm?: string;                 // /NM: naam, per pagina uniek
+  pdfSubject?: string;         // /Subj van een soort die zijn onderwerp in /Contents houdt
+  altText?: string;            // /OPS_AltText
+  ifcCategory?: string;        // /OPS_IfcCategory
+  inReplyTo?: string;          // /IRT: id van de annotatie waar deze bij hoort
+  replyType?: string;          // 'reply' (/RT /R) of 'group' (/RT /Group)
 }
 
 export interface RectAnnotation extends AnnotationBase {

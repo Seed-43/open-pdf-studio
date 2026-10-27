@@ -93,7 +93,22 @@
     "editBookmark": "책갈피 편집",
     "deleteBookmark": "책갈피 삭제",
     "expandAll": "모두 펼치기",
-    "collapseAll": "모두 접기"
+    "collapseAll": "모두 접기",
+    "color": "색상",
+    "colorDefault": "기본",
+    "colorRed": "빨강",
+    "colorOrange": "주황",
+    "colorGreen": "초록",
+    "colorBlue": "파랑",
+    "colorPurple": "보라",
+    "colorGray": "회색",
+    "colorCustom": "사용자 지정...",
+    "bold": "굵게",
+    "italic": "기울임꼴",
+    "nestUnderNew": "새 책갈피 아래에 넣기...",
+    "indent": "들여쓰기",
+    "outdent": "내어쓰기",
+    "deleteBookmarks": "책갈피 {{count}}개 삭제"
   },
   "thumbnail": {
     "rotateLeft": "왼쪽으로 회전",

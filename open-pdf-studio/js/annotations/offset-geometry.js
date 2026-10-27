@@ -18,6 +18,8 @@
  * vorm zou doen verdwijnen (krimpen voorbij nul).
  */
 
+import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
+
 // Types die we veilig kunnen offsetten. Met bewust een korte lijst: types met
 // extra betekenis (maatlijnen, gemeten oppervlakken, wolkjes met bumps) zijn
 // geen geometrische vormen die je "parallel kopieert".
@@ -67,6 +69,21 @@ export function canOffset(ann) {
 export function offsetProps(ann, dist, side) {
   if (!ann || !_fin(dist) || dist <= 0) return null;
   if (!ONDERSTEUND.has(ann.type)) return null;
+  // Veelhoek met hoekpunten (#622): verschuiven in zijn eigen (ongedraaide)
+  // ruimte, op de punten zoals het scherm ze in het vak tekent; de kant-klik
+  // gaat mee terug door de draaiing. De kopie houdt de hoek.
+  if (isBewerkbareVeelhoek(ann)) {
+    const graden = Number(ann.rotation) || 0;
+    let kant = side;
+    if (graden && side && _fin(side.x) && _fin(side.y)) {
+      const cx = ann.x + ann.width / 2, cy = ann.y + ann.height / 2;
+      const a = -graden * Math.PI / 180;
+      const dx = side.x - cx, dy = side.y - cy;
+      kant = { x: cx + dx * Math.cos(a) - dy * Math.sin(a), y: cy + dx * Math.sin(a) + dy * Math.cos(a) };
+    }
+    const r = _offsetPoints({ ...ann, points: veelhoekPunten(ann) }, dist, kant);
+    return r ? { ...r, sides: r.points.length } : null;
+  }
   if (_heeftBogen(ann)) return null;
   if (isLineAnnotation(ann)) return _offsetLine(ann, dist, side);
   if (Array.isArray(ann.points) && ann.points.length > 1) return _offsetPoints(ann, dist, side);

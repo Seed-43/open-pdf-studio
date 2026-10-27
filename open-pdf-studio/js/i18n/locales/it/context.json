@@ -93,7 +93,22 @@
     "editBookmark": "Modifica segnalibro",
     "deleteBookmark": "Elimina segnalibro",
     "expandAll": "Espandi tutto",
-    "collapseAll": "Comprimi tutto"
+    "collapseAll": "Comprimi tutto",
+    "color": "Colore",
+    "colorDefault": "Predefinito",
+    "colorRed": "Rosso",
+    "colorOrange": "Arancione",
+    "colorGreen": "Verde",
+    "colorBlue": "Blu",
+    "colorPurple": "Viola",
+    "colorGray": "Grigio",
+    "colorCustom": "Personalizzato...",
+    "bold": "Grassetto",
+    "italic": "Corsivo",
+    "nestUnderNew": "Annida sotto un nuovo segnalibro...",
+    "indent": "Aumenta rientro",
+    "outdent": "Riduci rientro",
+    "deleteBookmarks": "Elimina {{count}} segnalibri"
   },
   "thumbnail": {
     "rotateLeft": "Ruota a sinistra",

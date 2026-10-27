@@ -14,7 +14,7 @@ import { volgendeTab } from './ribbon-toetsenbord.js';
 import { lintRegister } from '../../../plugins/ribbon-tab-registry.js';
 import { activeTab, setActiveTab, contextualTabsVisible } from '../../stores/ribbonStore.js';
 import { imageSelected } from '../../stores/imageEditStore.js';
-import { symbolInsertActive } from '../../../symbols/symbol-insert-format-store.js';
+import { opmaakVoorNieuw } from '../../stores/formatStore.js';
 import { openAppMenu } from '../../../ui/chrome/menus.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
@@ -118,8 +118,9 @@ export default function Ribbon() {
             isActive={activeTab() === 'format'}
             onClick={() => setActiveTab('format')} />
           {/* Schikken werkt op een selectie; tijdens het invoegen van
-              symbolen (#587) staat alleen Opmaak open. */}
-          <Show when={!symbolInsertActive()}>
+              symbolen (#587) of het tekenen met een gereedschap (#668)
+              staat alleen Opmaak open. */}
+          <Show when={!opmaakVoorNieuw()}>
             <RibbonTab label={t('tabs.arrange')} dataTab="arrange" isContextual={true} id="tab-arrange-btn"
               isActive={activeTab() === 'arrange'}
               onClick={() => setActiveTab('arrange')} />

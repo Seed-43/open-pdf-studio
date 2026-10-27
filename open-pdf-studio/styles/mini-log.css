@@ -14,7 +14,7 @@
   border: 1px solid var(--theme-border, #d4d4d4);
   border-radius: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--ui-font);
   font-size: 11px;
   z-index: 1500;
   user-select: none;
@@ -68,7 +68,7 @@
 }
 
 .minilog-preview {
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: var(--ui-font-mono);
   font-size: 10px;
   white-space: nowrap;
   overflow: hidden;
@@ -78,7 +78,7 @@
 }
 
 .minilog-count {
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: var(--ui-font-mono);
   font-size: 10px;
   color: #777;
   margin-left: auto;
@@ -115,7 +115,7 @@
   overflow-x: hidden;
   padding: 4px 6px;
   background: #1e1e1e;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: var(--ui-font-mono);
   font-size: 10.5px;
   line-height: 1.35;
   color: #d4d4d4;

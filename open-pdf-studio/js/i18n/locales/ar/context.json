@@ -93,7 +93,22 @@
     "editBookmark": "تعديل الإشارة المرجعية",
     "deleteBookmark": "حذف الإشارة المرجعية",
     "expandAll": "توسيع الكل",
-    "collapseAll": "طي الكل"
+    "collapseAll": "طي الكل",
+    "color": "اللون",
+    "colorDefault": "افتراضي",
+    "colorRed": "أحمر",
+    "colorOrange": "برتقالي",
+    "colorGreen": "أخضر",
+    "colorBlue": "أزرق",
+    "colorPurple": "بنفسجي",
+    "colorGray": "رمادي",
+    "colorCustom": "مخصص...",
+    "bold": "غامق",
+    "italic": "مائل",
+    "nestUnderNew": "تضمين تحت إشارة مرجعية جديدة...",
+    "indent": "زيادة المسافة البادئة",
+    "outdent": "إنقاص المسافة البادئة",
+    "deleteBookmarks": "حذف {{count}} إشارات مرجعية"
   },
   "thumbnail": {
     "rotateLeft": "تدوير لليسار",

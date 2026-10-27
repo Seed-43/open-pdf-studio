@@ -6,8 +6,10 @@
 # that delta. A new annotation type that breaks the generic move primitive
 # (annotations/transforms.js applyMove) fails here immediately.
 #
-# Requires a test instance with the MCP server:
-#   $env:OPDS_DETACHED=1; $env:OPS_ENABLE_MCP=1
+# Requires a test instance with the MCP server, started headless so its
+# window stays off-screen and never takes focus (OPDS_HEADLESS=1, see
+# src-tauri/src/headless.rs):
+#   $env:OPDS_DETACHED=1; $env:OPS_ENABLE_MCP=1; $env:OPDS_HEADLESS=1
 #   open-pdf-studio.exe --mcp-server --mcp-port 9224
 #
 # Usage: powershell -File scripts/test-move-sweep.ps1

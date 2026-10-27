@@ -369,6 +369,32 @@ test('een bron zonder knipsel dat ernaar verwijst verdwijnt uit het bestand', as
   assert.equal(bronStreams.length, 0, 'de bronstream zelf staat nog in het bestand');
 });
 
+test('alles vlakken met herstel (#615): de bron blijft voor het terughalen, zonder herstel niet', async () => {
+  const { vlakDocument } = await import('../flatten-bytes.js');
+  for (const herstelbaar of [true, false]) {
+    const bronBytes = await zwareBron();
+    const doc = await PDFDocument.create();
+    doc.addPage([600, 400]);
+    await zetKnipsel(doc, bronBytes, 'aaaabbbbccccdddd');
+    const tweede = await PDFDocument.load(await doc.save({ useObjectStreams: false }));
+    const r = vlakDocument(tweede, {
+      herstelbaar, batchId: 'B1',
+      annotaties: [{ id: 'k1', type: 'vectorSnippet', page: 1, snippetKey: 'aaaabbbbccccdddd' }],
+    });
+    assert.equal(r.gebakken, 1);
+    // De volgende save ruimt op: geen stempel meer op de pagina.
+    const opgeruimd = ruimKnipselRestenOp(tweede, []);
+    const wb = (await PDFDocument.load(await tweede.save())).catalog.lookup(PDFName.of(CATALOGUS_SLEUTEL));
+    if (herstelbaar) {
+      assert.deepEqual(opgeruimd.bronnenWeg, [], 'met herstel blijft de bron');
+      assert.deepEqual(wb.keys().map((k) => k.asString()), ['/aaaabbbbccccdddd']);
+    } else {
+      assert.deepEqual(opgeruimd.bronnenWeg, ['aaaabbbbccccdddd'], 'zonder herstel gaat de bron weg');
+      assert.equal(wb, undefined);
+    }
+  }
+});
+
 test('opruimen raakt niets wat de rest van het document nog gebruikt', async () => {
   const bronBytes = await zwareBron();
   const doc = await PDFDocument.create();

@@ -1,7 +1,11 @@
-import { For } from 'solid-js';
+import { For, lazy } from 'solid-js';
 import Dialog from './Dialog.jsx';
 import { closeDialog } from '../stores/dialogStore.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+
+// Loaded when the dialog opens, with their services, outside the main chunk.
+const HiddenInformation = lazy(() => import('./HiddenInformation.jsx'));
+const PrintPreflight = lazy(() => import('./PrintPreflight.jsx'));
 
 function PropRow(props) {
   return (
@@ -53,6 +57,8 @@ export default function DocPropertiesDialog(props) {
         <PropRow label={t('docProperties.creationDate')} value={d.created} />
         <PropRow label={t('docProperties.modifiedDate')} value={d.modified} />
       </div>
+      <HiddenInformation />
+      <PrintPreflight />
     </Dialog>
   );
 }

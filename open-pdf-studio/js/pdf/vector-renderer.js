@@ -26,6 +26,8 @@
  *    18  TextAt(f32 x, f32 y, f32 fontSize, u32 rgba, u8 len, UTF-8 bytes)
  */
 
+import { strokeCurrentPath, thinLinesOn } from './thin-lines.js';
+
 // Cache: Map<"filePath:pageNum:rotation", { bytes: Uint8Array, w, h, x0, y0 }>
 // Rotation is part of the key so a page rotated 90° coexists with the same
 // page un-rotated, without invalidating either when the user toggles back.
@@ -227,6 +229,9 @@ export function renderVectorPage(ctx, filePath, pageNum, transform, rotation) {
     .catch(() => {});
 
   const { bytes, x0, y0, h: pageH } = entry;
+  // Thin Lines (#595): every stroke as a one-device-pixel hairline. Read per
+  // frame, so a toggle shows on the next repaint.
+  const thin = thinLinesOn();
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let pos = 16; // skip 16-byte header (x0, y0, w, h)
 
@@ -292,7 +297,7 @@ export function renderVectorPage(ctx, filePath, pageNum, transform, rotation) {
         break;
       }
       case 7: // Stroke
-        ctx.stroke();
+        strokeCurrentPath(ctx, thin);
         break;
       case 8: // Fill
         ctx.fill('nonzero');

@@ -9,6 +9,7 @@ import { lintRegister } from '../../../plugins/ribbon-tab-registry.js';
 import { voerExtensieOpdrachtUit } from '../../../plugins/extension-commands.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { verdeelTabbladen } from './ribbon-toetsenbord.js';
+import { naLettertypen } from './na-lettertypen.js';
 
 // Linttabbladen van extensies (#551). De extensie levert alleen gegevens; de
 // host tekent hier het tabblad uit het weergavemodel van ribbon-tab-registry.js
@@ -120,8 +121,10 @@ export function ExtensionTabStrip(props) {
     if (props.strookOuder?.()) ro.observe(props.strookOuder());
     document.addEventListener('mousedown', opBuitenklik, true);
     window.addEventListener('resize', planMeting);
-    if (document.fonts?.ready) document.fonts.ready.then(planMeting);
+    // Niet hier document.fonts.ready lezen: dat dwingt layout af in de opstarttaak (#707).
+    const stopLettertypen = naLettertypen(planMeting);
     onCleanup(() => {
+      stopLettertypen();
       ro.disconnect();
       document.removeEventListener('mousedown', opBuitenklik, true);
       window.removeEventListener('resize', planMeting);

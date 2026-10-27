@@ -93,7 +93,22 @@
     "editBookmark": "Edit Penanda",
     "deleteBookmark": "Hapus Penanda",
     "expandAll": "Bentangkan Semua",
-    "collapseAll": "Ciutkan Semua"
+    "collapseAll": "Ciutkan Semua",
+    "color": "Warna",
+    "colorDefault": "Bawaan",
+    "colorRed": "Merah",
+    "colorOrange": "Oranye",
+    "colorGreen": "Hijau",
+    "colorBlue": "Biru",
+    "colorPurple": "Ungu",
+    "colorGray": "Abu-abu",
+    "colorCustom": "Kustom...",
+    "bold": "Tebal",
+    "italic": "Miring",
+    "nestUnderNew": "Sarangkan di bawah penanda baru...",
+    "indent": "Tambah inden",
+    "outdent": "Kurangi inden",
+    "deleteBookmarks": "Hapus {{count}} penanda"
   },
   "thumbnail": {
     "rotateLeft": "Putar Kiri",

@@ -21,7 +21,7 @@ const JS = new URL('../', import.meta.url).href;
 const STUBS = {
   'core/state.js': 'let docs = []; export const state = (globalThis.__stubState ??= { preferences: {}, get documents() { return globalThis.__documenten ?? docs; }, set documents(v) { docs = v; }, activeDocumentIndex: -1 }); export const getActiveDocument = () => globalThis.__actiefDocument ?? state.documents[state.activeDocumentIndex] ?? null; export const getPageRotation = (p) => getActiveDocument()?.pageRotations?.[p] || 0; export const getAnnotationBounds = () => null;',
   'tools/manager.js': 'export const setTool = () => {};',
-  'annotations/factory.js': 'export const createAnnotation = (x) => x;',
+  'annotations/factory.js': 'export const createAnnotation = (x) => x; export const cloneAnnotation = (x) => JSON.parse(JSON.stringify(x));',
   'annotations/rendering.js': 'export const redrawAnnotations = () => {}; export const redrawContinuous = () => {};',
   'core/undo-manager.js': 'const u = () => (globalThis.__undoAanroepen ??= []); export const beginUndoTransaction = () => { u().push("begin"); }, endUndoTransaction = () => { u().push("end"); }, recordAdd = (a) => { u().push(`add:${a?.id}`); }, recordModify = (...a) => { u().push(`modify:${a[0]}`); (globalThis.__undoStappen ??= []).push(a); }, recordDelete = (a) => { u().push(`delete:${a?.id}`); }, documentRevisie = (d) => (d ? `d${d.inhoudRevisie ?? 0}` : null);',
   'plugins/page-access.js': 'export const getPageInfoForDocument = () => null, readPageContentForDocument = () => null, renderPageTileForDocument = () => null;',

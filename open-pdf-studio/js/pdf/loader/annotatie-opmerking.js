@@ -49,3 +49,27 @@ export function zonderDubbeleOpmerking(ann) {
   if (ann && ann.subject && SOORTEN_MET_EIGEN_TEKST.has(ann.type)) ann.subject = '';
   return ann;
 }
+
+/**
+ * Soorten die /Subj zelf schrijven en lezen: de naam van een stempel en het
+ * onderwerp van een proefleescorrectie (zie saver/correction-dicts.js).
+ */
+const EIGEN_SUBJ = new Set(['stamp', 'caret']);
+
+/**
+ * Waar het onderwerp (`subject`, het veld Onderwerp in het eigenschappen-
+ * paneel) in het bestand staat (#619).
+ *
+ * - Soorten met een eigen tekstveld schrijven hun tekst al in /Contents: hun
+ *   onderwerp gaat naar /Subj, het onderwerp-veld van de PDF-specificatie.
+ *   Anders ging het bij elke save verloren.
+ * - Alle andere soorten houden hun onderwerp in /Contents, zoals altijd; een
+ *   /Subj uit het bestand reist daar ongewijzigd mee in `pdfSubject`.
+ * - Stempels en invoegtekens schrijven /Subj zelf: 'eigen'.
+ * @param {string} type
+ * @returns {'subj'|'contents'|'eigen'}
+ */
+export function onderwerpPlek(type) {
+  if (EIGEN_SUBJ.has(type)) return 'eigen';
+  return SOORTEN_MET_EIGEN_TEKST.has(type) ? 'subj' : 'contents';
+}

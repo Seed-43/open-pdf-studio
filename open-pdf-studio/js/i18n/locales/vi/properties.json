@@ -63,6 +63,8 @@
     "strokeColor": "Màu viền",
     "color": "Màu sắc",
     "opacity": "Độ mờ",
+    "fillOpacity": "Độ mờ của nền",
+    "strokeOpacity": "Độ mờ của viền",
     "lineWidth": "Độ rộng Nét",
     "borderWidth": "Độ rộng Viền",
     "borderStyle": "Kiểu viền",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Liên kết hình ảnh",
     "imageFilter": "Hình ảnh"
   },
+  "sizeUnit": {
+    "tooltip": "Đơn vị kích thước"
+  },
   "multiSelect": "Đã chọn {{count}} chú thích",
   "pdfText": "Văn bản PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Nhập nhận xét...",
     "exportComments": "Xuất nhận xét ra tệp dữ liệu...",
     "exportSelectedComments": "Xuất nhận xét đã chọn ra tệp dữ liệu...",
+    "exportListCsv": "Xuất danh sách ra CSV...",
+    "summarizeComingSoon": "Sắp ra mắt",
+    "listExported": "Đã xuất danh sách nhận xét ra CSV",
+    "csvPage": "Trang",
+    "csvType": "Loại",
+    "csvAuthor": "Tác giả",
+    "csvDate": "Ngày",
+    "csvStatus": "Trạng thái",
+    "csvSubject": "Chủ đề",
+    "csvContents": "Nội dung",
+    "csvColor": "Màu",
+    "csvLayer": "Lớp",
     "schedules": "Bảng thống kê",
     "addPage": "Thêm trang",
-    "pageLabels": "Nhãn trang (trình tạo tên)"
+    "pageLabels": "Nhãn trang (trình tạo tên)",
+    "portfolio": "Danh mục PDF",
+    "recognizeForm": "Nhận dạng trường biểu mẫu"
   },
   "scaleBar": {
     "title": "Thước tỷ lệ",
@@ -403,7 +422,8 @@
       "image": "Hình ảnh & con dấu"
     },
     "preview": "Xem trước",
-    "exportCsv": "Xuất CSV"
+    "exportCsv": "Xuất CSV",
+    "workbookBindings": "Liên kết bảng tính"
   },
   "wizard": {
     "title": "Trình hướng dẫn bảng thống kê",
@@ -585,7 +605,9 @@
       "symbolId": "Ký hiệu",
       "imageName": "Tên tệp",
       "width": "Chiều rộng",
-      "height": "Chiều cao"
+      "height": "Chiều cao",
+      "location": "Vị trí",
+      "locationSource": "Nguồn vị trí"
     },
     "type": {
       "line": "Đường thẳng",
@@ -631,6 +653,8 @@
     "sectionTitle": "Ký hiệu: {{name}}",
     "symbolLabel": "Ký hiệu",
     "typeLabel": "Kiểu",
+    "profileType": "Loại tiết diện",
+    "profileTypeTitle": "Tiết diện thép",
     "unknownSymbol": "Ký hiệu không xác định",
     "listNew": "Mới",
     "listAdd": "Thêm",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Đối tượng này đã được thay đổi ở nơi khác. Biểu mẫu hiển thị các giá trị hiện tại; các thay đổi của bạn chưa được áp dụng.",
     "failed": "Không thể áp dụng các thay đổi: {{error}}"
+  },
+  "location": {
+    "title": "Vị trí",
+    "none": "Chưa gán",
+    "manual": "Thủ công",
+    "computed": "Đã tính toán",
+    "override": "Ghi đè thủ công (để trống sẽ xóa vị trí)",
+    "automatic": "Dùng vị trí tự động",
+    "zoneName": "Dùng hình này làm vùng được đặt tên",
+    "parent": "Vùng cha",
+    "removeZone": "Xóa định nghĩa vùng",
+    "invalid": "Không thể cập nhật vị trí",
+    "rules": "Việc gán dựa trên tâm hộp giới hạn của đánh dấu, tính cả cạnh. Vùng sâu nhất được ưu tiên, sau đó đến diện tích nhỏ nhất, rồi đến ID vùng. Hãy dùng đa giác cạnh thẳng không có lỗ hoặc hộp chưa xoay. Các định danh vùng không hợp lệ hoặc trùng lặp sẽ bị loại trừ.",
+    "loading": "Đang tải chú thích: vị trí có thể vẫn thay đổi."
   }
 }

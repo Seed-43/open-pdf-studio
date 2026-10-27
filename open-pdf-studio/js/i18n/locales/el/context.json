@@ -93,7 +93,22 @@
     "editBookmark": "Επεξεργασία σελιδοδείκτη",
     "deleteBookmark": "Διαγραφή σελιδοδείκτη",
     "expandAll": "Ανάπτυξη όλων",
-    "collapseAll": "Σύμπτυξη όλων"
+    "collapseAll": "Σύμπτυξη όλων",
+    "color": "Χρώμα",
+    "colorDefault": "Προεπιλογή",
+    "colorRed": "Κόκκινο",
+    "colorOrange": "Πορτοκαλί",
+    "colorGreen": "Πράσινο",
+    "colorBlue": "Μπλε",
+    "colorPurple": "Μωβ",
+    "colorGray": "Γκρι",
+    "colorCustom": "Προσαρμοσμένο...",
+    "bold": "Έντονα",
+    "italic": "Πλάγια",
+    "nestUnderNew": "Ένθεση κάτω από νέο σελιδοδείκτη...",
+    "indent": "Αύξηση εσοχής",
+    "outdent": "Μείωση εσοχής",
+    "deleteBookmarks": "Διαγραφή {{count}} σελιδοδεικτών"
   },
   "thumbnail": {
     "rotateLeft": "Περιστροφή αριστερά",

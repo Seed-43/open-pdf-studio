@@ -72,8 +72,15 @@ Var OldMainBinaryName
 !include "{{installer_hooks}}"
 {{/if}}
 
+; Font, colours, artwork and the custom pages (welcome, options, finish).
+!include "${OPDS_HOOKS_DIR}\ui.nsh"
+
 Name "${PRODUCTNAME}"
-BrandingText "${COPYRIGHT}"
+!if "${COPYRIGHT}" != ""
+  BrandingText "${COPYRIGHT}"
+!else
+  BrandingText "${PRODUCTNAME} ${VERSION}"
+!endif
 OutFile "${OUTFILE}"
 
 ; We don't actually use this value as default install path,
@@ -126,34 +133,29 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 ; Installer icon
 !if "${INSTALLERICON}" != ""
   !define MUI_ICON "${INSTALLERICON}"
+  ; The uninstaller shows the app icon too, not the stock one.
+  !define MUI_UNICON "${INSTALLERICON}"
 !endif
 
-; Installer sidebar image
-!if "${SIDEBARIMAGE}" != ""
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "${SIDEBARIMAGE}"
-!endif
-
-; Installer header image
-!if "${HEADERIMAGE}" != ""
-  !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP  "${HEADERIMAGE}"
-!endif
+; Sidebar and header images: ui.nsh, one per DPI (the single images of
+; bundle.windows.nsis.sidebarImage / headerImage are not used).
 
 ; Define registry key to store installer language
 !define MUI_LANGDLL_REGISTRY_ROOT "HKCU"
 !define MUI_LANGDLL_REGISTRY_KEY "${MANUPRODUCTKEY}"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
 
-; Installer pages, must be ordered as they appear
-; 1. Welcome Page
+; Installer pages, must be ordered as they appear.
+; A normal install shows four: welcome, options, progress, finish; the
+; reinstall page only when an existing installation is found.
+;
+; 1. Welcome Page: logo, version, description and a link to the license
+;    (no separate license page). Laid out in OpdsWelcomeShow (ui.nsh).
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW OpdsWelcomeShow
+!define MUI_WELCOMEPAGE_TITLE "$(opdsWelcomeTitle)"
+!define MUI_WELCOMEPAGE_TEXT "$(opdsDescription)"
 !insertmacro MUI_PAGE_WELCOME
-
-; 2. License Page (if defined)
-!if "${LICENSE}" != ""
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-  !insertmacro MUI_PAGE_LICENSE "${LICENSE}"
-!endif
 
 ; 3. Install mode (if it is set to `both`)
 !if "${INSTALLMODE}" == "both"
@@ -247,19 +249,24 @@ Function PageReinstall
   ${If} $PassiveMode = 1
     Call PageLeaveReinstall
   ${Else}
+    Call OpdsHeaderArt
     nsDialogs::Create 1018
     Pop $R4
     ${IfThen} $(^RTL) = 1 ${|} nsDialogs::SetRTL $(^RTL) ${|}
+    SetCtlColors $R4 "" "${OPDS_COLOR_PAGE}"
 
     ${NSD_CreateLabel} 0 0 100% 24u $R1
     Pop $R1
+    SetCtlColors $R1 "${OPDS_COLOR_TEXT}" "${OPDS_COLOR_PAGE}"
 
-    ${NSD_CreateRadioButton} 30u 50u -30u 8u $R2
+    ${NSD_CreateRadioButton} 0 36u 100% 10u $R2
     Pop $R2
+    SetCtlColors $R2 "" "${OPDS_COLOR_PAGE}"
     ${NSD_OnClick} $R2 PageReinstallUpdateSelection
 
-    ${NSD_CreateRadioButton} 30u 70u -30u 8u $R3
+    ${NSD_CreateRadioButton} 0 52u 100% 10u $R3
     Pop $R3
+    SetCtlColors $R3 "" "${OPDS_COLOR_PAGE}"
     ; Disable this radio button if downgrading and downgrades are disabled
     !if "${ALLOWDOWNGRADES}" == "false"
       ${IfThen} $R0 = -1 ${|} EnableWindow $R3 0 ${|}
@@ -367,41 +374,35 @@ Function PageLeaveReinstall
   reinst_done:
 FunctionEnd
 
-; 5. Choose install directory page
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-!insertmacro MUI_PAGE_DIRECTORY
+; 5. Options page (ui.nsh): install location, opening PDF files, the PDF
+;    printer, desktop and start menu shortcuts. Skipped when passive or
+;    updating, with the same defaults the separate pages used to set.
+Page custom OptionsPageCreate OptionsPageLeave
 
-; 5.5 File Association page (defined in installer hooks)
-Page custom FileAssocPageCreate FileAssocPageLeave
-
-; 5.6 Virtual Printer page (defined in installer hooks)
-Page custom VPrinterPageCreate VPrinterPageLeave
-
-; 5.7 Desktop Shortcut page (defined in installer hooks)
-Page custom DesktopShortcutPageCreate DesktopShortcutPageLeave
-
-; 6. Start menu shortcut page
+; 6. Start menu folder: never shown (the options page has a check box for
+;    the shortcut), but declared so the MUI_STARTMENU_* macros below know
+;    the default folder.
 Var AppStartMenuFolder
 !if "${STARTMENUFOLDER}" != ""
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
   !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${STARTMENUFOLDER}"
-!else
-  !define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
 !endif
+!define MUI_PAGE_CUSTOMFUNCTION_PRE Skip
 !insertmacro MUI_PAGE_STARTMENU Application $AppStartMenuFolder
 
 ; 7. Installation page
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW OpdsInstFilesShow
 !insertmacro MUI_PAGE_INSTFILES
 
-; 8. Finish page
-;
-; Don't auto jump to finish page after installation page,
-; because the installation page has useful info that can be used debug any issues with the installer.
-!define MUI_FINISHPAGE_NOAUTOCLOSE
+; 8. Finish page, straight after the progress page (the details stay
+;    available there with "Show details" while it runs).
 ; Show run app after installation.
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_FUNCTION RunMainBinary
+!define MUI_FINISHPAGE_RUN_TEXT "$(opdsFinishRun)"
+!define MUI_FINISHPAGE_TITLE "$(opdsFinishTitle)"
+!define MUI_FINISHPAGE_TEXT "$(opdsFinishText)"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW OpdsFinishShow
 !insertmacro MUI_PAGE_FINISH
 
 Function RunMainBinary
@@ -416,30 +417,21 @@ Var DeleteAppDataCheckboxState
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW un.ConfirmShow
 Function un.ConfirmShow ; Add add a `Delete app data` check box
   ; $1 inner dialog HWND
-  ; $2 window DPI
   ; $3 style
-  ; $4 x
-  ; $5 y
-  ; $6 width
-  ; $7 height
+  Call un.OpdsHeaderArt
+  Call un.OpdsWhitePage
   FindWindow $1 "#32770" "" $HWNDPARENT ; Find inner dialog
-  System::Call "user32::GetDpiForWindow(p r1) i .r2"
   ${If} $(^RTL) = 1
     StrCpy $3 "${__NSD_CheckBox_EXSTYLE} | ${WS_EX_LAYOUTRTL}"
-    IntOp $4 50 * $2
   ${Else}
     StrCpy $3 "${__NSD_CheckBox_EXSTYLE}"
-    IntOp $4 0 * $2
   ${EndIf}
-  IntOp $5 100 * $2
-  IntOp $6 400 * $2
-  IntOp $7 25 * $2
-  IntOp $4 $4 / 96
-  IntOp $5 $5 / 96
-  IntOp $6 $6 / 96
-  IntOp $7 $7 / 96
-  System::Call 'user32::CreateWindowEx(i r3, w "${__NSD_CheckBox_CLASS}", w "$(deleteAppData)", i ${__NSD_CheckBox_STYLE}, i r4, i r5, i r6, i r7, p r1, i0, i0, i0) i .s'
+  System::Call 'user32::CreateWindowEx(i r3, w "${__NSD_CheckBox_CLASS}", w "$(deleteAppData)", i ${__NSD_CheckBox_STYLE}, i 0, i 0, i 0, i 0, p r1, i0, i0, i0) i .s'
   Pop $DeleteAppDataCheckbox
+  ; Under the "Uninstalling from" folder (at 40u in the page), in dialog
+  ; units so it lines up at every DPI.
+  !insertmacro OPDS_PLACE "un." $DeleteAppDataCheckbox 0 62 300 10
+  SetCtlColors $DeleteAppDataCheckbox "" "${OPDS_COLOR_PAGE}"
   SendMessage $HWNDPARENT ${WM_GETFONT} 0 0 $1
   SendMessage $DeleteAppDataCheckbox ${WM_SETFONT} $1 1
 FunctionEnd
@@ -451,7 +443,23 @@ FunctionEnd
 !insertmacro MUI_UNPAGE_CONFIRM
 
 ; 2. Uninstalling Page
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.OpdsInstFilesShow
 !insertmacro MUI_UNPAGE_INSTFILES
+
+; 3. Finish page (not when passive or updating: then the uninstaller closes
+;    by itself, see the end of the Uninstall section). Without the reboot
+;    question: a file that is still in use (Delete /REBOOTOK of the thumbnail
+;    handler) goes at the next restart, as before there was a finish page,
+;    instead of a preselected "Reboot now".
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!define MUI_FINISHPAGE_TITLE "$(opdsUnFinishTitle)"
+!define MUI_FINISHPAGE_TEXT "$(opdsUnFinishText)"
+!define MUI_PAGE_CUSTOMFUNCTION_PRE un.SkipIfPassiveOrUpdate
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.OpdsFinishShow
+!insertmacro MUI_UNPAGE_FINISH
+
+; Page functions of ui.nsh (they need the variables of the pages above)
+!insertmacro OPDS_UI_PAGE_FUNCTIONS
 
 ;Languages
 {{#each languages}}
@@ -461,6 +469,7 @@ FunctionEnd
 {{#each language_files}}
   !include "{{this}}"
 {{/each}}
+!include "${OPDS_HOOKS_DIR}\strings.nsh"
 
 Function .onInit
   ${GetOptions} $CMDLINE "/P" $PassiveMode
@@ -738,13 +747,16 @@ Section Install
     WriteRegStr SHCTX "${UNINSTKEY}" "HelpLink" "${HOMEPAGE}"
   !endif
 
-  ; Create start menu shortcut
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-    Call CreateOrUpdateStartMenuShortcut
-  !insertmacro MUI_STARTMENU_WRITE_END
+  ; Create start menu shortcut, unless turned off on the options page
+  ; (passive, silent and update runs never show that page: shortcut as before)
+  ${If} $StartMenuShortcutState != ${BST_UNCHECKED}
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+      Call CreateOrUpdateStartMenuShortcut
+    !insertmacro MUI_STARTMENU_WRITE_END
+  ${EndIf}
 
   ; Desktop shortcut is now handled by NSIS_HOOK_POSTINSTALL
-  ; (options page checkbox for interactive, default checked for passive/silent)
+  ; (options page checkbox for interactive, default checked for passive)
 
   !ifmacrodef NSIS_HOOK_POSTINSTALL
     !insertmacro NSIS_HOOK_POSTINSTALL
@@ -776,7 +788,12 @@ Function un.onInit
     !insertmacro MULTIUSER_UNINIT
   !endif
 
-  !insertmacro MUI_UNGETLANGUAGE
+  ; Without the language selector the installer takes the language of
+  ; Windows, and so does the uninstaller. MUI_UNGETLANGUAGE would ask with a
+  ; dialog, as nothing stored a choice.
+  !if "${DISPLAYLANGUAGESELECTOR}" == "true"
+    !insertmacro MUI_UNGETLANGUAGE
+  !endif
 
   ${GetOptions} $CMDLINE "/P" $PassiveMode
   ${IfNot} ${Errors}
@@ -929,6 +946,10 @@ Function SkipIfPassive
 FunctionEnd
 Function un.SkipIfPassive
   ${IfThen} $PassiveMode = 1  ${|} Abort ${|}
+FunctionEnd
+Function un.SkipIfPassiveOrUpdate
+  ${IfThen} $PassiveMode = 1  ${|} Abort ${|}
+  ${IfThen} $UpdateMode = 1  ${|} Abort ${|}
 FunctionEnd
 
 Function CreateOrUpdateStartMenuShortcut

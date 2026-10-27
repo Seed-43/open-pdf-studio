@@ -468,6 +468,29 @@ export function normalizeRuns(runs) {
   return out;
 }
 
+// Is de opmaak van een regel in de editor anders dan bij het openen? Alleen
+// de stijlreeks telt (vet, cursief, kleur, onder-/doorstreping per run), niet
+// de tekst. Eerder werden de runs inclusief tekst vergeleken: elke getypte
+// letter gold dan als opmaakwijziging, waardoor het herverdelen van een
+// alinea (C2) en het ongemoeid laten van ongewijzigde regels (C3) nooit
+// gebeurden.
+export function opmaakGewijzigd(runs, beginRuns) {
+  const a = normalizeRuns(runs || []);
+  const b = normalizeRuns(beginRuns || []);
+  if (a.length !== b.length) return true;
+  return a.some((r, k) => !!r.bold !== !!b[k].bold
+    || !!r.italic !== !!b[k].italic
+    || (r.color || null) !== (b[k].color || null)
+    || !!r.underline !== !!b[k].underline
+    || !!r.strikethrough !== !!b[k].strikethrough);
+}
+
+// Wist de gebruiker alle tekst van een bestaande run (en niet van een nieuw
+// toegevoegd blok)? Dan is de bewerking: de oude tekst verwijderen.
+export function tekstGewist(nieuweTekst, origineleTekst) {
+  return String(origineleTekst ?? '').trim() !== '' && String(nieuweTekst ?? '').trim() === '';
+}
+
 // ── Opsommings-glyfs ──
 // Bullets komen in PDF's vaak uit Symbol/ZapfDingbats(-subsets); de tekstlaag
 // levert dan een PUA-codepoint (U+F0xx) of een geometrisch teken dat in de
@@ -549,6 +572,163 @@ export function standardFontVariant(baseName, bold, italic) {
     : 'Helvetica';
 }
 
+// ── Fontklasse uit een (PDF-)fontnaam ──
+// PDF.js geeft voor een niet-ingebed of (nog) niet opgelost font de
+// terugvalfamilie 'sans-serif' mee. Die naam bevat 'serif': een kale
+// includes('serif') maakte er Times van, zodat bewerkte tekst in een tabel
+// in Helvetica als schreefletter terugkwam, live én in het bestand (#669).
+function fontKlasse(name) {
+  const n = String(name || '').toLowerCase();
+  if (n.includes('courier') || n.includes('consolas') || n.includes('mono')) return 'mono';
+  if (n.includes('times') || n.includes('garamond') || n.includes('georgia')
+      || n.includes('palatino') || n.includes('cambria') || n.includes('bookman')
+      || (n.includes('serif') && !n.includes('sans'))) return 'serif';
+  return 'sans';
+}
+
+// Standard-14-naam (zoals op het edit-record en in de saver) voor een
+// weergave- of PDF-fontnaam plus bold/italic.
+export function toStandardFontName(displayName, isBold, isItalic) {
+  const klasse = fontKlasse(displayName);
+  const basis = klasse === 'mono' ? 'Courier' : klasse === 'serif' ? 'TimesRoman' : 'Helvetica';
+  return standardFontVariant(basis, !!isBold, !!isItalic);
+}
+
+// CSS-font-family-keten voor de live editor en synthetische spans.
+export function cssFamilyForFontName(name) {
+  const klasse = fontKlasse(name);
+  if (klasse === 'mono') return '"Courier New", Courier, monospace';
+  if (klasse === 'serif') return '"Times New Roman", Times, serif';
+  return 'Helvetica, Arial, sans-serif';
+}
+
+// ── Afdekvlakken van een tekstbewerking (#669) ──
+// Waar de oude tekst stond moet iets over de oude glyfen heen: in de
+// weergave tot de bewerking opgeslagen is, en in het bestand op het
+// terugval-pad van de saver (originele run niet in-place te knippen). Eén
+// ruim vlak over het hele blok nam de tabellijnen tussen en rond de cellen
+// mee: een tabelrij is één blok, en de breedte kwam uit een tekenaantal-
+// schatting plus een halve fontgrootte. Hier per originele tekstrun een
+// strak vlak langs de baseline: de advance-breedte van de run met een kleine
+// marge voor overhangende glyfen, en van de descender tot boven de accenten.
+export const COVER_MARGIN_EM = 0.1;
+export const COVER_DESCENT_EM = 0.25;
+export const COVER_ASCENT_EM = 1.0;
+
+// Runs van één originele regel uit de spans van de tekstlaag: afstand langs
+// de baseline vanaf het regel-anker (dx) en advance-breedte, in punten.
+// Spans met alleen witruimte vullen in de tekstlaag de gaten tussen
+// kolommen: die tellen niet mee. Runs die op woordafstand op elkaar volgen,
+// worden één run (glyf-voor-glyf-gepositioneerde tekst geeft anders een
+// vlak per letter).
+// items: [{ text, pdfX, pdfY, pdfWidth, fontSize? }]; anchor: { x, y }.
+export function originalLineRuns(items, anchor, angleDeg = 0) {
+  if (!Array.isArray(items) || !anchor) return [];
+  const rad = (Number(angleDeg) || 0) * Math.PI / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const ax = Number(anchor.x) || 0;
+  const ay = Number(anchor.y) || 0;
+  const losse = [];
+  for (const it of items) {
+    if (!String(it?.text ?? '').trim()) continue;
+    const breedte = Number(it.pdfWidth);
+    if (!(breedte > 0)) continue;
+    const dx = ((Number(it.pdfX) || 0) - ax) * cos + ((Number(it.pdfY) || 0) - ay) * sin;
+    losse.push({ dx, width: breedte, fs: Number(it.fontSize) > 0 ? Number(it.fontSize) : 0 });
+  }
+  losse.sort((a, b) => a.dx - b.dx);
+  const runs = [];
+  for (const r of losse) {
+    const vorige = runs[runs.length - 1];
+    const woordAfstand = 0.25 * (r.fs || vorige?.fs || 10);
+    if (vorige && r.dx - (vorige.dx + vorige.width) <= woordAfstand) {
+      vorige.width = Math.max(vorige.width, r.dx + r.width - vorige.dx);
+      continue;
+    }
+    runs.push({ ...r });
+  }
+  return runs.map(r => ({ dx: r.dx, width: r.width }));
+}
+
+// Afdekvlakken van een edit-record: [{ x, y, width, height, angle }] in
+// user-space. (x, y) is de hoek vóór de run onder de baseline; het vlak loopt
+// `width` langs de leesrichting en `height` langs de ascender-richting, zoals
+// pdf-lib drawRectangle met rotate. Bronnen per regel, in volgorde van
+// voorkeur: originalLineInfo[i].runs, de regelbreedte originalLineInfo[i].
+// width, en voor oudere records de tekenaantal-schatting.
+export function textEditCoverRects(edit) {
+  if (!edit || !edit.originalText) return [];
+  const origLines = String(edit.originalText).split('\n');
+  const recordFs = Number(edit.fontSize) > 0 ? Number(edit.fontSize) : 12;
+  const recordAngle = Number(edit.textAngle) || 0;
+  const ls = Number(edit.lineSpacing) > 0 ? Number(edit.lineSpacing) : recordFs * 1.2;
+  const info = Array.isArray(edit.originalLineInfo) && edit.originalLineInfo.length
+    ? edit.originalLineInfo : null;
+  const aantal = info ? info.length : origLines.length;
+  const rects = [];
+  for (let i = 0; i < aantal; i++) {
+    const li = info ? info[i] : null;
+    const tekst = String(li?.text ?? origLines[i] ?? '');
+    if (!tekst.trim()) continue;
+    const fs = Number(li?.fontSize) > 0 ? Number(li.fontSize) : recordFs;
+    const angle = li ? (Number(li.angle) || 0) : recordAngle;
+    const anker = li
+      ? { x: Number(li.x) || 0, y: Number(li.y) || 0 }
+      : textEditLineAnchor(Number(edit.pdfX) || 0, Number(edit.pdfY) || 0, i, ls, recordAngle);
+    let runs = Array.isArray(li?.runs) ? li.runs.filter(r => Number(r?.width) > 0) : [];
+    if (!runs.length) {
+      const breedte = Number(li?.width) > 0 ? Number(li.width)
+        : (aantal === 1 && Number(edit.pdfWidth) > 0) ? Number(edit.pdfWidth)
+          : fs * 0.6 * tekst.length;
+      runs = [{ dx: 0, width: breedte }];
+    }
+    const rad = angle * Math.PI / 180;
+    const lees = { x: Math.cos(rad), y: Math.sin(rad) };
+    const op = { x: -Math.sin(rad), y: Math.cos(rad) };
+    const marge = fs * COVER_MARGIN_EM;
+    const v0 = -fs * COVER_DESCENT_EM;
+    for (const run of runs) {
+      const u0 = (Number(run.dx) || 0) - marge;
+      rects.push({
+        x: anker.x + lees.x * u0 + op.x * v0,
+        y: anker.y + lees.y * u0 + op.y * v0,
+        width: Number(run.width) + 2 * marge,
+        height: fs * (COVER_DESCENT_EM + COVER_ASCENT_EM),
+        angle,
+      });
+    }
+  }
+  return rects;
+}
+
+// Omhullende van afdekvlakken in het tekenkader van de painter: x naar
+// rechts vanaf de linkerrand van de pagina-box, y omlaag vanaf de bovenrand
+// (frameX = x - offX, frameY = top - y). Retour { x, y, width, height } of
+// null zonder vlakken.
+export function coverRectsFrameBounds(rects, offX, top) {
+  if (!Array.isArray(rects) || rects.length === 0) return null;
+  let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+  for (const r of rects) {
+    const rad = (Number(r.angle) || 0) * Math.PI / 180;
+    const lees = { x: Math.cos(rad), y: Math.sin(rad) };
+    const op = { x: -Math.sin(rad), y: Math.cos(rad) };
+    const hoeken = [
+      [r.x, r.y],
+      [r.x + lees.x * r.width, r.y + lees.y * r.width],
+      [r.x + op.x * r.height, r.y + op.y * r.height],
+      [r.x + lees.x * r.width + op.x * r.height, r.y + lees.y * r.width + op.y * r.height],
+    ];
+    for (const [ux, uy] of hoeken) {
+      const fx = ux - offX;
+      const fy = top - uy;
+      x0 = Math.min(x0, fx); x1 = Math.max(x1, fx);
+      y0 = Math.min(y0, fy); y1 = Math.max(y1, fy);
+    }
+  }
+  return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+}
+
 // ── Per-regel stijl ──
 // Het edit-record kan per regel de oorspronkelijke stijl bewaren
 // (lineStyles[i] = { fontFamily, fontSize, color, loadedFontName }).
@@ -571,6 +751,18 @@ export function resolveTextEditLineStyle(edit, lineIndex) {
     color: entry.color || base.color,
     loadedFontName: entry.loadedFontName ?? base.loadedFontName,
   };
+}
+
+/**
+ * De tekenafstand (Tc, punten) van regel `lineIndex` van een tekstbewerking
+ * (#718): gespatieerde tekst houdt zijn afstand, ook op de terugvalroute en
+ * live. 0 zonder `lineCharSpacing`; nieuwe regels erven die van de laatste.
+ */
+export function textEditLineCharSpacing(edit, lineIndex) {
+  const lijst = edit?.lineCharSpacing;
+  if (!Array.isArray(lijst) || lijst.length === 0) return 0;
+  const tc = Number(lijst[Math.min(Math.max(0, lineIndex), lijst.length - 1)]);
+  return Number.isFinite(tc) && tc > 0 ? tc : 0;
 }
 
 export function restoreTextEditSnapshot(record, snapshot) {

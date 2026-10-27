@@ -9,6 +9,18 @@ import { parseBilingualBody, renderMarkdown } from '../../../help/release-notes.
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { getAppVersion } from '../../../core/platform.js';
+import { isGehost } from '../../../core/gehost.js';
+import { openExtern } from '../../../core/extern-openen.js';
+
+// Als gast opent een link in de release-notes geen tabblad (#695): het adres
+// komt in een melding. Elders gedraagt de link zich zoals altijd.
+function vangLinkAlsGast(e) {
+  if (!isGehost()) return;
+  const a = e.target?.closest?.('a[href]');
+  if (!a) return;
+  e.preventDefault();
+  openExtern(a.href);
+}
 
 export default function WhatsNewDialog() {
   const { t } = useTranslation('appMenu');
@@ -123,7 +135,7 @@ export default function WhatsNewDialog() {
                 <Show when={showsEnFallback()}>
                   <p class="wn-lang-fallback">{t('whatsNew.noDutchFallback')}</p>
                 </Show>
-                <div class="wn-release-body" innerHTML={renderMarkdown(body())} />
+                <div class="wn-release-body" innerHTML={renderMarkdown(body())} onClick={vangLinkAlsGast} />
               </article>
             );
           }}

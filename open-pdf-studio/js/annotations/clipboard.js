@@ -1,3 +1,4 @@
+import { relinkCopiedZones } from './spatial-zones.js';
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
 import { cloneAnnotationsInPlace } from './paste-in-place.js';
@@ -243,6 +244,7 @@ export function pasteAnnotation() {
   // Een losse helft van een vervanging (#508) hoort niet bij het origineel;
   // de kopie krijgt bij opslaan een eigen /NM.
   relinkPastedCorrections([state.clipboardAnnotation], [newAnnotation]);
+  relinkCopiedZones([state.clipboardAnnotation], [newAnnotation]);
 
   // For images/signatures, need to copy the cached image
   if (newAnnotation.type === 'image' || newAnnotation.type === 'signature') {
@@ -336,6 +338,7 @@ export function pasteAnnotations() {
   }
   // Vervangingen (#508) koppelen aan hun eigen kopie, niet aan het origineel.
   relinkPastedCorrections(state.clipboardAnnotations, newAnnotations);
+  relinkCopiedZones(state.clipboardAnnotations, newAnnotations);
   const _pasteDocAdd = getActiveDocument();
   if (_pasteDocAdd) _pasteDocAdd.annotations.push(...newAnnotations);
 

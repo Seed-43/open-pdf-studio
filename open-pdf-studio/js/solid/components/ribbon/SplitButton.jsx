@@ -1,9 +1,13 @@
 import { createSignal, onMount, onCleanup } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
+import { volgPopup } from './ribbon-popup.js';
 
 export default function SplitButton(props) {
   const [menuOpen, setMenuOpen] = createSignal(false);
   let containerRef;
+  // Het menu staat met position: fixed buiten de klip van de ribbon (#617).
+  let menuRef;
+  volgPopup(() => menuRef, () => containerRef, menuOpen);
 
   onMount(() => {
     const handler = (e) => {
@@ -31,7 +35,7 @@ export default function SplitButton(props) {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 9l6 6 6-6"/>
         </svg>
       </button>
-      <div class={`ribbon-split-btn-menu${menuOpen() ? ' show' : ''}`} onClick={() => setMenuOpen(false)}>
+      <div class={`ribbon-split-btn-menu${menuOpen() ? ' show' : ''}`} ref={menuRef} onClick={() => setMenuOpen(false)}>
         {props.children}
       </div>
     </div>

@@ -21,7 +21,7 @@ export default function GeneralSection() {
           <div class="property-group">
             <label>ID</label>
             <input type="text" value={annotProps.id} readonly
-              style="font-family: monospace; font-size: 11px;"
+              style="font-family: var(--ui-font-mono); font-size: 11px;"
               onClick={(e) => e.target.select()} />
           </div>
         </Show>

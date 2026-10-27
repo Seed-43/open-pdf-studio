@@ -299,8 +299,10 @@ async function controleer(label, v, verwachtTelling, altijdSchot = false) {
   return r;
 }
 
-const zoekveld = () => pagina.locator('.find-bar .find-input');
-const knop = (sel, n) => pagina.locator(`.find-bar ${sel}`).nth(n);
+// Alleen de eigen zoekrij van de zoekbalk: het paneel 'Documenten zoeken'
+// (.document-search) staat ook in .find-rows en gebruikt dezelfde klassen.
+const zoekveld = () => pagina.locator('.find-bar .find-rows > .find-row .find-input');
+const knop = (sel, n) => pagina.locator(`.find-bar .find-rows > .find-row ${sel}`).nth(n);
 
 async function zoekbalkOpenen() {
   await pagina.locator('#pdf-container').click({ position: { x: 5, y: 5 } }).catch(() => {});

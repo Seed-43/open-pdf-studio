@@ -3,6 +3,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
 import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { getTool } from './tool-registry.js';
+import { eindEventBijAfbreken } from './aanraak-gebaar.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
 import { redrawAnnotations, redrawContinuous, snapToGrid } from '../annotations/rendering.js';
@@ -46,6 +47,7 @@ import {
   isGripLengteStartToets,
 } from './grip-lengte.js';
 import { greepOorsprong, strekBasispunt, strekLengteTekst } from './greep-strek.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm, veelhoekDeelBij, voegVeelhoekHoekpuntIn } from '../annotations/veelhoek-punten.js';
 import {
   isStramien, startMeeslepen, sleepMee, meesleepWijzigingen, herstelMeeslepen,
 } from '../annotations/stramien-koppeling.js';
@@ -358,7 +360,11 @@ function flushWachtendeMove() {
   _verwerkWachtendeMove();
 }
 
+// De laatste echte beweging, om een afgebroken gebaar mee af te ronden.
+let _laatsteBeweging = null;
+
 export function handlePointerMove(e) {
+  _laatsteBeweging = e;
   if (state.isDragging || state.isResizing || state.isDrawing || state.isRubberBanding) {
     _wachtendeMove = e;
     if (!_moveRafId) _moveRafId = requestAnimationFrame(_verwerkWachtendeMove);
@@ -427,6 +433,13 @@ function _handlePointerMoveNu(e) {
 /**
  * Main pointer-up handler (replaces handleMouseUp + handleContinuousMouseUp)
  */
+// Een vinger, pen of systeemgebaar breekt de aanwijzer af (pointercancel,
+// #671): rond het lopende gebaar af zoals bij loslaten, op de laatste echte
+// beweging. Anders bleef een streek half getekend staan tot de volgende tik.
+export function handlePointerCancel(e) {
+  handlePointerUp(eindEventBijAfbreken(e, _laatsteBeweging));
+}
+
 export function handlePointerUp(e) {
   flushWachtendeMove();
   if (!getActiveDocument()?.pdfDoc) return;
@@ -549,6 +562,20 @@ export function handleDblClick(e) {
           module.startParametricSymbolInput(clicked, coords.x, coords.y))
         .catch((error) =>
           console.error('[dispatcher] parametric label input error', error));
+    } else if (state.currentTool === 'select' && isBewerkbareVeelhoek(clicked)
+        && (dblDoc?.selectedAnnotations || []).includes(clicked) && !clicked.locked) {
+      // Dubbelklik op een zijde van een geselecteerde veelhoek (#622): daar
+      // een hoekpunt bij. Op een hoekpunt of midden in de vorm gebeurt niets.
+      const deel = veelhoekDeelBij(clicked, coords.x, coords.y, 6 / (getEffectiveScale() || 1));
+      const nieuw = deel?.kind === 'edge' ? voegVeelhoekHoekpuntIn(clicked, deel.edgeIndex, deel.punt) : null;
+      if (nieuw) {
+        const voor = cloneAnnotation(clicked);
+        Object.assign(clicked, nieuw);
+        clicked.modifiedAt = new Date().toISOString();
+        recordModify(clicked.id, voor, cloneAnnotation(clicked));
+        showProperties(clicked);
+        redraw();
+      }
     } else if (clicked.type === 'comment') {
       state.isDrawing = false;
       if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }
@@ -764,7 +791,10 @@ function _handleResize(ctx, e, coords) {
     if (!isNaN(nodeIdx) && nodeIdx < ann.points.length) {
       canvasCtx.save();
       applyToolTransform(canvasCtx);
-      drawAlignmentGuides(canvasCtx, ann, nodeIdx, resizeScale);
+      // Een veelhoek (#622) op zijn hoekpunten zoals het scherm ze toont
+      // (door het vak, gedraaid).
+      const gidsVorm = isBewerkbareVeelhoek(ann) ? { points: veelhoekPuntenOpScherm(ann) } : ann;
+      drawAlignmentGuides(canvasCtx, gidsVorm, nodeIdx, resizeScale);
       canvasCtx.restore();
     }
   }

@@ -7,6 +7,9 @@ export interface EditingState {
   textEditElement: HTMLElement | null;
   isEditingPdfText: boolean;
   pdfTextEditState: any;
+  // Open PDF-tekstbewerking zoals het canvas haar moet tekenen (#698):
+  // { page, recordId?, afdekking? } of null. Zie rendering.js.
+  pdfTekstEditorCanvas: any;
 }
 
 export const editingState = createMutable<EditingState>({
@@ -15,6 +18,7 @@ export const editingState = createMutable<EditingState>({
   textEditElement: null,
   isEditingPdfText: false,
   pdfTextEditState: null,
+  pdfTekstEditorCanvas: null,
 });
 
 export function resetTextEditing(): void {
@@ -26,6 +30,7 @@ export function resetTextEditing(): void {
 export function resetPdfTextEditing(): void {
   editingState.isEditingPdfText = false;
   editingState.pdfTextEditState = null;
+  editingState.pdfTekstEditorCanvas = null;
 }
 
 export function resetAllEditing(): void {

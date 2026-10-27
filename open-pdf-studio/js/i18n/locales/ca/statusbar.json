@@ -29,7 +29,8 @@
     "formCheckbox": "Casella de verificació de formulari",
     "formRadio": "Botó d'opció de formulari",
     "screenshot": "Captura de pantalla",
-    "pageLabelPick": "Tria text per a l'etiqueta de pàgina"
+    "pageLabelPick": "Tria text per a l'etiqueta de pàgina",
+    "proofread": "Revisió"
   },
   "toolLabel": "Eina:",
   "annotationsLabel": "Anotacions:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Pàgina {{page}}",
   "searchHitsOne": "1 coincidència",
   "searchHitsMany": "{{count}} coincidències",
-  "passwordProtectedBar": "Protegit amb contrasenya: obert només de lectura."
+  "passwordProtectedBar": "Protegit amb contrasenya: obert només de lectura.",
+  "documentSearch": {
+    "title": "Cerca als documents",
+    "query": "Text de cerca",
+    "scope": "Cerca a",
+    "active": "Document actual",
+    "open": "Documents oberts",
+    "folder": "Carpeta",
+    "choose": "Tria la carpeta",
+    "annotations": "Inclou els comentaris",
+    "search": "Cerca",
+    "cancel": "Cancel·la",
+    "stale": "El document ha canviat. Torneu a executar la cerca.",
+    "folderHint": "Cerca directament als fitxers PDF d'aquesta carpeta, sense obrir pestanyes ni modificar fitxers.",
+    "limited": "S'ha assolit el límit de resultats. Afineu la cerca.",
+    "cancelled": "Cerca cancel·lada; els resultats són incomplets.",
+    "ocrHint": "No hi ha text cercable a les pàgines {{pages}}. Obriu el document i executeu l'OCR explícitament si cal.",
+    "status": {
+      "searching": "S'està cercant",
+      "complete": "Completada",
+      "needs_ocr": "Conté pàgines sense text cercable",
+      "encrypted": "Cal una contrasenya",
+      "unreadable": "No s'ha pogut cercar",
+      "changed": "El document ha canviat; torneu a cercar",
+      "cancelled": "Cancel·lada",
+      "limited": "S'ha assolit el límit de resultats"
+    },
+    "failed": "La cerca ha fallat. Comproveu la consulta i la carpeta i torneu-ho a provar.",
+    "prepareOcr": "Obre per a l'OCR…"
+  },
+  "symbolSearch": "Cerca símbols",
+  "findMoreOptions": "Més opcions de cerca",
+  "watchActive": "Supervisant {{folder}}",
+  "watchFailed": "Error de supervisió: {{folder}}",
+  "watchTitle": "El flux de treball de documents supervisa {{input}} i escriu a {{output}}. Feu clic per deixar de supervisar.",
+  "renderDiagnostics": {
+    "title": "Ves a la següent incidència de renderització. No tenir incidències no garanteix una renderització completa.",
+    "count": "Incidències de renderització: {{count}}",
+    "detail": "Pàgina {{page}}: {{code}}. Proveu un zoom més baix o torneu a obrir el document; la completesa no està garantida."
+  }
 }

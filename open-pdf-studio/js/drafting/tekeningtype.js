@@ -31,6 +31,8 @@
 // pagina ís het papier. Het SCHAALGEBIED bepaalt dus niet de omrekening,
 // maar WELKE kolom uit de per-schaal-tabel geldt (via scaleKey).
 
+import { leesGetal } from '../core/getal-invoer.js';
+
 /** Huidige versie van de opgeslagen tekeningtype-data. */
 export const TEKENINGTYPE_VERSION = 1;
 
@@ -51,8 +53,8 @@ export const DEFAULT_SCALE_KEY = '0.01';
 export function scaleKeyFromScaleString(scaleString) {
   const m = String(scaleString || '').match(/^\s*(\d+(?:[.,]\d+)?)\s*[:/]\s*(\d+(?:[.,]\d+)?)\s*$/);
   if (!m) return DEFAULT_SCALE_KEY;
-  const a = parseFloat(m[1].replace(',', '.'));
-  const b = parseFloat(m[2].replace(',', '.'));
+  const a = leesGetal(m[1]);
+  const b = leesGetal(m[2]);
   if (!(a > 0) || !(b > 0)) return DEFAULT_SCALE_KEY;
   const ratio = a / b;
   if (!Number.isFinite(ratio) || !(ratio > 0)) return DEFAULT_SCALE_KEY;

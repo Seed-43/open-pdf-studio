@@ -71,6 +71,12 @@
     "site": "W tej witrynie",
     "noSiteDocuments": "Brak dokumentów w tej witrynie",
     "siteListError": "Nie udało się wczytać dokumentów tej witryny",
+    "versions": "Wersje",
+    "versionNumber": "Wersja {{version}}",
+    "currentVersion": "bieżąca",
+    "noVersions": "Brak wersji",
+    "versionsError": "Nie udało się wczytać wersji",
+    "olderVersionsHint": "Starsze wersje otwierają się tylko do odczytu; Zapisz jako pobiera kopię.",
     "save": "Zapisz"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Strona",
     "officeTable": "Tabela",
     "officeText": "Tekst",
-    "officeFailed": "Eksport dokumentu nie powiódł się."
+    "officeFailed": "Eksport dokumentu nie powiódł się.",
+    "protect": "Chroń hasłem",
+    "protectDesc": "Zapisz kopię chronioną hasłem (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil wyjściowy",
@@ -211,5 +219,9 @@
     "activationFailed": "Nieaktywne: {{error}}",
     "viaMcp": "Przez połączenie AI"
   },
-  "annotateScreenshot": "Dodaj adnotacje do zrzutu ekranu ze schowka"
+  "annotateScreenshot": "Dodaj adnotacje do zrzutu ekranu ze schowka",
+  "workflows": "Przepływy pracy dokumentów",
+  "drawingSets": "Zestawy rysunków",
+  "sheetLinks": "Łącza między arkuszami",
+  "approvalRouting": "Obieg zatwierdzania"
 }

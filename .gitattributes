@@ -8,6 +8,7 @@
 *.jpeg     binary
 *.gif      binary
 *.ico      binary
+*.bmp      binary
 *.icns     binary
 *.woff     binary
 *.woff2    binary
@@ -33,3 +34,7 @@
 
 # Shellscripts altijd met LF, ook bij core.autocrlf=true: bash weigert CRLF.
 *.sh       text eol=lf
+
+# AUR-pakketbestanden: makepkg en de AUR verwachten LF.
+packaging/aur/PKGBUILD   text eol=lf
+packaging/aur/.SRCINFO   text eol=lf

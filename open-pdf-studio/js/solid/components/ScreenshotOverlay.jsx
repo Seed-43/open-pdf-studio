@@ -1,13 +1,26 @@
 import { Show, createEffect, onCleanup } from 'solid-js';
 import { active, selectionRect, setSelectionRect, onComplete, onCancel, endScreenshot } from '../stores/screenshotStore.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 
+// Area selection for Home → Screenshot (tools/screenshot.js mounts it over the
+// document view). Drag a rectangle; Esc or the right mouse button cancels.
 export default function ScreenshotOverlay() {
+  const { t } = useTranslation('dialogs');
   let overlayRef;
   let isDragging = false;
   let startX = 0, startY = 0;
 
+  const annuleer = () => {
+    isDragging = false;
+    const cancelFn = onCancel();
+    endScreenshot();
+    if (cancelFn) cancelFn();
+  };
+
   const handleMouseDown = (e) => {
+    if (e.button === 2) { e.preventDefault(); annuleer(); return; }
     if (e.button !== 0) return;
+    e.preventDefault();
     isDragging = true;
     const rect = overlayRef.getBoundingClientRect();
     startX = e.clientX - rect.left;
@@ -16,10 +29,10 @@ export default function ScreenshotOverlay() {
   };
 
   const handleMouseMove = (e) => {
-    if (!isDragging) return;
+    if (!isDragging || !overlayRef) return;
     const rect = overlayRef.getBoundingClientRect();
-    const curX = e.clientX - rect.left;
-    const curY = e.clientY - rect.top;
+    const curX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const curY = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
     setSelectionRect({
       left: Math.min(startX, curX),
       top: Math.min(startY, curY),
@@ -34,30 +47,40 @@ export default function ScreenshotOverlay() {
     const sel = selectionRect();
     if (sel && sel.width > 5 && sel.height > 5) {
       const completeFn = onComplete();
-      if (completeFn) completeFn(sel);
-    }
-    endScreenshot();
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      const cancelFn = onCancel();
-      if (cancelFn) cancelFn();
       endScreenshot();
+      if (completeFn) completeFn(sel);
+      return;
     }
+    // A click without a drag: start again rather than capturing a dot.
+    setSelectionRect(null);
   };
 
-  // Focus the overlay when it becomes active so it receives keyboard events
+  // Esc anywhere cancels, also when focus stayed on the ribbon button.
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Escape' || !active()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    annuleer();
+  };
+
   createEffect(() => {
-    if (active() && overlayRef) {
-      overlayRef.focus();
-    }
+    if (active() && overlayRef) overlayRef.focus();
+  });
+  document.addEventListener('keydown', handleKeyDown, true);
+  // Releasing the button outside the overlay still ends the drag.
+  document.addEventListener('mouseup', handleMouseUp);
+  document.addEventListener('mousemove', handleMouseMove);
+  onCleanup(() => {
+    document.removeEventListener('keydown', handleKeyDown, true);
+    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousemove', handleMouseMove);
   });
 
   return (
     <Show when={active()}>
       <div
         ref={overlayRef}
+        class="screenshot-overlay"
         style={{
           position: 'absolute',
           top: '0',
@@ -70,9 +93,7 @@ export default function ScreenshotOverlay() {
           'user-select': 'none'
         }}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onKeyDown={handleKeyDown}
+        onContextMenu={(e) => e.preventDefault()}
         tabIndex="-1"
       >
         <Show when={!selectionRect()}>
@@ -85,11 +106,12 @@ export default function ScreenshotOverlay() {
             color: 'white',
             padding: '6px 14px',
             'font-size': '12px',
+            'font-family': 'var(--ui-font)',
             'z-index': '501',
             'pointer-events': 'none',
             'white-space': 'nowrap'
           }}>
-            Click and drag to select region. Press Esc to cancel.
+            {t('screenshot.selectHint')}
           </div>
         </Show>
         <Show when={selectionRect()}>
@@ -100,7 +122,7 @@ export default function ScreenshotOverlay() {
               top: rect().top + 'px',
               width: rect().width + 'px',
               height: rect().height + 'px',
-              border: '2px dashed #0078d7',
+              border: '1px dashed #0078d7',
               background: 'rgba(0, 120, 215, 0.1)',
               'pointer-events': 'none'
             }} />

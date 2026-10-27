@@ -20,6 +20,7 @@ import { interactionState } from '../core/stores/interaction-store.js';
 import { getAnnotationHoverCursor } from './cursors/annotation-cursors.js';
 import { getCursorForHandle } from '../annotations/handles.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { aanraakActie } from '../tools/aanraak-gebaar.js';
 
 // Richting van een greep op het scherm: de rotatie van de annotatie plus de
 // weergaverotatie van het document (#200).
@@ -138,6 +139,9 @@ export function initCursor() {
     const el = _findMainView();
     if (el) el.style.cursor = c;
     document.body.classList.toggle('pdf-cursor-override', _isOverrideMode());
+    // Vingerinvoer (#671): met een teken- of plaatsgereedschap hoort een veeg
+    // op de pagina bij het gereedschap; layout.css zet dan touch-action: none.
+    document.body.dataset.aanraak = aanraakActie(state.currentTool) === 'none' ? 'tekenen' : 'bladeren';
   });
 }
 

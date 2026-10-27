@@ -71,6 +71,12 @@
     "site": "Trên trang này",
     "noSiteDocuments": "Không có tài liệu nào trên trang này",
     "siteListError": "Không thể tải tài liệu của trang này",
+    "versions": "Phiên bản",
+    "versionNumber": "Phiên bản {{version}}",
+    "currentVersion": "hiện tại",
+    "noVersions": "Không có phiên bản",
+    "versionsError": "Không thể tải các phiên bản",
+    "olderVersionsHint": "Các phiên bản cũ hơn mở ở chế độ chỉ đọc; Lưu thành tải xuống một bản sao.",
     "save": "Lưu"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Trang",
     "officeTable": "Bảng",
     "officeText": "Văn bản",
-    "officeFailed": "Xuất tài liệu thất bại."
+    "officeFailed": "Xuất tài liệu thất bại.",
+    "protect": "Bảo vệ bằng mật khẩu",
+    "protectDesc": "Lưu bản sao được bảo vệ bằng mật khẩu (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Hồ sơ màu đầu ra",
@@ -211,5 +219,9 @@
     "activationFailed": "Không hoạt động: {{error}}",
     "viaMcp": "Qua kết nối AI"
   },
-  "annotateScreenshot": "Chú thích ảnh chụp màn hình từ bảng tạm"
+  "annotateScreenshot": "Chú thích ảnh chụp màn hình từ bảng tạm",
+  "workflows": "Quy trình tài liệu",
+  "drawingSets": "Bộ bản vẽ",
+  "sheetLinks": "Liên kết giữa các bản vẽ",
+  "approvalRouting": "Luân chuyển phê duyệt"
 }

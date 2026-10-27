@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "open-pdf-studio",
   "display_name": "Open PDF Studio",
-  "version": "2026.42.7",
+  "version": "2026.43.11",
   "description": "Open, measure, annotate and save PDF drawings in Open PDF Studio, the free open-source PDF editor for the construction industry.",
   "long_description": "Connects Claude to Open PDF Studio running on your computer. Claude can open PDF drawings, read and navigate pages, place scale regions, measure areas and lengths, create and edit annotations, cut vector snippets from one drawing into another, fill title blocks, place a quantity schedule on the sheet and save the result.\n\nEverything runs locally: the extension talks to the app on 127.0.0.1 and the PDF file itself is never sent to an external service. Claude only sees what it asks for, such as a picture of the current page view.\n\n**Before you start:** install Open PDF Studio (free, from open-aec.com). The AI link is on by default; check it under **Settings > General > AI link (MCP)**. Tools that change a document always ask for your permission.",
   "author": {
@@ -50,6 +50,10 @@
     {
       "name": "app_screenshot_view",
       "description": "Capture the LIVE app as a base64 PNG."
+    },
+    {
+      "name": "app_capture_region",
+      "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees."
     },
     {
       "name": "app_mouse_move",
@@ -194,6 +198,58 @@
     {
       "name": "app_get_page_count",
       "description": "Return the active document's page count and current page."
+    },
+    {
+      "name": "app_portfolio",
+      "description": "Inspect or save a PDF Collection copy, preserving component bytes, folders, schema, sort and metadata."
+    },
+    {
+      "name": "app_recognize_form",
+      "description": "Detect heuristic form-field candidates on selected saved PDF pages, excluding existing fields."
+    },
+    {
+      "name": "app_search_symbols",
+      "description": "Search page artwork for a selected symbol rectangle in current page-view coordinates at scale 1."
+    },
+    {
+      "name": "app_workbook_bindings",
+      "description": "Persist mappings from a named schedule on a source PDF to numeric XLSX cells."
+    },
+    {
+      "name": "app_document_workflows",
+      "description": "Save/export (list) named version-1 document workflows, remove by name, run selected PDF paths into a separate output folder, start explicit watched input/output folders, or stop/cancel."
+    },
+    {
+      "name": "app_drawing_sets",
+      "description": "Manage a portable version-1 multi-file drawing set."
+    },
+    {
+      "name": "app_sheet_links",
+      "description": "Build reviewed relative PDF links across a package."
+    },
+    {
+      "name": "app_approval_routing",
+      "description": "Local-file-v1 electronic approval routing, no network sending or certificate signing."
+    },
+    {
+      "name": "app_search_documents",
+      "description": "Search text and optional comments in the active PDF, all open PDFs, or PDF files directly in a desktop folder."
+    },
+    {
+      "name": "app_locations",
+      "description": "List computed markup locations or edit named spatial zones and explicit location overrides."
+    },
+    {
+      "name": "app_hidden_information",
+      "description": "Inspect structural metadata, comments, embedded files, actions and optional-content indicators in the saved active PDF."
+    },
+    {
+      "name": "app_print_preflight",
+      "description": "Inspect the saved active PDF against a reusable print profile."
+    },
+    {
+      "name": "app_review_ocr",
+      "description": "List low/unknown-confidence OCR words with page coordinates and review state, or accept/correct one word."
     },
     {
       "name": "app_get_page_text",

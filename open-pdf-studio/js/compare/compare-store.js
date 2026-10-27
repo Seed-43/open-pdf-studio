@@ -4,6 +4,7 @@
 
 import { createSignal } from 'solid-js';
 import { state } from '../core/state.js';
+import { normalizeCompareMode } from './split-line.js';
 
 const [active, setActive] = createSignal(false);
 const [oldPath, setOldPath] = createSignal(null);
@@ -153,7 +154,7 @@ function _resetPairDiff() {
 export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 1, newPage: np = 1 }) {
   setOldPath(oldFilePath);
   setNewPath(newFilePath);
-  setMode(m || 'overlay');
+  setMode(normalizeCompareMode(m));
   const oc = Math.max(1, _pageCountFor(oldFilePath));
   const nc = Math.max(1, _pageCountFor(newFilePath));
   setOldPageCount(oc);
@@ -184,7 +185,7 @@ export function exitCompare() {
 }
 
 export function setCompareMode(m) {
-  setMode(m);
+  setMode(normalizeCompareMode(m));
 }
 
 // Kan het pagina-paar nog vooruit/achteruit? Waar als ten minste één document

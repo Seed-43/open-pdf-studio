@@ -71,6 +71,12 @@
     "site": "Neste site",
     "noSiteDocuments": "Nenhum documento neste site",
     "siteListError": "Não foi possível carregar os documentos deste site",
+    "versions": "Versões",
+    "versionNumber": "Versão {{version}}",
+    "currentVersion": "atual",
+    "noVersions": "Sem versões",
+    "versionsError": "Não foi possível carregar as versões",
+    "olderVersionsHint": "As versões anteriores abrem só de leitura; Guardar como transfere uma cópia.",
     "save": "Salvar"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Página",
     "officeTable": "Tabela",
     "officeText": "Texto",
-    "officeFailed": "Falha ao exportar o documento."
+    "officeFailed": "Falha ao exportar o documento.",
+    "protect": "Proteger com senha",
+    "protectDesc": "Salvar uma cópia protegida por senha (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Perfil de saída",
@@ -211,5 +219,9 @@
     "activationFailed": "Inativa: {{error}}",
     "viaMcp": "Pela conexão de IA"
   },
-  "annotateScreenshot": "Anotar captura de tela da área de transferência"
+  "annotateScreenshot": "Anotar captura de tela da área de transferência",
+  "workflows": "Fluxos de trabalho de documentos",
+  "drawingSets": "Conjuntos de pranchas",
+  "sheetLinks": "Links entre pranchas",
+  "approvalRouting": "Fluxo de aprovação"
 }

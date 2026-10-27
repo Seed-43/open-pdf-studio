@@ -5,6 +5,7 @@
 
 import { PDFDocument } from 'pdf-lib';
 import { applyInPlaceTextEdits } from '../pdf/saver/text-edit-inplace.js';
+import { standardFontVariant } from './text-edit-appearance.js';
 
 export const MAX_VERVANGINGEN = 500;
 
@@ -92,6 +93,8 @@ export function pasGrootte(originalSize, naturalWidth, boxWidth) {
  * De proef op een wegwerpkopie van de PDF, voor alle plannen samen zoals
  * de saver ze straks samen toepast. Een veilige verwijdering ter plekke is
  * verplicht: een wit afdekvlak zou afbeeldingen en lijnwerk beschadigen.
+ * Alleen op een scan met OCR-laag (needsCover) dekt de saver het gescande
+ * woord wel af, zoals de UI-route.
  * Zet per plan `error`, of `fontUsed`, `fontFallback`, `needsCover` en de
  * passende `record.fontSize`.
  *
@@ -111,7 +114,14 @@ export async function proefOpKopie(sourceBytes, plannen, { embedFont }) {
     const { record } = plan;
     if (!record.newText) continue;
     const originalSize = record.fontSize;
-    const bold = /bold/i.test(record.fontFamily), italic = /italic|oblique/i.test(record.fontFamily);
+    // Vet/cursief uit de BaseFont van het originele font: PDF.js meldt alleen
+    // 'sans-serif' en een interne fontnaam, waardoor een vette kop met een
+    // terugvalfont gewoon (niet vet) terugkwam.
+    const variant = inPlace.lineFontVariant?.(0) || null;
+    const bold = variant ? variant.bold || /bold/i.test(record.fontFamily) : /bold/i.test(record.fontFamily);
+    const italic = variant ? variant.italic || /italic|oblique/i.test(record.fontFamily)
+      : /italic|oblique/i.test(record.fontFamily);
+    record.fontFamily = standardFontVariant(record.fontFamily, bold, italic);
     const encoded = inPlace.encodeRun(record.newText, 0, originalSize,
       { bold, italic, baseBold: bold, baseItalic: italic });
     let naturalWidth = 0;
@@ -132,4 +142,19 @@ export async function proefOpKopie(sourceBytes, plannen, { embedFont }) {
     record.fontSize = pas.fontSize;
   }
   return plannen;
+}
+
+/**
+ * Het antwoord over één uitgevoerde vervanging. Op een scan met OCR-laag
+ * (needsCover) dekt de saver het gescande woord af en zet de nieuwe tekst
+ * zichtbaar, zoals de UI-route (#720): `coveredScannedText`, zonder
+ * waarschuwing. Eerder bleef het gescande woord onder de nieuwe tekst staan
+ * en waarschuwde het antwoord met rasterBackgroundOverlap.
+ */
+export function verslag(plan) {
+  const { span, record, textColor } = plan;
+  return { spanId: span.id, editId: record.id, originalText: span.text, newText: record.newText,
+    fontUsed: plan.fontUsed, fontFallback: plan.fontFallback, fontSize: record.fontSize,
+    color: textColor, bbox: span.bbox,
+    ...(plan.needsCover ? { coveredScannedText: true } : {}) };
 }

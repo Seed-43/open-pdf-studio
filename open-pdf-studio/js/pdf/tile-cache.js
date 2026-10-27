@@ -1,19 +1,23 @@
 // LRU cache for region-tile ImageBitmaps used at high zoom.
-// Keys: `${filePath}|p${pageNum}|z${zoomBucket}|r${rotation}|reg${regionBucket}`
+// Keys: `${filePath}|p${pageNum}|z${zoomBucket}|r${rotation}|l${lineMode}|reg${regionBucket}`
 // regionBucket = "x,y" in PDF points snapped to 25%-viewport buffer grid.
+// lineMode = Thin Lines on/off (#595): getters default to the preference; a
+// tile is stored under the mode in its regionMeta.thinLines (the mode it was
+// rendered in), so a tile that arrives after a toggle never shows up.
 // Smaller than bitmap-cache because tiles are bigger; LRU max 8.
 
 import { findBestCoveringTile } from './tile-coverage.js';
+import { thinLinesKey, thinLinesOn } from './thin-lines.js';
 
 const CACHE = new Map();
 const MAX = 8;
 
-function makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket) {
-  return `${filePath}|p${pageNum}|z${Math.round(zoomBucket * 10000)}|r${rotation || 0}|reg${regionBucket}`;
+function makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin) {
+  return `${filePath}|p${pageNum}|z${Math.round(zoomBucket * 10000)}|r${rotation || 0}|l${thinLinesKey(thin)}|reg${regionBucket}`;
 }
 
-export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket) {
-  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket);
+export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin = thinLinesOn()) {
+  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
   const entry = CACHE.get(key);
   if (entry) {
     CACHE.delete(key);
@@ -22,9 +26,9 @@ export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBuck
   return entry || null;
 }
 
-export function tileCacheFindCovering(filePath, pageNum, rotation, request) {
+export function tileCacheFindCovering(filePath, pageNum, rotation, request, thin = thinLinesOn()) {
   const pagePrefix = `${filePath}|p${pageNum}|`;
-  const rotationPart = `|r${rotation || 0}|`;
+  const rotationPart = `|r${rotation || 0}|l${thinLinesKey(thin)}|`;
   const candidates = [];
 
   for (const [key, entry] of CACHE) {
@@ -42,7 +46,8 @@ export function tileCacheFindCovering(filePath, pageNum, rotation, request) {
 }
 
 export async function tileCacheSet(filePath, pageNum, zoomBucket, rotation, regionBucket, imageData, regionMeta) {
-  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket);
+  const thin = regionMeta && regionMeta.thinLines !== undefined ? !!regionMeta.thinLines : thinLinesOn();
+  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
   const replaced = CACHE.get(key);
   while (!replaced && CACHE.size >= MAX) {
     const firstKey = CACHE.keys().next().value;

@@ -63,6 +63,8 @@
     "strokeColor": "Kolor obrysu",
     "color": "Kolor",
     "opacity": "Krycie",
+    "fillOpacity": "Krycie wypełnienia",
+    "strokeOpacity": "Krycie obrysu",
     "borderStyle": "Styl obramowania",
     "cross": "Krzyż",
     "crossHint": "Rysuje krzyż wewnątrz prostokąta, okręgu lub elipsy (np. otwór)",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Połącz obraz",
     "imageFilter": "Obrazy"
   },
+  "sizeUnit": {
+    "tooltip": "Jednostka wymiarów"
+  },
   "multiSelect": "{{count}} adnotacji zaznaczonych",
   "pdfText": "Tekst PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importuj komentarze...",
     "exportComments": "Eksportuj komentarze do pliku danych...",
     "exportSelectedComments": "Eksportuj wybrane komentarze do pliku danych...",
+    "exportListCsv": "Eksportuj listę do CSV...",
+    "summarizeComingSoon": "Wkrótce",
+    "listExported": "Lista komentarzy wyeksportowana do CSV",
+    "csvPage": "Strona",
+    "csvType": "Typ",
+    "csvAuthor": "Autor",
+    "csvDate": "Data",
+    "csvStatus": "Status",
+    "csvSubject": "Temat",
+    "csvContents": "Treść",
+    "csvColor": "Kolor",
+    "csvLayer": "Warstwa",
     "schedules": "Zestawienia",
     "addPage": "Dodaj stronę",
-    "pageLabels": "Etykiety stron (kreator nazw)"
+    "pageLabels": "Etykiety stron (kreator nazw)",
+    "portfolio": "Portfolio PDF",
+    "recognizeForm": "Rozpoznaj pola formularza"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",
@@ -403,7 +422,8 @@
       "image": "Obrazy i pieczątki"
     },
     "preview": "Podgląd",
-    "exportCsv": "Eksportuj CSV"
+    "exportCsv": "Eksportuj CSV",
+    "workbookBindings": "Powiązania z arkuszem kalkulacyjnym"
   },
   "wizard": {
     "title": "Kreator zestawień",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Nazwa pliku",
       "width": "Szerokość",
-      "height": "Wysokość"
+      "height": "Wysokość",
+      "location": "Lokalizacja",
+      "locationSource": "Źródło lokalizacji"
     },
     "type": {
       "line": "Linia",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Typ",
+    "profileType": "Typ profilu",
+    "profileTypeTitle": "Profil stalowy",
     "unknownSymbol": "Nieznany symbol",
     "listNew": "Nowy",
     "listAdd": "Dodaj",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Ten obiekt został zmieniony w innym miejscu. Formularz pokazuje bieżące wartości; Twoje zmiany nie zostały zastosowane.",
     "failed": "Nie można zastosować zmian: {{error}}"
+  },
+  "location": {
+    "title": "Lokalizacja",
+    "none": "Nieprzypisane",
+    "manual": "Ręcznie",
+    "computed": "Obliczone",
+    "override": "Ręczne nadpisanie (puste usuwa lokalizację)",
+    "automatic": "Użyj automatycznej lokalizacji",
+    "zoneName": "Użyj tego kształtu jako nazwanej strefy",
+    "parent": "Strefa nadrzędna",
+    "removeZone": "Usuń definicję strefy",
+    "invalid": "Nie można zaktualizować lokalizacji",
+    "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
+    "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
   }
 }

@@ -9,6 +9,7 @@
 // onder je handen van maat veranderen.
 
 import { rondMaatAf } from '../annotations/minimummaat.js';
+import { leesGetal, leesFactor } from '../core/getal-invoer.js';
 
 /** Geen schaal gekozen = ware grootte. */
 export const STANDAARD_SCHAAL = 1;
@@ -28,7 +29,7 @@ export const SCHAAL_STAPPEN = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5];
  * @returns {number}
  */
 export function normaliseerSchaal(waarde) {
-  const n = typeof waarde === 'string' ? parseFloat(waarde.replace(',', '.')) : Number(waarde);
+  const n = typeof waarde === 'string' ? leesGetal(waarde) : Number(waarde);
   if (!Number.isFinite(n) || n <= 0) return STANDAARD_SCHAAL;
   return Math.min(MAX_SCHAAL, Math.max(MIN_SCHAAL, n));
 }
@@ -83,11 +84,8 @@ export function schaalLabel(factor) {
  * @returns {number|null}
  */
 export function leesSchaalInvoer(tekst) {
-  const s = String(tekst ?? '').trim().toLowerCase().replace(',', '.');
-  const m = /^([+]?\d*\.?\d+)\s*(x|×|%)?$/.exec(s);
-  if (!m) return null;
-  let n = parseFloat(m[1]);
-  if (m[2] === '%') n /= 100;
+  // Komma en punt zijn allebei een decimaalteken: "0,1x" = "0.1x" (core/getal-invoer.js).
+  const n = leesFactor(String(tekst ?? ''));
   if (!Number.isFinite(n) || n <= 0) return null;
   return normaliseerSchaal(n);
 }

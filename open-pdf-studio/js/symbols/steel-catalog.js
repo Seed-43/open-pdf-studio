@@ -216,6 +216,8 @@ export function steelCatalogTemplates(collectionId, catalog, lang = 'nl') {
       name: _pickName(family.name, lang),
       nameEn: family.name.en,
       category,
+      // Families uit dezelfde catalogus wisselen onderling van type (#697).
+      profielGroep: `${STEEL_TEMPLATE_PREFIX}${collectionId}`,
       defaultSize: { width: 60, height: 60 },
       // No graphic resize handles — size comes from maat × schaal (real mm).
       fixedSize: true,

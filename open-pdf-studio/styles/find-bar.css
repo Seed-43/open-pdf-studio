@@ -14,7 +14,7 @@
   padding: 4px;
   align-items: flex-start;
   gap: 2px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--ui-font);
   font-size: 12px;
 }
 
@@ -299,8 +299,10 @@
   color: var(--theme-text-secondary, #888);
 }
 
+/* De lijst groeit mee met het aantal pagina's met treffers, tot ruim een
+   derde van het venster (nooit minder dan 150 px), en scrolt daarna (#686). */
 .find-results-list {
-  max-height: 150px;
+  max-height: max(150px, 40vh);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -308,6 +310,9 @@
 
 .find-results-row {
   display: flex;
+  /* Niet krimpen: met overflow: hidden mag een flex-item anders tot 0 hoog
+     worden, en schoven de regels bij veel treffers over elkaar (#686). */
+  flex-shrink: 0;
   overflow: hidden;
   align-items: baseline;
   gap: 6px;
@@ -381,4 +386,104 @@
 .search-highlight-annotation.current {
   background-color: rgba(255, 165, 0, 0.25);
   outline-color: #ff8c00;
+}
+
+/* --- More search options (symbols, other documents) --- */
+
+.find-options {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.find-options-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 2px;
+  z-index: 1001;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0;
+  background: var(--theme-surface, #ffffff);
+  border: 1px solid var(--theme-border, #d4d4d4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.find-options-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 4px 12px 4px 24px;
+  border: none;
+  background: transparent;
+  color: var(--theme-text, #333);
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.find-options-item:hover {
+  background: var(--theme-hover, #e5e5e5);
+}
+
+.find-options-item.checked::before {
+  content: '\2713';
+  position: absolute;
+  left: 8px;
+}
+
+/* --- Search in other documents (extra row, via the options menu) --- */
+
+.document-search {
+  min-width: 0;
+  max-width: 680px;
+  color: var(--theme-text, #222);
+}
+
+.document-search .find-row {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.document-search section {
+  padding: 6px 0;
+  border-top: 1px solid var(--theme-border, #d4d4d4);
+}
+
+.document-search section button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.document-search p {
+  margin: 4px 0;
+}
+
+.document-search-results {
+  max-height: 40vh;
+  overflow: auto;
+}
+
+.document-search button,
+.document-search select {
+  color: var(--theme-text, #222);
+  background: var(--theme-surface, #fff);
+  border: 1px solid var(--theme-border, #d4d4d4);
+  border-radius: 0;
+  padding: 3px 6px;
+  font: inherit;
+  cursor: default;
+}
+
+.document-search button:disabled {
+  opacity: .5;
+}
+
+.document-search button:not(:disabled):hover {
+  background: var(--theme-hover, #eee);
 }

@@ -93,7 +93,22 @@
     "editBookmark": "Редактиране на отметка",
     "deleteBookmark": "Изтриване на отметка",
     "expandAll": "Разгъване на всички",
-    "collapseAll": "Свиване на всички"
+    "collapseAll": "Свиване на всички",
+    "color": "Цвят",
+    "colorDefault": "По подразбиране",
+    "colorRed": "Червен",
+    "colorOrange": "Оранжев",
+    "colorGreen": "Зелен",
+    "colorBlue": "Син",
+    "colorPurple": "Лилав",
+    "colorGray": "Сив",
+    "colorCustom": "По избор...",
+    "bold": "Удебелен",
+    "italic": "Курсив",
+    "nestUnderNew": "Влагане под нова отметка...",
+    "indent": "Увеличаване на отстъпа",
+    "outdent": "Намаляване на отстъпа",
+    "deleteBookmarks": "Изтриване на {{count}} отметки"
   },
   "thumbnail": {
     "rotateLeft": "Завъртане наляво",

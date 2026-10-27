@@ -93,7 +93,22 @@
     "editBookmark": "புத்தகக்குறியைத் திருத்து",
     "deleteBookmark": "புத்தகக்குறியை நீக்கு",
     "expandAll": "அனைத்தையும் விரி",
-    "collapseAll": "அனைத்தையும் சுருக்கு"
+    "collapseAll": "அனைத்தையும் சுருக்கு",
+    "color": "நிறம்",
+    "colorDefault": "இயல்புநிலை",
+    "colorRed": "சிவப்பு",
+    "colorOrange": "ஆரஞ்சு",
+    "colorGreen": "பச்சை",
+    "colorBlue": "நீலம்",
+    "colorPurple": "ஊதா",
+    "colorGray": "சாம்பல்",
+    "colorCustom": "தனிப்பயன்...",
+    "bold": "தடிமன்",
+    "italic": "சாய்வு",
+    "nestUnderNew": "புதிய புத்தகக்குறியின் கீழ் வை...",
+    "indent": "உள்தள்ளு",
+    "outdent": "வெளித்தள்ளு",
+    "deleteBookmarks": "{{count}} புத்தகக்குறிகளை நீக்கு"
   },
   "thumbnail": {
     "rotateLeft": "இடமாகச் சுழற்று",

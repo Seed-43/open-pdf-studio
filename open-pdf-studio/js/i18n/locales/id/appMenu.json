@@ -71,6 +71,12 @@
     "site": "Di situs ini",
     "noSiteDocuments": "Tidak ada dokumen di situs ini",
     "siteListError": "Dokumen situs ini tidak dapat dimuat",
+    "versions": "Versi",
+    "versionNumber": "Versi {{version}}",
+    "currentVersion": "saat ini",
+    "noVersions": "Tidak ada versi",
+    "versionsError": "Versi tidak dapat dimuat",
+    "olderVersionsHint": "Versi lama dibuka hanya-baca; Simpan Sebagai mengunduh salinan.",
     "save": "Simpan"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Halaman",
     "officeTable": "Tabel",
     "officeText": "Teks",
-    "officeFailed": "Ekspor dokumen gagal."
+    "officeFailed": "Ekspor dokumen gagal.",
+    "protect": "Lindungi dengan Kata Sandi",
+    "protectDesc": "Simpan salinan yang dilindungi kata sandi (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil keluaran",
@@ -211,5 +219,9 @@
     "activationFailed": "Tidak aktif: {{error}}",
     "viaMcp": "Melalui koneksi AI"
   },
-  "annotateScreenshot": "Anotasi Tangkapan Layar dari Papan Klip"
+  "annotateScreenshot": "Anotasi Tangkapan Layar dari Papan Klip",
+  "workflows": "Alur kerja dokumen",
+  "drawingSets": "Set gambar",
+  "sheetLinks": "Tautan antarlembar",
+  "approvalRouting": "Perutean persetujuan"
 }

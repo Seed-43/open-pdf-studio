@@ -48,7 +48,8 @@ test('de gereedschapsstandaard staat bij de andere standaarden van het meetvlak'
   // Via het paneel met gereedschapsstandaarden (setAsDefaultStyle) en
   // 'standaardstijl toepassen' (applyDefaultStyle).
   const v = bron('../core/preferences.js');
-  assert.match(v, /case 'measureArea':\n\s+return \{[^}]*edgeLengths: 'ShowEdgeLengths'/);
+  // De stijltabel per soort staat sinds #668 in stijl-mapping.js.
+  assert.match(bron('../core/stijl-mapping.js'), /case 'measureArea':\n\s+return \{[^}]*edgeLengths: 'ShowEdgeLengths'/);
   assert.match(v, /if \(m\.edgeLengths\) prefs\[p \+ m\.edgeLengths\] = annotation\.measureShowEdgeLengths === true;/);
   assert.match(v, /if \(m\.edgeLengths\) annotation\.measureShowEdgeLengths = prefs\[p \+ m\.edgeLengths\] === true;/);
   assert.match(bron('../core/constants.ts'), /\n\s+measureAreaShowEdgeLengths: false,/);

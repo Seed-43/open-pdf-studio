@@ -7,13 +7,17 @@ import {
 } from 'pdf-lib';
 import { hexToRgb } from './utils.js';
 import {
+  isWinAnsiCodePoint,
   sanitizeWinAnsiText,
   standardFontVariant,
   textEditLineAnchor,
   resolveTextEditLineStyle,
+  textEditCoverRects,
+  textEditLineCharSpacing,
 } from '../../text/text-edit-appearance.js';
 import { applyInPlaceTextEdits } from './text-edit-inplace.js';
-import { embedMcpTextFont } from '../../text/mcp-text-font.js';
+import { embedMcpTextFont, gebundeldeFontKeten } from '../../text/mcp-text-font.js';
+import { OntbrekendeGlyfenFout, isOntbrekendeGlyfenFout } from '../../text/glyf-dekking.js';
 
 // Save text edits into PDF pages.
 //
@@ -23,7 +27,16 @@ import { embedMcpTextFont } from '../../text/mcp-text-font.js';
 // toelaat in het originele font, anders via het Standard-14-pad. Alleen als
 // de originele run niet eenduidig te lokaliseren is, valt een edit terug op
 // het oude afdekken-en-overheen-tekenen (wit vlak + nieuwe tekst).
-export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocument()) {
+// kiesUnicodeFont: kiest een gebundeld volledig font voor tekst buiten WinAnsi
+// (CJK, Grieks, ...); fontKeten: de gebundelde fonts per teken, voor tekst
+// die geen enkel font in zijn geheel heeft. Beide te vervangen in tests.
+//
+// Tekens die geen enkel font heeft (niet de subset van het originele font,
+// niet de gebundelde fonts; bv. Hangul, #717) weigeren de hele opslag met
+// OntbrekendeGlyfenFout, voordat er iets in het bestand komt. Eerder werden
+// ze stil een '?'.
+export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocument(),
+  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten } = {}) {
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
   const fontCache = {};
@@ -65,9 +78,10 @@ export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocu
     // Eén corrupte/onencodeerbare edit mag NOOIT de hele save laten falen:
     // alle andere wijzigingen (annotaties, andere edits) moeten doorgaan.
     try {
-      await saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplaceResults.get(edit) || null);
+      await saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplaceResults.get(edit) || null,
+        { kiesUnicodeFont, fontKeten });
     } catch (editErr) {
-      if (edit.mcpStrict) throw editErr;
+      if (edit.mcpStrict || isOntbrekendeGlyfenFout(editErr)) throw editErr;
       console.warn(
         `[text-edits] Edit ${edit?.id ?? '?'} (pagina ${edit?.page ?? '?'}) ` +
         'overgeslagen bij opslaan:', editErr,
@@ -102,7 +116,7 @@ function drawOriginalFontRun(page, enc, sizePt, colorRgb, angleDeg, x, y) {
   page.pushOperators(...opsList);
 }
 
-async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
+async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace, { kiesUnicodeFont, fontKeten }) {
   const pageIndex = edit.page - 1;
   if (pageIndex < 0 || pageIndex >= pages.length) return;
 
@@ -146,13 +160,37 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
   const coverX = orig0 && Number.isFinite(Number(orig0.x)) ? Number(orig0.x) : edit.pdfX;
   const coverY = orig0 && Number.isFinite(Number(orig0.y)) ? Number(orig0.y) : edit.pdfY;
 
-  // Afdekvlak over alle originele regels — op het terugval-pad, én wanneer
-  // er een afbeelding (scan-achtergrond) onder de run ligt: de geknipte
-  // vector-tekst staat dan ook als pixels in de afbeelding en die dekt
-  // alleen het witte vlak af. Bij een geslaagde knip zonder onderliggende
-  // afbeelding is er niets meer om af te dekken. (Nieuw toegevoegde tekst
-  // heeft sowieso geen origineel.)
-  if (edit.originalText && !edit.mcpStrict && (!inplace || inplace.needsCover)) {
+  // Afdekken op het terugval-pad, én wanneer er een afbeelding (scan-
+  // achtergrond) onder de run ligt: de geknipte vector-tekst staat dan ook
+  // als pixels in de afbeelding en die dekt alleen een wit vlak af. Bij een
+  // geslaagde knip zonder onderliggende afbeelding is er niets meer om af te
+  // dekken. (Nieuw toegevoegde tekst heeft sowieso geen origineel.)
+  //
+  // Gewone vectortekst die niet in-place te knippen was: per originele run
+  // een strak wit vlak (textEditCoverRects). Het ruime vlak over het hele
+  // blok wiste tabellijnen tussen en rond de cellen in het bestand (#669).
+  // Het ruime vlak blijft voor een scan-onderlaag (de gescande pixels van de
+  // oude tekst liggen niet precies op de runs) en voor een her-bewerking van
+  // een eerder ingebakken edit (de eerder weggeschreven nieuwe tekst kan
+  // breder zijn dan de originele runs).
+  const ruimVlak = !!inplace?.needsCover || !!edit.bakedNewText || !!edit.inplaceBaked;
+  if (edit.originalText && !edit.mcpStrict && !inplace && !ruimVlak) {
+    for (const r of textEditCoverRects(edit)) {
+      page.drawRectangle({
+        x: r.x,
+        y: r.y,
+        width: r.width,
+        height: r.height,
+        rotate: degrees(r.angle),
+        color: rgb(1, 1, 1),
+        borderWidth: 0,
+      });
+    }
+  } else if (edit.originalText && (!inplace || inplace.needsCover)) {
+    // Ook voor een MCP-bewerking (mcpStrict, altijd in-place): op een scan met
+    // OCR-laag staat het oude woord in de pixels. Net als de UI-route dekt de
+    // saver het af en komt de nieuwe tekst zichtbaar erop (#720); de
+    // onzichtbare OCR-run is geknipt.
     // Bij een her-bewerking van een eerder ingebakken edit moet het vlak ook
     // de eerder weggeschreven (mogelijk langere) nieuwe tekst afdekken.
     const coverSources = [edit.originalText];
@@ -258,6 +296,71 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
       }
     };
 
+    // Tekenafstand (Tc) van het origineel op de terugvalroute (#718): een
+    // gespatieerde kop blijft gespatieerd. In het originele font komt de Tc
+    // uit de tekst-state van de run (enc.tc). Tc is tekst-state en geldt dus
+    // ook binnen de q…Q van drawText. Geeft de extra breedte terug.
+    const lijnTc = textEditLineCharSpacing(edit, i);
+    const tekenTekst = (tekst, opties) => {
+      if (lijnTc) page.pushOperators(pushGraphicsState(), setCharacterSpacing(lijnTc));
+      page.drawText(tekst, opties);
+      if (lijnTc) page.pushOperators(popGraphicsState());
+      return lijnTc * [...tekst].length;
+    };
+
+    // Codeert tekst in het originele font van de regel (in-place-route), of
+    // null als dat font een teken niet heeft.
+    const encodeOrigineel = (text, bold, italic) => (lineMayUseOriginalFont && text
+      ? inplace.encodeRun(text, i, lineFontSize, { bold, italic, baseBold, baseItalic })
+      : null);
+
+    // Tekst die geen enkel font in zijn geheel heeft (#717): per teken het
+    // originele font (subset), het eerste gebundelde font met dat teken of,
+    // voor WinAnsi, Standard-14. Een teken dat nergens in staat, weigert de
+    // opslag; nooit stil een '?'.
+    const drawGemengd = async (cleaned, bold, italic, penX, color) => {
+      const keten = await fontKeten(pdfDocLib, { bold, italic });
+      const stukken = [];
+      const zonder = [];
+      for (const teken of cleaned) {
+        let bron = null;
+        if (encodeOrigineel(teken, bold, italic)) bron = 'origineel';
+        else {
+          const index = keten.index(teken.codePointAt(0));
+          if (index >= 0) bron = index;
+          else if (isWinAnsiCodePoint(teken.codePointAt(0))) bron = 'standaard';
+        }
+        if (bron === null) { zonder.push(teken); continue; }
+        const laatste = stukken[stukken.length - 1];
+        if (laatste && laatste.bron === bron) laatste.tekst += teken;
+        else stukken.push({ bron, tekst: teken });
+      }
+      if (zonder.length) throw new OntbrekendeGlyfenFout(zonder);
+      for (const { bron, tekst } of stukken) {
+        const x = anchor.x + readDir.x * penX;
+        const y = anchor.y + readDir.y * penX;
+        const enc = bron === 'origineel' ? encodeOrigineel(tekst, bold, italic) : null;
+        if (enc) {
+          drawOriginalFontRun(page, enc, lineFontSize, color, angle, x, y);
+          penX += enc.width;
+        } else if (bron === 'standaard') {
+          const font = await getEditFont(standardFontVariant(lineStyle.fontFamily, bold, italic));
+          penX += tekenTekst(tekst, { x, y, size: lineFontSize, font, rotate: degrees(angle), color });
+          penX += font.widthOfTextAtSize(tekst, lineFontSize);
+        } else {
+          // Een reeks tekens die elk wel, maar samen niet te coderen is
+          // (komt niet voor bij één font): dan het eerste gebundelde font.
+          const index = bron === 'origineel' ? keten.index(tekst.codePointAt(0)) : bron;
+          if (index < 0) throw new OntbrekendeGlyfenFout([...tekst]);
+          const { font } = await keten.embed(index);
+          penX += tekenTekst(tekst, { x, y, size: lineFontSize, font, rotate: degrees(angle), color });
+          penX += font.widthOfTextAtSize(tekst, lineFontSize);
+        }
+        bakeLine.text += tekst;
+      }
+      return penX;
+    };
+
     // Eén tekst-run tekenen op offset penX langs de baseline; retourneert de
     // opgeschoven penpositie.
     const drawRun = async (text, bold, italic, penX, runColor) => {
@@ -274,21 +377,36 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
         return penX + font.widthOfTextAtSize(cleaned, lineFontSize);
       }
       const { text: safe, replaced } = sanitizeWinAnsiText(cleaned);
-      if (replaced.length > 0) {
-        console.warn(
-          `[text-edits] Edit ${edit.id ?? '?'} regel ${i + 1}: niet-WinAnsi-tekens ` +
-          `vervangen bij opslaan: ${replaced.join(' ')}`,
-        );
-      }
-      if (!safe) return penX;
-      const variant = standardFontVariant(lineStyle.fontFamily, bold, italic);
-      const font = await getEditFont(variant);
       let color = lineColor;
       if (runColor) {
         const [rr, rg, rb] = hexToRgb(runColor);
         color = rgb(rr, rg, rb);
       }
-      page.drawText(safe, {
+      if (replaced.length > 0) {
+        // Tekens buiten WinAnsi (CJK, Grieks, ...): een gebundeld volledig font
+        // dat ze allemaal heeft, ingebed met ToUnicode. Eerder werden ze
+        // stil '?', terwijl de weergave ze wel toonde.
+        try {
+          const { font: uniFont } = await kiesUnicodeFont(pdfDocLib, cleaned, { bold, italic });
+          const extra = tekenTekst(cleaned, {
+            x: anchor.x + readDir.x * penX,
+            y: anchor.y + readDir.y * penX,
+            size: lineFontSize,
+            font: uniFont,
+            rotate: degrees(angle),
+            color,
+          });
+          bakeLine.text += cleaned;
+          return penX + extra + uniFont.widthOfTextAtSize(cleaned, lineFontSize);
+        } catch (fontErr) {
+          // Geen enkel font heeft alle tekens: per teken (of weigeren).
+          return drawGemengd(cleaned, bold, italic, penX, color);
+        }
+      }
+      if (!safe) return penX;
+      const variant = standardFontVariant(lineStyle.fontFamily, bold, italic);
+      const font = await getEditFont(variant);
+      const extra = tekenTekst(safe, {
         x: anchor.x + readDir.x * penX,
         y: anchor.y + readDir.y * penX,
         size: lineFontSize,
@@ -297,7 +415,7 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
         color
       });
       bakeLine.text += safe;
-      return penX + font.widthOfTextAtSize(safe, lineFontSize);
+      return penX + extra + font.widthOfTextAtSize(safe, lineFontSize);
     };
 
     // Uniforme run-lus: kolom-segmenten op hun eigen dx langs de baseline;

@@ -29,7 +29,8 @@
     "formCheckbox": "Zaškrtávací pole formuláře",
     "formRadio": "Přepínač formuláře",
     "screenshot": "Snímek obrazovky",
-    "pageLabelPick": "Výběr textu pro popisek stránky"
+    "pageLabelPick": "Výběr textu pro popisek stránky",
+    "proofread": "Korektura"
   },
   "toolLabel": "Nástroj:",
   "annotationsLabel": "Anotace:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Stránka {{page}}",
   "searchHitsOne": "1 shoda",
   "searchHitsMany": "Shod: {{count}}",
-  "passwordProtectedBar": "Chráněno heslem: otevřeno jen pro čtení."
+  "passwordProtectedBar": "Chráněno heslem: otevřeno jen pro čtení.",
+  "documentSearch": {
+    "title": "Prohledat dokumenty",
+    "query": "Hledaný text",
+    "scope": "Hledat v",
+    "active": "Aktuální dokument",
+    "open": "Otevřené dokumenty",
+    "folder": "Složka",
+    "choose": "Zvolit složku",
+    "annotations": "Zahrnout komentáře",
+    "search": "Hledat",
+    "cancel": "Zrušit",
+    "stale": "Dokument se změnil. Spusťte hledání znovu.",
+    "folderHint": "Prohledá soubory PDF přímo v této složce, bez otevírání karet a bez změny souborů.",
+    "limited": "Bylo dosaženo limitu výsledků. Upřesněte hledání.",
+    "cancelled": "Hledání bylo zrušeno; výsledky jsou neúplné.",
+    "ocrHint": "Na stránkách {{pages}} není prohledávatelný text. V případě potřeby otevřete dokument a spusťte OCR.",
+    "status": {
+      "searching": "Hledání",
+      "complete": "Dokončeno",
+      "needs_ocr": "Obsahuje stránky bez prohledávatelného textu",
+      "encrypted": "Vyžadováno heslo",
+      "unreadable": "Nelze prohledat",
+      "changed": "Dokument se změnil; hledejte znovu",
+      "cancelled": "Zrušeno",
+      "limited": "Dosažen limit výsledků"
+    },
+    "failed": "Hledání se nezdařilo. Zkontrolujte dotaz a složku a zkuste to znovu.",
+    "prepareOcr": "Otevřít pro OCR…"
+  },
+  "symbolSearch": "Najít symboly",
+  "findMoreOptions": "Další možnosti hledání",
+  "watchActive": "Sledování: {{folder}}",
+  "watchFailed": "Chyba sledování: {{folder}}",
+  "watchTitle": "Pracovní postup dokumentů sleduje {{input}} a zapisuje do {{output}}. Kliknutím sledování zastavíte.",
+  "renderDiagnostics": {
+    "title": "Přejít na další nález vykreslování. Žádné nálezy nezaručují úplné vykreslení.",
+    "count": "Nálezy vykreslování: {{count}}",
+    "detail": "Strana {{page}}: {{code}}. Zkuste menší přiblížení nebo dokument znovu otevřete; úplnost není zaručena."
+  }
 }

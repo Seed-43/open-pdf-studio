@@ -527,6 +527,61 @@
   box-shadow: inset 3px 0 0 var(--theme-thumbnail-active-border);
 }
 
+/* Slepen en nesten (#690). De streep begint op het niveau van de rij. */
+.bookmarks-container:focus {
+  outline: none;
+}
+
+.bookmark-item {
+  position: relative;
+}
+
+.bookmark-item.dragging {
+  opacity: 0.4;
+}
+
+.bookmark-item.drop-before::before,
+.bookmark-item.drop-after::after {
+  content: '';
+  position: absolute;
+  left: var(--bm-indent, 0);
+  right: 0;
+  height: 2px;
+  background: #0078d7;
+  pointer-events: none;
+}
+
+.bookmark-item.drop-before::before {
+  top: -1px;
+}
+
+.bookmark-item.drop-after::after {
+  bottom: -1px;
+}
+
+/* Erop: de rij zelf gemarkeerd, de selectie wordt zijn laatste kinderen */
+.bookmark-item.drop-inside {
+  background: var(--theme-thumbnail-active-bg);
+  box-shadow: inset 0 0 0 1px #0078d7;
+}
+
+/* In de lege ruimte onder de lijst: achteraan in de wortel */
+.bookmarks-container.drop-end {
+  box-shadow: inset 0 -2px 0 #0078d7;
+}
+
+/* Sleepbeeld bij meerdere bladwijzers ("3 bladwijzers") */
+.bookmark-drag-image {
+  position: fixed;
+  left: -1000px;
+  top: 0;
+  padding: 2px 8px;
+  font-size: 12px;
+  background: #ffffff;
+  color: #333333;
+  border: 1px solid #0078d7;
+}
+
 .bookmark-arrow {
   width: 14px;
   height: 14px;
@@ -611,7 +666,7 @@
 }
 
 .bookmark-dialog-body input[type="text"],
-.bookmark-dialog-body input[type="number"] {
+.bookmark-dialog-body input[data-getal] {
   width: 100%;
   padding: 4px 6px;
   font-size: 12px;
@@ -623,7 +678,7 @@
 }
 
 .bookmark-dialog-body input[type="text"]:focus,
-.bookmark-dialog-body input[type="number"]:focus {
+.bookmark-dialog-body input[data-getal]:focus {
   outline: none;
   border-color: #0078d4;
 }
@@ -655,6 +710,57 @@
 
 .bookmark-dialog-footer button.primary:hover {
   background: #006cbd;
+}
+
+/* Kleur en vet/cursief in de bladwijzerdialoog (#689) */
+.bookmark-dialog-colors {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.bookmark-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #a0a0a0;
+  cursor: default;
+}
+
+.bookmark-swatch.selected,
+.bookmark-swatch-custom.selected {
+  outline: 2px solid #0078d4;
+  outline-offset: 1px;
+}
+
+/* Standaard: geen eigen kleur, wit vlak met een diagonale streep */
+.bookmark-swatch-default {
+  background: linear-gradient(to top right, #fff calc(50% - 1px), #e81123 50%, #fff calc(50% + 1px));
+}
+
+.bookmark-swatch-custom {
+  width: 28px;
+  height: 22px;
+  padding: 0 1px;
+  border: 1px solid #a0a0a0;
+  background: #fff;
+  margin-left: 6px;
+}
+
+.bookmark-dialog-style {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.bookmark-dialog-body label.bookmark-dialog-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: normal;
+  margin-bottom: 0;
 }
 
 /* Signatures Panel (inside left panel) */
@@ -785,7 +891,8 @@
 .layer-list-item input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  cursor: pointer;
+  margin: 0;
+  cursor: default;
   accent-color: var(--theme-panel-accent, #2563eb);
   flex-shrink: 0;
 }
@@ -793,11 +900,6 @@
 .layer-list-toggle {
   display: flex;
   flex-shrink: 0;
-}
-
-.layer-list-item input[type="checkbox"]:disabled {
-  cursor: default;
-  margin: 0;
 }
 
 /* Kop van een groep in de lagenboom (/Order-label): geen vinkje. */
@@ -1452,6 +1554,11 @@
   background: var(--theme-panel-tab-hover, #e8e8e8);
 }
 
+.schedules-add-btn svg {
+  display: block;
+  margin: 0 auto;
+}
+
 .schedules-hint {
   padding: 4px 10px;
   font-size: 10px;
@@ -1594,13 +1701,14 @@
 .sched-wizard-done { font-weight: 600; }
 
 /* ── 3D PDF view (WebGL over the document area) ───────────────────────── */
-/* Covers .main-view (the document area); see ThreeDView.jsx. */
-.main-view { position: relative; }
+/* Covers .main-view (the document area); see ThreeDView.jsx. UI parts keep
+   the default cursor; only the model canvas is part of the document area. */
 .threed-view {
   position: absolute; inset: 0; z-index: 50;
   display: flex; flex-direction: column;
   background: var(--theme-panel-bg, #2b2b30); color: var(--theme-panel-header-text, #ddd);
   outline: none;
+  cursor: default;
 }
 .threed-toolbar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -1609,14 +1717,16 @@
 }
 .threed-toolbar label { display: inline-flex; align-items: center; gap: 5px; }
 .threed-toolbar select, .threed-toolbar button {
-  font-size: 12px; padding: 2px 8px; cursor: pointer;
+  font-size: 12px; padding: 2px 8px; cursor: default;
   background: var(--theme-thumbnail-bg, #3a3a40); color: inherit;
-  border: 1px solid var(--theme-panel-border, #555); border-radius: 2px;
+  border: 1px solid var(--theme-panel-border, #555); border-radius: 0;
 }
 .threed-toolbar button.active { border-color: var(--theme-thumbnail-active-border, #d97706); }
 .threed-toolbar button:disabled, .threed-toolbar select:disabled { opacity: 0.5; cursor: default; }
 .threed-title { font-weight: 600; }
 .threed-stats, .threed-hint { opacity: 0.65; }
+.threed-notice { color: #b45309; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+.threed-view.compact .threed-notice { color: #fbbf24; }
 .threed-close { font-size: 16px !important; line-height: 1; padding: 0 8px !important; }
 .threed-body { flex: 1; display: flex; min-height: 0; }
 .threed-tree {
@@ -1626,10 +1736,10 @@
 .threed-tree-row { display: flex; align-items: center; gap: 4px; padding: 1px 6px; white-space: nowrap; }
 .threed-tree-row:hover { background: var(--theme-thumbnail-hover); }
 .threed-tree-model { padding-left: 34px; }
-.threed-tree-arrow { width: 14px; font-size: 8px; cursor: pointer; text-align: center; flex-shrink: 0; }
+.threed-tree-arrow { width: 14px; font-size: 8px; cursor: default; text-align: center; flex-shrink: 0; }
 .threed-tree-name { overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .threed-tree-count { opacity: 0.55; font-size: 11px; }
-.threed-canvas { flex: 1; position: relative; min-width: 0; background: #fff; }
+.threed-canvas { flex: 1; position: relative; min-width: 0; background: #fff; cursor: default; }
 .threed-canvas canvas { display: block; }
 .threed-loading {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -1648,15 +1758,15 @@
 .threed-view.compact .threed-toolbar select, .threed-view.compact .threed-toolbar button { font-size: 11px; padding: 1px 6px; }
 .threed-view.compact .threed-tree { width: 220px; background: rgba(40, 40, 46, 0.92); color: #eee; }
 .threed-activate {
-  position: absolute; top: 8px; left: 8px; padding: 4px 12px; font-size: 12px; cursor: pointer;
-  background: #d97706; color: #fff; border: none; border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  position: absolute; top: 8px; left: 8px; padding: 4px 12px; font-size: 12px; cursor: default;
+  background: #d97706; color: #fff; border: 1px solid #b45309; border-radius: 0;
 }
 
 /* 3D toolbar docked at the top of the document area, with the sheet's
    title (left) and date (right) locked underneath it */
 .threed-dock {
   position: absolute; top: 0; left: 0; right: 0; z-index: 2;
-  pointer-events: auto; display: flex; flex-direction: column;
+  pointer-events: auto; display: flex; flex-direction: column; cursor: default;
 }
 .threed-dock-toolbar .threed-toolbar {
   background: var(--theme-panel-bg, #2b2b30); color: var(--theme-panel-header-text, #ddd);
@@ -1675,7 +1785,7 @@
 /* Model tree docked to the left edge of the document area, below the bar */
 .threed-tree-dock {
   position: absolute; left: 0; bottom: 0; z-index: 2;
-  pointer-events: auto; display: flex;
+  pointer-events: auto; display: flex; cursor: default;
 }
 .threed-tree-dock:empty { display: none; }
 .threed-tree-dock .threed-tree {

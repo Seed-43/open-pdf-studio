@@ -2,6 +2,7 @@ import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { setLayerItems as setItems, setLayerCountText as setCountText, setLayerEmptyMessage as setEmptyMessage } from '../../bridge.js';
 import { lagenLijst } from './lagen-lijst.js';
+import { eigenLaagConfig, vergeetVerouderdeStand, zetLaagZichtbaar } from '../../pdf/lagen-schakelen.js';
 
 function geenLagen(melding) {
   setItems([]);
@@ -9,9 +10,8 @@ function geenLagen(melding) {
   setEmptyMessage(melding);
 }
 
-// Het paneel toont de lagen en hun stand volgens het document. Aan- en
-// uitzetten volgt nog: de pagina tekent met PDFium uit het bestand zelf, en
-// dat pad kent (nog) geen andere laagstand dan die van het document.
+// Het paneel toont de lagen en hun stand: de beginstand van het document, of
+// de stand na het schakelen (#684, zie pdf/lagen-schakelen.js).
 export async function updateLayersList() {
   const activeDoc = getActiveDocument();
   if (!activeDoc || !activeDoc.pdfDoc) {
@@ -23,9 +23,10 @@ export async function updateLayersList() {
 
   try {
     const pdfDoc = activeDoc.pdfDoc;
-    const ocConfig = typeof pdfDoc.getOptionalContentConfig === 'function'
+    await vergeetVerouderdeStand(activeDoc);
+    const ocConfig = eigenLaagConfig(activeDoc) || (typeof pdfDoc.getOptionalContentConfig === 'function'
       ? await pdfDoc.getOptionalContentConfig()
-      : null;
+      : null);
     // De annotatielagen van deze app zijn ook OCG's (#468), maar staan in het
     // paneel Markeringslagen; hier alleen de lagen van de tekening zelf.
     const regels = lagenLijst(ocConfig, { overslaan: activeDoc._annotatieLaagOcgIds || new Set() });
@@ -41,4 +42,16 @@ export async function updateLayersList() {
     console.warn('Failed to load layers:', e);
     geenLagen(i18next.t('leftPanel.noLayers'));
   }
+}
+
+/** Vinkje in het paneel: laag aan of uit, daarna de lijst opnieuw (#684). */
+export async function toggleLayer(id, zichtbaar) {
+  const activeDoc = getActiveDocument();
+  if (!activeDoc?.pdfDoc) return;
+  try {
+    await zetLaagZichtbaar(activeDoc, id, zichtbaar);
+  } catch (e) {
+    console.warn('[lagen] schakelen mislukt:', e);
+  }
+  await updateLayersList();
 }

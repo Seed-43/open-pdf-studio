@@ -71,6 +71,12 @@
     "site": "באתר זה",
     "noSiteDocuments": "אין מסמכים באתר זה",
     "siteListError": "לא ניתן לטעון את המסמכים של אתר זה",
+    "versions": "גרסאות",
+    "versionNumber": "גרסה {{version}}",
+    "currentVersion": "נוכחית",
+    "noVersions": "אין גרסאות",
+    "versionsError": "לא ניתן היה לטעון את הגרסאות",
+    "olderVersionsHint": "גרסאות ישנות יותר נפתחות לקריאה בלבד; 'שמירה בשם' מורידה עותק.",
     "save": "שמור"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "עמוד",
     "officeTable": "טבלה",
     "officeText": "טקסט",
-    "officeFailed": "ייצוא המסמך נכשל."
+    "officeFailed": "ייצוא המסמך נכשל.",
+    "protect": "הגנה בסיסמה",
+    "protectDesc": "שמירת עותק מוגן בסיסמה (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "פרופיל פלט",
@@ -211,5 +219,9 @@
     "activationFailed": "לא פעיל: {{error}}",
     "viaMcp": "דרך חיבור הבינה המלאכותית"
   },
-  "annotateScreenshot": "הוספת הערות לצילום מסך מהלוח"
+  "annotateScreenshot": "הוספת הערות לצילום מסך מהלוח",
+  "workflows": "תהליכי עבודה למסמכים",
+  "drawingSets": "סטים של שרטוטים",
+  "sheetLinks": "קישורים בין גיליונות",
+  "approvalRouting": "ניתוב אישורים"
 }

@@ -21,7 +21,7 @@ export default function WallSection() {
       <CollapsibleSection title="Wand" name="wall" id="prop-wall-section">
         <div class="property-group">
           <label>Dikte (mm)</label>
-          <input type="number" min="10" max="1000" step="5"
+          <input type="text" inputmode="decimal" data-getal min="10" max="1000" step="5"
             value={annotProps.dikteMm ?? 100}
             onChange={(e) => updateAnnotProp('dikteMm', Math.max(10, parseFloat(e.target.value) || 100))}
           />

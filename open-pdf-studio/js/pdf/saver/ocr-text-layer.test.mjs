@@ -165,3 +165,68 @@ test('OCR-laag met Noto Sans TC: een pagina zonder herkende woorden slaat gewoon
   assert.ok(cff[3] >= 1 && cff[3] <= 4, `CFF offSize ${cff[3]} valt buiten 1..4`);
   assert.ok(openCff(cff)['CFF '].topDict.CharStrings.length >= 2, 'charset heeft een geldig bereik');
 });
+
+// ── Unicode-bewaking (#678) ──
+//
+// Met de bewaking slaat de OCR-laag een woord over dat het font niet terug naar
+// Unicode kan brengen (geen glyph, of een gevormde glyph zonder codepunt); de
+// rest van de laag en de opslag blijven heel. Zonder bewaking (zichtbare tekst
+// in CJK-tekstvakken) blijft een teken zonder glyph een leeg vakje en mislukt
+// de opslag evenmin.
+const OVERSLAAN = [
+  { text: 'Hello', left: 72, top: 72, width: 60, height: 14 },
+  { text: '😀', left: 140, top: 72, width: 20, height: 14 },
+  { text: '⌀12', left: 170, top: 72, width: 30, height: 14 },
+  { text: 'العربية', left: 210, top: 72, width: 60, height: 14 },
+  { text: 'World', left: 280, top: 72, width: 60, height: 14 },
+];
+
+async function paginaTekst(bytes) {
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const taak = pdfjs.getDocument({ data: bytes.slice(), verbosity: 0, isEvalSupported: false });
+  try {
+    const inhoud = await (await (await taak.promise).getPage(1)).getTextContent();
+    return inhoud.items.map((i) => i.str || '').join(' ');
+  } finally { await taak.destroy(); }
+}
+
+test('OCR-laag met bewaking: een woord zonder glyph of Unicode wordt overgeslagen, de rest blijft', { skip: zonderNoto, timeout: 30000 }, async () => {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([595, 842]);
+  const font = await embedOcrFont(doc, notoBytes, { unicodeGuard: true });
+  assert.doesNotThrow(() => writeOcrTextLayer(page, OVERSLAAN, font));
+  const tekst = await paginaTekst(await doc.save());
+  assert.match(tekst, /Hello/);
+  assert.match(tekst, /World/);
+  for (const weg of ['⌀', '😀', 'ع']) assert.ok(!tekst.includes(weg), `${weg} hoort niet in de laag: ${JSON.stringify(tekst)}`);
+});
+
+test('zonder bewaking: een teken dat het font mist breekt de codering van zichtbare tekst niet', { skip: zonderNoto, timeout: 30000 }, async () => {
+  const doc = await PDFDocument.create();
+  const font = await embedOcrFont(doc, notoBytes);
+  assert.doesNotThrow(() => font.encodeText('中文 ⌀12 😀'));
+  doc.addPage().drawText('中文 ⌀12', { font, size: 12 });
+  assert.ok((await doc.save()).length > 0);
+});
+
+// OCR-nakijken (#657) en de bewaking samen: een nagekeken correctie komt in de
+// laag of de opslag meldt OCR_REVIEW_TEXT_NOT_ENCODABLE; alleen ongecontroleerde
+// woorden worden stil overgeslagen.
+test('OCR-laag met bewaking: nagekeken correctie blijft, ongecontroleerd onleesbaar woord valt weg', { skip: zonderNoto, timeout: 30000 }, async () => {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([595, 842]);
+  const font = await embedOcrFont(doc, notoBytes, { unicodeGuard: true });
+  const woorden = [
+    { text: 'Ελληνικά', left: 72, top: 72, width: 80, height: 14, confidence: 40 },
+    { text: '中文', left: 160, top: 72, width: 40, height: 14, confidence: 30, review: { status: 'corrected', originalText: '申又' } },
+    { text: 'Plan', left: 210, top: 72, width: 40, height: 14, confidence: 95 },
+  ];
+  writeOcrTextLayer(page, woorden, font);
+  const tekst = await paginaTekst(await doc.save());
+  assert.match(tekst, /中文/);
+  assert.match(tekst, /Plan/);
+  assert.ok(!/Ε|λ/.test(tekst), `Grieks hoort niet in de laag: ${JSON.stringify(tekst)}`);
+
+  const page2 = doc.addPage([595, 842]);
+  assert.throws(() => writeOcrTextLayer(page2, [{ ...woorden[0], review: { status: 'corrected', originalText: 'x' } }], font), /OCR_REVIEW_TEXT_NOT_ENCODABLE/);
+});

@@ -21,6 +21,7 @@ import {
   sameSize16Icon, rotateCcwIcon, rotateCwIcon, rotate180Icon, flipHIcon, flipVIcon
 } from '../../data/ribbonIcons.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { volgPopup } from './ribbon-popup.js';
 
 export default function ArrangeTab() {
   const { t } = useTranslation('ribbon');
@@ -28,6 +29,10 @@ export default function ArrangeTab() {
   // Dropdown-status voor "Uitlijnen op" (arr-align-to)
   const [alignMenuOpen, setAlignMenuOpen] = createSignal(false);
   let alignMenuRef;
+  // Met position: fixed buiten de klip van de ribbon (#617).
+  let alignBtnRef;
+  let alignDropdownRef;
+  volgPopup(() => alignDropdownRef, () => alignBtnRef, alignMenuOpen);
   onMount(() => {
     const handler = (e) => {
       if (alignMenuRef && !alignMenuRef.contains(e.target)) setAlignMenuOpen(false);
@@ -72,12 +77,12 @@ export default function ArrangeTab() {
             <div class="ribbon-grid-spacer"></div>
             <div class="ribbon-grid-spacer"></div>
             <div class="ribbon-menu-wrapper" ref={alignMenuRef}>
-              <button class="ribbon-row-btn ribbon-dropdown-btn" id="arr-align-to" title={t('arrange.alignTo')} disabled={isPdfAReadOnly()}
+              <button class="ribbon-row-btn ribbon-dropdown-btn" id="arr-align-to" title={t('arrange.alignTo')} disabled={isPdfAReadOnly()} ref={alignBtnRef}
                 onClick={() => setAlignMenuOpen(!alignMenuOpen())}>
                 <span>{alignTarget() === 'last' ? t('arrange.alignToLastSelected') : t('arrange.alignToSelection')}</span>
                 <svg class="dropdown-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
               </button>
-              <div class={`ribbon-menu-dropdown${alignMenuOpen() ? ' show' : ''}`} id="arr-align-to-menu">
+              <div class={`ribbon-menu-dropdown${alignMenuOpen() ? ' show' : ''}`} id="arr-align-to-menu" ref={alignDropdownRef}>
                 <button class="ribbon-menu-item" onClick={() => { setAlignTarget('selection'); setAlignMenuOpen(false); }}>
                   <span class="ribbon-menu-check">{alignTarget() === 'selection' ? '✓' : ''}</span>
                   <span>{t('arrange.alignToSelection')}</span>

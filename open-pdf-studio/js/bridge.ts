@@ -126,6 +126,8 @@ export {
   setVisible as setLoadingVisible,
   message as loadingMessage,
   setMessage as setLoadingMessage,
+  setProgress as setLoadingProgress,
+  setCancelHandler as setLoadingCancelHandler,
 } from './solid/stores/loadingStore.js';
 
 // ============= APP MENU =============
@@ -257,6 +259,7 @@ export {
   setCountText as setBookmarkCountText,
   setEmptyMessage as setBookmarkEmptyMessage,
   setSelectedId as setBookmarkSelectedId,
+  setSelectedIds as setBookmarkSelectedIds,
   setToolbarDisabled as setBookmarkToolbarDisabled,
 } from './solid/stores/panels/bookmarksStore.js';
 

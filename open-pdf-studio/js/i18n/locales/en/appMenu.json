@@ -71,6 +71,12 @@
     "site": "On this site",
     "noSiteDocuments": "No documents on this site",
     "siteListError": "Could not load the documents of this site",
+    "versions": "Versions",
+    "versionNumber": "Version {{version}}",
+    "currentVersion": "current",
+    "noVersions": "No versions",
+    "versionsError": "Could not load the versions",
+    "olderVersionsHint": "Older versions open read-only; Save As downloads a copy.",
     "save": "Save"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Page",
     "officeTable": "Table",
     "officeText": "Text",
-    "officeFailed": "Document export failed."
+    "officeFailed": "Document export failed.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Output profile",
@@ -211,5 +219,9 @@
     "activationFailed": "Not active: {{error}}",
     "viaMcp": "Via the AI connection"
   },
-  "annotateScreenshot": "Annotate Clipboard Screenshot"
+  "annotateScreenshot": "Annotate Clipboard Screenshot",
+  "workflows": "Document workflows",
+  "drawingSets": "Drawing sets",
+  "sheetLinks": "Cross-sheet links",
+  "approvalRouting": "Approval routing"
 }

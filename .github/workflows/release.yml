@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g., v1.0.0)'
+        description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.42.7'
+        default: 'v2026.43.11'
 
 jobs:
   create-release:
@@ -31,6 +31,22 @@ jobs:
           else
             echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
+
+      # Het releasenummer komt uit de versievelden van de repo: de installers,
+      # de APK en latest.json krijgen hun versie uit tauri.conf.json, de
+      # .mcpb uit package.json. Een tag of handmatige invoer die daar niet bij
+      # hoort, of niet aan vJJJJ.W.N voldoet, stopt de run hier, voordat er
+      # een concept-release of een build is (#667). Eerst bump-version.js,
+      # dan committen, dan taggen.
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Verify version fields match the tag
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
+        run: node open-pdf-studio/scripts/bump-version.js --check "$VERSION"
 
       - name: Create release
         id: create-release
@@ -122,7 +138,18 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libtesseract-dev libleptonica-dev pkg-config
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf pkg-config
+
+      # tesseract-rs compiles Leptonica/Tesseract from source and links them
+      # statically (#620). It keeps the sources and static libs in
+      # ~/.tesseract-rs, so cache that; the key follows the tesseract-rs pin
+      # in the workspace Cargo.toml.
+      - name: Cache Tesseract static build (Linux)
+        if: matrix.target == 'linux'
+        uses: actions/cache@v5
+        with:
+          path: ~/.tesseract-rs
+          key: tesseract-rs-ubuntu-22.04-${{ hashFiles('Cargo.toml') }}
 
       - name: Install frontend dependencies
         run: npm ci
@@ -131,19 +158,26 @@ jobs:
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at
       # build time on EVERY desktop platform, so build the workspace crate
       # first and drop it in with the right triple suffix.
-      - name: Build pdfium-worker sidecar (Windows)
+      # Also builds the File Explorer thumbnail handler (#605), a COM DLL that
+      # ships as a bundle resource next to pdfium.dll. It is copied into
+      # binaries/ here so the signing step below signs it in place: Tauri's
+      # signCommand covers the main binary and sidecars, not resources, and
+      # build.rs only replaces this copy with a NEWER build.
+      - name: Build pdfium-worker sidecar and thumbnail handler (Windows)
         if: contains(matrix.target, 'windows')
         shell: pwsh
         working-directory: .
         run: |
-          cargo build --release -p pdfium-worker
+          cargo build --release -p pdfium-worker -p open-pdf-thumbnails
           New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
           Copy-Item target/release/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
+          Copy-Item target/release/open_pdf_thumbnails.dll open-pdf-studio/src-tauri/binaries/open-pdf-thumbnails.dll -Force
 
       # Installs signtool and the Azure Trusted Signing dlib on the runner (and
-      # signs the freshly built sidecar). The build below re-copies the sidecar,
-      # so the signatures that end up in the installer come from Tauri's
-      # signCommand, configured in the next step.
+      # signs the freshly built sidecar and thumbnail handler DLL). The build
+      # below re-copies the sidecar, so the sidecar signature that ends up in
+      # the installer comes from Tauri's signCommand, configured in the next
+      # step; the thumbnail handler is a resource and keeps this signature.
       - name: Install Azure signing tools (Windows)
         if: contains(matrix.target, 'windows')
         uses: azure/trusted-signing-action@v1
@@ -156,7 +190,7 @@ jobs:
           certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
           cache-dependencies: false
           files-folder: ${{ github.workspace }}/open-pdf-studio/src-tauri/binaries
-          files-folder-filter: exe
+          files-folder-filter: exe,dll
           files-folder-depth: 1
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -332,6 +366,12 @@ jobs:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
 
+      # The binary must not need a distro-specific libtesseract/liblept soname:
+      # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).
+      - name: Verify no system OCR library dependency (Linux)
+        if: matrix.target == 'linux'
+        run: bash scripts/linux-ocr-linkage-check.sh ../target/release/open-pdf-studio
+
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding
       # both macOS architectures.
@@ -436,7 +476,7 @@ jobs:
           Write-Output "installed to: $dir"
 
           $unsigned = $false
-          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe', 'uninstall.exe') {
+          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe', 'open-pdf-thumbnails.dll', 'uninstall.exe') {
             $sig = Get-AuthenticodeSignature (Join-Path $dir $exe)
             Write-Output ("{0}: {1} ({2})" -f $exe, $sig.Status, $sig.SignerCertificate.Subject)
             if ($sig.Status -ne 'Valid') { $unsigned = $true }
@@ -528,13 +568,31 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
 
+      # gen/android is generated fresh on every run; put the app's own Android
+      # files in it (MainActivity: system bar insets, content:// file names).
+      - name: Customize Android project
+        run: node scripts/android-project.mjs
+
       - name: Build Android APK
         run: npx tauri android build --apk --target aarch64
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
 
+      # Every release must be signed with the SAME key, or Android refuses to
+      # install it over the previous version ("App not installed",
+      # INSTALL_FAILED_UPDATE_INCOMPATIBLE). The key lives in repository
+      # secrets: ANDROID_KEYSTORE_BASE64 (the keystore file, base64),
+      # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD
+      # (alias and key password are optional: "open-pdf-studio" and the
+      # keystore password). Without them the build still produces an APK,
+      # signed with a one-off key, and says so loudly.
       - name: Sign APK
         id: sign-apk
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           # Find the unsigned APK
           UNSIGNED_APK=$(find src-tauri/gen/android -name "*-unsigned.apk" -type f | head -1)
@@ -545,13 +603,30 @@ jobs:
           echo "Found unsigned APK: $UNSIGNED_APK"
           APK_DIR=$(dirname "$UNSIGNED_APK")
 
-          # Generate a signing keystore
-          keytool -genkeypair -v \
-            -keystore "$APK_DIR/release.keystore" \
-            -alias release \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass openpdfstudio -keypass openpdfstudio \
-            -dname "CN=Open PDF Studio, O=OpenAEC Foundation, L=Unknown, ST=Unknown, C=US"
+          # The keystore stays outside the build tree and is removed afterwards.
+          KEYSTORE="$RUNNER_TEMP/open-pdf-studio-release.keystore"
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            if [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+              echo "::error title=Android signing::ANDROID_KEYSTORE_BASE64 is set but ANDROID_KEYSTORE_PASSWORD is not"
+              exit 1
+            fi
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$KEYSTORE"
+            export KS_PASS="$ANDROID_KEYSTORE_PASSWORD"
+            export KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+            KEY_ALIAS="${ANDROID_KEY_ALIAS:-open-pdf-studio}"
+            echo "Signing with the fixed release key from the repository secrets (alias $KEY_ALIAS)"
+          else
+            echo "::warning title=Android signing::ANDROID_KEYSTORE_BASE64 is not set. This APK is signed with a one-off key and cannot be installed over an earlier version (INSTALL_FAILED_UPDATE_INCOMPATIBLE). Add the ANDROID_KEYSTORE_* signing secrets to the repository."
+            export KS_PASS=openpdfstudio
+            export KEY_PASS=openpdfstudio
+            KEY_ALIAS=release
+            keytool -genkeypair -v \
+              -keystore "$KEYSTORE" \
+              -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KS_PASS" -keypass "$KEY_PASS" \
+              -dname "CN=Open PDF Studio, O=OpenAEC Foundation, L=Unknown, ST=Unknown, C=US"
+          fi
 
           # Find the build-tools for zipalign and apksigner
           BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -1)
@@ -561,18 +636,20 @@ jobs:
           ALIGNED_APK="$APK_DIR/app-universal-release-aligned.apk"
           "${BUILD_TOOLS}zipalign" -v 4 "$UNSIGNED_APK" "$ALIGNED_APK"
 
-          # Sign the APK
+          # Sign the APK (passwords via the environment, not the command line)
           SIGNED_APK="$APK_DIR/open-pdf-studio-release.apk"
           "${BUILD_TOOLS}apksigner" sign \
-            --ks "$APK_DIR/release.keystore" \
-            --ks-key-alias release \
-            --ks-pass pass:openpdfstudio \
-            --key-pass pass:openpdfstudio \
+            --ks "$KEYSTORE" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KS_PASS \
+            --key-pass env:KEY_PASS \
             --out "$SIGNED_APK" \
             "$ALIGNED_APK"
+          rm -f "$KEYSTORE"
 
-          # Verify the signature
-          "${BUILD_TOOLS}apksigner" verify --verbose "$SIGNED_APK"
+          # Verify the signature and show the certificate fingerprint: it must
+          # be the same for every release.
+          "${BUILD_TOOLS}apksigner" verify --verbose --print-certs "$SIGNED_APK"
           echo "signed_apk=$SIGNED_APK" >> $GITHUB_OUTPUT
           echo "Signed APK: $SIGNED_APK"
 
@@ -618,6 +695,61 @@ jobs:
         run: |
           VERSION="${{ needs.create-release.outputs.version }}"
           gh release upload "$VERSION" mcpb/dist/open-pdf-studio.mcpb --clobber --repo "${{ github.repository }}"
+
+  web-bundle:
+    # De gehoste webbundel (#692): één keer per tag gebouwd met een relatieve
+    # basis (--base=./), zodat een platform dezelfde bestanden onder elk
+    # subpad kan serveren. In het archief: de dist, MANIFEST.sha256,
+    # THIRD-PARTY-NOTICES.txt en bron.json; ernaast een .sha256. Komt na de
+    # versiecontrole van create-release en hangt niet aan de desktop-builds.
+    permissions:
+      contents: write
+    # Vast op 24.04: Playwright 1.59 kent het nieuwere ubuntu-latest (26.04) niet.
+    runs-on: ubuntu-24.04
+    needs: create-release
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and pack the web bundle
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: npm run pack:hosted -- --tag "$VERSION"
+
+      # Zelfde controle als lokaal: hash, manifest, bron.json, en de bundel
+      # uitgepakt onder /pdf/ en /tools/pdf/ in headless Chromium.
+      - name: Install Chromium for the bundle check
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify the web bundle
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: npm run verify:hosted-bundle -- "dist-webbundel/open-pdf-studio-web-${VERSION#v}.tar.gz"
+
+      # De uitgebrachte bestanden zelf onder de strikte CSP van #693.
+      - name: Verify the web bundle under a strict CSP
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: npm run test:hosted-csp -- --dist "dist-webbundel/open-pdf-studio-web-${VERSION#v}"
+
+      - name: Attach to the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          ARCHIVE="dist-webbundel/open-pdf-studio-web-${VERSION#v}.tar.gz"
+          gh release upload "$VERSION" "$ARCHIVE" "$ARCHIVE.sha256" --clobber --repo "${{ github.repository }}"
 
   publish-release:
     permissions:

@@ -63,6 +63,8 @@
     "strokeColor": "צבע קו",
     "color": "צבע",
     "opacity": "אטימות",
+    "fillOpacity": "אטימות המילוי",
+    "strokeOpacity": "אטימות הקו",
     "lineWidth": "עובי קו",
     "borderWidth": "עובי גבול",
     "borderStyle": "סגנון גבול",
@@ -247,6 +249,9 @@
     "linkImageTitle": "קישור תמונה",
     "imageFilter": "תמונות"
   },
+  "sizeUnit": {
+    "tooltip": "יחידת מידה לגדלים"
+  },
   "multiSelect": "{{count}} הערות נבחרו",
   "pdfText": "טקסט PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "ייבא הערות...",
     "exportComments": "ייצא הערות לקובץ נתונים...",
     "exportSelectedComments": "ייצא הערות נבחרות לקובץ נתונים...",
+    "exportListCsv": "ייצוא הרשימה ל-CSV...",
+    "summarizeComingSoon": "בקרוב",
+    "listExported": "רשימת ההערות יוצאה ל-CSV",
+    "csvPage": "עמוד",
+    "csvType": "סוג",
+    "csvAuthor": "מחבר",
+    "csvDate": "תאריך",
+    "csvStatus": "מצב",
+    "csvSubject": "נושא",
+    "csvContents": "תוכן",
+    "csvColor": "צבע",
+    "csvLayer": "שכבה",
     "schedules": "טבלאות כמויות",
     "addPage": "הוספת עמוד",
-    "pageLabels": "תוויות עמודים (בונה שמות)"
+    "pageLabels": "תוויות עמודים (בונה שמות)",
+    "portfolio": "תיק PDF",
+    "recognizeForm": "זיהוי שדות טופס"
   },
   "scaleBar": {
     "title": "סרגל קנה מידה",
@@ -403,7 +422,8 @@
       "image": "תמונות וחותמות"
     },
     "preview": "תצוגה מקדימה",
-    "exportCsv": "ייצוא CSV"
+    "exportCsv": "ייצוא CSV",
+    "workbookBindings": "קישורי גיליון אלקטרוני"
   },
   "wizard": {
     "title": "אשף טבלאות",
@@ -585,7 +605,9 @@
       "symbolId": "סמל",
       "imageName": "שם קובץ",
       "width": "רוחב",
-      "height": "גובה"
+      "height": "גובה",
+      "location": "מיקום",
+      "locationSource": "מקור המיקום"
     },
     "type": {
       "line": "קו",
@@ -631,6 +653,8 @@
     "sectionTitle": "סמל: {{name}}",
     "symbolLabel": "סמל",
     "typeLabel": "סוג",
+    "profileType": "סוג פרופיל",
+    "profileTypeTitle": "פרופיל פלדה",
     "unknownSymbol": "סמל לא ידוע",
     "listNew": "חדש",
     "listAdd": "הוספה",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "אובייקט זה שונה במקום אחר. הטופס מציג את הערכים הנוכחיים; השינויים שלך לא הוחלו.",
     "failed": "לא ניתן היה להחיל את השינויים: {{error}}"
+  },
+  "location": {
+    "title": "מיקום",
+    "none": "לא שויך",
+    "manual": "ידני",
+    "computed": "מחושב",
+    "override": "עקיפה ידנית (ריק מנקה את המיקום)",
+    "automatic": "שימוש במיקום אוטומטי",
+    "zoneName": "שימוש בצורה זו כאזור בעל שם",
+    "parent": "אזור אב",
+    "removeZone": "הסרת הגדרת האזור",
+    "invalid": "לא ניתן לעדכן את המיקום",
+    "rules": "השיוך משתמש במרכז התיבה התוחמת של הסימון, כולל הקצוות. האזור העמוק ביותר גובר, אחריו השטח הקטן ביותר, ואחריו מזהה האזור. השתמש במצולעים ישרים ללא חורים או בתיבות ללא סיבוב. זהויות אזור לא תקינות או כפולות מוחרגות.",
+    "loading": "ההערות נטענות: המיקומים עדיין עשויים להשתנות."
   }
 }

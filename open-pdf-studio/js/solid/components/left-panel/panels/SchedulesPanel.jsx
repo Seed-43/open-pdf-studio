@@ -1,4 +1,5 @@
 import { For, Show, onMount, createSignal, createMemo } from 'solid-js';
+import { openDialog } from '../../../stores/dialogStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import {
@@ -83,6 +84,9 @@ export default function SchedulesPanel() {
         </select>
         <button class="schedules-add-btn" title={t('schedules.add')} onClick={addSelected}>+</button>
         <button class="schedules-add-btn" title={t('wizard.newSchedule')} onClick={addBlankAndConfigure}>⚙</button>
+        <button class="schedules-add-btn" title={t('schedules.workbookBindings')} onClick={() => openDialog('workbook-bindings')}>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="10" y1="4" x2="10" y2="20"/></svg>
+        </button>
       </div>
 
       {/* Lijst van staten */}

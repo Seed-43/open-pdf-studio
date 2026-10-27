@@ -803,9 +803,9 @@
 
 .ribbon-split-btn-menu {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
+  /* fixed: buiten de klip van .ribbon-groups-adaptive; top/left zet
+     ribbon-popup.js (#617). */
+  position: fixed;
   z-index: 1000;
   background: var(--theme-ribbon-content-bg);
   border: 1px solid var(--theme-ribbon-btn-hover-border);
@@ -961,9 +961,9 @@
 
 .ribbon-menu-dropdown {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
+  /* fixed: buiten de klip van .ribbon-groups-adaptive; top/left zet
+     ribbon-popup.js (#617). */
+  position: fixed;
   z-index: 1000;
   background: var(--theme-surface, #fff);
   border: 1px solid var(--theme-border, #ccc);
@@ -1025,9 +1025,10 @@
 
 .ribbon-style-more-popup {
   display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
+  /* fixed: buiten de klip van .ribbon-groups-adaptive (anders alleen de
+     eerste rij, de rest achter de documenttabs); top/left zet
+     ribbon-popup.js (#617). */
+  position: fixed;
   z-index: 1000;
   background: var(--theme-surface, #fff);
   border: 1px solid var(--theme-border, #ccc);
@@ -1236,9 +1237,9 @@
 
 .theme-picker-dropdown {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
+  /* fixed: buiten de klip van .ribbon-groups-adaptive; top/left zet
+     ribbon-popup.js (#617). */
+  position: fixed;
   z-index: 1000;
   min-width: 170px;
   border: 1px solid var(--theme-ribbon-input-border, #d4d4d4);

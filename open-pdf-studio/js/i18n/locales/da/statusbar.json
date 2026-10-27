@@ -29,7 +29,8 @@
     "formCheckbox": "Formularafkrydsningsfelt",
     "formRadio": "Formularalternativknap",
     "screenshot": "Skærmbillede",
-    "pageLabelPick": "Vælg tekst til sideetiket"
+    "pageLabelPick": "Vælg tekst til sideetiket",
+    "proofread": "Korrektur"
   },
   "toolLabel": "Værktøj:",
   "annotationsLabel": "Annotationer:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Side {{page}}",
   "searchHitsOne": "1 match",
   "searchHitsMany": "{{count}} match",
-  "passwordProtectedBar": "Beskyttet med adgangskode: åbnet skrivebeskyttet."
+  "passwordProtectedBar": "Beskyttet med adgangskode: åbnet skrivebeskyttet.",
+  "documentSearch": {
+    "title": "Søg i dokumenter",
+    "query": "Søgetekst",
+    "scope": "Søg i",
+    "active": "Aktuelt dokument",
+    "open": "Åbne dokumenter",
+    "folder": "Mappe",
+    "choose": "Vælg mappe",
+    "annotations": "Medtag kommentarer",
+    "search": "Søg",
+    "cancel": "Annuller",
+    "stale": "Dokumentet er ændret. Kør søgningen igen.",
+    "folderHint": "Søger direkte i PDF-filer i denne mappe uden at åbne faner eller ændre filer.",
+    "limited": "Resultatgrænsen er nået. Præciser din søgning.",
+    "cancelled": "Søgningen blev annulleret; resultaterne er ufuldstændige.",
+    "ocrHint": "Ingen søgbar tekst på siderne {{pages}}. Åbn dokumentet, og kør OCR eksplicit, hvis det er nødvendigt.",
+    "status": {
+      "searching": "Søger",
+      "complete": "Fuldført",
+      "needs_ocr": "Indeholder sider uden søgbar tekst",
+      "encrypted": "Adgangskode påkrævet",
+      "unreadable": "Kunne ikke søge",
+      "changed": "Dokument ændret; søg igen",
+      "cancelled": "Annulleret",
+      "limited": "Resultatgrænse nået"
+    },
+    "failed": "Søgningen mislykkedes. Kontrollér forespørgslen og mappen, og prøv igen.",
+    "prepareOcr": "Åbn til OCR…"
+  },
+  "symbolSearch": "Find symboler",
+  "findMoreOptions": "Flere søgeindstillinger",
+  "watchActive": "Overvåger {{folder}}",
+  "watchFailed": "Overvågningsfejl: {{folder}}",
+  "watchTitle": "Dokumentarbejdsgangen overvåger {{input}} og skriver til {{output}}. Klik for at stoppe overvågningen.",
+  "renderDiagnostics": {
+    "title": "Gå til næste gengivelsesfund. Ingen fund garanterer ikke en fuldstændig gengivelse.",
+    "count": "Gengivelsesfund: {{count}}",
+    "detail": "Side {{page}}: {{code}}. Prøv en lavere zoom, eller åbn dokumentet igen; fuldstændigheden er ikke garanteret."
+  }
 }

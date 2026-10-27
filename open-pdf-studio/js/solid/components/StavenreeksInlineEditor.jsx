@@ -131,7 +131,7 @@ export default function StavenreeksInlineEditor() {
           <input
             ref={countRef}
             id="sr-inline-count"
-            type="number"
+            type="text" inputmode="decimal" data-getal
             min="1"
             max="100"
             step="1"
@@ -157,7 +157,7 @@ export default function StavenreeksInlineEditor() {
           <input
             ref={fontSizeRef}
             id="sr-inline-fontsize"
-            type="number"
+            type="text" inputmode="decimal" data-getal
             min="6"
             max="72"
             step="1"

@@ -1,6 +1,7 @@
 import { createSignal } from 'solid-js';
 import Dialog from '../Dialog.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { getActiveDocument } from '../../../core/state.js';
+import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 // Languages this build actually ships trained data for (see
@@ -33,7 +34,7 @@ export default function OcrLanguageDialog(props) {
 
   const footer = (
     <>
-      <div></div>
+      <button class="pref-btn" onClick={() => { const documentId = getActiveDocument()?.id; close(); openDialog('ocr-review', {documentId}); }}>{t('ocrReview.title')}</button>
       <div class="crop-margins-footer-right">
         <button class="pref-btn pref-btn-primary" onClick={handleRun}>{t('ocrLanguage.run')}</button>
         <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>

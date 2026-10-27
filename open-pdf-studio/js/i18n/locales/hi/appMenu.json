@@ -71,6 +71,12 @@
     "site": "इस साइट पर",
     "noSiteDocuments": "इस साइट पर कोई दस्तावेज़ नहीं है",
     "siteListError": "इस साइट के दस्तावेज़ लोड नहीं हो सके",
+    "versions": "संस्करण",
+    "versionNumber": "संस्करण {{version}}",
+    "currentVersion": "वर्तमान",
+    "noVersions": "कोई संस्करण नहीं",
+    "versionsError": "संस्करण लोड नहीं हो सके",
+    "olderVersionsHint": "पुराने संस्करण केवल पढ़ने के लिए खुलते हैं; \"इस रूप में सहेजें\" एक प्रति डाउनलोड करता है।",
     "save": "सहेजें"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "पृष्ठ",
     "officeTable": "तालिका",
     "officeText": "टेक्स्ट",
-    "officeFailed": "दस्तावेज़ निर्यात विफल रहा।"
+    "officeFailed": "दस्तावेज़ निर्यात विफल रहा।",
+    "protect": "पासवर्ड से सुरक्षित करें",
+    "protectDesc": "पासवर्ड से सुरक्षित एक प्रति सहेजें (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "आउटपुट प्रोफ़ाइल",
@@ -211,5 +219,9 @@
     "activationFailed": "सक्रिय नहीं: {{error}}",
     "viaMcp": "AI कनेक्शन के माध्यम से"
   },
-  "annotateScreenshot": "क्लिपबोर्ड स्क्रीनशॉट पर एनोटेट करें"
+  "annotateScreenshot": "क्लिपबोर्ड स्क्रीनशॉट पर एनोटेट करें",
+  "workflows": "दस्तावेज़ वर्कफ़्लो",
+  "drawingSets": "ड्रॉइंग सेट",
+  "sheetLinks": "क्रॉस-शीट लिंक",
+  "approvalRouting": "अनुमोदन रूटिंग"
 }

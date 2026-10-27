@@ -1,0 +1,370 @@
+// Boekje afdrukken (#381): een geniet boekje (saddle-stitch).
+//
+// Twee pagina's per zijde van een liggend vel, in de volgorde waarin de vellen
+// na dubbelzijdig afdrukken (kantelen over de korte zijde), op elkaar leggen en
+// dubbelvouwen het boekje van voor naar achter lezen. Het aantal pagina's wordt
+// aangevuld tot een viervoud met blanco pagina's achteraan.
+//
+// Opties (#607): de rug links (van links naar rechts lezen) of rechts (van
+// rechts naar links, bijvoorbeeld Arabisch of Hebreeuws); alleen de voor- of
+// alleen de achterkanten (handmatig dubbelzijdig op een printer zonder
+// duplex); de achterkanten een halve slag gedraaid voor een printer die over
+// de lange zijde kantelt; de vellen in omgekeerde volgorde; en kruip-
+// compensatie: de binnenste vellen steken na het vouwen aan de snijkant uit,
+// dus hun pagina's schuiven iets naar de vouw (lineair van 0 voor het
+// buitenste tot de gekozen kruip voor het binnenste vel van elk katern).
+//
+// Werkt net als meerdere pagina's per vel (print-meerperblad.js) op de al
+// gebouwde print-PDF met één pagina per bronpagina, zodat raster- en vectorpad
+// allebei zonder eigen boekjescode werken. Het voorbeeld in de printdialoog
+// (voorbeeldBoekje) gebruikt dezelfde volgorde, hetzelfde vel en dezelfde
+// plekken als maakBoekje.
+
+import {
+  PDFDocument, pushGraphicsState, popGraphicsState, concatTransformationMatrix, rectangle, clip, endPath,
+} from 'pdf-lib';
+import { berekenPlaatsing, printPaginaMaat, margesVoor } from './print-plaatsing.js';
+import { BLAD_MARGE_PT, CEL_PAGINA_STAND } from './print-meerperblad.js';
+
+const PT_PER_MM = 72 / 25.4;
+const MM_PER_PT = 25.4 / 72;
+
+/** De keuze in "Pagina's per vel" die een boekje maakt. */
+export const BOEKJE = 'booklet';
+
+/** Is de keuze voor pagina's per vel een boekje? */
+export function isBoekje(perBlad) {
+  return perBlad === BOEKJE;
+}
+
+/**
+ * Katernen (#607): een dik boek wordt een stapel kleine boekjes van elk een
+ * vast aantal vellen, die elk apart gevouwen en daarna samen gebonden worden.
+ * De keuzes in de printdialoog; 0 = één boekje van alle pagina's.
+ */
+export const KATERN_KEUZES = Object.freeze([0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16]);
+const KATERN_MAX = 32;
+
+/** Rug links (van links naar rechts lezen) of rechts (van rechts naar links). */
+export const BOEKJE_BINDINGEN = Object.freeze(['left', 'right']);
+/** Welke kanten afgedrukt worden: beide, alleen voorkanten, alleen achterkanten. */
+export const BOEKJE_KANTEN = Object.freeze(['both', 'front', 'back']);
+/** Grootste kruipcompensatie (mm) voor het binnenste vel. */
+export const KRUIP_MAX_MM = 5;
+
+/** Kruip in mm, begrensd op 0..KRUIP_MAX_MM en afgerond op 0,1 mm. */
+export function geldigeKruip(waarde) {
+  const n = Number(waarde);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(KRUIP_MAX_MM, Math.round(n * 10) / 10);
+}
+
+/**
+ * De verschuiving (pt) naar de vouw voor vel `velInKatern` (0 = buitenste)
+ * van een katern met `vellenInKatern` vellen: 0 voor het buitenste, de volle
+ * `kruipMm` voor het binnenste, lineair daartussen.
+ */
+export function kruipVoorVel(velInKatern, vellenInKatern, kruipMm) {
+  const kruip = geldigeKruip(kruipMm);
+  if (!kruip || !(vellenInKatern > 1)) return 0;
+  return (kruip * PT_PER_MM * velInKatern) / (vellenInKatern - 1);
+}
+
+/** Vellen per katern als heel getal (0 = geen katernen, één boekje). */
+export function geldigKatern(waarde) {
+  const n = Math.round(Number(waarde));
+  if (!Number.isFinite(n) || n < 1) return 0;
+  return Math.min(KATERN_MAX, n);
+}
+
+/**
+ * De genietvolgorde voor `aantal` pagina's (in printvolgorde, index vanaf 0).
+ * Vel s (vanaf 0) van een boekje van `totaal` pagina's (een viervoud):
+ * voorkant [totaal-1-2s, 2s], achterkant [2s+1, totaal-2-2s], links en rechts
+ * van de vouw. Een index voorbij het laatste pagina is een blanco pagina (null).
+ *
+ * Met `katern` vellen per katern (#607): de pagina's in groepjes van
+ * 4 x katern, elk groepje een eigen boekje in genietvolgorde; alleen het
+ * laatste katern kan kleiner zijn en wordt aangevuld tot een viervoud.
+ * Zonder katern (0) is alles één boekje.
+ *
+ * Rug rechts (`binding: 'right'`): elke zijde gespiegeld, links en rechts van
+ * de vouw verwisseld; de blanco pagina's blijven achteraan in het boekje.
+ * @param {number} aantal
+ * @param {number} [katern]
+ * @param {{binding?: 'left'|'right'}} [opties]
+ * @returns {{ totaal:number, blanco:number,
+ *   vellen: {voor:[number,number], achter:[number,number]}[],
+ *   zijden: [number|null, number|null][],
+ *   katernen: {start:number, paginas:number, vellen:number}[],
+ *   katernVanVel: number[], velInKatern: number[] }}
+ *   vellen: de indexen zonder aanvulling (ook voor blanco's); zijden: in
+ *   afdrukvolgorde (voor, achter, voor, ...) met null voor een blanco helft;
+ *   katernen: per katern de eerste index, het aantal pagina's (aangevuld) en
+ *   vellen; katernVanVel: per vel het nummer van zijn katern (vanaf 1);
+ *   velInKatern: per vel zijn plek in het katern (0 = buitenste).
+ */
+export function boekjeVolgorde(aantal, katern = 0, { binding = 'left' } = {}) {
+  const rechts = binding === 'right';
+  const kant = (paar) => (rechts ? [paar[1], paar[0]] : paar);
+  const n = Math.max(0, Math.floor(Number(aantal) || 0));
+  const perKatern = geldigKatern(katern) * 4 || Math.max(4, Math.ceil(n / 4) * 4);
+  const vellen = [];
+  const zijden = [];
+  const katernen = [];
+  const katernVanVel = [];
+  const velInKatern = [];
+  const echt = (i) => (i < n ? i : null);
+  for (let start = 0; start < n; start += perKatern) {
+    const totaalHier = Math.ceil(Math.min(perKatern, n - start) / 4) * 4;
+    katernen.push({ start, paginas: totaalHier, vellen: totaalHier / 4 });
+    for (let s = 0; s < totaalHier / 4; s++) {
+      const voor = kant([start + totaalHier - 1 - 2 * s, start + 2 * s]);
+      const achter = kant([start + 2 * s + 1, start + totaalHier - 2 - 2 * s]);
+      vellen.push({ voor, achter });
+      katernVanVel.push(katernen.length);
+      velInKatern.push(s);
+      zijden.push([echt(voor[0]), echt(voor[1])], [echt(achter[0]), echt(achter[1])]);
+    }
+  }
+  const totaal = katernen.reduce((som, k) => som + k.paginas, 0);
+  return { totaal, blanco: totaal - n, vellen, zijden, katernen, katernVanVel, velInKatern };
+}
+
+/**
+ * De zijden zoals ze naar de printer gaan (#607), uit `volgorde`
+ * (boekjeVolgorde). `kanten`: 'both' (voor, achter, voor, ...), 'front' of
+ * 'back' (alleen die kant van elk vel, voor handmatig dubbelzijdig);
+ * `omgekeerd`: de vellen van laatste naar eerste (de voorkant blijft vóór de
+ * achterkant); `draaiAchter`: de achterkanten een halve slag gedraaid.
+ * @returns {{ k:number, vel:number, kant:'front'|'back', paginas:[number|null, number|null],
+ *   gedraaid:boolean, velInKatern:number, vellenInKatern:number }[]}
+ *   k: de index in volgorde.zijden; vel vanaf 1.
+ */
+export function boekjeAfdrukZijden(volgorde, { kanten = 'both', omgekeerd = false, draaiAchter = false } = {}) {
+  const welke = BOEKJE_KANTEN.includes(kanten) ? kanten : 'both';
+  const aantal = volgorde.vellen.length;
+  const uit = [];
+  for (let i = 0; i < aantal; i++) {
+    const s = omgekeerd ? aantal - 1 - i : i;
+    const katern = volgorde.katernen[(volgorde.katernVanVel[s] || 1) - 1];
+    for (const kant of ['front', 'back']) {
+      if (welke !== 'both' && welke !== kant) continue;
+      const k = 2 * s + (kant === 'back' ? 1 : 0);
+      uit.push({
+        k,
+        vel: s + 1,
+        kant,
+        paginas: volgorde.zijden[k],
+        gedraaid: !!draaiAchter && kant === 'back',
+        velInKatern: volgorde.velInKatern[s] || 0,
+        vellenInKatern: katern ? katern.vellen : 1,
+      });
+    }
+  }
+  return uit;
+}
+
+/** Hoeveel zijden (pagina's in de print-PDF) een boekje van `aantal` pagina's wordt. */
+export function aantalBoekjeZijden(aantal, katern = 0) {
+  return boekjeVolgorde(aantal, katern).zijden.length;
+}
+
+/** Vel (vanaf 1) en kant ('front' / 'back') van zijde `k` (vanaf 0). */
+export function boekjeZijde(k) {
+  return { vel: Math.floor(k / 2) + 1, kant: k % 2 === 0 ? 'front' : 'back' };
+}
+
+/**
+ * Het vel van een boekje: altijd liggend. `papier` {breedteMm, hoogteMm} als
+ * het vel bekend is; anders volgt het de eerste pagina (zoals kiesBlad bij
+ * meerdere pagina's per vel), liggend gelegd.
+ */
+export function kiesBoekjeBlad({ papier, eerstePagina }) {
+  let kort;
+  let lang;
+  if (papier && papier.breedteMm > 0 && papier.hoogteMm > 0) {
+    kort = Math.min(papier.breedteMm, papier.hoogteMm) * PT_PER_MM;
+    lang = Math.max(papier.breedteMm, papier.hoogteMm) * PT_PER_MM;
+  } else {
+    kort = Math.min(eerstePagina.breedte, eerstePagina.hoogte);
+    lang = Math.max(eerstePagina.breedte, eerstePagina.hoogte);
+  }
+  return { bladB: lang, bladH: kort };
+}
+
+/**
+ * De twee helften van een zijde (PDF-coördinaten, oorsprong linksonder). Elke
+ * pagina past in haar helft, binnen de witrand van het vel maar zonder rand
+ * aan de vouw: de linkerpagina eindigt op de vouw, de rechter begint erop.
+ * Verticaal gecentreerd. Een blanco helft (null) geeft geen cel.
+ *
+ * `kruip` (pt, kruipVoorVel): beide pagina's schuiven zoveel naar de vouw;
+ * wat over de vouw zou komen valt weg, daarom krijgt elke cel dan haar
+ * helft van het vel als knipvlak (`klem`). Zonder kruip geen knipvlak.
+ * @param {{ bladB:number, bladH:number, maten: ({breedte:number, hoogte:number}|null)[], kruip?:number }} p
+ * @returns {{k:number, kol:number, x:number, y:number, breedte:number, hoogte:number, schaal:number,
+ *   klem?:{x:number, y:number, breedte:number, hoogte:number}}[]}
+ */
+export function boekjeIndeling({ bladB, bladH, maten, kruip = 0 }) {
+  const vouw = bladB / 2;
+  const ruimB = vouw - BLAD_MARGE_PT;
+  const ruimH = bladH - 2 * BLAD_MARGE_PT;
+  const cellen = [];
+  for (let k = 0; k < 2; k++) {
+    const m = maten[k];
+    if (!m || !(m.breedte > 0) || !(m.hoogte > 0)) continue;
+    const schaal = Math.min(ruimB / m.breedte, ruimH / m.hoogte);
+    const breedte = m.breedte * schaal;
+    const hoogte = m.hoogte * schaal;
+    const cel = {
+      k,
+      kol: k,
+      x: k === 0 ? vouw - breedte + kruip : vouw - kruip,
+      y: (bladH - hoogte) / 2,
+      breedte,
+      hoogte,
+      schaal,
+    };
+    if (kruip > 0) cel.klem = { x: k === 0 ? 0 : vouw, y: 0, breedte: vouw, hoogte: bladH };
+    cellen.push(cel);
+  }
+  return cellen;
+}
+
+/**
+ * Het voorbeeld van één zijde van het boekje, zoals de printopdracht haar
+ * bouwt: elke pagina eerst passend op haar printpagina (berekenPlaatsing in
+ * de stand van de pagina zelf; de schaalkeuze en de gekozen stand vervallen,
+ * zoals bij meerdere pagina's per vel), dan het liggende
+ * vel (kiesBoekjeBlad, uit de eerste pagina van de hele afdruk) en de helften
+ * (boekjeIndeling).
+ *
+ * @param {{ keuzes: { papier: object|'pagina'|null, orientatie?: string },
+ *           eerstePagina: {breedtePt:number, hoogtePt:number},
+ *           paginas: ({breedtePt:number, hoogtePt:number}|null)[],
+ *           kruip?: number, gedraaid?: boolean }} p
+ *   paginas: links en rechts van de vouw; null = blanco. kruip: de
+ *   verschuiving naar de vouw in pt (kruipVoorVel); gedraaid: de zijde staat
+ *   een halve slag gedraaid op het vel (boekjeAfdrukZijden), zoals maakBoekje
+ *   haar tekent: de cellen staan dan op hun gedraaide plek en hebben
+ *   `gedraaid`. vouw: waar de vouw ligt (mm vanaf links).
+ * @returns {null | { bekend:boolean, vel:{breedteMm:number, hoogteMm:number, orientatie:'landscape'},
+ *   marges:object, bedrukbaar:object, rand:false, schaal:number|null,
+ *   cellen:{k:number, plaatsing:object, schaal:number, opVel:{x:number, y:number, breedte:number, hoogte:number}}[] }}
+ *   Dezelfde vorm als voorbeeldMeerPerBlad (mm vanaf linksboven).
+ */
+export function voorbeeldBoekje({ keuzes, eerstePagina, paginas, kruip = 0, gedraaid = false }) {
+  if (!keuzes || !eerstePagina) return null;
+  // De gekozen stand telt niet voor de inhoud: elke printpagina in de stand
+  // van haar pagina (CEL_PAGINA_STAND, zoals bronKeuzes), zodat een boekje
+  // zijn pagina's altijd rechtop houdt (#623).
+  const { papier: vel = null } = keuzes;
+  const celKeuzes = { papier: vel, orientatie: CEL_PAGINA_STAND, schaling: 'fit', zoom: 100, centreren: true };
+  const plaats = (pagina) => (pagina ? berekenPlaatsing({ ...celKeuzes, pagina }) : null);
+  const maat = (plaatsing) => {
+    if (!plaatsing) return null;
+    const [breedte, hoogte] = printPaginaMaat(plaatsing);
+    return { breedte, hoogte };
+  };
+
+  const eerste = plaats(eerstePagina);
+  if (!eerste) return null;
+  const plaatsingen = [0, 1].map((k) => plaats((paginas || [])[k] || null));
+
+  const papier = vel && typeof vel === 'object' ? vel : null;
+  const { bladB, bladH } = kiesBoekjeBlad({ papier, eerstePagina: maat(eerste) });
+  const velB = bladB * MM_PER_PT;
+  const velH = bladH * MM_PER_PT;
+
+  // Een rechthoek in pt (oorsprong linksonder) naar mm vanaf linksboven,
+  // bij een gedraaide zijde op zijn plek na de halve slag om het midden.
+  const naarMm = (r) => {
+    const x = gedraaid ? bladB - r.x - r.breedte : r.x;
+    const y = gedraaid ? r.y : bladH - r.y - r.hoogte;
+    return {
+      x: x * MM_PER_PT, y: y * MM_PER_PT, breedte: r.breedte * MM_PER_PT, hoogte: r.hoogte * MM_PER_PT,
+    };
+  };
+  const cellen = boekjeIndeling({ bladB, bladH, maten: plaatsingen.map(maat), kruip }).map((c) => ({
+    k: c.k,
+    plaatsing: plaatsingen[c.k],
+    schaal: c.schaal,
+    opVel: naarMm(c),
+    gedraaid: !!gedraaid,
+    ...(c.klem ? { klem: naarMm(c.klem) } : {}),
+  }));
+
+  const marges = margesVoor(papier && papier.bedrukbaar, 'landscape', velB, velH);
+  return {
+    bekend: eerste.bekend,
+    vel: { breedteMm: velB, hoogteMm: velH, orientatie: 'landscape' },
+    marges,
+    bedrukbaar: {
+      x: marges.links,
+      y: marges.boven,
+      breedte: velB - marges.links - marges.rechts,
+      hoogte: velH - marges.boven - marges.onder,
+    },
+    rand: false,
+    schaal: cellen.length ? cellen[0].plaatsing.schaal * cellen[0].schaal : null,
+    cellen,
+    gedraaid: !!gedraaid,
+    vouw: velB / 2,
+  };
+}
+
+/**
+ * Bouw de print-PDF van een boekje uit `pdf` (één pagina per bronpagina, in
+ * printvolgorde): elke zijde een liggend vel met links en rechts van de vouw
+ * de pagina's in genietvolgorde. Zonder pagina's komt `pdf` zelf terug.
+ * `katern`: vellen per katern (boekjeVolgorde), 0 = één boekje. `binding`,
+ * `kanten`, `omgekeerd`, `draaiAchter` en `kruipMm`: zie boekjeVolgorde,
+ * boekjeAfdrukZijden en kruipVoorVel (#607).
+ * @param {PDFDocument} pdf
+ * @param {{ papier?: {breedteMm:number, hoogteMm:number}|null, katern?: number,
+ *           binding?: 'left'|'right', kanten?: 'both'|'front'|'back',
+ *           omgekeerd?: boolean, draaiAchter?: boolean, kruipMm?: number }} opties
+ */
+export async function maakBoekje(pdf, {
+  papier = null, katern = 0, binding = 'left', kanten = 'both', omgekeerd = false, draaiAchter = false,
+  kruipMm = 0,
+} = {}) {
+  const bron = pdf.getPages();
+  if (bron.length === 0) return pdf;
+  const maten = bron.map((p) => {
+    const { width, height } = p.getSize();
+    return { breedte: width, hoogte: height };
+  });
+  const { bladB, bladH } = kiesBoekjeBlad({ papier, eerstePagina: maten[0] });
+
+  // Zoals maakMeerPerBlad: pas na flush staan lui ingebedde beelden en fonts
+  // echt in het document, anders kopieert embedPdf lege verwijzingen.
+  await pdf.flush();
+  const uit = await PDFDocument.create();
+  const ingebed = await uit.embedPdf(pdf, bron.map((_, i) => i));
+  const volgorde = boekjeVolgorde(bron.length, katern, { binding });
+  for (const zijde of boekjeAfdrukZijden(volgorde, { kanten, omgekeerd, draaiAchter })) {
+    const blad = uit.addPage([bladB, bladH]);
+    const kruip = kruipVoorVel(zijde.velInKatern, zijde.vellenInKatern, kruipMm);
+    const cellen = boekjeIndeling({
+      bladB, bladH, maten: zijde.paginas.map((i) => (i === null ? null : maten[i])), kruip,
+    });
+    // Een gedraaide zijde: alles een halve slag om het midden van het vel.
+    if (zijde.gedraaid) blad.pushOperators(pushGraphicsState(), concatTransformationMatrix(-1, 0, 0, -1, bladB, bladH));
+    for (const c of cellen) {
+      if (c.klem) {
+        blad.pushOperators(
+          pushGraphicsState(),
+          rectangle(c.klem.x, c.klem.y, c.klem.breedte, c.klem.hoogte),
+          clip(),
+          endPath(),
+        );
+      }
+      blad.drawPage(ingebed[zijde.paginas[c.k]], { x: c.x, y: c.y, width: c.breedte, height: c.hoogte });
+      if (c.klem) blad.pushOperators(popGraphicsState());
+    }
+    if (zijde.gedraaid) blad.pushOperators(popGraphicsState());
+  }
+  return uit;
+}

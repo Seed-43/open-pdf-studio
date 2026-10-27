@@ -1,4 +1,6 @@
-use crate::shm;
+#[path = "render_budget.rs"]
+mod render_budget;
+use render_budget::{dimensions, SCREEN_RGBA_BYTES};
 use anyhow::{anyhow, Context, Result};
 use pdfium_render::prelude::*;
 use std::sync::OnceLock;
@@ -56,11 +58,37 @@ struct CachedDoc {
     path: String,
     mtime: Option<std::time::SystemTime>,
     len: u64,
-    /// (pagina-index, parse-duur in ms, open handle). De parse-duur bepaalt of
-    /// de handle na de render blijft leven (zie release_page_if_cheap).
-    page: Option<(u32, u32, PdfPage<'static>)>,
+    /// Open handle met pagina-index en parse-duur in ms. De parse-duur bepaalt
+    /// of de handle na de render blijft leven (zie release_page_if_cheap).
+    page: Option<OpenPage>,
     document: PdfDocument<'static>,
     _bytes: Vec<u8>,
+}
+
+/// Een open pagina-handle. Blijft bij zware pagina's tussen renders leven, dus
+/// ook de lijndiktes die Thin Lines (#595) erop zette: `thin_originals` houdt
+/// de echte diktes vast zodat een render zonder Thin Lines ze terugzet.
+struct OpenPage {
+    index: u32,
+    load_ms: u32,
+    thin_originals: Option<Vec<f32>>,
+    page: PdfPage<'static>,
+}
+
+impl OpenPage {
+    /// Breng de lijndiktes van deze handle in de gevraagde stand.
+    fn set_thin_lines(&mut self, want_thin: bool) {
+        use crate::thin_lines::{restore_strokes, stroke_mode_change, thin_strokes, StrokeModeChange};
+        match stroke_mode_change(self.thin_originals.is_some(), want_thin) {
+            StrokeModeChange::None => {}
+            StrokeModeChange::Thin => self.thin_originals = Some(thin_strokes(&self.page)),
+            StrokeModeChange::Restore => {
+                if let Some(originals) = self.thin_originals.take() {
+                    restore_strokes(&self.page, &originals);
+                }
+            }
+        }
+    }
 }
 
 /// Max gecachete documenten per worker. Zware CAD-documenten kunnen honderden
@@ -132,9 +160,9 @@ impl Renderer {
     /// content-stream — op zware CAD-pagina's SECONDEN per keer, en dat gebeurde
     /// voorheen bij ÉLKE regio-render opnieuw. Met een open handle betaalt
     /// alleen de eerste render die parse; daarna is een tegel puur rasterwerk.
-    fn get_or_load_page(&mut self, doc_idx: usize, page_index: u32) -> Result<&PdfPage<'static>> {
+    fn get_or_load_page(&mut self, doc_idx: usize, page_index: u32, thin_lines: bool) -> Result<&PdfPage<'static>> {
         let entry = &mut self.cache[doc_idx];
-        let reuse = matches!(&entry.page, Some((idx, _, _)) if *idx == page_index);
+        let reuse = matches!(&entry.page, Some(open) if open.index == page_index);
         if !reuse {
             entry.page = None; // oude handle expliciet sluiten vóór de nieuwe opent
             // Safety: het document zit in een Box (stabiel heap-adres, ook als de
@@ -148,9 +176,11 @@ impl Renderer {
                 .get(page_index as i32)
                 .map_err(|e| anyhow!("page {}: {}", page_index, e))?;
             let load_ms = t0.elapsed().as_millis() as u32;
-            entry.page = Some((page_index, load_ms, page));
+            entry.page = Some(OpenPage { index: page_index, load_ms, thin_originals: None, page });
         }
-        Ok(&self.cache[doc_idx].page.as_ref().expect("zojuist gezet").2)
+        let open = self.cache[doc_idx].page.as_mut().expect("zojuist gezet");
+        open.set_thin_lines(thin_lines);
+        Ok(&open.page)
     }
 
     /// Sluit de pagina-handle weer als de parse GOEDKOOP was. Alleen zware
@@ -160,8 +190,8 @@ impl Renderer {
     /// vasthouden zou bij veel tabs/documenten onnodig geheugen stapelen.
     fn release_page_if_cheap(&mut self, doc_idx: usize) {
         const KEEP_HANDLE_MS: u32 = 250;
-        if let Some((_, load_ms, _)) = &self.cache[doc_idx].page {
-            if *load_ms < KEEP_HANDLE_MS {
+        if let Some(open) = &self.cache[doc_idx].page {
+            if open.load_ms < KEEP_HANDLE_MS {
                 self.cache[doc_idx].page = None;
             }
         }
@@ -173,24 +203,24 @@ impl Renderer {
         page_index: u32,
         scale: f32,
         rotation: i32,
+        thin_lines: bool,
     ) -> Result<RenderResult> {
         let idx = self.get_or_load(path)?;
         let result = {
-            let page = self.get_or_load_page(idx, page_index)?;
+            let page = self.get_or_load_page(idx, page_index, thin_lines)?;
 
             let w_pt = page.width().value;
             let h_pt = page.height().value;
-            let target_w = (w_pt * scale).ceil() as i32;
-            let target_h = (h_pt * scale).ceil() as i32;
-
             // Past de bitmap niet in de SHM-regio, dan meteen een nette fout i.p.v.
-            // eerst volledig rasteren en de uitkomst weggooien. De uitvoer van
-            // set_target_width + set_maximum_height is in elke rotatie
-            // <= target_w x target_h, dus dit is een strakke bovengrens.
-            if let Err(e) = shm::ensure_bitmap_fits(target_w, target_h) {
-                self.release_page_if_cheap(idx);
-                return Err(e);
-            }
+            // eerst volledig rasteren; de app valt dan terug op in-proc. Ook bij
+            // die fout geen open handle van een goedkope pagina vasthouden.
+            let (target_w, target_h) = match dimensions(w_pt, h_pt, scale, SCREEN_RGBA_BYTES) {
+                Ok(maat) => maat,
+                Err(e) => {
+                    self.release_page_if_cheap(idx);
+                    return Err(e.into());
+                }
+            };
 
             let rot = match rotation.rem_euclid(360) {
                 0 => PdfPageRenderRotation::None,
@@ -242,6 +272,7 @@ impl Renderer {
         region_y_pt: f32,
         region_w_pt: f32,
         region_h_pt: f32,
+        thin_lines: bool,
     ) -> Result<RenderResult> {
         if rotation != 0 {
             return Err(anyhow!("render_region: rotation {} not supported", rotation));
@@ -251,15 +282,14 @@ impl Renderer {
         }
         // Bitmap-afmetingen hangen alleen van regio + schaal af: valideer ze
         // (incl. de SHM-grens) voordat het document/de pagina geladen wordt.
-        let bitmap_w = (region_w_pt * scale).ceil() as i32;
-        let bitmap_h = (region_h_pt * scale).ceil() as i32;
-        if bitmap_w <= 0 || bitmap_h <= 0 {
-            return Err(anyhow!("render_region: invalid bitmap {}x{}", bitmap_w, bitmap_h));
+        let (bitmap_w, bitmap_h) = dimensions(region_w_pt, region_h_pt, scale, SCREEN_RGBA_BYTES)?;
+        if !region_x_pt.is_finite() || !region_y_pt.is_finite() ||
+            !(region_x_pt * scale).is_finite() || !(region_y_pt * scale).is_finite() {
+            return Err(anyhow!("PDF_INVALID_GEOMETRY: non-finite tile origin"));
         }
-        shm::ensure_bitmap_fits(bitmap_w, bitmap_h)?;
         let idx = self.get_or_load(path)?;
         let result = {
-            let page = self.get_or_load_page(idx, page_index)?;
+            let page = self.get_or_load_page(idx, page_index, thin_lines)?;
 
             // De matrix van FPDF_RenderPageBitmapWithMatrix werkt in WEERGAVE-ruimte
             // (ná de intrinsieke /Rotate van de pagina), y-omlaag vanaf linksboven —
@@ -294,6 +324,11 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn screen_budget_is_the_shm_payload() {
+        assert_eq!(SCREEN_RGBA_BYTES, crate::shm::PAYLOAD_CAP as u64);
+    }
 
     #[test]
     #[ignore]

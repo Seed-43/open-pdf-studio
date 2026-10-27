@@ -283,12 +283,12 @@ export default function SysteemtypenDialog(props) {
                   <label>Celmaat (mm)</label>
                   <div style="display:flex;gap:8px;align-items:center">
                     <span>X</span>
-                    <input type="number" class="ribbon-input" id="st-cel-x" style={NUM_STYLE}
+                    <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-cel-x" style={NUM_STYLE}
                       min="50" max="20000" step="50" value={current().celXMm ?? ''}
                       placeholder="onbevestigd"
                       onChange={(e) => muteer({ celXMm: maatUitVeld(e.target.value) }, e.target, current().celXMm)} />
                     <span>Y</span>
-                    <input type="number" class="ribbon-input" id="st-cel-y" style={NUM_STYLE}
+                    <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-cel-y" style={NUM_STYLE}
                       min="50" max="20000" step="50" value={current().celYMm ?? ''}
                       placeholder="onbevestigd"
                       onChange={(e) => muteer({ celYMm: maatUitVeld(e.target.value) }, e.target, current().celYMm)} />
@@ -297,7 +297,7 @@ export default function SysteemtypenDialog(props) {
               }>
               <div class="ai-login-field">
                 <label>Strookbreedte (mm)</label>
-                <input type="number" class="ribbon-input" id="st-strook-b" style={NUM_STYLE}
+                <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-strook-b" style={NUM_STYLE}
                   min="50" max="20000" step="50" value={current().strookBreedteMm ?? ''}
                   placeholder="onbevestigd"
                   onChange={(e) => muteer({ strookBreedteMm: maatUitVeld(e.target.value),
@@ -305,7 +305,7 @@ export default function SysteemtypenDialog(props) {
               </div>
               <div class="ai-login-field">
                 <label>Celmaat Y (mm)</label>
-                <input type="number" class="ribbon-input" id="st-strook-y" style={NUM_STYLE}
+                <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-strook-y" style={NUM_STYLE}
                   min="50" max="20000" step="50" value={current().celYMm ?? ''}
                   placeholder="onbevestigd"
                   onChange={(e) => muteer({ celYMm: maatUitVeld(e.target.value) }, e.target, current().celYMm)} />
@@ -316,7 +316,7 @@ export default function SysteemtypenDialog(props) {
               <label>Sparingsregels (grootste zijde, mm)</label>
               <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <span>klein t/m</span>
-                <input type="number" class="ribbon-input" id="st-sparing-klein" style={NUM_STYLE}
+                <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-sparing-klein" style={NUM_STYLE}
                   min="10" max="20000" step="50"
                   value={current().sparingRegels?.kleineSparingMaxMm ?? ''}
                   placeholder="onbevestigd"
@@ -325,7 +325,7 @@ export default function SysteemtypenDialog(props) {
                     kleineSparingMaxMm: maatUitVeld(e.target.value),
                   } }, e.target, current().sparingRegels?.kleineSparingMaxMm)} />
                 <span>raveel vanaf</span>
-                <input type="number" class="ribbon-input" id="st-sparing-raveel" style={NUM_STYLE}
+                <input type="text" inputmode="decimal" data-getal class="ribbon-input" id="st-sparing-raveel" style={NUM_STYLE}
                   min="10" max="20000" step="50"
                   value={current().sparingRegels?.raveelVanafMm ?? ''}
                   placeholder="onbevestigd"

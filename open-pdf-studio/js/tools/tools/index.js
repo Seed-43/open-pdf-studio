@@ -9,6 +9,7 @@ import { eraserTool } from './eraser-tool.js';
 import { shapeTool } from './shape-tool.js';
 import { lineTool } from './line-tool.js';
 import { polylineTool, cloudPolylineTool } from './polyline-tool.js';
+import { polygonTool } from './polygon-tool.js';
 import { arcTool } from './arc-tool.js';
 import { splineTool } from './spline-tool.js';
 import { splineArrowTool } from './spline-arrow-tool.js';
@@ -30,6 +31,7 @@ import { extendTool } from './extend-tool.js';
 import { arrayTool } from './array-tool.js';
 import { removeImageTool } from './remove-image-tool.js';
 import { scanTextTool } from './scan-text-tool.js';
+import { proofreadTool, PROOFREAD_TOOL } from '../proofreading-mode.js';
 import { splitTool, breakTool } from './split-tool.js';
 import { lengthenTool } from './lengthen-tool.js';
 import { offsetTool } from './offset-tool.js';
@@ -58,7 +60,6 @@ export function registerAllTools() {
   registerTool('ellipse', shapeTool);
   registerTool('highlight', shapeTool);
   registerTool('cloud', shapeTool);
-  registerTool('polygon', shapeTool);
   registerTool('redaction', shapeTool);
   registerTool('textbox', shapeTool);
   registerTool('callout', shapeTool);
@@ -87,6 +88,9 @@ export function registerAllTools() {
 
   // Multi-click tools
   registerTool('polyline', polylineTool);
+  // Veelhoek: hoek voor hoek, zoals de polylijn maar gesloten (#622); een
+  // sleep vóór het eerste hoekpunt tekent de regelmatige zeshoek.
+  registerTool('polygon', polygonTool);
   registerTool('cloudPolyline', cloudPolylineTool);
 
   // Measurements
@@ -142,6 +146,8 @@ export function registerAllTools() {
   // Remove an image that is embedded in the PDF page content (issue #184)
   registerTool('removeImage', removeImageTool);
   registerTool('scanText', scanTextTool);
+  // Proofreading mode (#508): keyboard-driven text corrections (F2).
+  registerTool(PROOFREAD_TOOL, proofreadTool);
 
   // CAD tools
   registerTool('trim', trimTool);

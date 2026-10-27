@@ -436,7 +436,7 @@ export default function CadExportDialog() {
               </label>
               <label class="cad-radio">
                 <input type="radio" name="cad-scale" checked={inst.scaleMode === 'custom'} onChange={() => setInst('scaleMode', 'custom')} /> {t('cadExport.scaleCustom')}
-                <input type="number" class="cad-input cad-input-short" min="0.01" step="1" value={inst.customScale}
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0.01" step="1" value={inst.customScale}
                   disabled={inst.scaleMode !== 'custom'} onChange={(e) => setInst('customScale', Number(e.target.value) || 1)} />
               </label>
             </div>
@@ -525,13 +525,13 @@ export default function CadExportDialog() {
             <div class="cad-note">{t('cadExport.windowTitle')}</div>
             <div class="cad-row">
               <label class="cad-label">{t('cadExport.windowOrigin')}</label>
-              <input type="number" class="cad-input cad-input-short" value={venster.x} onChange={(e) => setVenster('x', Number(e.target.value) || 0)} />
-              <input type="number" class="cad-input cad-input-short" value={venster.y} onChange={(e) => setVenster('y', Number(e.target.value) || 0)} />
+              <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.x} onChange={(e) => setVenster('x', Number(e.target.value) || 0)} />
+              <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" value={venster.y} onChange={(e) => setVenster('y', Number(e.target.value) || 0)} />
             </div>
             <div class="cad-row">
               <label class="cad-label">{t('cadExport.windowSize')}</label>
-              <input type="number" class="cad-input cad-input-short" min="1" value={venster.breedte} onChange={(e) => setVenster('breedte', Math.max(1, Number(e.target.value) || 1))} />
-              <input type="number" class="cad-input cad-input-short" min="1" value={venster.hoogte} onChange={(e) => setVenster('hoogte', Math.max(1, Number(e.target.value) || 1))} />
+              <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" value={venster.breedte} onChange={(e) => setVenster('breedte', Math.max(1, Number(e.target.value) || 1))} />
+              <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" value={venster.hoogte} onChange={(e) => setVenster('hoogte', Math.max(1, Number(e.target.value) || 1))} />
             </div>
           </Show>
           <div class="cad-row cad-row-top">
@@ -547,8 +547,8 @@ export default function CadExportDialog() {
           </div>
           <div class="cad-row">
             <label class="cad-label">{t('cadExport.offset')}</label>
-            <input type="number" class="cad-input" value={inst.offsetX} onChange={(e) => setInst('offsetX', Number(e.target.value) || 0)} />
-            <input type="number" class="cad-input" value={inst.offsetY} onChange={(e) => setInst('offsetY', Number(e.target.value) || 0)} />
+            <input type="text" inputmode="decimal" data-getal class="cad-input" value={inst.offsetX} onChange={(e) => setInst('offsetX', Number(e.target.value) || 0)} />
+            <input type="text" inputmode="decimal" data-getal class="cad-input" value={inst.offsetY} onChange={(e) => setInst('offsetY', Number(e.target.value) || 0)} />
           </div>
           <div class="cad-note">{t('cadExport.offsetNote')}</div>
         </div>
@@ -560,7 +560,7 @@ export default function CadExportDialog() {
             <div class="cad-stack">
               <label class="cad-radio">
                 <input type="radio" name="cad-curves" checked={inst.curves === 'flatten'} onChange={() => setInst('curves', 'flatten')} /> {t('cadExport.curvesFlatten')}
-                <input type="number" class="cad-input cad-input-short" min="0.001" max="1" step="0.005" value={inst.curveToleranceMm}
+                <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0.001" max="1" step="0.005" value={inst.curveToleranceMm}
                   disabled={inst.curves !== 'flatten'} onChange={(e) => setInst('curveToleranceMm', Math.min(1, Math.max(0.001, Number(e.target.value) || 0.01)))} />
               </label>
               <label class="cad-radio"><input type="radio" name="cad-curves" checked={inst.curves === 'spline'} onChange={() => setInst('curves', 'spline')} /> {t('cadExport.curvesSpline')}</label>
@@ -580,7 +580,7 @@ export default function CadExportDialog() {
           <label class="cad-check"><input type="checkbox" checked={inst.text} onChange={(e) => setInst('text', e.target.checked)} /> {t('cadExport.text')}</label>
           <div class="cad-row">
             <label class="cad-label">{t('cadExport.textFactor')}</label>
-            <input type="number" class="cad-input cad-input-short" min="0.3" max="2" step="0.01" value={inst.textHeightFactor}
+            <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0.3" max="2" step="0.01" value={inst.textHeightFactor}
               disabled={!inst.text} onChange={(e) => setInst('textHeightFactor', Math.min(2, Math.max(0.3, Number(e.target.value) || 0.72)))} />
           </div>
         </div>

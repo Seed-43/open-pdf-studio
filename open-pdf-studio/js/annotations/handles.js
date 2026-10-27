@@ -12,6 +12,7 @@ import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 import { spreidMaatgrepen, kiesGreep } from './greep-keuze.js';
 import { RECHTHOEK_VORMEN } from './minimummaat.js';
+import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
 
 // Het vak waar de acht maatgrepen omheen staan (lokale, ongedraaide ruimte),
 // of null voor vormen zonder zo'n vak. Dient voor het uitwijken van de grepen
@@ -159,7 +160,24 @@ export function getAnnotationHandles(annotation, scale = 1) {
   const handles = [];
   const hs = HANDLE_SIZE / scale;
 
-  switch (annotation.type) {
+  // Veelhoek met eigen hoekpunten (#622): een greep op elk hoekpunt (slepen
+  // verschuift dat hoekpunt), de verplaatsgreep in het midden en de
+  // draaigreep. Geen maatgrepen op het vak: die zouden op de hoekpunten
+  // vallen die op de rand van het vak liggen. Ongedraaid geplaatst; de
+  // draaiing hieronder zet ze waar het scherm de hoekpunten tekent.
+  if (isBewerkbareVeelhoek(annotation)) {
+    veelhoekPunten(annotation).forEach((p, i) => {
+      handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
+    });
+    handles.push({
+      type: HANDLE_TYPES.RECT_CENTER,
+      x: annotation.x + annotation.width/2 - hs/2,
+      y: annotation.y + annotation.height/2 - hs/2,
+      isGrip: true,
+      isCenterGrip: true,
+    });
+    handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
+  } else switch (annotation.type) {
     case 'box':
     case 'mask':
     case 'highlight':

@@ -13,21 +13,27 @@ const STUBS = {
   'js/core/state.js': ['getActiveDocument', 'getNextUntitledName'],
   'js/core/platform.js': ['saveFileDialog', 'writeBinaryFile', 'readBinaryFile', 'isTauri', 'invoke', 'openFileDialog', 'openFolderDialog', 'lockFile', 'unlockFile'],
   'js/core/undo-manager.js': ['recordPageStructure'],
-  'js/pdf/loader.js': ['getCachedPdfBytes', 'setCachedPdfBytes', 'clearCachedPdfBytes', 'cancelAnnotationLoading', 'markAllAnnotationPagesLoaded', 'loadPDF'],
+  'js/pdf/loader.js': ['getCachedPdfBytes', 'setCachedPdfBytes', 'clearCachedPdfBytes', 'cancelAnnotationLoading', 'markAllAnnotationPagesLoaded', 'laadAnnotatiesVoorPaginas', 'loadPDF'],
   // Wat document-release.js per pad vrijgeeft voordat een werkbestand weg mag.
   'js/pdf/vector-renderer.js': ['invalidateDocumentCache'],
   'js/pdf/page-bitmap-cache.js': ['invalidateDocumentBitmaps'],
   'js/pdf/progressive-render.js': ['forgetContentBytes'],
-  'js/pdf/renderer.js': ['setViewMode', 'fitPage'],
+  'js/pdf/tile-cache.js': ['tileCacheClearForFile'],
+  'js/pdf/renderer.js': ['setViewMode', 'fitPage', 'clearBitmapJSCacheForFile', 'clearLowResCacheForFile'],
   'js/pdf/form-layer.js': ['resetAnnotationStorage'],
   'js/ui/panels/left-panel.js': ['generateThumbnails', 'clearThumbnailCache'],
   'js/ui/panels/properties-panel.js': ['hideProperties'],
   'js/ui/chrome/tabs.js': ['markDocumentModified', 'createTab', 'updateWindowTitle'],
   'js/ui/chrome/status-bar.js': ['updateAllStatus'],
   'js/ui/chrome/dialogs.js': ['showLoading', 'hideLoading'],
-  'js/tools/pdf-snap-extractor.js': ['clearPdfVectorCache'],
+  'js/tools/pdf-snap-extractor.js': ['clearPdfVectorCache', 'vergeetSnapGeometrie'],
   'js/search/find-controller.js': ['clearTextCache'],
-  'js/bridge.js': ['showMessage'],
+  'js/bridge.js': ['showMessage', 'refreshAnnotationLayers'],
+  // Samenvoegen: de momentopname van een geopend bronbestand en de ingevulde
+  // velden van het document komen uit de saver.
+  'js/pdf/saver.js': ['bouwMomentopname', 'schrijfFormulierWaarden'],
+  'js/solid/stores/leftPanelStore.js': ['activeTab'],
+  'js/ui/panels/bookmarks.js': ['updateBookmarksList'],
 };
 
 function bron(namen, extra = '') {

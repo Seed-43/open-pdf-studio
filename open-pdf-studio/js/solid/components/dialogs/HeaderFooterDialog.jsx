@@ -283,14 +283,14 @@ export default function HeaderFooterDialog(props) {
               onInput={(e) => setBatesPrefix(e.target.value)}
             /></label>
             <label>{t('headerFooter.batesStart')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={batesStart()}
               min="0"
               onInput={(e) => setBatesStart(e.target.value)}
             /></label>
             <label>{t('headerFooter.batesDigits')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={batesDigits()}
               min="1"
@@ -323,7 +323,7 @@ export default function HeaderFooterDialog(props) {
         <div class="watermark-row">
           <label class="watermark-label">{t('headerFooter.fontSize')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="watermark-input watermark-input-sm"
             value={fontSize()}
             min="6"
@@ -345,28 +345,28 @@ export default function HeaderFooterDialog(props) {
           <label class="watermark-label">{t('headerFooter.margins')}</label>
           <div class="hf-margin-fields">
             <label>{t('headerFooter.top')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={marginTop()}
               min="0"
               onInput={(e) => setMarginTop(e.target.value)}
             /></label>
             <label>{t('headerFooter.bottom')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={marginBottom()}
               min="0"
               onInput={(e) => setMarginBottom(e.target.value)}
             /></label>
             <label>{t('headerFooter.left')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={marginLeft()}
               min="0"
               onInput={(e) => setMarginLeft(e.target.value)}
             /></label>
             <label>{t('headerFooter.right')} <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="watermark-input watermark-input-sm"
               value={marginRight()}
               min="0"

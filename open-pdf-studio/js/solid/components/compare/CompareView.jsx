@@ -55,6 +55,12 @@ import { diffWords } from '../../../compare/text-diff.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { state } from '../../../core/state.js';
 import { diffAnnotationsForPair } from '../../../compare/compare-annotations.js';
+import {
+  isSinglePaneMode,
+  splitFraction,
+  splitOldTransform,
+  screenPx,
+} from '../../../compare/split-line.js';
 
 // Verticale scheidingslijn tussen toolbar-groepen — Windows/Visual-Studio-stijl.
 function Sep() {
@@ -133,8 +139,11 @@ export default function CompareView() {
   const [highlight, setHighlight] = createSignal(null); // {x,y,w,h} flash highlight
   // Split line position as a fraction of the NEW page width (0 = all new, 1 = all old).
   const [splitPos, setSplitPos] = createSignal(0.5);
+  // Bitmap size of the NEW page in split mode: the OLD page rotates about
+  // its centre, exactly like the change detection does.
+  const [splitBase, setSplitBase] = createSignal({ w: 0, h: 0 });
   // Overlay and split line share one scroll body and one page wrapper.
-  const singlePane = () => compareMode() !== 'side';
+  const singlePane = () => isSinglePaneMode(compareMode());
   let highlightTimer = null;
 
   // Instant CSS-transform preview while zooming. The bitmap stays at the
@@ -404,6 +413,7 @@ export default function CompareView() {
         // Both pages rendered visibly; the CSS clip shows OLD left of the line.
         if (splitOldCanvasRef && overlayNewCanvasRef) {
           await renderCompareSideBySide(splitOldCanvasRef, overlayNewCanvasRef, opts);
+          setSplitBase({ w: overlayNewCanvasRef.width, h: overlayNewCanvasRef.height });
           repaintHighlights();
         }
       } else if (compareMode() === 'overlay') {
@@ -769,30 +779,29 @@ export default function CompareView() {
     const target = e.currentTarget;
     try { target.setPointerCapture?.(e.pointerId); } catch {}
     const move = (ev) => {
+      if (!overlayWrapRef) return;
       const rect = overlayWrapRef.getBoundingClientRect();
-      if (rect.width <= 0) return;
-      setSplitPos(Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width)));
+      const f = splitFraction(ev.clientX, rect.left, rect.width);
+      if (f != null) setSplitPos(f);
     };
     const up = () => {
       try { target.releasePointerCapture?.(e.pointerId); } catch {}
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
     };
     move(e);
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   };
 
   // OLD page placement in split mode: the same dx/dy/rot alignment the change
-  // detection applies (bitmap px, rotation about the page centre).
-  const splitOldTransform = () => {
-    const o = compareOffset();
-    const rot = o.rotation ? ` rotate(${o.rotation}deg)` : '';
-    return `translate(${o.dx || 0}px, ${o.dy || 0}px)${rot}`;
-  };
+  // detection applies (bitmap px, rotation about the NEW page centre).
+  const oldSplitTransform = () => splitOldTransform(compareOffset(), splitBase().w, splitBase().h);
 
   // Labels and handle keep their screen size while the wrapper is CSS-scaled.
-  const px = (n) => `${n / cssScale()}px`;
+  const px = (n) => screenPx(n, cssScale());
 
   // Click outside the change list deselects the focused change.
   const handleBodyClick = () => {
@@ -858,21 +867,21 @@ export default function CompareView() {
             <span style="color:#555;">{t('compare.align') || 'Align'}</span>
             <span style="color:#777;">dx</span>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               style="width:56px;"
               value={compareOffset().dx}
               onInput={(e) => setCompareOffset({ dx: parseFloat(e.target.value) || 0 })}
             />
             <span style="color:#777;">dy</span>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               style="width:56px;"
               value={compareOffset().dy}
               onInput={(e) => setCompareOffset({ dy: parseFloat(e.target.value) || 0 })}
             />
             <span style="color:#777;">rot</span>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               step="0.1"
               style="width:56px;"
               value={compareOffset().rotation}
@@ -915,10 +924,13 @@ export default function CompareView() {
                       {/* OLD left of the line: a clip box as wide as the
                           split, so the alignment transform on the canvas
                           does not turn the clip with it. */}
-                      <div style={`position:absolute; left:0; top:0; bottom:0; width:${splitPos() * 100}%; overflow:hidden; pointer-events:none;`}>
+                      {/* White clip background: where dx/dy/rot moves the OLD
+                          page away from an edge the strip stays white (as in
+                          the change detection) instead of showing NEW. */}
+                      <div style={`position:absolute; left:0; top:0; bottom:0; width:${splitPos() * 100}%; overflow:hidden; pointer-events:none; background:#ffffff;`}>
                         <canvas
                           ref={splitOldCanvasRef}
-                          style={`display:block; background:#ffffff; transform:${splitOldTransform()}; transform-origin:50% 50%;`}
+                          style={`display:block; background:#ffffff; transform:${oldSplitTransform()}; transform-origin:0 0;`}
                         ></canvas>
                       </div>
                     </Show>

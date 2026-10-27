@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/useTranslation.js';
 import { openDialog, getDialogs } from '../stores/dialogStore.js';
 import { isTauri } from '../../core/platform.js';
 import { knopUit, meldingTekst } from '../../core/webfuncties.js';
+import { hostVersieLabel } from '../../pdf/host-versies.js';
 // Als asset geïmporteerd: Vite zet de bouwbasis ervoor (#545).
 import appIcoon from '/icon.png';
 
@@ -44,7 +45,9 @@ export default function TitleBar() {
   const fileName = () => {
     const d = doc();
     if (!d || !d.fileName) return '';
-    return (d.modified ? '* ' : '') + d.fileName;
+    // Een oudere versie van de site (#712): "Versie 3 van 5 – alleen-lezen".
+    const versie = hostVersieLabel(d, tCommon);
+    return (d.modified ? '* ' : '') + d.fileName + (versie ? ` · ${versie}` : '');
   };
   const hasPdf = () => !!state.documents[state.activeDocumentIndex]?.pdfDoc;
   const undoEnabled = () => {
@@ -84,7 +87,7 @@ export default function TitleBar() {
             </svg>
           </button>
 
-          <button class="quick-access-btn" title={`${tCommon('save')} (Ctrl+S)`} disabled={!hasPdf()}
+          <button class="quick-access-btn" title={`${tCommon('save')} (Ctrl+S)`} disabled={!hasPdf() || doc()?.hostAlleenLezen === true}
             onClick={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDF(null, {}, d)); }}>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12.5 14.5h-9a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1h7.586a1 1 0 0 1 .707.293l1.414 1.414a1 1 0 0 1 .293.707V13.5a1 1 0 0 1-1 1z"/>

@@ -19,6 +19,19 @@ test('the dialog keeps no 2D context of its own', () => {
   assert.doesNotMatch(component, /let ctx\b/);
 });
 
+test('the pad draws with pointer events, so a finger or pen draws too (#671)', () => {
+  // A finger drag sends pointer and touch events; the compatibility mouse
+  // events only come for a tap, so mouse handlers never saw a stroke.
+  assert.doesNotMatch(component, /onMouse(Down|Move|Up|Leave)=/);
+  assert.match(component, /onPointerDown=\{startDraw\}\s+onPointerMove=\{continueDraw\}\s+onPointerUp=\{endDraw\}\s+onPointerCancel=\{endDraw\}/);
+  // Without touch-action: none the browser takes the drag as a scroll gesture.
+  assert.match(component, /style=\{\{ 'touch-action': 'none' \}\}/);
+  // The stroke keeps going when the finger or mouse leaves the pad; only the
+  // left mouse button draws.
+  assert.match(component, /e\.currentTarget\.setPointerCapture\(e\.pointerId\)/);
+  assert.match(component, /if \(e\.pointerType === 'mouse' && e\.button !== 0\) return;/);
+});
+
 test('the canvas size is fixed markup, so it is in place before the pad repaints', () => {
   // Solid runs the ref before attributes it sets from an expression; writing
   // width or height after attach() would wipe the repainted signature.

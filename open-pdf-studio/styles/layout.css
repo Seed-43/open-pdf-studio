@@ -344,6 +344,29 @@
 .al-delete-target { margin-left: 22px; }
 /* einde Markeringslagen */
 
+/* Alles vlakken (#615) */
+.flatten-all-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 400px;
+  max-width: 100%;
+}
+
+.flatten-all-body p { margin: 0; }
+
+.flatten-all-choice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flatten-all-hint {
+  margin-left: 22px;
+  opacity: 0.8;
+}
+/* einde Alles vlakken */
+
 /* Left Panel */
 .left-panel {
   width: 200px;
@@ -949,6 +972,16 @@
   will-change: transform;
 }
 
+/* Vingerinvoer (#671): met een teken- of plaatsgereedschap hoort een veeg op
+   de pagina bij het gereedschap. Zonder deze regel neemt de browser de veeg na
+   een paar millimeter over als scrollgebaar (pointercancel) en breekt de streek
+   af. Met selecteren en de hand blijft scrollen met de vinger werken
+   (cursor.js zet data-aanraak, js/tools/aanraak-gebaar.js beslist). */
+body[data-aanraak="tekenen"] #annotation-canvas,
+body[data-aanraak="tekenen"] .canvas-container-cont {
+  touch-action: none;
+}
+
 /* Text highlights live on a dedicated canvas with multiply blend so they
    tint the page yellow but leave the underlying text fully readable.
    Must sit between #pdf-canvas and #annotation-canvas in the DOM.
@@ -1005,7 +1038,9 @@ body.pdf-cursor-override #canvas-container * {
   box-sizing: border-box;
   border: 0;
   outline: 1px solid #0078d7;
-  background: #ffffff;
+  /* Doorzichtig (#698): de pagina eronder blijft zichtbaar; het canvas dekt
+     de oude tekst af (rendering.js, tekstEditorOpCanvas). */
+  background: transparent;
   padding: 0;
   margin: 0;
   resize: none;

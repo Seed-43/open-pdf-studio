@@ -71,6 +71,12 @@
     "site": "در این سایت",
     "noSiteDocuments": "هیچ سندی در این سایت نیست",
     "siteListError": "بارگیری اسناد این سایت ممکن نشد",
+    "versions": "نسخه‌ها",
+    "versionNumber": "نسخه {{version}}",
+    "currentVersion": "فعلی",
+    "noVersions": "نسخه‌ای وجود ندارد",
+    "versionsError": "بارگیری نسخه‌ها ممکن نشد",
+    "olderVersionsHint": "نسخه‌های قدیمی‌تر فقط‌خواندنی باز می‌شوند؛ «ذخیره با نام» یک نسخه دانلود می‌کند.",
     "save": "ذخیره"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "صفحه",
     "officeTable": "جدول",
     "officeText": "متن",
-    "officeFailed": "صدور سند ناموفق بود."
+    "officeFailed": "صدور سند ناموفق بود.",
+    "protect": "محافظت با گذرواژه",
+    "protectDesc": "ذخیرهٔ یک نسخهٔ محافظت‌شده با گذرواژه (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "پروفایل خروجی",
@@ -211,5 +219,9 @@
     "activationFailed": "غیرفعال: {{error}}",
     "viaMcp": "از طریق اتصال هوش مصنوعی"
   },
-  "annotateScreenshot": "حاشیه‌نویسی روی تصویر صفحه از کلیپ‌بورد"
+  "annotateScreenshot": "حاشیه‌نویسی روی تصویر صفحه از کلیپ‌بورد",
+  "workflows": "گردش‌کارهای سند",
+  "drawingSets": "مجموعه‌نقشه‌ها",
+  "sheetLinks": "پیوندهای بین برگه‌ها",
+  "approvalRouting": "گردش تأیید"
 }

@@ -28,6 +28,15 @@
 // Lagen van de tekening zelf (een CAD-PDF) blijven staan: alleen de eigen
 // OCG's (herkenbaar aan /OPS_LayerId) worden toegevoegd, bijgewerkt of
 // verwijderd. Een document zonder lagen raakt het bestand niet aan.
+//
+// Lagen van een ander programma (#621): een OCG zonder /OPS_LayerId waar een
+// annotatie met /OC naar wijst, is een annotatielaag van dat programma. De
+// lader maakt er een laag van met het id 'ocg-<object>-<generatie>', met de
+// naam, zichtbaarheid, vergrendeling en afdrukstand uit het bestand. Bij het
+// opslaan krijgt diezelfde OCG het id als /OPS_LayerId erbij: hij blijft
+// staan (geen tweede groep met dezelfde naam) en is daarna een eigen laag.
+// Een OCG waar geen annotatie naar wijst (inhoud van de tekening, een
+// watermerk) is geen annotatielaag en blijft buiten het paneel.
 
 import { PDFName, PDFArray, PDFDict, PDFRef, PDFBool } from 'pdf-lib';
 import { pdfTextString, decodePdfTextObject } from './pdf-text.js';
@@ -59,6 +68,18 @@ function isWaar(context, raw) {
 function isOnwaar(context, raw) {
   const v = opgezocht(context, raw);
   return v === PDFBool.False || String(v) === 'false';
+}
+
+const VREEMD_ID = /^ocg-(\d+)-(\d+)$/;
+
+/** Het laag-id voor een OCG van een ander programma (zie de kop). */
+function vreemdId(ref) {
+  return `ocg-${ref.objectNumber}-${ref.generationNumber || 0}`;
+}
+
+function isOcg(context, raw) {
+  const dict = opgezocht(context, raw);
+  return dict instanceof PDFDict && String(dict.get(N('Type'))) === '/OCG';
 }
 
 /** Het laag-id van een eigen OCG (ref of dict), anders undefined. */
@@ -179,7 +200,7 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
   const refs = new Map();
   for (const laag of lagen) {
     if (!laag || typeof laag.id !== 'string' || refs.has(laag.id)) continue;
-    let ref = bestaand.get(laag.id);
+    let ref = bestaand.get(laag.id) || vreemdeOcgTerug(pdfDoc, laag);
     let dict = ref ? context.lookup(ref) : null;
     if (!(dict instanceof PDFDict)) {
       dict = context.obj({});
@@ -192,8 +213,8 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
     zetOfWis(dict, 'OPS_Color', laag.color ? pdfTextString(laag.color) : null);
     zetOfWis(dict, 'OPS_Locked', laag.locked ? PDFBool.True : null);
     zetOfWis(dict, 'OPS_Printable', laag.printable === false ? PDFBool.False : null);
-    zetOfWis(dict, 'Usage', laag.printable === false
-      ? context.obj({ Print: { PrintState: 'OFF' } }) : null);
+    if (laag.printable === false) dict.set(N('Usage'), context.obj({ Print: { PrintState: 'OFF' } }));
+    else if (isEigenUsage(context, dict.get(N('Usage')))) dict.delete(N('Usage'));
     refs.set(laag.id, ref);
   }
   const eigenRefs = [...refs.values()];
@@ -281,10 +302,62 @@ export function ocVoorAnnotatie(refs, ann) {
   return refs.get(layerIdOf(ann)) || refs.get(DEFAULT_LAYER_ID) || null;
 }
 
-/** Het laag-id achter /OC van een annotatie, alleen als het een eigen OCG is. */
+/**
+ * Het laag-id achter /OC van een annotatie: van een eigen OCG, of van een OCG
+ * van een ander programma (#621). Een lidmaatschapsregel (/OCMD) is geen laag.
+ */
 export function laagVanOc(context, ocRaw) {
   if (!ocRaw) return undefined;
-  return eigenId(context, ocRaw);
+  const eigen = eigenId(context, ocRaw);
+  if (eigen) return eigen;
+  return ocRaw instanceof PDFRef && isOcg(context, ocRaw) ? vreemdId(ocRaw) : undefined;
+}
+
+/** De OCG's zonder /OPS_LayerId waar een annotatie in het document naar wijst. */
+function vreemdeAnnotatieOcgs(pdfDoc) {
+  const context = pdfDoc.context;
+  const uit = new Map();
+  for (const pagina of pdfDoc.getPages()) {
+    const annots = opgezocht(context, pagina.node.get(N('Annots')));
+    if (!(annots instanceof PDFArray)) continue;
+    for (const a of annots.asArray()) {
+      const dict = opgezocht(context, a);
+      if (!(dict instanceof PDFDict)) continue;
+      const oc = dict.get(N('OC'));
+      if (!(oc instanceof PDFRef) || eigenId(context, oc) || !isOcg(context, oc)) continue;
+      const id = vreemdId(oc);
+      if (!uit.has(id)) uit.set(id, oc);
+    }
+  }
+  return uit;
+}
+
+/**
+ * De OCG van een laag van een ander programma in het uitvoerdocument: het
+ * object met hetzelfde nummer als het nog een OCG zonder eigen id is, anders
+ * een OCG zonder eigen id met dezelfde naam in /OCProperties.
+ */
+function vreemdeOcgTerug(pdfDoc, laag) {
+  const context = pdfDoc.context;
+  const m = VREEMD_ID.exec(laag.id || '');
+  if (!m) return null;
+  const kandidaat = PDFRef.of(Number(m[1]), Number(m[2]));
+  if (isOcg(context, kandidaat) && !eigenId(context, kandidaat)) return kandidaat;
+  const ocgs = arrayVan(context, ocProperties(pdfDoc), 'OCGs');
+  for (const r of ocgs?.asArray() || []) {
+    if (r instanceof PDFRef && isOcg(context, r) && !eigenId(context, r)
+        && tekst(context, context.lookup(r).get(N('Name'))) === laag.name) return r;
+  }
+  return null;
+}
+
+// Alleen onze eigen /Usage (niet afdrukken) weghalen; die van een ander
+// programma (bekijken, exporteren, …) blijft staan.
+function isEigenUsage(context, raw) {
+  const u = opgezocht(context, raw);
+  if (!(u instanceof PDFDict) || u.keys().length !== 1) return false;
+  const print = opgezocht(context, u.get(N('Print')));
+  return print instanceof PDFDict && print.keys().length === 1 && String(print.get(N('PrintState'))) === '/OFF';
 }
 
 /** Het id dat pdf.js aan een OCG geeft (Ref.toString): "12R", of "12R3". */
@@ -304,12 +377,15 @@ export function leesAnnotatieLagen(pdfDoc) {
     const lijst = arrayVan(context, eigen, 'Layers');
     if (lijst) refs = lijst.asArray().filter((r) => r instanceof PDFRef && eigenId(context, r));
     if (refs.length === 0) refs = [...eigenOcgs(pdfDoc).values()];
-    if (refs.length === 0) return null;
+    // Lagen van een ander programma (#621), na de eigen lagen.
+    const vreemd = vreemdeAnnotatieOcgs(pdfDoc);
+    if (refs.length === 0 && vreemd.size === 0) return null;
 
     const d = opgezocht(context, ocProperties(pdfDoc)?.get(N('D')));
     const inLijst = (sleutel) => new Set((arrayVan(context, d, sleutel)?.asArray() || []).filter((r) => r instanceof PDFRef));
     const uit = inLijst('OFF');
     const aan = inLijst('ON');
+    const vast = inLijst('Locked');
     const basisUit = d instanceof PDFDict && String(d.get(N('BaseState'))) === '/OFF';
 
     const lagen = [];
@@ -329,12 +405,29 @@ export function leesAnnotatieLagen(pdfDoc) {
       });
       perId.set(id, ref);
     }
+    const eigenOcgIds = new Set([...perId.values()].map(pdfjsId));
+    for (const [id, ref] of vreemd) {
+      if (perId.has(id)) continue;
+      const dict = context.lookup(ref);
+      const print = opgezocht(context, opgezocht(context, dict.get(N('Usage')))?.get?.(N('Print')));
+      lagen.push({
+        id,
+        name: tekst(context, dict.get(N('Name'))) || id,
+        color: null,
+        visible: basisUit ? aan.has(ref) : !uit.has(ref),
+        printable: !(print instanceof PDFDict && String(print.get(N('PrintState'))) === '/OFF'),
+        locked: vast.has(ref),
+      });
+      perId.set(id, ref);
+    }
     const huidig = eigen instanceof PDFDict ? tekst(context, eigen.get(N('Current'))) : undefined;
     return {
       lagen,
       huidigeLaag: typeof huidig === 'string' && perId.has(huidig) ? huidig : null,
       refs: perId,
-      ocgIds: new Set([...perId.values()].map(pdfjsId)),
+      // Alleen de eigen OCG's verdwijnen uit het paneel met de lagen van de
+      // tekening: een vreemde groep kan ook inhoud van de pagina schakelen.
+      ocgIds: eigenOcgIds,
     };
   } catch {
     return null;
@@ -362,4 +455,24 @@ export function pasGelezenLagenToe(doc, gelezen) {
   doc._annotatieLaagOcgIds = new Set(gelezen.ocgIds || []);
   const terug = getLayers(doc);
   return terug.length === lagen.length && lagen.every((l, i) => terug[i].id === l.id);
+}
+
+/**
+ * Lagen uit samengevoegde pagina's bij die van het document (samenvoegen.js):
+ * wat het model nog niet kent, komt erachter; een laag met hetzelfde id is
+ * dezelfde laag en blijft zoals het model hem had.
+ * @returns {boolean} of het model veranderd is
+ */
+export function voegGelezenLagenToe(doc, gelezen) {
+  if (!doc || !gelezen || !Array.isArray(gelezen.lagen) || gelezen.lagen.length === 0) return false;
+  const bestaand = getLayers(doc);
+  const ids = new Set(bestaand.map((l) => l.id));
+  const erbij = getLayers({ annotationLayers: gelezen.lagen }).filter((l) => !ids.has(l.id));
+  const ocgIds = new Set([...(doc._annotatieLaagOcgIds || []), ...(gelezen.ocgIds || [])]);
+  doc._annotatieLaagOcgIds = ocgIds;
+  if (!erbij.length) return false;
+  // Eén toewijzing (het document bewaart een kopie, zie hierboven).
+  doc.annotationLayers = [...bestaand, ...erbij];
+  doc._annotatieLagenGelezen = true;
+  return true;
 }

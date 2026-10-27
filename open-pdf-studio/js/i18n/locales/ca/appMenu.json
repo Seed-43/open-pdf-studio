@@ -71,6 +71,12 @@
     "site": "En aquest lloc",
     "noSiteDocuments": "No hi ha documents en aquest lloc",
     "siteListError": "No s'han pogut carregar els documents d'aquest lloc",
+    "versions": "Versions",
+    "versionNumber": "Versió {{version}}",
+    "currentVersion": "actual",
+    "noVersions": "No hi ha versions",
+    "versionsError": "No s'han pogut carregar les versions",
+    "olderVersionsHint": "Les versions anteriors s'obren només per a lectura; Desa com a en baixa una còpia.",
     "save": "Desa"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Pàgina",
     "officeTable": "Taula",
     "officeText": "Text",
-    "officeFailed": "No s'ha pogut exportar el document."
+    "officeFailed": "No s'ha pogut exportar el document.",
+    "protect": "Protegeix amb contrasenya",
+    "protectDesc": "Desa una còpia protegida amb contrasenya (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Perfil de sortida",
@@ -211,5 +219,9 @@
     "activationFailed": "No actiu: {{error}}",
     "viaMcp": "Mitjançant la connexió d'IA"
   },
-  "annotateScreenshot": "Anota una captura de pantalla del porta-retalls"
+  "annotateScreenshot": "Anota una captura de pantalla del porta-retalls",
+  "workflows": "Fluxos de treball de documents",
+  "drawingSets": "Jocs de plànols",
+  "sheetLinks": "Enllaços entre plànols",
+  "approvalRouting": "Circuit d'aprovació"
 }

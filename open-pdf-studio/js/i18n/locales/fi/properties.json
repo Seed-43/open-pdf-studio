@@ -63,6 +63,8 @@
     "strokeColor": "Reunaväri",
     "color": "Väri",
     "opacity": "Peittävyys",
+    "fillOpacity": "Täytön peittävyys",
+    "strokeOpacity": "Reunan peittävyys",
     "lineWidth": "Viivan leveys",
     "borderWidth": "Reunan leveys",
     "borderStyle": "Reunatyyli",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Linkitä kuva",
     "imageFilter": "Kuvat"
   },
+  "sizeUnit": {
+    "tooltip": "Mittojen yksikkö"
+  },
   "multiSelect": "{{count}} merkintää valittu",
   "pdfText": "PDF-teksti",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Tuo kommentit...",
     "exportComments": "Vie kommentit datatiedostoon...",
     "exportSelectedComments": "Vie valitut kommentit datatiedostoon...",
+    "exportListCsv": "Vie luettelo CSV-tiedostoon...",
+    "summarizeComingSoon": "Tulossa pian",
+    "listExported": "Kommenttiluettelo viety CSV-tiedostoon",
+    "csvPage": "Sivu",
+    "csvType": "Tyyppi",
+    "csvAuthor": "Tekijä",
+    "csvDate": "Päivämäärä",
+    "csvStatus": "Tila",
+    "csvSubject": "Aihe",
+    "csvContents": "Sisältö",
+    "csvColor": "Väri",
+    "csvLayer": "Taso",
     "schedules": "Luettelot",
     "addPage": "Lisää sivu",
-    "pageLabels": "Sivujen nimiöt (nimien muodostus)"
+    "pageLabels": "Sivujen nimiöt (nimien muodostus)",
+    "portfolio": "PDF-portfolio",
+    "recognizeForm": "Tunnista lomakekentät"
   },
   "scaleBar": {
     "title": "Mittakaavajana",
@@ -403,7 +422,8 @@
       "image": "Kuvat ja leimat"
     },
     "preview": "Esikatselu",
-    "exportCsv": "Vie CSV"
+    "exportCsv": "Vie CSV",
+    "workbookBindings": "Laskentataulukkolinkitykset"
   },
   "wizard": {
     "title": "Ohjattu luettelon luonti",
@@ -585,7 +605,9 @@
       "symbolId": "Symboli",
       "imageName": "Tiedostonimi",
       "width": "Leveys",
-      "height": "Korkeus"
+      "height": "Korkeus",
+      "location": "Sijainti",
+      "locationSource": "Sijainnin lähde"
     },
     "type": {
       "line": "Viiva",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symboli: {{name}}",
     "symbolLabel": "Symboli",
     "typeLabel": "Tyyppi",
+    "profileType": "Profiilityyppi",
+    "profileTypeTitle": "Teräsprofiili",
     "unknownSymbol": "Tuntematon symboli",
     "listNew": "Uusi",
     "listAdd": "Lisää",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Tätä objektia on muutettu muualla. Lomake näyttää nykyiset arvot; muutoksiasi ei otettu käyttöön.",
     "failed": "Muutoksia ei voitu ottaa käyttöön: {{error}}"
+  },
+  "location": {
+    "title": "Sijainti",
+    "none": "Ei määritetty",
+    "manual": "Manuaalinen",
+    "computed": "Laskettu",
+    "override": "Manuaalinen ohitus (tyhjä tyhjentää sijainnin)",
+    "automatic": "Käytä automaattista sijaintia",
+    "zoneName": "Käytä tätä muotoa nimettynä vyöhykkeenä",
+    "parent": "Ylätason vyöhyke",
+    "removeZone": "Poista vyöhykkeen määritys",
+    "invalid": "Sijaintia ei voitu päivittää",
+    "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
+    "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
   }
 }

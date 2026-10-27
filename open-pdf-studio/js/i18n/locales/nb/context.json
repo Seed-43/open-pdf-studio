@@ -93,7 +93,22 @@
     "editBookmark": "Rediger bokmerke",
     "deleteBookmark": "Slett bokmerke",
     "expandAll": "Utvid alle",
-    "collapseAll": "Skjul alle"
+    "collapseAll": "Skjul alle",
+    "color": "Farge",
+    "colorDefault": "Standard",
+    "colorRed": "Rød",
+    "colorOrange": "Oransje",
+    "colorGreen": "Grønn",
+    "colorBlue": "Blå",
+    "colorPurple": "Lilla",
+    "colorGray": "Grå",
+    "colorCustom": "Egendefinert...",
+    "bold": "Fet",
+    "italic": "Kursiv",
+    "nestUnderNew": "Legg under nytt bokmerke...",
+    "indent": "Øk innrykk",
+    "outdent": "Reduser innrykk",
+    "deleteBookmarks": "Slett {{count}} bokmerker"
   },
   "thumbnail": {
     "rotateLeft": "Roter til venstre",

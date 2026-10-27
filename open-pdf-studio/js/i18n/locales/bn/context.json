@@ -93,7 +93,22 @@
     "editBookmark": "বুকমার্ক সম্পাদনা করুন",
     "deleteBookmark": "বুকমার্ক মুছুন",
     "expandAll": "সমস্ত প্রসারিত করুন",
-    "collapseAll": "সমস্ত সংকুচিত করুন"
+    "collapseAll": "সমস্ত সংকুচিত করুন",
+    "color": "রঙ",
+    "colorDefault": "ডিফল্ট",
+    "colorRed": "লাল",
+    "colorOrange": "কমলা",
+    "colorGreen": "সবুজ",
+    "colorBlue": "নীল",
+    "colorPurple": "বেগুনি",
+    "colorGray": "ধূসর",
+    "colorCustom": "কাস্টম...",
+    "bold": "গাঢ়",
+    "italic": "তির্যক",
+    "nestUnderNew": "নতুন বুকমার্কের অধীনে রাখুন...",
+    "indent": "ইনডেন্ট বাড়ান",
+    "outdent": "ইনডেন্ট কমান",
+    "deleteBookmarks": "{{count}}টি বুকমার্ক মুছুন"
   },
   "thumbnail": {
     "rotateLeft": "বামে ঘোরান",

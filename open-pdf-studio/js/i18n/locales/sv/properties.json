@@ -63,6 +63,8 @@
     "strokeColor": "Linjefärg",
     "color": "Färg",
     "opacity": "Opacitet",
+    "fillOpacity": "Fyllningens opacitet",
+    "strokeOpacity": "Linjens opacitet",
     "lineWidth": "Linjebredd",
     "borderWidth": "Rambredd",
     "borderStyle": "Ramstil",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Länka bild",
     "imageFilter": "Bilder"
   },
+  "sizeUnit": {
+    "tooltip": "Enhet för mått"
+  },
   "multiSelect": "{{count}} anteckningar markerade",
   "pdfText": "PDF-text",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importera kommentarer...",
     "exportComments": "Exportera kommentarer till datafil...",
     "exportSelectedComments": "Exportera valda kommentarer till datafil...",
+    "exportListCsv": "Exportera listan till CSV...",
+    "summarizeComingSoon": "Kommer snart",
+    "listExported": "Kommentarslistan har exporterats till CSV",
+    "csvPage": "Sida",
+    "csvType": "Typ",
+    "csvAuthor": "Författare",
+    "csvDate": "Datum",
+    "csvStatus": "Status",
+    "csvSubject": "Ämne",
+    "csvContents": "Innehåll",
+    "csvColor": "Färg",
+    "csvLayer": "Lager",
     "schedules": "Förteckningar",
     "addPage": "Lägg till sida",
-    "pageLabels": "Sidetiketter (namnbyggare)"
+    "pageLabels": "Sidetiketter (namnbyggare)",
+    "portfolio": "PDF-portfölj",
+    "recognizeForm": "Identifiera formulärfält"
   },
   "scaleBar": {
     "title": "Skalstock",
@@ -403,7 +422,8 @@
       "image": "Bilder och stämplar"
     },
     "preview": "Förhandsvisning",
-    "exportCsv": "Exportera CSV"
+    "exportCsv": "Exportera CSV",
+    "workbookBindings": "Kalkylbladskopplingar"
   },
   "wizard": {
     "title": "Förteckningsguide",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Filnamn",
       "width": "Bredd",
-      "height": "Höjd"
+      "height": "Höjd",
+      "location": "Plats",
+      "locationSource": "Platskälla"
     },
     "type": {
       "line": "Linje",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Typ",
+    "profileType": "Profiltyp",
+    "profileTypeTitle": "Stålprofil",
     "unknownSymbol": "Okänd symbol",
     "listNew": "Ny",
     "listAdd": "Lägg till",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Det här objektet har ändrats någon annanstans. Formuläret visar de aktuella värdena; dina ändringar tillämpades inte.",
     "failed": "Det gick inte att tillämpa ändringarna: {{error}}"
+  },
+  "location": {
+    "title": "Plats",
+    "none": "Ej tilldelad",
+    "manual": "Manuell",
+    "computed": "Beräknad",
+    "override": "Manuell åsidosättning (tom rensar platsen)",
+    "automatic": "Använd automatisk plats",
+    "zoneName": "Använd den här formen som en namngiven zon",
+    "parent": "Överordnad zon",
+    "removeZone": "Ta bort zondefinition",
+    "invalid": "Platsen kunde inte uppdateras",
+    "rules": "Tilldelningen använder mitten av markeringens omslutande ram, kanter inräknade. Den djupaste zonen vinner, därefter minsta area och sedan zon-ID. Använd raka polygoner utan hål eller oroterade rektanglar. Ogiltiga eller dubblerade zonidentiteter undantas.",
+    "loading": "Anteckningar läses in: platser kan fortfarande ändras."
   }
 }

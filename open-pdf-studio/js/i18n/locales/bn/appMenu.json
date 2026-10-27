@@ -71,6 +71,12 @@
     "site": "এই সাইটে",
     "noSiteDocuments": "এই সাইটে কোনো নথি নেই",
     "siteListError": "এই সাইটের নথিগুলি লোড করা যায়নি",
+    "versions": "সংস্করণ",
+    "versionNumber": "সংস্করণ {{version}}",
+    "currentVersion": "বর্তমান",
+    "noVersions": "কোনো সংস্করণ নেই",
+    "versionsError": "সংস্করণগুলো লোড করা যায়নি",
+    "olderVersionsHint": "পুরোনো সংস্করণগুলো শুধু পড়ার জন্য খোলে; \"এভাবে সংরক্ষণ করুন\" একটি কপি ডাউনলোড করে।",
     "save": "সংরক্ষণ"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "পৃষ্ঠা",
     "officeTable": "সারণি",
     "officeText": "পাঠ্য",
-    "officeFailed": "নথি রপ্তানি ব্যর্থ হয়েছে।"
+    "officeFailed": "নথি রপ্তানি ব্যর্থ হয়েছে।",
+    "protect": "পাসওয়ার্ড দিয়ে সুরক্ষিত করুন",
+    "protectDesc": "পাসওয়ার্ড-সুরক্ষিত একটি কপি সংরক্ষণ করুন (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "আউটপুট প্রোফাইল",
@@ -211,5 +219,9 @@
     "activationFailed": "সক্রিয় নয়: {{error}}",
     "viaMcp": "AI সংযোগের মাধ্যমে"
   },
-  "annotateScreenshot": "ক্লিপবোর্ডের স্ক্রিনশটে টীকা যোগ করুন"
+  "annotateScreenshot": "ক্লিপবোর্ডের স্ক্রিনশটে টীকা যোগ করুন",
+  "workflows": "ডকুমেন্ট ওয়ার্কফ্লো",
+  "drawingSets": "ড্রয়িং সেট",
+  "sheetLinks": "ক্রস-শিট লিংক",
+  "approvalRouting": "অনুমোদন রাউটিং"
 }

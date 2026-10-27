@@ -52,12 +52,32 @@ pub const TOOLS: &[ToolMeta] = &[
     lees("app_clear_selection", "Clear selection"),
     // Opvragen.
     lees("app_screenshot_view", "Capture page view"),
+    // Writes a file only when a path is given; never changes the document.
+    voegt_toe("app_capture_region", "Capture page area as image"),
     lees("app_get_viewport_state", "Get view state"),
     lees("app_get_current_tool", "Get current tool"),
     lees("app_list_annotations", "List annotations"),
     lees("app_get_annotation", "Get annotation"),
     lees("app_list_tabs", "List document tabs"),
     lees("app_get_page_count", "Get page count"),
+    lees("app_search_documents", "Search documents"),
+    wijzigt("app_locations", "Manage spatial locations"),
+    voegt_toe("app_hidden_information", "Inspect and export cleaned copy"),
+    voegt_toe("app_print_preflight", "Inspect print readiness"),
+    wijzigt("app_review_ocr", "Verify OCR text"),
+    // Writes collection components chosen by the client to disk and reads
+    // named local files into a copy.
+    wijzigt("app_portfolio", "Manage PDF collections"),
+    voegt_toe("app_recognize_form", "Recognize form fields"),
+    voegt_toe("app_search_symbols", "Find repeated symbols"),
+    wijzigt("app_workbook_bindings", "Refresh spreadsheet quantities"),
+    // watch starts background automation on a folder; remove deletes saved workflows.
+    wijzigt("app_document_workflows", "Run document workflows"),
+    // import replaces the current set manifest, including its history.
+    wijzigt("app_drawing_sets", "Drawing sets"),
+    voegt_toe("app_sheet_links", "Cross-sheet links"),
+    // receipt, cancel and supersede are irreversible audit events.
+    wijzigt("app_approval_routing", "Approval routing"),
     lees("app_get_page_text", "Read existing page text"),
     lees("app_get_takeoff", "Get quantity take-off"),
     lees("app_list_commands", "List app commands"),

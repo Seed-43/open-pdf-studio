@@ -71,6 +71,12 @@
     "site": "På den här webbplatsen",
     "noSiteDocuments": "Inga dokument på den här webbplatsen",
     "siteListError": "Det gick inte att läsa in dokumenten på den här webbplatsen",
+    "versions": "Versioner",
+    "versionNumber": "Version {{version}}",
+    "currentVersion": "aktuell",
+    "noVersions": "Inga versioner",
+    "versionsError": "Det gick inte att läsa in versionerna",
+    "olderVersionsHint": "Äldre versioner öppnas skrivskyddade; Spara som laddar ned en kopia.",
     "save": "Spara"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Sida",
     "officeTable": "Tabell",
     "officeText": "Text",
-    "officeFailed": "Exporten av dokumentet misslyckades."
+    "officeFailed": "Exporten av dokumentet misslyckades.",
+    "protect": "Skydda med lösenord",
+    "protectDesc": "Spara en kopia skyddad med lösenord (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",
@@ -211,5 +219,9 @@
     "activationFailed": "Inte aktiv: {{error}}",
     "viaMcp": "Via AI-anslutningen"
   },
-  "annotateScreenshot": "Kommentera skärmbild från Urklipp"
+  "annotateScreenshot": "Kommentera skärmbild från Urklipp",
+  "workflows": "Dokumentarbetsflöden",
+  "drawingSets": "Ritningsuppsättningar",
+  "sheetLinks": "Länkar mellan ritningar",
+  "approvalRouting": "Godkännandeflöde"
 }

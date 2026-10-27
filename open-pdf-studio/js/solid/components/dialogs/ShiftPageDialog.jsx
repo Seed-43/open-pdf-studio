@@ -184,7 +184,7 @@ export default function ShiftPageDialog(props) {
           <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.horizontal')}</label>
           <input
             ref={dxInputRef}
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="crop-margins-input"
             value="0"
             min={-MAX_SHIFT_MM}
@@ -198,7 +198,7 @@ export default function ShiftPageDialog(props) {
           <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.vertical')}</label>
           <input
             ref={dyInputRef}
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="crop-margins-input"
             value="0"
             min={-MAX_SHIFT_MM}
@@ -225,7 +225,7 @@ export default function ShiftPageDialog(props) {
           <div class="crop-margins-row">
             <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.fromPage')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="crop-margins-input"
               value={untrack(fromPage)}
               min="1"

@@ -63,6 +63,8 @@
     "strokeColor": "Color de trazo",
     "color": "Color",
     "opacity": "Opacidad",
+    "fillOpacity": "Opacidad del relleno",
+    "strokeOpacity": "Opacidad del trazo",
     "borderStyle": "Estilo de borde",
     "cross": "Cruz",
     "crossHint": "Dibuja una cruz dentro del rectángulo, círculo o elipse (ej. un hueco)",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Vincular imagen",
     "imageFilter": "Imágenes"
   },
+  "sizeUnit": {
+    "tooltip": "Unidad de las medidas"
+  },
   "multiSelect": "{{count}} anotaciones seleccionadas",
   "pdfText": "Texto PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importar comentarios...",
     "exportComments": "Exportar comentarios a archivo de datos...",
     "exportSelectedComments": "Exportar comentarios seleccionados a archivo de datos...",
+    "exportListCsv": "Exportar lista a CSV...",
+    "summarizeComingSoon": "Próximamente",
+    "listExported": "Lista de comentarios exportada a CSV",
+    "csvPage": "Página",
+    "csvType": "Tipo",
+    "csvAuthor": "Autor",
+    "csvDate": "Fecha",
+    "csvStatus": "Estado",
+    "csvSubject": "Asunto",
+    "csvContents": "Contenido",
+    "csvColor": "Color",
+    "csvLayer": "Capa",
     "schedules": "Listados",
     "addPage": "Añadir página",
-    "pageLabels": "Etiquetas de página (generador de nombres)"
+    "pageLabels": "Etiquetas de página (generador de nombres)",
+    "portfolio": "Portafolio PDF",
+    "recognizeForm": "Reconocer campos de formulario"
   },
   "scaleBar": {
     "title": "Barra de escala",
@@ -403,7 +422,8 @@
       "image": "Imágenes y sellos"
     },
     "preview": "Vista previa",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "workbookBindings": "Vínculos con hojas de cálculo"
   },
   "wizard": {
     "title": "Asistente de listados",
@@ -585,7 +605,9 @@
       "symbolId": "Símbolo",
       "imageName": "Nombre de archivo",
       "width": "Ancho",
-      "height": "Altura"
+      "height": "Altura",
+      "location": "Ubicación",
+      "locationSource": "Origen de la ubicación"
     },
     "type": {
       "line": "Línea",
@@ -631,6 +653,8 @@
     "sectionTitle": "Símbolo: {{name}}",
     "symbolLabel": "Símbolo",
     "typeLabel": "Tipo",
+    "profileType": "Tipo de perfil",
+    "profileTypeTitle": "Perfil de acero",
     "unknownSymbol": "Símbolo desconocido",
     "listNew": "Nuevo",
     "listAdd": "Añadir",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Este objeto se ha modificado en otro lugar. El formulario muestra los valores actuales; sus cambios no se han aplicado.",
     "failed": "No se pudieron aplicar los cambios: {{error}}"
+  },
+  "location": {
+    "title": "Ubicación",
+    "none": "Sin asignar",
+    "manual": "Manual",
+    "computed": "Calculada",
+    "override": "Sustitución manual (vacío borra la ubicación)",
+    "automatic": "Usar ubicación automática",
+    "zoneName": "Usar esta forma como zona con nombre",
+    "parent": "Zona principal",
+    "removeZone": "Quitar definición de zona",
+    "invalid": "No se pudo actualizar la ubicación",
+    "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
+    "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
   }
 }

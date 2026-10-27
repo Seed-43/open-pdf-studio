@@ -9,6 +9,8 @@
 // per inch of that screen replace the dpi preference. The app injects that
 // rule as a live source (setZoomDpiSource, see preferences.js); this module
 // itself stays free of app imports so it runs in the node tests.
+import { leesGetalBegin } from './getal-invoer.js';
+
 export const DEFAULT_ZOOM_DPI = 110;
 export const MIN_ZOOM_DPI = 50;
 export const MAX_ZOOM_DPI = 300;
@@ -80,4 +82,19 @@ export function nextZoomPercent(percent, direction) {
 export function nextScaleStep(scale, direction, dpi) {
   const percent = (scale / cssPxPerPtAt100(dpi)) * 100;
   return percentToScale(nextZoomPercent(percent, direction), dpi);
+}
+
+/** Grenzen van het zoomveld in de statusbalk. */
+export const MIN_ZOOM_INVOER = 10;
+export const MAX_ZOOM_INVOER = 500;
+
+/**
+ * Leest het zoomveld van de statusbalk: "150", "150%", "62,5 %" of "62.5".
+ * Komma en punt zijn allebei een decimaalteken (core/getal-invoer.js).
+ * @param {unknown} tekst
+ * @returns {number|null} percentage binnen de grenzen, anders null
+ */
+export function leesZoomInvoer(tekst) {
+  const pct = leesGetalBegin(String(tekst ?? '').replace('%', '').trim());
+  return Number.isFinite(pct) && pct >= MIN_ZOOM_INVOER && pct <= MAX_ZOOM_INVOER ? pct : null;
 }

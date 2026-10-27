@@ -11,8 +11,13 @@
 // mee op. Als gast doen we dat geen van drieën: op een gedeelde oorsprong zijn
 // sleutels zonder voorvoegsel van een ander.
 //
-// Lezen geeft nooit een fout (geblokkeerde opslag = niets bewaard); schrijven
-// wel, net als localStorage.setItem, zodat een aanroeper een vol quotum ziet.
+// Lezen geeft nooit een fout; schrijven wel, net als localStorage.setItem,
+// zodat een aanroeper een vol quotum ziet.
+//
+// Zonder bruikbare browseropslag (de werkplek, #704: een sandbox zonder
+// allow-same-origin, waar al het opvragen van localStorage gooit) valt alles
+// terug op een opslag in het geheugen: de app start en werkt gewoon, alleen
+// blijft er na herladen niets over.
 
 import { isGehost } from './gehost.js';
 
@@ -23,18 +28,32 @@ export function opslagSleutel(naam) {
   return OPSLAG_PREFIX + naam;
 }
 
+const _geheugen = new Map();
+
+/** De terugval: dezelfde vorm als localStorage, alleen in het geheugen. */
+const geheugenOpslag = Object.freeze({
+  getItem: (k) => (_geheugen.has(String(k)) ? _geheugen.get(String(k)) : null),
+  setItem: (k, v) => { _geheugen.set(String(k), String(v)); },
+  removeItem: (k) => { _geheugen.delete(String(k)); },
+});
+
+/** De echte localStorage als die bruikbaar is, anders de opslag in het geheugen. */
 function opslag() {
   try {
-    return globalThis.localStorage ?? null;
+    const s = globalThis.localStorage;
+    if (s && typeof s.getItem === 'function') {
+      s.getItem(OPSLAG_PREFIX); // geblokkeerde opslag gooit hier
+      return s;
+    }
   } catch {
-    return null; // bv. een sandbox-iframe: alleen al het opvragen gooit
+    // bv. een sandbox-iframe: alleen al het opvragen gooit
   }
+  return geheugenOpslag;
 }
 
 /** @returns {string|null} */
 export function leesOpslag(naam) {
   const s = opslag();
-  if (!s) return null;
   try {
     const waarde = s.getItem(opslagSleutel(naam));
     if (waarde !== null || isGehost()) return waarde;
@@ -53,7 +72,6 @@ export function leesOpslag(naam) {
 
 export function schrijfOpslag(naam, waarde) {
   const s = opslag();
-  if (!s) throw new Error('Browser storage is not available');
   s.setItem(opslagSleutel(naam), String(waarde));
   if (!isGehost()) {
     try { s.removeItem(naam); } catch { /* niets op te ruimen */ }
@@ -62,7 +80,6 @@ export function schrijfOpslag(naam, waarde) {
 
 export function verwijderOpslag(naam) {
   const s = opslag();
-  if (!s) return;
   try {
     s.removeItem(opslagSleutel(naam));
     if (!isGehost()) s.removeItem(naam);
@@ -90,7 +107,8 @@ export const VOORKEUREN_NAAM = 'pdfEditorPreferences';
 /**
  * Het thema-script dat vóór de app-boot draait, zodat het verkeerde thema
  * niet even flitst. Het is een gewoon script in de pagina — het kan niets
- * importeren — en vite.config.js plakt het inline in index.html. De tekst
+ * importeren — en scripts/oude-webview.mjs zet het in het eigen bestand
+ * vóór de app-boot (geen inline script, #596). De tekst
  * staat hier, zodat ook deze ene lezer de sleutel uit dezelfde bron haalt.
  * 'system' volgt de media-query: die volgt in de webview ook het OS-thema
  * (de vensterwaarde van Tauri is een belofte en dus hier niet te lezen).

@@ -93,7 +93,22 @@
     "editBookmark": "Redigera bokmärke",
     "deleteBookmark": "Radera bokmärke",
     "expandAll": "Expandera alla",
-    "collapseAll": "Minimera alla"
+    "collapseAll": "Minimera alla",
+    "color": "Färg",
+    "colorDefault": "Standard",
+    "colorRed": "Röd",
+    "colorOrange": "Orange",
+    "colorGreen": "Grön",
+    "colorBlue": "Blå",
+    "colorPurple": "Lila",
+    "colorGray": "Grå",
+    "colorCustom": "Anpassat...",
+    "bold": "Fet",
+    "italic": "Kursiv",
+    "nestUnderNew": "Placera under nytt bokmärke...",
+    "indent": "Öka indrag",
+    "outdent": "Minska indrag",
+    "deleteBookmarks": "Ta bort {{count}} bokmärken"
   },
   "thumbnail": {
     "rotateLeft": "Rotera vänster",

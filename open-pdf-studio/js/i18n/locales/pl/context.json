@@ -93,7 +93,22 @@
     "editBookmark": "Edytuj zakładkę",
     "deleteBookmark": "Usuń zakładkę",
     "expandAll": "Rozwiń wszystko",
-    "collapseAll": "Zwiń wszystko"
+    "collapseAll": "Zwiń wszystko",
+    "color": "Kolor",
+    "colorDefault": "Domyślny",
+    "colorRed": "Czerwony",
+    "colorOrange": "Pomarańczowy",
+    "colorGreen": "Zielony",
+    "colorBlue": "Niebieski",
+    "colorPurple": "Fioletowy",
+    "colorGray": "Szary",
+    "colorCustom": "Niestandardowo...",
+    "bold": "Pogrubienie",
+    "italic": "Kursywa",
+    "nestUnderNew": "Zagnieźdź pod nową zakładką...",
+    "indent": "Zwiększ wcięcie",
+    "outdent": "Zmniejsz wcięcie",
+    "deleteBookmarks": "Usuń zakładki ({{count}})"
   },
   "thumbnail": {
     "rotateLeft": "Obróć w lewo",

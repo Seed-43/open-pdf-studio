@@ -71,6 +71,12 @@
     "site": "Auf dieser Website",
     "noSiteDocuments": "Keine Dokumente auf dieser Website",
     "siteListError": "Die Dokumente dieser Website konnten nicht geladen werden",
+    "versions": "Versionen",
+    "versionNumber": "Version {{version}}",
+    "currentVersion": "aktuell",
+    "noVersions": "Keine Versionen",
+    "versionsError": "Die Versionen konnten nicht geladen werden",
+    "olderVersionsHint": "Ältere Versionen öffnen schreibgeschützt; „Speichern unter“ lädt eine Kopie herunter.",
     "save": "Speichern"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Seite",
     "officeTable": "Tabelle",
     "officeText": "Text",
-    "officeFailed": "Dokumentexport fehlgeschlagen."
+    "officeFailed": "Dokumentexport fehlgeschlagen.",
+    "protect": "Mit Kennwort schützen",
+    "protectDesc": "Eine mit Kennwort geschützte Kopie speichern (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Ausgabeprofil",
@@ -211,5 +219,9 @@
     "activationFailed": "Nicht aktiv: {{error}}",
     "viaMcp": "Über die KI-Verbindung"
   },
-  "annotateScreenshot": "Screenshot aus Zwischenablage kommentieren"
+  "annotateScreenshot": "Screenshot aus Zwischenablage kommentieren",
+  "workflows": "Dokument-Workflows",
+  "drawingSets": "Zeichnungssätze",
+  "sheetLinks": "Blattübergreifende Verknüpfungen",
+  "approvalRouting": "Freigabeweiterleitung"
 }

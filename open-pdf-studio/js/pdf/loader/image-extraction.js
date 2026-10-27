@@ -161,13 +161,15 @@ async function formContentRotates(formStream) {
 }
 
 // Extract stamp images from PDF using pdf-lib (fallback)
-export async function extractStampImages(pageNum, pdfDoc) {
+// `decodeer` vervangt alleen in tests het decoderen naar een data-URL (dat
+// vraagt een canvas); de rest van het pad is hetzelfde.
+export async function extractStampImages(pageNum, pdfDoc, { decodeer = extractImageFromFormXObject } = {}) {
   const imageMap = new Map();
 
   try {
     const context = pdfDoc.context;
     for (const source of findImageAnnotationSources(pageNum, pdfDoc)) {
-      const dataUrl = await extractImageFromFormXObject(context, source.stream);
+      const dataUrl = await decodeer(context, source.stream);
       if (dataUrl) {
         const key = source.annotationId
           ? `id:${source.annotationId}`
@@ -181,6 +183,9 @@ export async function extractStampImages(pageNum, pdfDoc) {
         //   de pixels zijn schermgericht → space:'visual', en de saver moet
         //   de compensatie opnieuw aanbrengen. Zo blijft ook een tweede
         //   opslagronde stabiel.
+        // Kan de converter vak en draaiing uit de appearance afleiden
+        // (stempel-geometrie.js), dan liggen de pixels rechtop in dat vak en
+        // wordt het 'visual'; deze ruimte geldt alleen als dat niet lukt.
         const space = (await formContentRotates(source.stream)) ? 'visual' : 'pdf';
         imageMap.set(key, { kind: source.kind, dataUrl, space });
       }

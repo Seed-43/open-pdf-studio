@@ -1,4 +1,5 @@
 import { createSignal, onMount, Show } from 'solid-js';
+import { leesGetal } from '../../../core/getal-invoer.js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -56,7 +57,7 @@ async function detectScaleFromTitleBlock() {
     if (vx >= regionLeft && vy >= regionTop) {
       const match = item.str.match(scalePattern);
       if (match) {
-        const denominator = parseFloat(match[1].replace(',', '.'));
+        const denominator = leesGetal(match[1]);
         if (denominator >= 1 && denominator <= 10000) {
           candidates.push({ denominator, text: item.str, x: vx, y: vy });
         }
@@ -75,7 +76,7 @@ async function detectScaleFromTitleBlock() {
 
       const match = item.str.match(scalePattern);
       if (match) {
-        const denominator = parseFloat(match[1].replace(',', '.'));
+        const denominator = leesGetal(match[1]);
         if (denominator >= 1 && denominator <= 10000) {
           candidates.push({ denominator, text: item.str, x: 0, y: 0 });
         }
@@ -279,7 +280,7 @@ export default function CalibrationDialog(props) {
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.measuredPixels')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="calibration-input"
             min="1"
             step="0.01"
@@ -291,7 +292,7 @@ export default function CalibrationDialog(props) {
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.knownDistance')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="calibration-input"
             min="0.001"
             step="0.01"
@@ -330,11 +331,11 @@ export default function CalibrationDialog(props) {
           <Show when={scalePreset() === 'custom'}>
             <span class="calibration-label-inline">1:</span>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="calibration-input calibration-input-narrow"
               min="1"
               value={customScale()}
-              onInput={(e) => setCustomScale(parseInt(e.target.value) || 1)}
+              onInput={(e) => { const n = parseFloat(e.target.value); setCustomScale(n > 0 ? n : 1); }}
             />
           </Show>
         </div>

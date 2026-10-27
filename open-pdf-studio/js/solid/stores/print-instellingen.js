@@ -8,6 +8,9 @@
 // of met de hand bewerkt voorkeurenbestand de dialoog nooit kan breken.
 
 import { isPdfDoel } from '../../pdf/print-doel.js';
+import {
+  KATERN_KEUZES, BOEKJE_BINDINGEN, BOEKJE_KANTEN, geldigeKruip,
+} from '../../pdf/print-boekje.js';
 
 /** Standaardwaarden van de printdialoog. */
 export const PRINT_STANDAARD = Object.freeze({
@@ -29,16 +32,36 @@ export const PRINT_STANDAARD = Object.freeze({
   sheetRows: 2,
   sheetOrder: 'horizontal',
   sheetBorder: false,
+  // Posterafdruk (Type "Poster", print-poster.js).
+  posterScale: 100,
+  posterOverlap: 10,
+  posterCutMarks: true,
+  posterLabels: true,
+  posterOnlyLarge: true,
+  // Folder (#607): kopieën van dezelfde pagina per vel, met snijtekens.
+  flyerCount: '4',
+  flyerCutMarks: true,
+  // Boekje in katernen (#607): vellen per katern, 0 = één boekje.
+  bookletSheets: 0,
+  // Boekje-opties (#607, print-boekje.js): rug links of rechts, welke kanten,
+  // achterkanten gedraaid (printer kantelt over de lange zijde), kruip in mm.
+  bookletBinding: 'left',
+  bookletSides: 'both',
+  bookletRotateBack: false,
+  bookletCreep: 0,
 });
 
 /** De toegestane waarden per keuzelijst van de printdialoog. */
 export const PRINT_KEUZES = Object.freeze({
   range: ['all', 'current', 'custom'],
   subset: ['all', 'odd', 'even'],
-  scaling: ['fit', 'actual', 'shrink', 'custom-scale'],
+  scaling: ['fit', 'actual', 'shrink', 'custom-scale', 'poster'],
   content: ['doc-and-markups', 'doc-only'],
-  perSheet: ['1', '2', '4', '6', '9', '16', 'custom'],
+  perSheet: ['1', '2', '4', '6', '9', '16', 'custom', 'flyer', 'booklet'],
+  flyerCount: ['2', '4', '6', '8', '9', '16'],
   sheetOrder: ['horizontal', 'horizontal-reversed', 'vertical', 'vertical-reversed'],
+  bookletBinding: [...BOEKJE_BINDINGEN],
+  bookletSides: [...BOEKJE_KANTEN],
 });
 
 const KEUZES = PRINT_KEUZES;
@@ -53,7 +76,10 @@ export function markeringenVoorInhoud(inhoud) {
   return inhoud !== 'doc-only';
 }
 
-const SCHAKELAARS = ['collate', 'reverseOrder', 'autoRotate', 'autoCenter', 'asImage', 'sheetBorder'];
+const SCHAKELAARS = [
+  'collate', 'reverseOrder', 'autoRotate', 'autoCenter', 'asImage', 'sheetBorder',
+  'posterCutMarks', 'posterLabels', 'posterOnlyLarge', 'flyerCutMarks', 'bookletRotateBack',
+];
 
 function geheelGetal(waarde, min, max, terugval) {
   const n = Number(waarde);
@@ -74,7 +100,14 @@ export function herstelPrintInstellingen(opgeslagen) {
   if (o.zoom !== undefined) s.zoom = geheelGetal(o.zoom, 10, 400, PRINT_STANDAARD.zoom);
   if (o.sheetCols !== undefined) s.sheetCols = geheelGetal(o.sheetCols, 1, 10, PRINT_STANDAARD.sheetCols);
   if (o.sheetRows !== undefined) s.sheetRows = geheelGetal(o.sheetRows, 1, 10, PRINT_STANDAARD.sheetRows);
+  if (o.posterScale !== undefined) s.posterScale = geheelGetal(o.posterScale, 10, 400, PRINT_STANDAARD.posterScale);
+  if (o.posterOverlap !== undefined) {
+    const n = Number(o.posterOverlap);
+    if (Number.isFinite(n)) s.posterOverlap = Math.min(50, Math.max(0, Math.round(n * 10) / 10));
+  }
   if (typeof o.customPages === 'string') s.customPages = o.customPages;
+  if (KATERN_KEUZES.includes(o.bookletSheets)) s.bookletSheets = o.bookletSheets;
+  if (o.bookletCreep !== undefined) s.bookletCreep = geldigeKruip(o.bookletCreep);
   for (const sleutel of SCHAKELAARS) {
     if (typeof o[sleutel] === 'boolean') s[sleutel] = o[sleutel];
   }
@@ -83,6 +116,47 @@ export function herstelPrintInstellingen(opgeslagen) {
     if (toegestaan.includes(waarde)) s[sleutel] = waarde;
   }
   return s;
+}
+
+/**
+ * De afdrukwijze (#607) bovenaan de printdialoog: gewoon (één pagina per
+ * vel), meerdere pagina's per vel, folder, boekje of poster. Geen eigen
+ * instelling: de wijze volgt uit de bewaarde schaalkeuze en het aantal per
+ * vel, zodat oude voorkeuren gewoon blijven werken.
+ */
+export const PRINT_MODI = Object.freeze(['normal', 'multiple', 'flyer', 'booklet', 'poster']);
+
+/** De keuzes voor pagina's per vel bij de wijze "Meerdere". */
+export const MEER_PER_BLAD_KEUZES = Object.freeze(['2', '4', '6', '9', '16', 'custom']);
+
+const GEWONE_SCHALEN = PRINT_KEUZES.scaling.filter((s) => s !== 'poster');
+
+/** De wijze bij een schaalkeuze en een aantal per vel; de poster gaat voor. */
+export function printModus({ scaling, perSheet } = {}) {
+  if (scaling === 'poster') return 'poster';
+  if (perSheet === 'booklet') return 'booklet';
+  if (perSheet === 'flyer') return 'flyer';
+  if (MEER_PER_BLAD_KEUZES.includes(String(perSheet))) return 'multiple';
+  return 'normal';
+}
+
+/**
+ * De schaalkeuze en het aantal per vel na een klik op wijze `modus`.
+ * `onthouden.schaling`: de laatste gewone schaal (terug van de poster);
+ * `onthouden.meer`: het laatste raster bij Meerdere. De poster laat het
+ * aantal per vel staan. Een onbekende wijze verandert niets.
+ * @returns {{scaling:string, perSheet:string}}
+ */
+export function naarModus(modus, { scaling, perSheet }, { meer = '2', schaling = 'fit' } = {}) {
+  if (!PRINT_MODI.includes(modus)) return { scaling, perSheet };
+  if (modus === 'poster') return { scaling: 'poster', perSheet };
+  const gewoon = scaling === 'poster' ? (GEWONE_SCHALEN.includes(schaling) ? schaling : 'fit') : scaling;
+  if (modus === 'normal') return { scaling: gewoon, perSheet: '1' };
+  if (modus === 'flyer') return { scaling: gewoon, perSheet: 'flyer' };
+  if (modus === 'booklet') return { scaling: gewoon, perSheet: 'booklet' };
+  const raster = MEER_PER_BLAD_KEUZES.includes(String(perSheet)) ? String(perSheet)
+    : MEER_PER_BLAD_KEUZES.includes(String(meer)) ? String(meer) : '2';
+  return { scaling: gewoon, perSheet: raster };
 }
 
 /**

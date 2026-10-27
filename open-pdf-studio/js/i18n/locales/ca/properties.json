@@ -63,6 +63,8 @@
     "strokeColor": "Color de traç",
     "color": "Color",
     "opacity": "Opacitat",
+    "fillOpacity": "Opacitat de l'emplenament",
+    "strokeOpacity": "Opacitat del traç",
     "lineWidth": "Amplada de línia",
     "borderWidth": "Amplada de la vora",
     "borderStyle": "Estil de vora",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Enllaça la imatge",
     "imageFilter": "Imatges"
   },
+  "sizeUnit": {
+    "tooltip": "Unitat de les mides"
+  },
   "multiSelect": "{{count}} anotacions seleccionades",
   "pdfText": "Text PDF",
   "types": {
@@ -345,6 +350,18 @@
     "importComments": "Importa comentaris...",
     "exportComments": "Exporta els comentaris a un fitxer de dades...",
     "exportSelectedComments": "Exporta els comentaris seleccionats a un fitxer de dades...",
+    "exportListCsv": "Exporta la llista a CSV...",
+    "summarizeComingSoon": "Properament",
+    "listExported": "Llista de comentaris exportada a CSV",
+    "csvPage": "Pàgina",
+    "csvType": "Tipus",
+    "csvAuthor": "Autor",
+    "csvDate": "Data",
+    "csvStatus": "Estat",
+    "csvSubject": "Assumpte",
+    "csvContents": "Contingut",
+    "csvColor": "Color",
+    "csvLayer": "Capa",
     "sortByPage": "Pàgina",
     "sortByType": "Tipus",
     "sortByAuthor": "Autor",
@@ -357,7 +374,9 @@
     "annotationsMenu": "Menú",
     "schedules": "Llistats",
     "addPage": "Afegeix una pàgina",
-    "pageLabels": "Etiquetes de pàgina (generador de noms)"
+    "pageLabels": "Etiquetes de pàgina (generador de noms)",
+    "portfolio": "Portafolis PDF",
+    "recognizeForm": "Reconeix camps de formulari"
   },
   "scaleBar": {
     "title": "Barra d'escala",
@@ -409,7 +428,8 @@
       "image": "Imatges i segells"
     },
     "preview": "Previsualització",
-    "exportCsv": "Exporta CSV"
+    "exportCsv": "Exporta CSV",
+    "workbookBindings": "Vinculacions amb fulls de càlcul"
   },
   "wizard": {
     "title": "Assistent de llistats",
@@ -591,7 +611,9 @@
       "symbolId": "Símbol",
       "imageName": "Nom del fitxer",
       "width": "Amplada",
-      "height": "Alçada"
+      "height": "Alçada",
+      "location": "Ubicació",
+      "locationSource": "Origen de la ubicació"
     },
     "type": {
       "line": "Línia",
@@ -637,6 +659,8 @@
     "sectionTitle": "Símbol: {{name}}",
     "symbolLabel": "Símbol",
     "typeLabel": "Tipus",
+    "profileType": "Tipus de perfil",
+    "profileTypeTitle": "Perfil d'acer",
     "unknownSymbol": "Símbol desconegut",
     "listNew": "Nou",
     "listAdd": "Afegeix",
@@ -690,5 +714,19 @@
   "scopedPanel": {
     "stale": "Aquest objecte s'ha modificat en un altre lloc. El formulari mostra els valors actuals; els vostres canvis no s'han aplicat.",
     "failed": "No s'han pogut aplicar els canvis: {{error}}"
+  },
+  "location": {
+    "title": "Ubicació",
+    "none": "Sense assignar",
+    "manual": "Manual",
+    "computed": "Calculada",
+    "override": "Substitució manual (buit esborra la ubicació)",
+    "automatic": "Utilitza la ubicació automàtica",
+    "zoneName": "Utilitza aquesta forma com a zona amb nom",
+    "parent": "Zona pare",
+    "removeZone": "Elimina la definició de zona",
+    "invalid": "No s'ha pogut actualitzar la ubicació",
+    "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
+    "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
   }
 }

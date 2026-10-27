@@ -456,22 +456,24 @@ impl TileScene {
         self.render_tile_impl(scale, tx, ty, tw, th, cull)
     }
 
-    fn render_tile_impl_on_white(&self, scale: f32, tx: u32, ty: u32, tw: u32, th: u32) -> Pixmap {
+    fn render_tile_impl_on_white(&self, scale: f32, tx: u32, ty: u32, tw: u32, th: u32, thin_lines: bool) -> Pixmap {
         let mut pm = Pixmap::new(tw, th).expect("tile pixmap");
         pm.fill(tiny_skia::Color::WHITE);
-        self.replay_onto(&mut pm, scale, tx, ty, tw, th, true);
+        self.replay_onto(&mut pm, scale, tx, ty, tw, th, true, thin_lines);
         pm
     }
 
     fn render_tile_impl(&self, scale: f32, tx: u32, ty: u32, tw: u32, th: u32, cull: bool) -> Pixmap {
         let mut pixmap = Pixmap::new(tw, th).expect("tile pixmap");
-        self.replay_onto(&mut pixmap, scale, tx, ty, tw, th, cull);
+        self.replay_onto(&mut pixmap, scale, tx, ty, tw, th, cull, false);
         pixmap
     }
 
     /// Replay alle relevante chunks van een tegel op een bestaande pixmap
     /// (transparant óf voorgevuld met papier-wit).
-    fn replay_onto(&self, pixmap: &mut Pixmap, scale: f32, tx: u32, ty: u32, tw: u32, th: u32, cull: bool) {
+    /// `thin_lines`: Thin Lines-weergave (#595), elke stroke als haarlijn.
+    #[allow(clippy::too_many_arguments)]
+    fn replay_onto(&self, pixmap: &mut Pixmap, scale: f32, tx: u32, ty: u32, tw: u32, th: u32, cull: bool, thin_lines: bool) {
         // volledige-pagina-CTM = scale · base. De tegel-verschuiving gaat NIET
         // de CTM in maar als aparte integer-translate in de paint-aanroepen:
         // paden krijgen zo exact dezelfde float-coördinaten als de volledige
@@ -494,14 +496,14 @@ impl TileScene {
             if cull && (bx1 < t_min_x || bx0 > t_max_x || by1 < t_min_y || by0 > t_max_y) {
                 continue;
             }
-            self.replay_range(chunk, full, tile_shift, pixmap);
+            self.replay_range(chunk, full, tile_shift, pixmap, thin_lines);
         }
     }
 
     /// Replay één chunk op een pixmap. `ctm_base` vervangt de scene-basis
     /// (bevat scale + tegel-translatie); de chunk-snapshot-CTM is relatief
     /// aan de scene-basis en wordt daarop omgehangen.
-    fn replay_range(&self, chunk: &Chunk, ctm_base: Transform, tile_shift: Transform, pixmap: &mut Pixmap) {
+    fn replay_range(&self, chunk: &Chunk, ctm_base: Transform, tile_shift: Transform, pixmap: &mut Pixmap, thin_lines: bool) {
         // snapshot-CTM = (relatief t.o.v. self.base) · self.base. Om hem onder
         // ctm_base te hangen: rel = snap.ctm · base⁻¹; ctm = rel · ctm_base.
         let inv_base = match self.base.invert() {
@@ -581,8 +583,12 @@ impl TileScene {
                         paint.set_color(rgba_to_color(state.stroke_rgba));
                         paint.anti_alias = true;
                         let s = uniform_scale(&state.ctm);
-                        let dev_w = state.stroke_width * s;
-                        let floored = if dev_w < self.hairline_floor_px {
+                        // Thin Lines (#595): breedte 0 = de dunste lijn die
+                        // het apparaat kan tekenen, net als PDFium (1 px).
+                        let dev_w = if thin_lines { 0.0 } else { state.stroke_width * s };
+                        let floored = if thin_lines {
+                            1.0
+                        } else if dev_w < self.hairline_floor_px {
                             self.hairline_floor_px.max(0.05)
                         } else {
                             dev_w
@@ -830,6 +836,21 @@ impl TileScene {
         w_pt: f32,
         h_pt: f32,
     ) -> (u32, u32, Vec<u8>) {
+        self.render_region_rgba_opts(scale, x_pt, y_pt, w_pt, h_pt, false)
+    }
+
+    /// `render_region_rgba` met de Thin Lines-weergave (#595): `thin_lines`
+    /// tekent elke stroke als haarlijn van één device-pixel. De scene zelf is
+    /// in beide standen dezelfde, dus de scene-cache hoeft er niets van te weten.
+    pub fn render_region_rgba_opts(
+        &self,
+        scale: f32,
+        x_pt: f32,
+        y_pt: f32,
+        w_pt: f32,
+        h_pt: f32,
+        thin_lines: bool,
+    ) -> (u32, u32, Vec<u8>) {
         let tx = (x_pt * scale).round().max(0.0) as u32;
         let ty = (y_pt * scale).round().max(0.0) as u32;
         let tw = (w_pt * scale).ceil().max(1.0) as u32;
@@ -838,7 +859,7 @@ impl TileScene {
         // tegels met putImageData (geen compositing), dus transparante of
         // half-doorzichtige AA-randen zouden anders tegen de donkere
         // app-achtergrond mengen en de lijnkleuren vervuilen.
-        let pm = self.render_tile_impl_on_white(scale, tx, ty, tw, th);
+        let pm = self.render_tile_impl_on_white(scale, tx, ty, tw, th, thin_lines);
         let mut rgba = pm.take();
         // premultiplied → straight alpha voor putImageData aan de JS-kant.
         for p in rgba.chunks_exact_mut(4) {
@@ -996,6 +1017,27 @@ mod tests {
         assert_eq!(full.rgba, tiled.rgba, "tegel-assemblage wijkt af van volledige render");
         // en er is echt inhoud
         assert!(full.rgba.chunks_exact(4).any(|p| p[3] != 0));
+    }
+
+    /// Thin Lines (#595): de 3 pt brede diagonaal wordt een haarlijn van één
+    /// device-pixel, de vlakken blijven ongewijzigd.
+    #[test]
+    fn thin_lines_draws_strokes_as_hairlines() {
+        let scene = test_scene();
+        let donker = |rgba: &[u8]| rgba.chunks_exact(4).filter(|p| p[2] > 150 && p[0] < 120).count();
+        let (w, h, gewoon) = scene.render_region_rgba(2.0, 0.0, 0.0, 200.0, 200.0);
+        let (w2, h2, dun) = scene.render_region_rgba_opts(2.0, 0.0, 0.0, 200.0, 200.0, true);
+        assert_eq!((w, h), (w2, h2));
+        let (n_gewoon, n_dun) = (donker(&gewoon), donker(&dun));
+        // 3 pt bij schaal 2 = 6 px breed tegen ~1 px: ruim 3x minder blauw.
+        assert!(n_dun * 3 < n_gewoon, "dun {} vs gewoon {}", n_dun, n_gewoon);
+        assert!(n_dun > 0, "de haarlijn moet zichtbaar blijven");
+        // Het rode vlak (fill) blijft identiek.
+        let rood = |rgba: &[u8]| rgba.chunks_exact(4).filter(|p| p[0] > 200 && p[1] < 80 && p[2] < 80).count();
+        assert_eq!(rood(&gewoon), rood(&dun));
+        // Zonder Thin Lines blijft render_region_rgba_opts gelijk aan de oude aanroep.
+        let (_, _, uit) = scene.render_region_rgba_opts(2.0, 0.0, 0.0, 200.0, 200.0, false);
+        assert_eq!(uit, gewoon);
     }
 
     #[test]

@@ -158,8 +158,13 @@ export default function SignatureDialog(props) {
     return [e.clientX - rect.left, e.clientY - rect.top];
   }
 
+  // Pointer events, so a finger or pen draws as well as the mouse (#671). The
+  // capture keeps the stroke going when the pointer leaves the pad.
   function startDraw(e) {
     if (!pad.canvas) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
     const [x, y] = padPoint(e);
     pad.begin(x, y, strokeColor());
   }
@@ -283,10 +288,11 @@ export default function SignatureDialog(props) {
             ref={(el) => pad.attach(el)}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            onMouseDown={startDraw}
-            onMouseMove={continueDraw}
-            onMouseUp={endDraw}
-            onMouseLeave={endDraw}
+            style={{ 'touch-action': 'none' }}
+            onPointerDown={startDraw}
+            onPointerMove={continueDraw}
+            onPointerUp={endDraw}
+            onPointerCancel={endDraw}
           />
         </div>
       </Show>

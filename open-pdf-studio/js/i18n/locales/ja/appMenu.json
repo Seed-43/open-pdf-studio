@@ -71,6 +71,12 @@
     "site": "このサイト",
     "noSiteDocuments": "このサイトにドキュメントはありません",
     "siteListError": "このサイトのドキュメントを読み込めませんでした",
+    "versions": "バージョン",
+    "versionNumber": "バージョン {{version}}",
+    "currentVersion": "現在",
+    "noVersions": "バージョンがありません",
+    "versionsError": "バージョンを読み込めませんでした",
+    "olderVersionsHint": "以前のバージョンは読み取り専用で開きます。「名前を付けて保存」でコピーをダウンロードできます。",
     "save": "保存"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "ページ",
     "officeTable": "表",
     "officeText": "テキスト",
-    "officeFailed": "文書のエクスポートに失敗しました。"
+    "officeFailed": "文書のエクスポートに失敗しました。",
+    "protect": "パスワードで保護",
+    "protectDesc": "パスワードで保護したコピーを保存します (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "出力プロファイル",
@@ -211,5 +219,9 @@
     "activationFailed": "無効: {{error}}",
     "viaMcp": "AI 接続経由"
   },
-  "annotateScreenshot": "クリップボードのスクリーンショットに注釈を付ける"
+  "annotateScreenshot": "クリップボードのスクリーンショットに注釈を付ける",
+  "workflows": "ドキュメントワークフロー",
+  "drawingSets": "図面セット",
+  "sheetLinks": "図面間リンク",
+  "approvalRouting": "承認ルーティング"
 }

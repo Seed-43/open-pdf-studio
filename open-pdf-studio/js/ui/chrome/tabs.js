@@ -8,6 +8,7 @@ import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActive
 import { cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
 import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
+import { bestandsnaamUitPad } from '../../core/bestandsnaam.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
 import { persistReaderPosition, restoreReaderPosition } from '../../pdf/reader-mode-view.js';
@@ -16,6 +17,9 @@ import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 import { compareActive, compareFocused, focusCompareTab, blurCompareTab } from '../../compare/compare-store.js';
 import { volgendTabDoel, voerTabWisselUit } from './tab-sneltoets.js';
 import { isBeveiligdDocument } from '../../pdf/wachtwoord-pdf.js';
+import { hostVersieLabel } from '../../pdf/host-versies.js';
+import i18next from '../../i18n/config.js';
+import { meldWijziging, meldGesloten } from '../../herstel/haken.js';
 
 /**
  * Create a new tab for a document
@@ -341,6 +345,8 @@ export async function closeTab(index, force = false, dialogAction = null) {
 
   // Remove the document
   state.documents.splice(index, 1);
+  // Gesloten (opgeslagen of bewust niet): de herstelmomentopname kan weg.
+  meldGesloten(doc);
 
   // Geef vrij wat dit document in het geheugen vasthield: de PDF.js-instantie,
   // de ruwe bestandsbytes, vector-commandobuffers, bitmaps en de documentcaches
@@ -535,7 +541,7 @@ export async function renameDocument(index, newName) {
     const doc = getActiveDocument();
     if (doc) {
       doc.filePath = newPath;
-      doc.fileName = newPath ? newPath.split(/[\\/]/).pop() : 'Untitled';
+      doc.fileName = (newPath && bestandsnaamUitPad(newPath)) || 'Untitled';
     }
     updateWindowTitle();
     return true;
@@ -566,7 +572,9 @@ export function updateWindowTitle() {
   // Update document.title (browser/OS window title)
   if (doc) {
     const modified = doc.modified ? '*' : '';
-    document.title = `${modified}${doc.fileName} - ${baseTitle}`;
+    // Een oudere versie van de site (#712): "Versie 3 van 5 – alleen-lezen".
+    const versie = hostVersieLabel(doc, (s, o) => i18next.t(s, o));
+    document.title = `${modified}${doc.fileName}${versie ? ` (${versie})` : ''} - ${baseTitle}`;
   } else {
     document.title = baseTitle;
   }
@@ -582,6 +590,7 @@ export function markDocumentModified(doc = getActiveDocument()) {
     doc.modified = true;
     // Direct modification bypasses undo stack, so clean point is unreachable
     doc.savedUndoStackLength = -1;
+    meldWijziging(doc);
     updateTabBar();
     updateWindowTitle();
   }

@@ -29,7 +29,8 @@
     "formCheckbox": "Casilla de verificación de formulario",
     "formRadio": "Botón de opción de formulario",
     "screenshot": "Captura de pantalla",
-    "pageLabelPick": "Elegir texto para la etiqueta de página"
+    "pageLabelPick": "Elegir texto para la etiqueta de página",
+    "proofread": "Revisión"
   },
   "toolLabel": "Herramienta:",
   "annotationsLabel": "Anotaciones:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Página {{page}}",
   "searchHitsOne": "1 coincidencia",
   "searchHitsMany": "{{count}} coincidencias",
-  "passwordProtectedBar": "Protegido con contraseña: abierto en modo de solo lectura."
+  "passwordProtectedBar": "Protegido con contraseña: abierto en modo de solo lectura.",
+  "documentSearch": {
+    "title": "Buscar en documentos",
+    "query": "Texto de búsqueda",
+    "scope": "Buscar en",
+    "active": "Documento actual",
+    "open": "Documentos abiertos",
+    "folder": "Carpeta",
+    "choose": "Elegir carpeta",
+    "annotations": "Incluir comentarios",
+    "search": "Buscar",
+    "cancel": "Cancelar",
+    "stale": "El documento ha cambiado. Vuelva a ejecutar la búsqueda.",
+    "folderHint": "Busca en los archivos PDF situados directamente en esta carpeta, sin abrir pestañas ni modificar archivos.",
+    "limited": "Se alcanzó el límite de resultados. Afine la búsqueda.",
+    "cancelled": "Búsqueda cancelada; los resultados están incompletos.",
+    "ocrHint": "No hay texto buscable en las páginas {{pages}}. Abra el documento y ejecute el OCR explícitamente si es necesario.",
+    "status": {
+      "searching": "Buscando",
+      "complete": "Completada",
+      "needs_ocr": "Contiene páginas sin texto buscable",
+      "encrypted": "Se requiere contraseña",
+      "unreadable": "No se pudo buscar",
+      "changed": "Documento modificado; vuelva a buscar",
+      "cancelled": "Cancelada",
+      "limited": "Límite de resultados alcanzado"
+    },
+    "failed": "La búsqueda ha fallado. Revise la consulta y la carpeta e inténtelo de nuevo.",
+    "prepareOcr": "Abrir para OCR…"
+  },
+  "symbolSearch": "Buscar símbolos",
+  "findMoreOptions": "Más opciones de búsqueda",
+  "watchActive": "Vigilando {{folder}}",
+  "watchFailed": "Error de vigilancia: {{folder}}",
+  "watchTitle": "El flujo de trabajo de documentos vigila {{input}} y escribe en {{output}}. Haga clic para dejar de vigilar.",
+  "renderDiagnostics": {
+    "title": "Ir al siguiente aviso de renderizado. No tener avisos no garantiza un renderizado completo.",
+    "count": "Avisos de renderizado: {{count}}",
+    "detail": "Página {{page}}: {{code}}. Pruebe un zoom menor o vuelva a abrir el documento; no se garantiza que esté completo."
+  }
 }

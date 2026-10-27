@@ -1,209 +1,73 @@
 /* ==============================
-   Language-specific font stacks
+   Language-specific UI font fallbacks
    ==============================
-   Each language gets the best available system fonts for its script.
-   Fonts are listed in priority order: Windows, macOS, Linux, fallback.
+   The interface font is defined once in base.css as --ui-font and starts
+   with system-ui, so every language gets the operating system's interface
+   font first. Latin, Cyrillic and Greek need nothing extra: system-ui and
+   the generic fallbacks cover them.
+
+   Scripts below add fonts that are known to carry the script well, after
+   system-ui and before the generic fallback, for systems whose interface
+   font lacks those glyphs. The order per list is Windows, macOS, Linux.
+   Only --ui-font is overridden here, on the root, and :lang() also
+   matches regional codes such as zh-CN; elements keep using var(--ui-font).
 */
 
 /* --- Arabic script (RTL) --- */
 
-/* Arabic */
-[lang="ar"] {
-  font-family: 'Segoe UI', 'Geeza Pro', 'SF Arabic', 'Tahoma', 'Arial', sans-serif;
-}
-
-/* Farsi (Persian) */
-[lang="fa"] {
-  font-family: 'Segoe UI', 'Geeza Pro', 'SF Arabic', 'Tahoma', 'Arial', sans-serif;
+/* Arabic, Farsi (Persian) */
+:root:lang(ar),
+:root:lang(fa) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Geeza Pro', 'SF Arabic', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
 }
 
 /* Urdu */
-[lang="ur"] {
-  font-family: 'Segoe UI', 'Geeza Pro', 'SF Arabic', 'Noto Nastaliq Urdu', 'Tahoma', sans-serif;
+:root:lang(ur) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Geeza Pro', 'SF Arabic', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', Tahoma, sans-serif;
 }
 
 /* Hebrew */
-[lang="he"] {
-  font-family: 'Segoe UI', 'Arial Hebrew', 'SF Hebrew', 'Tahoma', 'Arial', sans-serif;
+:root:lang(he) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial Hebrew', 'SF Hebrew', 'Noto Sans Hebrew', Tahoma, Arial, sans-serif;
 }
 
 /* --- CJK (East Asian) --- */
 
 /* Chinese (Simplified) */
-[lang="zh"] {
-  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'WenQuanYi Micro Hei', sans-serif;
+:root:lang(zh) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', sans-serif;
 }
 
 /* Japanese */
-[lang="ja"] {
-  font-family: 'Yu Gothic UI', 'Meiryo', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+:root:lang(ja) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Yu Gothic UI', 'Meiryo UI', Meiryo, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Noto Sans CJK JP', sans-serif;
 }
 
 /* Korean */
-[lang="ko"] {
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+:root:lang(ko) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Noto Sans CJK KR', sans-serif;
 }
 
 /* --- South Asian --- */
 
 /* Hindi */
-[lang="hi"] {
-  font-family: 'Nirmala UI', 'Kohinoor Devanagari', 'Devanagari MT', 'Noto Sans Devanagari', 'Mangal', sans-serif;
+:root:lang(hi) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Nirmala UI', 'Kohinoor Devanagari', 'Devanagari MT', 'Noto Sans Devanagari', Mangal, sans-serif;
 }
 
 /* Bengali */
-[lang="bn"] {
-  font-family: 'Nirmala UI', 'Kohinoor Bangla', 'Bangla MN', 'Noto Sans Bengali', 'Vrinda', sans-serif;
+:root:lang(bn) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Nirmala UI', 'Kohinoor Bangla', 'Bangla MN', 'Noto Sans Bengali', Vrinda, sans-serif;
 }
 
 /* Tamil */
-[lang="ta"] {
-  font-family: 'Nirmala UI', 'Kohinoor Tamil', 'Tamil MN', 'Noto Sans Tamil', 'Latha', sans-serif;
+:root:lang(ta) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Nirmala UI', 'Kohinoor Tamil', 'Tamil MN', 'Noto Sans Tamil', Latha, sans-serif;
 }
 
 /* --- Southeast Asian --- */
 
 /* Thai */
-[lang="th"] {
-  font-family: 'Leelawadee UI', 'Thonburi', 'Noto Sans Thai', 'Tahoma', sans-serif;
-}
-
-/* Vietnamese */
-[lang="vi"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Indonesian */
-[lang="id"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Malay */
-[lang="ms"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* --- Cyrillic --- */
-
-/* Russian */
-[lang="ru"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Ukrainian */
-[lang="uk"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Bulgarian */
-[lang="bg"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Serbian */
-[lang="sr"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* --- Greek --- */
-
-[lang="el"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* --- Latin script (European & African) --- */
-
-/* German */
-[lang="de"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* French */
-[lang="fr"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Spanish */
-[lang="es"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Portuguese */
-[lang="pt"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Italian */
-[lang="it"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Dutch */
-[lang="nl"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Polish */
-[lang="pl"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Czech */
-[lang="cs"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Slovak */
-[lang="sk"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Romanian */
-[lang="ro"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Hungarian */
-[lang="hu"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Croatian */
-[lang="hr"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Catalan */
-[lang="ca"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-/* Turkish */
-[lang="tr"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Finnish */
-[lang="fi"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Swedish */
-[lang="sv"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Danish */
-[lang="da"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Norwegian (Bokmal) */
-[lang="nb"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
-}
-
-/* Swahili */
-[lang="sw"] {
-  font-family: 'Segoe UI', 'SF Pro Text', 'Noto Sans', 'Arial', sans-serif;
+:root:lang(th) {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Leelawadee UI', Thonburi, 'Noto Sans Thai', Tahoma, sans-serif;
 }

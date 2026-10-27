@@ -29,7 +29,8 @@
     "formCheckbox": "תיבת סימון בטופס",
     "formRadio": "לחצן בחירה בטופס",
     "screenshot": "צילום מסך",
-    "pageLabelPick": "בחירת טקסט לתווית עמוד"
+    "pageLabelPick": "בחירת טקסט לתווית עמוד",
+    "proofread": "הגהה"
   },
   "toolLabel": "כלי:",
   "annotationsLabel": "הערות:",
@@ -108,5 +109,44 @@
   "searchResultPage": "עמוד {{page}}",
   "searchHitsOne": "תוצאה אחת",
   "searchHitsMany": "{{count}} תוצאות",
-  "passwordProtectedBar": "מוגן בסיסמה: נפתח לקריאה בלבד."
+  "passwordProtectedBar": "מוגן בסיסמה: נפתח לקריאה בלבד.",
+  "documentSearch": {
+    "title": "חיפוש במסמכים",
+    "query": "טקסט לחיפוש",
+    "scope": "חיפוש ב-",
+    "active": "המסמך הנוכחי",
+    "open": "מסמכים פתוחים",
+    "folder": "תיקייה",
+    "choose": "בחירת תיקייה",
+    "annotations": "כלול הערות",
+    "search": "חיפוש",
+    "cancel": "ביטול",
+    "stale": "המסמך השתנה. הרץ את החיפוש שוב.",
+    "folderHint": "מחפש בקובצי PDF הנמצאים ישירות בתיקייה זו, בלי לפתוח כרטיסיות או לשנות קבצים.",
+    "limited": "הגעת למגבלת התוצאות. צמצם את החיפוש.",
+    "cancelled": "החיפוש בוטל; התוצאות חלקיות.",
+    "ocrHint": "אין טקסט הניתן לחיפוש בעמודים {{pages}}. פתח את המסמך והרץ OCR במפורש במידת הצורך.",
+    "status": {
+      "searching": "מחפש",
+      "complete": "הושלם",
+      "needs_ocr": "מכיל עמודים ללא טקסט הניתן לחיפוש",
+      "encrypted": "נדרשת סיסמה",
+      "unreadable": "לא ניתן לחפש",
+      "changed": "המסמך השתנה; חפש שוב",
+      "cancelled": "בוטל",
+      "limited": "הגעת למגבלת התוצאות"
+    },
+    "failed": "החיפוש נכשל. בדוק את השאילתה ואת התיקייה ונסה שוב.",
+    "prepareOcr": "פתיחה לצורך OCR…"
+  },
+  "symbolSearch": "חיפוש סמלים",
+  "findMoreOptions": "אפשרויות חיפוש נוספות",
+  "watchActive": "מעקב אחר {{folder}}",
+  "watchFailed": "שגיאת מעקב: {{folder}}",
+  "watchTitle": "תהליך העבודה של המסמך עוקב אחר {{input}} וכותב אל {{output}}. לחץ כדי להפסיק את המעקב.",
+  "renderDiagnostics": {
+    "title": "מעבר לממצא העיבוד הבא. היעדר ממצאים אינו מבטיח עיבוד מלא.",
+    "count": "ממצאי עיבוד: {{count}}",
+    "detail": "עמוד {{page}}: {{code}}. נסו זום נמוך יותר או פתחו את המסמך מחדש; השלמות אינה מובטחת."
+  }
 }

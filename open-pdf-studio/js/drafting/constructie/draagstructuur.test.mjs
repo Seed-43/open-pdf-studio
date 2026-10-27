@@ -32,10 +32,26 @@ test('de familie-schrijfwijze werkt met en zonder spatie', () => {
 test('kokers en hoeklijnen krijgen de maat die het symbool kent', () => {
   assert.deepEqual(
     { id: ontleedProfiel('Koker 100x100x5').symbolId, maat: ontleedProfiel('Koker 100x100x5').maat },
-    { id: 'staal-koker', maat: 'Koker 100x100x5' },
+    { id: 'staal-koker', maat: 'K100/5' },
   );
   assert.equal(ontleedProfiel('L 100x100x10').symbolId, 'staal-hoeklijn');
   assert.equal(ontleedProfiel('L100x100x10').maat, 'L 100x100x10');
+});
+
+test('een vierkante koker in oude en nieuwe schrijfwijze wordt K<breedte>/<wanddikte>', () => {
+  for (const tekst of ['K100/5', 'k 100/5', 'Koker 100x100x5', 'koker 100x100x5', 'SHS 100x100x5', 'K100x100x5']) {
+    const p = ontleedProfiel(tekst);
+    assert.equal(p.symbolId, 'staal-koker', tekst);
+    assert.equal(p.maat, 'K100/5', tekst);
+    assert.equal(p.naam, 'K100/5', tekst);
+  }
+  assert.equal(ontleedProfiel('K40/3').maat, 'K40/3');
+  assert.equal(ontleedProfiel('Koker 300x300x12,5').maat, 'K300/12.5');
+});
+
+test('een rechthoekige koker houdt zijn naam', () => {
+  assert.equal(ontleedProfiel('Koker 100x50x5').maat, 'Koker 100x50x5');
+  assert.equal(ontleedProfiel('RHS 100x50x5').maat, 'Koker 100x50x5');
 });
 
 test('een betondoorsnede komt als breedte en hoogte binnen', () => {

@@ -2,6 +2,7 @@ import { pdfjsRecord } from './pdfjs-record.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { AnnotationLayer } from 'pdfjs-dist';
 import { showFormFieldsBar as showBar, hideFormFieldsBar as hideBar } from '../bridge.js';
+import { meldWijziging } from '../herstel/haken.js';
 
 // Sub-module imports
 import { parseJSConstants, parseJSFunctions, decodeJSString, getMessagesForBlurAction } from './form-layer/js-parser.js';
@@ -53,7 +54,7 @@ const simpleLinkService = {
 export function resetAnnotationStorage(doc = getActiveDocument()) {
   getAnnotIdToFieldName(doc).clear();
   const storage = getAnnotationStorage(doc);
-  if (storage) storage.onSetModified = () => { doc.modified = true; };
+  if (storage) storage.onSetModified = () => { doc.modified = true; meldWijziging(doc); };
   if (doc !== getActiveDocument()) return;
   initializedRadioGroups.clear();
   annotButtonValues.clear();

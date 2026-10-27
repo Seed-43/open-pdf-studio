@@ -3,8 +3,9 @@ import { closeAppMenu } from '../../stores/appMenuStore.js';
 import { openPDFFile, loadPDFIfNeeded } from '../../../pdf/loader.js';
 import { getRecentFiles, removeRecentFile, pinRecentFile, unpinRecentFile } from '../../../mobile/recent-files.js';
 import { createTab } from '../../../ui/chrome/tabs.js';
-import { isTauri, fileExists, openFolderDialog, downloadPdfFromUrl, listPdfFiles, hostOpslag, hostDocumenten } from '../../../core/platform.js';
+import { isTauri, fileExists, openFolderDialog, downloadPdfFromUrl, listPdfFiles, hostOpslag, hostDocumenten, hostVersies } from '../../../core/platform.js';
 import { openHostDocument } from '../../../pdf/host-document.js';
+import { ordenVersies, aantalVersies } from '../../../pdf/host-versies.js';
 import { useTranslation, localizeNumber } from '../../../i18n/useTranslation.js';
 import { getSavedSessions, saveCurrentSession, deleteSession, restoreSession } from '../../../stores/sessions.js';
 import { getSavedPlaces, addPlace, removePlace } from '../../../stores/places.js';
@@ -33,6 +34,12 @@ export default function OpenPanel() {
   const [siteDocs, setSiteDocs] = createSignal([]);
   const [siteLoading, setSiteLoading] = createSignal(false);
   const [siteError, setSiteError] = createSignal(false);
+  // De versies van één document van de site (#707), als het contract ze kent.
+  const siteVersies = typeof hostOpslag()?.versions === 'function';
+  const [versiesVan, setVersiesVan] = createSignal(null);
+  const [versies, setVersies] = createSignal([]);
+  const [versiesLoading, setVersiesLoading] = createSignal(false);
+  const [versiesError, setVersiesError] = createSignal(false);
 
   // Places state
   const [places, setPlaces] = createSignal([]);
@@ -64,6 +71,42 @@ export default function OpenPanel() {
   async function handleOpenSiteDoc(doc) {
     closeAppMenu();
     await openHostDocument(doc.id);
+  }
+
+  // Een versie openen: de huidige gewoon, een oudere alleen-lezen in een
+  // eigen tabblad (#712, `open { bestand, versie }`).
+  async function handleOpenVersie(doc, v) {
+    if (v.huidig) return handleOpenSiteDoc(doc);
+    const totaal = aantalVersies(versies());
+    closeAppMenu();
+    await openHostDocument(doc.id, { versie: v.version, totaal });
+  }
+
+  // Versies tonen of verbergen.
+  async function toggleVersies(e, doc) {
+    e.stopPropagation();
+    if (versiesVan() === doc.id) {
+      setVersiesVan(null);
+      return;
+    }
+    setVersiesVan(doc.id);
+    setVersies([]);
+    setVersiesError(false);
+    setVersiesLoading(true);
+    try {
+      const lijst = ordenVersies(await hostVersies(doc.id));
+      if (versiesVan() === doc.id) setVersies(lijst);
+    } catch (fout) {
+      console.warn('[gast] versies van de site niet geladen:', fout);
+      if (versiesVan() === doc.id) setVersiesError(true);
+    } finally {
+      if (versiesVan() === doc.id) setVersiesLoading(false);
+    }
+  }
+
+  function versieMeta(v) {
+    const datum = v.modified && !Number.isNaN(Date.parse(v.modified)) ? formatDate(Date.parse(v.modified)) : v.modified;
+    return [datum, v.author].filter(Boolean).join(' \u00b7 ');
   }
 
   function refreshFiles() {
@@ -454,20 +497,68 @@ export default function OpenPanel() {
               <Show when={siteDocs().length > 0} fallback={<div class="open-panel-empty">{t('openPanel.noSiteDocuments')}</div>}>
                 <For each={siteDocs()}>
                   {(doc) => (
-                    <div class="recent-file-item" onClick={() => handleOpenSiteDoc(doc)}>
-                      <div class="recent-file-icon">
-                        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 0H2C0.9 0 0 0.9 0 2V22C0 23.1 0.9 24 2 24H18C19.1 24 20 23.1 20 22V8L12 0Z" fill="#E53935"/>
-                          <path d="M12 0V8H20L12 0Z" fill="#EF9A9A"/>
-                          <text x="10" y="19" font-size="7" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">PDF</text>
-                        </svg>
-                      </div>
-                      <div class="recent-file-info">
-                        <div class="recent-file-name">{doc.name || doc.id}</div>
-                        <Show when={doc.modified && !Number.isNaN(Date.parse(doc.modified))}>
-                          <div class="recent-file-path">{formatDate(Date.parse(doc.modified))}</div>
+                    <div class="place-wrapper site-doc" data-site-doc={doc.id}>
+                      <div class="recent-file-item" onClick={() => handleOpenSiteDoc(doc)}>
+                        <div class="recent-file-icon">
+                          <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 0H2C0.9 0 0 0.9 0 2V22C0 23.1 0.9 24 2 24H18C19.1 24 20 23.1 20 22V8L12 0Z" fill="#E53935"/>
+                            <path d="M12 0V8H20L12 0Z" fill="#EF9A9A"/>
+                            <text x="10" y="19" font-size="7" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">PDF</text>
+                          </svg>
+                        </div>
+                        <div class="recent-file-info">
+                          <div class="recent-file-name">{doc.name || doc.id}</div>
+                          <Show when={doc.modified && !Number.isNaN(Date.parse(doc.modified))}>
+                            <div class="recent-file-path">{formatDate(Date.parse(doc.modified))}</div>
+                          </Show>
+                        </div>
+                        <Show when={siteVersies}>
+                          <div class="recent-file-actions">
+                            <button
+                              class={`recent-file-action-btn site-versions-btn${versiesVan() === doc.id ? ' pinned' : ''}`}
+                              onClick={(e) => toggleVersies(e, doc)}
+                              title={t('openPanel.versions')}
+                              aria-label={t('openPanel.versions')}
+                              aria-expanded={versiesVan() === doc.id ? 'true' : 'false'}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/>
+                                <polyline points="3 3 3 8 8 8"/>
+                                <polyline points="12 7 12 12 15 14"/>
+                              </svg>
+                            </button>
+                          </div>
                         </Show>
                       </div>
+                      <Show when={versiesVan() === doc.id}>
+                        <div class="place-files site-versions">
+                          <Show when={!versiesLoading()} fallback={<div class="open-panel-empty">{t('common:loading')}</div>}>
+                            <Show when={!versiesError()} fallback={<div class="open-panel-empty">{t('openPanel.versionsError')}</div>}>
+                              <Show when={versies().length > 0} fallback={<div class="open-panel-empty">{t('openPanel.noVersions')}</div>}>
+                                <For each={versies()}>
+                                  {(v) => (
+                                    <div
+                                      class={`place-file-item site-version${v.huidig ? ' current' : ' older'}`}
+                                      data-versie={v.version}
+                                      title={v.huidig ? undefined : t('openPanel.olderVersionsHint')}
+                                      onClick={() => handleOpenVersie(doc, v)}
+                                    >
+                                      <span class="place-file-name">
+                                        {t('openPanel.versionNumber', { version: v.version })}
+                                        {v.huidig ? ` (${t('openPanel.currentVersion')})` : ''}
+                                      </span>
+                                      <span class="site-version-meta">{versieMeta(v)}</span>
+                                    </div>
+                                  )}
+                                </For>
+                                <Show when={versies().some((v) => !v.huidig)}>
+                                  <div class="open-panel-empty site-versions-hint">{t('openPanel.olderVersionsHint')}</div>
+                                </Show>
+                              </Show>
+                            </Show>
+                          </Show>
+                        </div>
+                      </Show>
                     </div>
                   )}
                 </For>

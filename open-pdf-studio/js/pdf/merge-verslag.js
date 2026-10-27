@@ -32,6 +32,27 @@ export function nieuwMergeVerslag(error = null) {
 const naam = (pad) => String(pad || '').split(/[\\/]/).pop();
 
 /**
+ * Wat er per bestand meekwam (samenvoegen.js), in de woorden van de MCP-brug.
+ * Een handtekening die wegviel staat erbij: het resultaat is niet ondertekend.
+ */
+export function meegenomen(carried) {
+  if (!Array.isArray(carried)) return undefined;
+  return carried.map((b) => ({
+    file: b.pad ?? b.naam,
+    pages: b.aantal,
+    annotations: b.annotaties,
+    fields: b.velden,
+    renamedFields: (b.hernoemdeVelden || []).map((h) => ({ from: h.van, to: h.naar })),
+    namedDestinations: b.bestemmingen,
+    renamedDestinations: (b.hernoemdeBestemmingen || []).map((h) => ({ from: h.van, to: h.naar })),
+    bookmarks: b.bladwijzers,
+    layers: b.lagen,
+    signaturesRemoved: b.handtekeningen,
+    fromOpenDocument: !!b.uitApp,
+  }));
+}
+
+/**
  * Het antwoord van `app_merge_pdf`: alleen `ok` als elk gevraagd bestand er
  * werkelijk in zit. Anders `ok: false` met per bestand waarom het eruit bleef;
  * wat wel lukte staat er ook bij (`mergedFiles`, `pagesAfter`).
@@ -56,6 +77,8 @@ export function mergeAntwoord(verslag, o) {
   // "Samengevoegd" zonder dat er een pagina bijkwam, telt niet.
   const mergedFiles = gegroeid ? verslag.merged.length : 0;
   const kop = { position: o?.position, mergedFiles, pagesInserted: Number(verslag.pagesInserted) || 0 };
+  const carried = meegenomen(verslag.carried);
+  if (carried) kop.carried = carried;
 
   if (!verslag.error && mergedFiles === gevraagd && gevraagd > 0 && !refused.length && !failed.length) {
     return { ok: true, ...kop, ...staart };

@@ -93,7 +93,22 @@
     "editBookmark": "Muokkaa kirjanmerkkia",
     "deleteBookmark": "Poista kirjanmerkki",
     "expandAll": "Laajenna kaikki",
-    "collapseAll": "Kutista kaikki"
+    "collapseAll": "Kutista kaikki",
+    "color": "Väri",
+    "colorDefault": "Oletus",
+    "colorRed": "Punainen",
+    "colorOrange": "Oranssi",
+    "colorGreen": "Vihreä",
+    "colorBlue": "Sininen",
+    "colorPurple": "Purppura",
+    "colorGray": "Harmaa",
+    "colorCustom": "Mukautettu...",
+    "bold": "Lihavoitu",
+    "italic": "Kursiivi",
+    "nestUnderNew": "Sisennä uuden kirjanmerkin alle...",
+    "indent": "Sisennä",
+    "outdent": "Pienennä sisennystä",
+    "deleteBookmarks": "Poista {{count}} kirjanmerkkiä"
   },
   "thumbnail": {
     "rotateLeft": "Kierrä vasemmalle",

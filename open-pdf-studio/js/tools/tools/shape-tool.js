@@ -1,5 +1,6 @@
 /**
- * Shape tool — handles box, circle, highlight, cloud, polygon, redaction, textbox, callout
+ * Shape tool — handles box, circle, highlight, cloud, redaction, textbox, callout
+ * (the polygon has its own corner-by-corner tool, polygon-tool.js)
  * All use the same drag-to-create pattern via buildAnnotationProps + drawShapePreview
  */
 import { isKlikSleep } from '../../annotations/minimummaat.js';
@@ -15,12 +16,27 @@ import {
   typeLengthActive,
   typeLengthBuffer,
 } from '../type-length-input.js';
+import { maakCalloutPlaatsing } from '../callout-plaatsing.js';
+
+// ── Callout in twee klikken (#613): klik 1 = de punt, klik 2 = het tekstvak.
+// Tussen de klikken een voorbeeld van aanhaallijn en tekstvak onder de
+// cursor; Esc of een andere tool breekt af. Een sleep plaatst in één gebaar.
+const _callout = maakCalloutPlaatsing();
+// De pagina onder de cursor (doorlopende weergave), anders de huidige.
+const _calloutPagina = (ctx) => ctx?.pageNum || getActiveDocument()?.currentPage || 1;
+const _calloutOpDezePagina = (ctx) => _callout.actief && _callout.punt.pagina === _calloutPagina(ctx);
+
+function _calloutStop(ctx) {
+  if (!_callout.actief) return;
+  _callout.stop();
+  if (ctx && typeof ctx.redraw === 'function') ctx.redraw();
+}
 
 // ── Maatinvoer (CAD-stijl): klik = anker, typen + Enter = vorm met opgegeven
 // maten. `500,300` = breedte × hoogte, één getal = vierkant / diameter.
 // De geometrie volgt de cursorrichting (net als de lijn-tool), zodat je met
 // de muis nog kantelt WAT je typt.
-const MAAT_TOOLS = new Set(['box', 'circle', 'ellipse', 'polygon', 'lshape']);
+const MAAT_TOOLS = new Set(['box', 'circle', 'ellipse', 'lshape']);
 const _dim = { actief: false, startX: 0, startY: 0, cursor: null, end: null, ctx: null };
 
 function _dimStop() {
@@ -96,6 +112,12 @@ export const shapeTool = {
     // Een nieuwe klik breekt een openstaande maatinvoer af (opnieuw ankeren).
     if (_dim.actief) _dimStop();
     const { state } = ctx;
+    // Klik 2 van een callout: het voorbeeld blijft aan de punt vastzitten
+    // terwijl de knop ingedrukt is.
+    if (state.currentTool === 'callout' && _calloutOpDezePagina(ctx)) {
+      state.startX = _callout.punt.x;
+      state.startY = _callout.punt.y;
+    }
     state.isDrawing = true;
     // Start the marching-ants animation as soon as a redaction drag begins so
     // the live preview border animates while dragging (and keeps animating for
@@ -118,6 +140,17 @@ export const shapeTool = {
         ? _squareEnd(_dim.startX, _dim.startY, end.x, end.y)
         : end;
       ctx.drawShapePreview(_dim.end.x, _dim.end.y, e);
+      return;
+    }
+
+    // Callout tussen klik 1 en klik 2: aanhaallijn van de punt naar de cursor
+    // en het tekstvak eronder, zoals het straks geplaatst wordt.
+    if (!state.isDrawing && state.currentTool === 'callout' && _calloutOpDezePagina(ctx)) {
+      const snap = ctx.snap(x, y);
+      state.lastSnapResult = snap.snapped ? snap : null;
+      state.startX = _callout.punt.x;
+      state.startY = _callout.punt.y;
+      ctx.drawShapePreview(snap.snapped ? snap.x : x, snap.snapped ? snap.y : y, e);
       return;
     }
 
@@ -162,7 +195,40 @@ export const shapeTool = {
     const dy = Math.abs(endY - state.startY);
     const isClick = isKlikSleep(dx, dy, ctx.scale);
 
-    if (isClick && tool === 'textbox') {
+    if (tool === 'callout') {
+      // Klik 1 onthoudt de punt (de tool blijft actief), klik 2 plaatst het
+      // tekstvak; een sleep plaatst in één gebaar (callout-plaatsing.js).
+      const stap = _callout.loslaten({
+        start: { x: state.startX, y: state.startY },
+        eind: { x: endX, y: endY },
+        klik: isClick,
+        pagina: _calloutPagina(ctx),
+      });
+      if (stap.soort !== 'plaats') {
+        if (stap.soort === 'punt') {
+          updateStatusMessage(
+            i18next.t('drawing.calloutStep2', {
+              ns: 'ribbon',
+              defaultValue: 'Click where the note should go — Esc to cancel',
+            }),
+            6000,
+          );
+        }
+        ctx.redraw();
+        return true;
+      }
+      state.startX = stap.punt.x;
+      state.startY = stap.punt.y;
+      endX = stap.notitie.x;
+      endY = stap.notitie.y;
+      // Tekstvak op de punt (dubbelklik): op het scherm rechtsboven de punt,
+      // ook in een gedraaide weergave.
+      if (isKlikSleep(Math.abs(endX - state.startX), Math.abs(endY - state.startY), ctx.scale)) {
+        const naar = weergaveVectorNaarPagina(80, -40);
+        endX = state.startX + naar.x;
+        endY = state.startY + naar.y;
+      }
+    } else if (isClick && tool === 'textbox') {
       // Compact standaardvak, passend bij de 8pt-standaardtekst: op het
       // scherm naar rechts en omlaag, ook in een gedraaide weergave (#200).
       const naar = weergaveVectorNaarPagina(100, 20);
@@ -173,12 +239,6 @@ export const shapeTool = {
       // "plaatsen", not "drag a rectangle"); dragging still sets a custom size.
       // Op het scherm rechts onder de klik, ook in een gedraaide weergave.
       const naar = weergaveVectorNaarPagina(200, 140);
-      endX = state.startX + naar.x;
-      endY = state.startY + naar.y;
-    } else if (isClick && tool === 'callout') {
-      // Click places arrow tip; box appears offset above-right (on screen,
-      // also in a rotated view)
-      const naar = weergaveVectorNaarPagina(80, -40);
       endX = state.startX + naar.x;
       endY = state.startY + naar.y;
     } else if (isClick && (tool === 'comment' || tool === 'stamp' || tool === 'signature' || tool === 'count')) {
@@ -232,12 +292,14 @@ export const shapeTool = {
 
   // Maatinvoer netjes afbreken (Escape wisselt daarna naar de selectietool;
   // wisselen van gereedschap ruimt via onDeactivate dezelfde state op).
-  onEscape() {
+  onEscape(ctx) {
     if (_dim.actief) _dimStop();
+    _calloutStop(ctx);
   },
 
-  onDeactivate() {
+  onDeactivate(ctx) {
     if (_dim.actief) _dimStop();
+    _calloutStop(ctx);
   },
 };
 

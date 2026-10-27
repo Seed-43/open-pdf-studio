@@ -71,6 +71,12 @@
     "site": "Tällä sivustolla",
     "noSiteDocuments": "Tällä sivustolla ei ole asiakirjoja",
     "siteListError": "Tämän sivuston asiakirjoja ei voitu ladata",
+    "versions": "Versiot",
+    "versionNumber": "Versio {{version}}",
+    "currentVersion": "nykyinen",
+    "noVersions": "Ei versioita",
+    "versionsError": "Versioita ei voitu ladata",
+    "olderVersionsHint": "Vanhemmat versiot avautuvat vain luku -tilassa; Tallenna nimellä lataa kopion.",
     "save": "Tallenna"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Sivu",
     "officeTable": "Taulukko",
     "officeText": "Teksti",
-    "officeFailed": "Asiakirjan vienti epäonnistui."
+    "officeFailed": "Asiakirjan vienti epäonnistui.",
+    "protect": "Suojaa salasanalla",
+    "protectDesc": "Tallenna salasanalla suojattu kopio (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Tulostusprofiili",
@@ -211,5 +219,9 @@
     "activationFailed": "Ei käytössä: {{error}}",
     "viaMcp": "Tekoälyyhteyden kautta"
   },
-  "annotateScreenshot": "Merkitse leikepöydän kuvakaappaus"
+  "annotateScreenshot": "Merkitse leikepöydän kuvakaappaus",
+  "workflows": "Asiakirjatyönkulut",
+  "drawingSets": "Piirustussarjat",
+  "sheetLinks": "Piirustusten väliset linkit",
+  "approvalRouting": "Hyväksyntäkierto"
 }

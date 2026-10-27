@@ -63,6 +63,8 @@
     "strokeColor": "Rangi ya Mstari",
     "color": "Rangi",
     "opacity": "Uwazi",
+    "fillOpacity": "Uwazi wa Kujaza",
+    "strokeOpacity": "Uwazi wa Mstari",
     "lineWidth": "Upana wa Mstari",
     "borderWidth": "Upana wa Mpaka",
     "borderStyle": "Mtindo wa Mpaka",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Unganisha picha",
     "imageFilter": "Picha"
   },
+  "sizeUnit": {
+    "tooltip": "Kipimo cha ukubwa"
+  },
   "multiSelect": "maoni {{count}} yamechaguliwa",
   "pdfText": "Maandishi ya PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Ingiza maoni...",
     "exportComments": "Hamisha maoni kwenye faili ya data...",
     "exportSelectedComments": "Hamisha maoni yaliyochaguliwa kwenye faili ya data...",
+    "exportListCsv": "Hamisha orodha kwenda CSV...",
+    "summarizeComingSoon": "Inakuja hivi karibuni",
+    "listExported": "Orodha ya maoni imehamishwa kwenda CSV",
+    "csvPage": "Ukurasa",
+    "csvType": "Aina",
+    "csvAuthor": "Mwandishi",
+    "csvDate": "Tarehe",
+    "csvStatus": "Hali",
+    "csvSubject": "Mada",
+    "csvContents": "Maudhui",
+    "csvColor": "Rangi",
+    "csvLayer": "Tabaka",
     "schedules": "Majedwali ya orodha",
     "addPage": "Ongeza ukurasa",
-    "pageLabels": "Lebo za kurasa (kiunda majina)"
+    "pageLabels": "Lebo za kurasa (kiunda majina)",
+    "portfolio": "Jalada la PDF",
+    "recognizeForm": "Tambua sehemu za fomu"
   },
   "scaleBar": {
     "title": "Upau wa Kipimo",
@@ -403,7 +422,8 @@
       "image": "Picha na mihuri"
     },
     "preview": "Hakikisho",
-    "exportCsv": "Hamisha CSV"
+    "exportCsv": "Hamisha CSV",
+    "workbookBindings": "Miunganisho ya lahajedwali"
   },
   "wizard": {
     "title": "Mchawi wa jedwali la orodha",
@@ -585,7 +605,9 @@
       "symbolId": "Alama",
       "imageName": "Jina la faili",
       "width": "Upana",
-      "height": "Kimo"
+      "height": "Kimo",
+      "location": "Mahali",
+      "locationSource": "Chanzo cha mahali"
     },
     "type": {
       "line": "Mstari",
@@ -631,6 +653,8 @@
     "sectionTitle": "Alama: {{name}}",
     "symbolLabel": "Alama",
     "typeLabel": "Aina",
+    "profileType": "Aina ya wasifu",
+    "profileTypeTitle": "Wasifu wa chuma",
     "unknownSymbol": "Ishara isiyojulikana",
     "listNew": "Mpya",
     "listAdd": "Ongeza",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Kitu hiki kimebadilishwa mahali pengine. Fomu inaonyesha thamani za sasa; mabadiliko yako hayakutumika.",
     "failed": "Imeshindwa kutumia mabadiliko: {{error}}"
+  },
+  "location": {
+    "title": "Mahali",
+    "none": "Haijapangiwa",
+    "manual": "Kwa mkono",
+    "computed": "Imekokotolewa",
+    "override": "Ubatilishaji wa mkono (tupu hufuta mahali)",
+    "automatic": "Tumia mahali kiotomatiki",
+    "zoneName": "Tumia umbo hili kama kanda yenye jina",
+    "parent": "Kanda mzazi",
+    "removeZone": "Ondoa ufafanuzi wa kanda",
+    "invalid": "Mahali hapakuweza kusasishwa",
+    "rules": "Upangaji hutumia kitovu cha kisanduku cha mipaka cha alama, pamoja na kingo. Kanda ya ndani kabisa hushinda, kisha eneo dogo zaidi, kisha kitambulisho cha kanda. Tumia poligoni zilizonyooka zisizo na matundu au visanduku visivyozungushwa. Utambulisho wa kanda batili au unaojirudia huachwa.",
+    "loading": "Maoni yanapakiwa: maeneo bado yanaweza kubadilika."
   }
 }

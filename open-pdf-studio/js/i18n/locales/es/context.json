@@ -93,7 +93,22 @@
     "editBookmark": "Editar marcador",
     "deleteBookmark": "Eliminar marcador",
     "expandAll": "Expandir todo",
-    "collapseAll": "Contraer todo"
+    "collapseAll": "Contraer todo",
+    "color": "Color",
+    "colorDefault": "Predeterminado",
+    "colorRed": "Rojo",
+    "colorOrange": "Naranja",
+    "colorGreen": "Verde",
+    "colorBlue": "Azul",
+    "colorPurple": "Púrpura",
+    "colorGray": "Gris",
+    "colorCustom": "Personalizado...",
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "nestUnderNew": "Anidar bajo un marcador nuevo...",
+    "indent": "Aumentar sangría",
+    "outdent": "Disminuir sangría",
+    "deleteBookmarks": "Eliminar {{count}} marcadores"
   },
   "thumbnail": {
     "rotateLeft": "Girar a la izquierda",

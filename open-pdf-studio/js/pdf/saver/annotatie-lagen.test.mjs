@@ -261,10 +261,12 @@ test('een bestand zonder annotatielagen levert niets', async () => {
   assert.equal(leesAnnotatieLagen(await PDFDocument.load((await cadPdf()).bytes, LAAD)), null);
 });
 
-test('/OC naar een vreemde OCG is geen annotatielaag', async () => {
+test('/OC naar een OCG van een ander programma is de laag van dat programma (#621)', async () => {
+  // Vroeger viel zo'n markering in de standaardlaag en verloor ze bij het
+  // opslaan haar laag. Nu is het id afgeleid van het object van de OCG.
   const { bytes, maat } = await cadPdf();
   const pdf = await PDFDocument.load(bytes, LAAD);
-  assert.equal(laagVanOc(pdf.context, maat), undefined);
+  assert.equal(laagVanOc(pdf.context, maat), `ocg-${maat.objectNumber}-${maat.generationNumber || 0}`);
   assert.equal(laagVanOc(pdf.context, undefined), undefined);
 });
 

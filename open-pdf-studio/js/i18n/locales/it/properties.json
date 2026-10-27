@@ -63,6 +63,8 @@
     "strokeColor": "Colore del tratto",
     "color": "Colore",
     "opacity": "Opacità",
+    "fillOpacity": "Opacità del riempimento",
+    "strokeOpacity": "Opacità del tratto",
     "borderStyle": "Stile bordo",
     "cross": "Croce",
     "crossHint": "Disegna una croce all'interno del rettangolo, del cerchio o dell'ellisse (es. un'apertura)",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Collega immagine",
     "imageFilter": "Immagini"
   },
+  "sizeUnit": {
+    "tooltip": "Unità delle dimensioni"
+  },
   "multiSelect": "{{count}} annotazioni selezionate",
   "pdfText": "Testo PDF",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importa commenti...",
     "exportComments": "Esporta commenti in file di dati...",
     "exportSelectedComments": "Esporta commenti selezionati in file di dati...",
+    "exportListCsv": "Esporta elenco in CSV...",
+    "summarizeComingSoon": "Prossimamente",
+    "listExported": "Elenco dei commenti esportato in CSV",
+    "csvPage": "Pagina",
+    "csvType": "Tipo",
+    "csvAuthor": "Autore",
+    "csvDate": "Data",
+    "csvStatus": "Stato",
+    "csvSubject": "Oggetto",
+    "csvContents": "Contenuto",
+    "csvColor": "Colore",
+    "csvLayer": "Livello",
     "schedules": "Abachi",
     "addPage": "Aggiungi pagina",
-    "pageLabels": "Etichette di pagina (generatore di nomi)"
+    "pageLabels": "Etichette di pagina (generatore di nomi)",
+    "portfolio": "Portfolio PDF",
+    "recognizeForm": "Riconosci campi modulo"
   },
   "scaleBar": {
     "title": "Barra di scala",
@@ -403,7 +422,8 @@
       "image": "Immagini e timbri"
     },
     "preview": "Anteprima",
-    "exportCsv": "Esporta CSV"
+    "exportCsv": "Esporta CSV",
+    "workbookBindings": "Collegamenti a fogli di calcolo"
   },
   "wizard": {
     "title": "Procedura guidata abaco",
@@ -585,7 +605,9 @@
       "symbolId": "Simbolo",
       "imageName": "Nome file",
       "width": "Larghezza",
-      "height": "Altezza"
+      "height": "Altezza",
+      "location": "Ubicazione",
+      "locationSource": "Origine dell'ubicazione"
     },
     "type": {
       "line": "Linea",
@@ -631,6 +653,8 @@
     "sectionTitle": "Simbolo: {{name}}",
     "symbolLabel": "Simbolo",
     "typeLabel": "Tipo",
+    "profileType": "Tipo di profilo",
+    "profileTypeTitle": "Profilo in acciaio",
     "unknownSymbol": "Simbolo sconosciuto",
     "listNew": "Nuovo",
     "listAdd": "Aggiungi",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Questo oggetto è stato modificato altrove. Il modulo mostra i valori attuali; le modifiche non sono state applicate.",
     "failed": "Impossibile applicare le modifiche: {{error}}"
+  },
+  "location": {
+    "title": "Ubicazione",
+    "none": "Non assegnata",
+    "manual": "Manuale",
+    "computed": "Calcolata",
+    "override": "Sostituzione manuale (vuoto cancella l'ubicazione)",
+    "automatic": "Usa ubicazione automatica",
+    "zoneName": "Usa questa forma come zona con nome",
+    "parent": "Zona padre",
+    "removeZone": "Rimuovi definizione zona",
+    "invalid": "Impossibile aggiornare l'ubicazione",
+    "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
+    "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
   }
 }

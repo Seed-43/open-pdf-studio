@@ -137,6 +137,7 @@ export interface AppState {
   textEditElement: HTMLElement | null;
   isEditingPdfText: boolean;
   pdfTextEditState: any;
+  pdfTekstEditorCanvas: any;
 
   // Document delegation
   pdfDoc: any;
@@ -311,6 +312,8 @@ export const state = createMutable<AppState>({
   set isEditingPdfText(v) { editingState.isEditingPdfText = v; },
   get pdfTextEditState() { return editingState.pdfTextEditState; },
   set pdfTextEditState(v) { editingState.pdfTextEditState = v; },
+  get pdfTekstEditorCanvas() { return editingState.pdfTekstEditorCanvas; },
+  set pdfTekstEditorCanvas(v) { editingState.pdfTekstEditorCanvas = v; },
 
 } as any);
 

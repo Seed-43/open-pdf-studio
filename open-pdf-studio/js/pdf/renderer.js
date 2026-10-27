@@ -1,6 +1,6 @@
 import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
-import { isTauri, invoke } from '../core/platform.js';
+import { isTauri, isMobile, heeftRustRenderer, invoke } from '../core/platform.js';
 import { pdfjsFallbackNodig } from './render-route.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
 import { paginaGetekend } from './pagina-getekend.js';
@@ -8,7 +8,7 @@ import { hideLoading } from '../ui/chrome/dialogs.js';
 // Always-fresh DOM refs (never stale regardless of init timing or bundler behavior)
 function getPdfCanvas() { return document.getElementById('pdf-canvas'); }
 function getAnnotationCanvas() { return document.getElementById('annotation-canvas'); }
-import { redrawAnnotations, renderAnnotationsForPage, updateContinuousSharpOverlay, updateAllContinuousSharpOverlays } from '../annotations/rendering.js';
+import { redrawAnnotations, renderAnnotationsForPage, updateContinuousSharpOverlay, updateAllContinuousSharpOverlays, tekenTekstBewerkingenOpPagina } from '../annotations/rendering.js';
 import { ensureAnnotationsForPage, hidePdfABar } from './loader.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
@@ -30,6 +30,7 @@ import { rotateTextDir } from '../annotations/corrections/geometry.js';
 import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
+import { thinLinesKey, thinLinesOn } from './thin-lines.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -346,7 +347,8 @@ async function _renderPageImpl(pageNum) {
 
   // Try Rust open-pdf-render first (pure Rust, fast), fall back to PDF.js
   const _t0 = performance.now();
-  const _canUseTauri = isTauri();
+  // Alleen het bureaublad heeft PDFium; mobiel tekent met PDF.js (#593).
+  const _canUseTauri = heeftRustRenderer();
   const _hasFilePath = !!doc.filePath;
   let _skipBitmapRender = false;
 
@@ -438,7 +440,7 @@ async function _renderPageImpl(pageNum) {
           // annotations one frame behind the PDF during zoom/pan). Use the
           // lightweight=true path so per-frame zoom skips the heavy SolidJS
           // status-bar / list / ribbon updates that would stall the frame.
-          initViewport(pdfCanvas, () => redrawAnnotations(true));
+          initViewport(pdfCanvas, () => redrawAnnotations(true), tekenTekstBewerkingenOpPagina);
           if (!pdfCanvas._vpEventsWired) {
             wireEvents(pdfCanvas);
             pdfCanvas._vpEventsWired = true;
@@ -495,7 +497,7 @@ async function _renderPageImpl(pageNum) {
         if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
 
         // Init viewport on the main PDF canvas if not already running.
-        initViewport(pdfCanvas, () => redrawAnnotations(true));
+        initViewport(pdfCanvas, () => redrawAnnotations(true), tekenTekstBewerkingenOpPagina);
         if (!pdfCanvas._vpEventsWired) {
           wireEvents(pdfCanvas);
           pdfCanvas._vpEventsWired = true;
@@ -576,7 +578,8 @@ async function _renderPageImpl(pageNum) {
   // dimensions) — the user sees "one big white screen" instead of an A4
   // page. Render directly to pdf-canvas via PDF.js for blank docs.
   if (pdfjsFallbackNodig({
-    inTauri: _canUseTauri,
+    inTauri: isTauri(),
+    mobiel: isMobile(),
     hasFilePath: _hasFilePath,
     viewportNamHetOver: _skipBitmapRender,
   })) {
@@ -649,8 +652,11 @@ async function _renderPageImpl(pageNum) {
   const _existingLinkLayer = document.querySelector('#canvas-container .linkLayer');
   const _linkLayerRotationStale = !!_existingLinkLayer
     && Number(_existingLinkLayer.dataset.rotation || 0) !== ((lagenViewport.rotation || 0) % 360);
+  // Een laag uit een ander bestand (na opslaan met tekstbewerkingen herlaadt
+  // het document uit een nieuw werkbestand) toont oude tekst: opnieuw bouwen.
   const _textLayerStale = !_existingTextLayer
     || parseInt(_existingTextLayer.dataset.page) !== pageNum
+    || (_existingTextLayer.dataset.bron ?? '') !== (doc.filePath || '')
     || _linkLayerRotationStale;
   if (!_skipBitmapRender || _textLayerStale) {
     try {
@@ -770,7 +776,9 @@ async function tekenPaginaMetPdfJs(page, viewport, canvas) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, viewport.width, viewport.height);
-  await page.render({ canvasContext: ctx, viewport, annotationMode: 0 }).promise;
+  // Geschakelde lagen (#684): de stand uit het paneel.
+  const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
+  await page.render({ canvasContext: ctx, viewport, annotationMode: 0, ...pdfjsLaagOpties() }).promise;
 }
 
 // Render page offscreen and swap canvases atomically to avoid zoom flicker.
@@ -807,7 +815,7 @@ export async function renderPageOffscreen(pageNum) {
   // Zonder Tauri (webversie) of zonder bestandspad kan PDFium niet; dan tekent
   // PDF.js. Dit is GEEN stille terugval voor een Rust-fout — die blijft hard
   // falen hieronder, zodat een rasterbug zichtbaar blijft.
-  if (pdfjsFallbackNodig({ inTauri: isTauri(), hasFilePath: !!doc.filePath })) {
+  if (pdfjsFallbackNodig({ inTauri: isTauri(), mobiel: isMobile(), hasFilePath: !!doc.filePath })) {
     try {
       await tekenPaginaMetPdfJs(page, viewport, pdfCanvas);
       if (_isStaleDoc(doc)) return;
@@ -1092,10 +1100,12 @@ async function renderLowResPreview(doc, pageNum, nogActueel = () => true) {
   const ctx = canvas.getContext('2d');
 
   try {
+    const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
     await page.render({
       canvasContext: ctx,
       viewport,
       annotationMode: 0,
+      ...pdfjsLaagOpties(doc),
     }).promise;
   } catch (e) {
     if (e.name === 'RenderingCancelledException') return null;
@@ -1109,6 +1119,14 @@ async function renderLowResPreview(doc, pageNum, nogActueel = () => true) {
 // Clear low-res cache (on document close)
 export function clearLowResCache() {
   _lowResCache.clear();
+}
+
+/** Voorvertoningen van één bestand weg (tabblad gesloten, andere blijven open). */
+export function clearLowResCacheForFile(filePath) {
+  const prefix = `${filePath}|`;
+  for (const k of Array.from(_lowResCache.keys())) {
+    if (k.startsWith(prefix)) _lowResCache.delete(k);
+  }
 }
 
 // Render a single page inside its wrapper (used by lazy rendering)
@@ -1240,7 +1258,7 @@ async function renderContinuousPage(pageNum) {
   const pdfCtxEl = pdfCanvasEl.getContext('2d');
 
   // Webversie/documenten zonder pad: PDF.js tekent. Zie render-route.js.
-  const _pdfjsPad = pdfjsFallbackNodig({ inTauri: isTauri(), hasFilePath: !!doc.filePath });
+  const _pdfjsPad = pdfjsFallbackNodig({ inTauri: isTauri(), mobiel: isMobile(), hasFilePath: !!doc.filePath });
 
   // ─── PERF FIX #2 + #3 (BARN measurement scaffold) ───────────────────
   //  (#1 — de DPR-factor laten vallen — is teruggedraaid, issue #549: de
@@ -1294,7 +1312,10 @@ async function renderContinuousPage(pageNum) {
 
   const label = `[render p${pageNum} scale ${renderScale.toFixed(2)}]`;
   console.time(label);
-  const _jsCacheKey = `${doc.filePath}|${pageNum}|${Math.round(renderScale * 10000)}|${extraRotation || 0}`;
+  // Lijnstand (Thin Lines, #595) hoort bij het beeld: sleutel én render
+  // gebruiken dezelfde, vastgelegd bij de start van deze render.
+  const _thin = thinLinesOn();
+  const _jsCacheKey = `${doc.filePath}|${pageNum}|${Math.round(renderScale * 10000)}|${extraRotation || 0}|${thinLinesKey(_thin)}`;
   console.time(label + ' cache-lookup');
   const _cached = _bitmapJSCacheGet(_jsCacheKey);
   console.timeEnd(label + ' cache-lookup');
@@ -1341,6 +1362,7 @@ async function renderContinuousPage(pageNum) {
         // viewport). Omitting it rendered the page un-rotated into a rotated
         // box — the old-orientation remnant of issue #262 in continuous view.
         rotation: extraRotation || 0,
+        thinLines: _thin,
       });
       console.timeEnd(label + ' invoke-render');
       if (_isStaleDoc(doc)) { console.timeEnd(label); return; }
@@ -1902,11 +1924,13 @@ function setupContinuousPageEvents(canvas, pageNum) {
     return !!(t.classList && (t.classList.contains('pdf-canvas') || t.classList.contains('annotation-canvas')));
   };
   // Import event handlers dynamically to avoid circular dependencies
-  import('../tools/tool-dispatcher.js').then(({ handlePointerDown, handlePointerMove, handlePointerUp, handleDblClick }) => {
+  import('../tools/tool-dispatcher.js').then(({ handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, handleDblClick }) => {
     const wrap = (fn) => (e) => { if (magAfhandelen(e)) fn(e); };
     cc.addEventListener('pointerdown', wrap(handlePointerDown));
     cc.addEventListener('pointermove', wrap(handlePointerMove));
     cc.addEventListener('pointerup', wrap(handlePointerUp));
+    // Vinger of pen afgebroken (#671): het gebaar netjes afronden.
+    cc.addEventListener('pointercancel', wrap(handlePointerCancel));
     cc.addEventListener('dblclick', wrap(handleDblClick));
   });
 }
@@ -2050,7 +2074,7 @@ async function _runPrefetch(centerPage, waited) {
 // Cache-only mirror of renderPage()'s cold vector path: analyze → extract →
 // prepareImages. Never touches #pdf-canvas or the viewport singleton.
 async function _prefetchOnePage(doc, pageNum, centerPage) {
-  if (!isTauri() || !doc.filePath) return;
+  if (!heeftRustRenderer() || !doc.filePath) return;
   if (state.renderEngineOverride != null) return; // user forced a raster engine
   const rotation = getPageRotation(pageNum);
   const vr = await import('./vector-renderer.js');
@@ -2267,6 +2291,8 @@ async function _getFitInputs() {
   const pageViewport = page.getViewport(opts);
   const container = document.getElementById('pdf-container');
   if (!container) return null;
+  // Verborgen viewer: niets om in te passen, zoom laten staan (#675).
+  if (!(container.clientWidth > 0 && container.clientHeight > 0)) return null;
   const fit = {
     mode: 'legacy',
     pageW: pageViewport.width,

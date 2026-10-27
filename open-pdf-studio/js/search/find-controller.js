@@ -21,7 +21,7 @@ let _searchGeneration = 0;
  * (textContent.items.filter(item => item.str !== undefined)), so it
  * matches span.dataset.itemIndex in the rendered text layer.
  */
-async function extractPageText(pdfDoc, pageNum, doc) {
+export async function extractPageText(pdfDoc, pageNum, doc) {
   const page = await pdfDoc.getPage(pageNum);
   const textContent = await page.getTextContent();
 
@@ -191,7 +191,7 @@ export function zoekBronnen() {
  * De annotatietreffers komen uit doc.annotations; die staan al in het
  * geheugen, dus daar hoeft geen pagina voor te worden ingelezen.
  */
-function zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen) {
+export function zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen) {
   const uit = [];
   if (bronnen.tekst && pageData) uit.push(...searchPage(pageData, pattern, query));
   if (bronnen.annotaties) {
@@ -204,7 +204,7 @@ function zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen) {
 /**
  * Build the search regex from query and options
  */
-function buildPattern(query, matchCase, wholeWord) {
+export function buildPattern(query, matchCase, wholeWord) {
   const searchQuery = matchCase ? query : query.toLowerCase();
   const wordBoundary = wholeWord ? '\\b' : '';
   const escapedQuery = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

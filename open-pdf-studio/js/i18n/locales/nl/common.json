@@ -32,6 +32,7 @@
   "saved": "Opgeslagen",
   "documentChangedDuringSave": "Het document is gewijzigd tijdens het opslaan. Sla opnieuw op.",
   "documentChangedDuringExport": "Het document is gewijzigd tijdens het exporteren. Start opnieuw.",
+  "rasterExportProgress": "Pagina's rasteren: {{done}} van {{total}}",
   "snippetOutputFailed": "Een vectorknipsel kon niet worden weergegeven, daarom is de export of afdruk gestopt. Probeer het opnieuw.",
   "search": "Zoeken",
   "find": "Zoeken",
@@ -46,7 +47,80 @@
   "percent": "%",
   "webSessionStartsEmpty": "Een herlaadbeurt begint leeg: in de browser blijft je document op je eigen computer en wordt het niet bewaard.",
   "desktopOnly": "{{feature}} werkt alleen in de bureaubladversie. Deze pagina is de webversie.",
+  "hostedLinkTitle": "Koppeling",
+  "hostedLinkMessage": "Koppelingen kunnen hier niet worden geopend. Kopieer het adres om het zelf te openen:",
+  "hostedAttachmentMessage": "Bijlagen kunnen hier niet worden geopend. \"{{filename}}\" wordt in plaats daarvan als download aangeboden.",
   "assistantTitle": "OpenAEC-assistent",
+  "assistant": {
+    "greeting": "Hallo! Ik ben de **{{title}}**. Ik kan: 🌐 vertalen, 📝 samenvatten, ✏️ tekenen op de tekening, en 🚪 deuren herkennen. Kies hieronder een vaardigheid of stel je vraag.",
+    "workingIn": "werkt in",
+    "viaClaude": "via Claude",
+    "notConnected": "niet verbonden",
+    "viaWorkplace": "via de OpenAEC-werkplek",
+    "keyButton": "Claude (Anthropic) API-sleutel instellen",
+    "keyPlaceholder": "Claude (Anthropic) API-sleutel — sk-ant-…",
+    "thinking": "Denken…",
+    "inputPlaceholder": "Vraag iets over deze PDF…",
+    "send": "Versturen",
+    "noAnswer": "Geen antwoord ontvangen.",
+    "errorInvalidKey": "Ongeldige Claude (Anthropic) API-sleutel. Controleer de sleutel via het 🔑-knopje bovenin het paneel.",
+    "errorApi": "De Claude-API gaf een fout.",
+    "errorNoConnection": "Geen verbinding met de AI-dienst.",
+    "errorTimeout": "Geen MCP-client beantwoordde de vraag op tijd.",
+    "errorFailed": "AI-aanroep mislukt.",
+    "detail": "Detail",
+    "unknownError": "onbekende fout",
+    "workplaceErrors": {
+      "ongeldige_vraag": "De assistent kon de vraag niet verwerken. Probeer het opnieuw of begin een nieuw gesprek.",
+      "te_groot": "De vraag is te groot voor de AI-dienst. Begin een nieuw gesprek of stel een kortere vraag.",
+      "geen_tegoed": "Je AI-tegoed is op. Vul je tegoed aan in OpenAEC om de assistent te blijven gebruiken.",
+      "plafond_bereikt": "Het AI-bestedingsplafond is bereikt. Vraag je beheerder het te verhogen.",
+      "te_druk": "De assistent is nu druk. Probeer het zo opnieuw.",
+      "te_veel_vragen": "Te veel vragen in korte tijd. Wacht een minuut en probeer het opnieuw.",
+      "al_bezig": "Je vorige vraag wordt nog beantwoord. Wacht tot die klaar is.",
+      "opnieuw_inloggen": "Log opnieuw in bij OpenAEC om de assistent te gebruiken.",
+      "dienst_onbereikbaar": "De AI-dienst is nu niet bereikbaar. Probeer het later opnieuw.",
+      "geen_antwoord": "De werkplek antwoordde niet op tijd. Probeer het opnieuw.",
+      "geen_contact": "Geen verbinding met de werkplek. Laad de pagina opnieuw en probeer het nog eens."
+    },
+    "skills": {
+      "translate": {
+        "label": "Vertaal",
+        "hint": "Vertaal de tekst van het document",
+        "prompt": "Vertaal de tekst van het geopende document."
+      },
+      "summarize": {
+        "label": "Vat samen",
+        "hint": "Vat het document of de tekening samen",
+        "prompt": "Vat het geopende document of de tekening samen."
+      },
+      "draw": {
+        "label": "Teken",
+        "hint": "Teken een element of annotatie op de tekening",
+        "prompt": "Teken op de tekening: "
+      },
+      "detect-doors": {
+        "label": "Herken deuren",
+        "hint": "Detecteer de deuren in de plattegrond en markeer ze",
+        "prompt": "Herken de deuren in de plattegrond en markeer ze."
+      },
+      "structural-layout": {
+        "label": "Zet constructie uit",
+        "hint": "Stramien, kolommen, balken, vloervelden met overspanningsrichting en de constructiestaat",
+        "prompt": "Zet de draagstructuur uit op de tekening. Opgave: "
+      },
+      "structural-overview": {
+        "label": "Constructieoverzicht",
+        "hint": "Constructieoverzicht per bouwlaag op de plattegronden van de architect: fundering, vloeren met overspanning, onderliggende dragende wanden, liggers en kolommen, legenda en toelichting",
+        "prompt": "Maak een constructieoverzicht op dit blad met knipsels uit de plattegronden van de architect. Bron, bouwlagen en constructieprincipe: "
+      },
+      "floorplan": {
+        "label": "Plattegrond",
+        "hint": "Teken een bouwkundige plattegrond: wanden, kozijnen, ruimten, maatvoering en inrichting (sanitair, keuken)",
+        "prompt": "Teken een bouwkundige plattegrond. Wat er getekend moet worden: "
+      }
+    }
+  },
   "onlineSymbolLibrary": "Online symboolbibliotheek",
   "noDocumentOpen": "Er is geen document geopend.",
   "invalidPageRange": "Ongeldig paginabereik. Voer geldige paginanummers in.",
@@ -136,6 +210,20 @@
   "selectedPdfNoPages": "De geselecteerde PDF heeft geen pagina's.",
   "failedToSavePdf": "PDF opslaan mislukt: {{error}}",
   "failedToLoadPdf": "PDF laden mislukt: {{error}}",
+  "hostOpenFailed": "Het bestand kon niet uit de opslag worden gelezen. Probeer het opnieuw.",
+  "hostInvalidPdf": "{{name}} is geen geldig PDF-bestand en kon niet worden geopend.",
+  "hostNoContact": "De pagina rond Open PDF Studio reageert niet, dus bestanden kunnen niet worden geopend of opgeslagen. Laad de pagina opnieuw en probeer het nog eens.",
+  "hostSaveConflict": "Iemand anders heeft dit bestand intussen opgeslagen. Je wijzigingen zijn als aparte kopie opgeslagen: {{name}}. Volgende keren opslaan gaat naar die kopie.",
+  "hostSaveNotLocked": "Dit bestand is niet voor jou vastgezet, dus anderen kunnen het tegelijk wijzigen. Je wijzigingen worden als nieuwe versies opgeslagen; er wordt niets overschreven.",
+  "hostReadOnlySave": "Dit bestand is alleen-lezen geopend, dus wijzigingen kunnen er niet in opgeslagen worden. Gebruik Opslaan als om een kopie te downloaden.",
+  "hostVersionReadOnly": "Versie {{version}} van {{total}} – alleen-lezen",
+  "hostVersionReadOnlyShort": "Versie {{version}} – alleen-lezen",
+  "hostVersionSaveBlocked": "Dit is een oudere versie van het bestand, alleen-lezen geopend, dus hij kan niet worden opgeslagen. Gebruik Opslaan als om een kopie te downloaden.",
+  "hostVersionReadOnlyRefused": "De site heeft het bestand niet opgeslagen: er staat een oudere versie van open, alleen-lezen. Open de huidige versie opnieuw om op te slaan, of gebruik Opslaan als om een kopie te downloaden.",
+  "hostVersionInvalid": "Deze versie van het bestand kan niet worden geopend: het versienummer is ongeldig.",
+  "textEditMissingGlyphs": "De tekst is niet gewijzigd: geen beschikbaar lettertype heeft deze tekens, dus ze kunnen niet worden opgeslagen: {{chars}}",
+  "textEditMissingGlyphsLater": "Geen beschikbaar lettertype heeft deze tekens, dus ze kunnen niet worden opgeslagen: {{chars}}. Pas deze tekst aan; tot dan kan de PDF niet worden opgeslagen.",
+  "textEditMissingGlyphsSave": "De PDF is niet opgeslagen: bewerkte tekst bevat tekens die geen beschikbaar lettertype heeft: {{chars}}. Pas die tekst aan en sla opnieuw op.",
   "failedToCreateDocument": "Document aanmaken mislukt: {{error}}",
   "failedToReplacePage": "Pagina vervangen mislukt: {{error}}",
   "failedToMergeFile": "Samenvoegen mislukt: {{file}}\n{{error}}",
@@ -198,6 +286,9 @@
     "markupPages": "Markeerpagina's",
     "pageN": "pagina {{n}}",
     "snapshotBar": "3D-markeerpagina: {{name}}",
-    "backTo3D": "Terug naar 3D-model"
+    "backTo3D": "Terug naar 3D-model",
+    "readFailed": "Het 3D-model kon niet worden gelezen.",
+    "partial": "Een deel van het 3D-model kon niet worden gelezen ({{n}} overgeslagen).",
+    "viewerFailed": "De 3D-weergave kon niet worden gestart."
   }
 }

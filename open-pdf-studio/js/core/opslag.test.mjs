@@ -74,19 +74,45 @@ test('als gast blijven sleutels zonder voorvoegsel van een ander', () => {
   assert.equal(winkel.get('recentFiles'), '["van een ander gereedschap"]', 'niet overschreven');
 });
 
-test('kapotte JSON of geen opslag geeft de standaardwaarde, schrijven meldt het', () => {
+test('kapotte JSON geeft de standaardwaarde; een vol quotum meldt het schrijven', () => {
   winkel.clear();
   winkel.set(opslagSleutel('savedPlaces'), '{kapot');
   assert.deepEqual(leesOpslagJson('savedPlaces', []), []);
   const echt = globalThis.localStorage;
-  globalThis.localStorage = undefined;
+  globalThis.localStorage = {
+    getItem: () => null,
+    setItem: () => { throw new Error('QuotaExceededError'); },
+    removeItem: () => {},
+  };
   try {
-    assert.equal(leesOpslag('savedPlaces'), null);
-    assert.throws(() => schrijfOpslag('savedPlaces', '[]'));
-    assert.doesNotThrow(() => verwijderOpslag('savedPlaces'));
+    assert.throws(() => schrijfOpslag('savedPlaces', '[]'), /Quota/);
   } finally {
     globalThis.localStorage = echt;
   }
+});
+
+test('zonder bruikbare opslag (opaque sandbox, #704): terugval in het geheugen', () => {
+  const echt = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const gevallen = {
+    'geen localStorage': { value: undefined },
+    'opvragen gooit (sandbox zonder allow-same-origin)': {
+      get() { throw new DOMException('The document is sandboxed', 'SecurityError'); },
+    },
+    'lezen gooit': { value: { getItem() { throw new Error('SecurityError'); }, setItem() {}, removeItem() {} } },
+  };
+  try {
+    for (const [naam, beschrijving] of Object.entries(gevallen)) {
+      Object.defineProperty(globalThis, 'localStorage', { configurable: true, ...beschrijving });
+      assert.equal(leesOpslag(`proef-${naam}`), null, naam);
+      assert.doesNotThrow(() => schrijfOpslagJson(`proef-${naam}`, { a: 1 }), naam);
+      assert.deepEqual(leesOpslagJson(`proef-${naam}`), { a: 1 }, `${naam}: binnen de sessie terug te lezen`);
+      assert.doesNotThrow(() => verwijderOpslag(`proef-${naam}`), naam);
+      assert.equal(leesOpslag(`proef-${naam}`), null, `${naam}: verwijderd`);
+    }
+  } finally {
+    Object.defineProperty(globalThis, 'localStorage', echt);
+  }
+  assert.equal(winkel.has(opslagSleutel('proef-geen localStorage')), false, 'niets in de echte opslag');
 });
 
 test('het thema-script vóór de boot leest de sleutel met voorvoegsel', () => {
@@ -108,10 +134,15 @@ test('het thema-script vóór de boot leest de sleutel met voorvoegsel', () => {
   assert.equal(draai({ [sleutel]: 'kapot' }), undefined, 'gooit niet');
 });
 
-test('index.html krijgt het thema-script inline, er is geen los bestand meer', () => {
+test('index.html krijgt het thema-script via de bouwstap, zonder inline script (#596)', () => {
   const html = fs.readFileSync(path.join(app, 'index.html'), 'utf8');
   assert.match(html, /<!-- opds:thema-vooraf -->/);
   assert.doesNotMatch(html, /theme-init\.js/);
+  // De Android-WebView weigert inline scripts (CSP met hashes): elk script
+  // in de pagina heeft een src.
+  for (const [tag] of html.matchAll(/<script\b[^>]*>/g)) {
+    assert.match(tag, /\ssrc=/, `inline script in index.html: ${tag}`);
+  }
   assert.equal(fs.existsSync(path.join(app, 'public', 'js', 'theme-init.js')), false);
 });
 
@@ -162,6 +193,29 @@ test('geen localStorage of sessionStorage buiten core/opslag.js', () => {
     });
   }
   assert.deepEqual(fouten, [], 'gebruik leesOpslag/schrijfOpslag/verwijderOpslag uit js/core/opslag.js');
+});
+
+// In de werkplek (#704, opaque origin) gooit elke blijvende opslag: de app
+// gebruikt er geen, buiten de terugval van core/opslag.js om.
+const ANDERE_OPSLAG = /\b(indexedDB|document\.cookie|caches\.(open|match|keys|has|delete)|navigator\.storage|serviceWorker|getDirectory)\b/;
+
+test('geen IndexedDB, cookies, Cache Storage, OPFS of service worker in de app', () => {
+  const bestanden = [
+    ...bronbestanden(path.join(app, 'js')),
+    ...bronbestanden(path.join(app, 'public', 'js')),
+    path.join(app, 'index.html'),
+  ];
+  const fouten = [];
+  for (const bestand of bestanden) {
+    const rel = path.relative(app, bestand).split(path.sep).join('/');
+    codeRegels(fs.readFileSync(bestand, 'utf8')).forEach((regel, i) => {
+      if (ANDERE_OPSLAG.test(regel)) fouten.push(`${rel}:${i + 1}`);
+    });
+  }
+  assert.deepEqual(fouten, [], 'blijvende opslag werkt niet in een opaque sandbox; gebruik core/opslag.js');
+  assert.equal(ANDERE_OPSLAG.test('const db = indexedDB.open("x");'), true);
+  assert.equal(ANDERE_OPSLAG.test('document.cookie = "a=1";'), true);
+  assert.equal(ANDERE_OPSLAG.test('const c = _caches.get(doc);'), false);
 });
 
 test('de scan ziet echte toegang en negeert commentaar en tekst', () => {

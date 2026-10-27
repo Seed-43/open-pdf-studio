@@ -11,6 +11,7 @@
 
 import { PDFName, PDFRef, PDFDict, PDFArray, PDFStream } from 'pdf-lib';
 import { bedKnipselIn } from '../vector-embed.js';
+import { flattenKnipselSleutels } from '../flatten-bytes.js';
 
 /** Sleutel van het woordenboek met bronpagina's op de catalogus. */
 export const CATALOGUS_SLEUTEL = 'OPS_VectorSnippets';
@@ -243,6 +244,9 @@ export function ruimKnipselRestenOp(doc, oudeStempels = [], { nieuwVanaf } = {})
       if (t) gebruikt.add(t);
     }
   }
+
+  // Gevlakte knipsels die terug te halen zijn (#615) houden hun bron.
+  for (const sleutel of flattenKnipselSleutels(doc)) gebruikt.add(sleutel);
 
   const kandidaten = [...oudeStempels];
   const bronnenWeg = [];

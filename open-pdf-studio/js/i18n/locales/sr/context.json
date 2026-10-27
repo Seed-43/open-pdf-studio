@@ -93,7 +93,22 @@
     "editBookmark": "Уреди обележивач",
     "deleteBookmark": "Обриши обележивач",
     "expandAll": "Прошири све",
-    "collapseAll": "Скупи све"
+    "collapseAll": "Скупи све",
+    "color": "Боја",
+    "colorDefault": "Подразумевано",
+    "colorRed": "Црвена",
+    "colorOrange": "Наранџаста",
+    "colorGreen": "Зелена",
+    "colorBlue": "Плава",
+    "colorPurple": "Љубичаста",
+    "colorGray": "Сива",
+    "colorCustom": "Прилагођено...",
+    "bold": "Подебљано",
+    "italic": "Курзив",
+    "nestUnderNew": "Угнезди под нови обележивач...",
+    "indent": "Повећај увлачење",
+    "outdent": "Смањи увлачење",
+    "deleteBookmarks": "Избриши обележиваче ({{count}})"
   },
   "thumbnail": {
     "rotateLeft": "Ротирај лево",

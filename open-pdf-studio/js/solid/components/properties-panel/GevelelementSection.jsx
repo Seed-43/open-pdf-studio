@@ -91,7 +91,7 @@ export default function GevelelementSection() {
         {/* ── het geheel ─────────────────────────────────────────── */}
         <div class="property-group">
           <label>{t('gevelelement.length')}</label>
-          <input type="number" min="100" step="10" id="prop-gevel-lengte"
+          <input type="text" inputmode="decimal" data-getal min="100" step="10" id="prop-gevel-lengte"
             value={rond(lay().lengteMm)} disabled={locked()}
             onChange={(e) => {
               const n = getal(e);
@@ -141,7 +141,7 @@ export default function GevelelementSection() {
               <>
                 <div class="property-group">
                   <label>{t('gevelelement.position')}</label>
-                  <input type="number" step="10" id="prop-gevel-stijlpositie"
+                  <input type="text" inputmode="decimal" data-getal step="10" id="prop-gevel-stijlpositie"
                     value={rond(s().posMm)} disabled={locked() || !tussen()}
                     onChange={(e) => {
                       const n = getal(e);
@@ -203,7 +203,7 @@ export default function GevelelementSection() {
                 </Show>
                 <div class="property-group">
                   <label>{t('gevelelement.fieldWidth')}</label>
-                  <input type="number" step="10" id="prop-gevel-veldbreedte"
+                  <input type="text" inputmode="decimal" data-getal step="10" id="prop-gevel-veldbreedte"
                     value={rond(v().breedteMm)} disabled={locked() || lay().velden.length < 2}
                     onChange={(e) => {
                       const n = getal(e);
@@ -279,7 +279,7 @@ export default function GevelelementSection() {
         <div class="property-group">
           <label>{t('gevelelement.divide')}</label>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <input type="number" min="1" max="50" step="1" id="prop-gevel-verdeel"
+            <input type="text" inputmode="decimal" data-getal min="1" max="50" step="1" id="prop-gevel-verdeel"
               value={lay().velden.length} disabled={locked()}
               onChange={(e) => {
                 const n = Math.round(getal(e) || 0);

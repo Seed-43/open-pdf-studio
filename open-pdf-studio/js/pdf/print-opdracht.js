@@ -165,7 +165,10 @@ export function leesPrintOpdracht(params, { onthouden, venster, naarBestand = tr
     return fout(`params.zoom must be between ${ZOOM_MIN} and ${ZOOM_MAX} percent`);
   }
   // Een zoom noemen betekent "aangepaste schaal", zoals params.scale bij app_export_cad.
-  const schaling = p.scaling ?? (p.zoom !== undefined ? 'custom-scale' : bewaard.scaling);
+  // De posterafdruk (print-poster.js) is een keuze van de printdialoog; een
+  // opdracht zonder schaal valt dan terug op passend.
+  const bewaardeSchaling = SCHALINGEN.includes(bewaard.scaling) ? bewaard.scaling : 'fit';
+  const schaling = p.scaling ?? (p.zoom !== undefined ? 'custom-scale' : bewaardeSchaling);
   if (schaling === 'custom-scale' && p.zoom === undefined && p.scaling !== undefined) {
     return fout('params.scaling "custom-scale" needs params.zoom');
   }
@@ -260,8 +263,8 @@ function leesStand(p, venster, bewaard) {
 /**
  * De paginalijst van de opdracht, met dezelfde keuzes als het printvenster:
  * "all" = elke pagina, "current" = de getoonde pagina, anders het bereik.
- * `bereik` is `parsePageRange` uit exporter.js; die module heeft de DOM nodig,
- * dus de aanroeper geeft hem mee.
+ * `bereik` is `printPaginaBereik` uit print-bereik.js (zoals getypt, met
+ * volgorde en herhalingen); de aanroeper geeft hem mee.
  * @returns {{ok:true, pages:number[]} | {ok:false, error:string}}
  */
 export function kiesPaginas(opdracht, { totaal, huidig = 1, bereik }) {

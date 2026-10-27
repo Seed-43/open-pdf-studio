@@ -99,7 +99,22 @@
     "editBookmark": "Bladwijzer bewerken",
     "deleteBookmark": "Bladwijzer verwijderen",
     "expandAll": "Alles uitvouwen",
-    "collapseAll": "Alles invouwen"
+    "collapseAll": "Alles invouwen",
+    "color": "Kleur",
+    "colorDefault": "Standaard",
+    "colorRed": "Rood",
+    "colorOrange": "Oranje",
+    "colorGreen": "Groen",
+    "colorBlue": "Blauw",
+    "colorPurple": "Paars",
+    "colorGray": "Grijs",
+    "colorCustom": "Aangepast...",
+    "bold": "Vet",
+    "italic": "Cursief",
+    "nestUnderNew": "Onder nieuwe bladwijzer nesten...",
+    "indent": "Inspringen",
+    "outdent": "Uitspringen",
+    "deleteBookmarks": "{{count}} bladwijzers verwijderen"
   },
   "thumbnail": {
     "rotateLeft": "Linksom draaien",

@@ -17,6 +17,31 @@ pub fn write(path: &Path, bytes: &[u8]) -> io::Result<()> {
     write_with(path, |file| file.write_all(bytes))
 }
 
+/// Publish a complete new file without ever replacing an existing destination.
+/// Filesystems without hard-link support fail safely; there is no copy fallback.
+pub fn write_new(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    let parent = path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new("."));
+    let (staged, mut file) = loop {
+        let serial = NEXT_TEMP.fetch_add(1, Ordering::Relaxed);
+        let temp = parent.join(format!(".opds-workflow-{}-{}.tmp", std::process::id(), serial));
+        let mut options = OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)] {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        match options.open(&temp) {
+            Ok(file) => break (StagedFile(temp), file),
+            Err(e) if e.kind() == io::ErrorKind::AlreadyExists => continue,
+            Err(e) => return Err(e),
+        }
+    };
+    let result = file.write_all(bytes).and_then(|_| file.sync_all());
+    drop(file);
+    result?;
+    fs::hard_link(&staged.0, path)
+}
+
 fn write_with(path: &Path, write_bytes: impl FnOnce(&mut File) -> io::Result<()>) -> io::Result<()> {
     // Follow existing symlinks, like an ordinary write, instead of replacing the link.
     let target = match fs::canonicalize(path) {
@@ -103,6 +128,16 @@ mod tests {
     }
     impl Drop for TestDir {
         fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); }
+    }
+
+    #[test]
+    fn new_file_never_clobbers_and_cleans_staging() {
+        let dir = TestDir::new();
+        let path = dir.0.join("output.pdf");
+        write_new(&path, b"complete").unwrap();
+        assert!(write_new(&path, b"different").is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"complete");
+        assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
     }
 
     #[test]

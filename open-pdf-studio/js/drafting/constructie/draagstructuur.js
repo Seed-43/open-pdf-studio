@@ -10,6 +10,8 @@
 // een tweede doorloop hetzelfde is. Niets wordt geraden.
 
 import { RasterFout } from './raster.js';
+import { normaliseerKokerNaam } from '../../symbols/koker-notatie.js';
+import { leesGetal } from '../../core/getal-invoer.js';
 
 /** Standaard-voorvoegsels per elementsoort (NL tekenkamer). */
 export const VOORVOEGSELS = { kolom: 'K', balk: 'L', vloer: 'V' };
@@ -29,7 +31,8 @@ const STAAL_FAMILIES = {
  * Herkend:
  *   "HE200B", "HE 200 A"          → HEB 200 / HEA 200 (NL schrijfwijze)
  *   "HEB200", "HEB 200", "IPE300" → de familie met zijn maat
- *   "Koker 100x100x5"             → stalen koker
+ *   "K100/5", "Koker 100x100x5"   → vierkante stalen koker, maat "K100/5"
+ *   "Koker 100x50x5", "RHS ..."   → rechthoekige stalen koker (naam blijft)
  *   "L 100x100x10"                → hoeklijn
  *   "300x500"                     → betondoorsnede breedte × hoogte (mm)
  *
@@ -51,11 +54,10 @@ export function ontleedProfiel(tekst) {
   const familie = ruw.match(/^(HEA|HEB|IPE|UNP)\s*-?\s*(\d+)$/i);
   if (familie) return staalProfiel(familie[1].toUpperCase(), familie[2]);
 
-  const koker = ruw.match(/^(?:koker|buis|SHS|RHS)\s*-?\s*(\d+\s*x\s*\d+\s*x\s*\d+(?:[.,]\d+)?)$/i);
-  if (koker) {
-    const maat = `Koker ${koker[1].replace(/\s+/g, '').replace(',', '.')}`;
-    return { soort: 'staal', naam: maat, symbolId: 'staal-koker', maat };
-  }
+  // Koker in de nieuwe (K100/5) of de oude schrijfwijze (Koker 100x100x5,
+  // SHS/RHS, buis): altijd de naam die het kokersymbool kent.
+  const koker = normaliseerKokerNaam(ruw);
+  if (koker) return { soort: 'staal', naam: koker, symbolId: 'staal-koker', maat: koker };
 
   const hoeklijn = ruw.match(/^(?:L|hoeklijn)\s*-?\s*(\d+\s*x\s*\d+\s*x\s*\d+(?:[.,]\d+)?)$/i);
   if (hoeklijn) {
@@ -65,8 +67,8 @@ export function ontleedProfiel(tekst) {
 
   const beton = ruw.match(/^(\d+(?:[.,]\d+)?)\s*[x×*]\s*(\d+(?:[.,]\d+)?)$/);
   if (beton) {
-    const breedteMm = parseFloat(beton[1].replace(',', '.'));
-    const hoogteMm = parseFloat(beton[2].replace(',', '.'));
+    const breedteMm = leesGetal(beton[1]);
+    const hoogteMm = leesGetal(beton[2]);
     if (!(breedteMm > 0) || !(hoogteMm > 0)) {
       throw new RasterFout('profiel', `onbruikbare doorsnede: ${ruw}`);
     }
@@ -77,7 +79,7 @@ export function ontleedProfiel(tekst) {
     };
   }
 
-  throw new RasterFout('profiel', `onbekend profiel: ${ruw} (verwacht bijvoorbeeld "HE200B", "IPE 300", "Koker 100x100x5" of "300x500")`);
+  throw new RasterFout('profiel', `onbekend profiel: ${ruw} (verwacht bijvoorbeeld "HE200B", "IPE 300", "K100/5" of "300x500")`);
 }
 
 function staalProfiel(familie, maatGetal) {

@@ -170,14 +170,14 @@ export default function ViewportScaleDialog(props) {
         <Show when={mode() === 'custom'}>
           <div class="ai-login-field">
             <label>Reference pixels</label>
-            <input type="number" class="ribbon-input" value={refPixels()} onInput={e => setRefPixels(e.target.value)}
+            <input type="text" inputmode="decimal" data-getal class="ribbon-input" value={refPixels()} onInput={e => setRefPixels(e.target.value)}
               placeholder="Pixel distance on screen"
               style="width:100%;box-sizing:border-box" />
           </div>
           <div class="ai-login-field">
             <label>Real-world distance</label>
             <div style="display:flex;gap:4px;align-items:center">
-              <input type="number" class="ribbon-input" value={customValue()} onInput={e => setCustomValue(e.target.value)}
+              <input type="text" inputmode="decimal" data-getal class="ribbon-input" value={customValue()} onInput={e => setCustomValue(e.target.value)}
                 placeholder="Distance"
                 style="flex:1" />
               <PrefSelect

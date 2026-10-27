@@ -2,26 +2,19 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import { pdfjsAssets } from './scripts/pdfjs-assets.mjs';
 import { readFileSync } from 'fs';
-import { themaVoorafScript } from './js/core/opslag.js';
+import { pdfjsWorkerOudeWebview, voorafScriptPlugin } from './scripts/oude-webview.mjs';
+import { gehostHtmlPlugin } from './scripts/gehost-html.mjs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
-// Het thema-script vóór de app-boot staat inline in de pagina (geen extra
-// verzoek, en het volgt zo vanzelf de bouwbasis). De tekst komt uit
-// js/core/opslag.js, de enige module die de browseropslag aanraakt (#547).
-const THEMA_PLEK = '<!-- opds:thema-vooraf -->';
-function themaVooraf() {
-  return {
-    name: 'opds-thema-vooraf',
-    transformIndexHtml(html) {
-      if (!html.includes(THEMA_PLEK)) throw new Error(`index.html mist ${THEMA_PLEK}`);
-      return html.replace(THEMA_PLEK, `<script>${themaVoorafScript()}</script>`);
-    },
-  };
-}
-
+// Het script vóór de app-boot (thema, opstartdiagnose) staat in een eigen
+// bestand, geen inline script: de Android-WebView weigert inline scripts
+// (#596). De PDF.js-worker wordt omgezet voor oudere WebViews. Zie
+// scripts/oude-webview.mjs. In de gehoste bouw (--mode hosted) krijgt
+// index.html daarna SRI en geen inline code, voor een strikte CSP (#693,
+// scripts/gehost-html.mjs); de desktopbouw blijft gelijk.
 export default defineConfig({
-  plugins: [solidPlugin(), pdfjsAssets(), themaVooraf()],
+  plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin()],
   resolve: {
     alias: [
       // PDF.js 6's modern build calls Map.prototype.getOrInsertComputed and

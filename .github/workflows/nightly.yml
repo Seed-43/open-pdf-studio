@@ -138,7 +138,18 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libtesseract-dev libleptonica-dev pkg-config
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf pkg-config
+
+      # tesseract-rs compiles Leptonica/Tesseract from source and links them
+      # statically (#620). It keeps the sources and static libs in
+      # ~/.tesseract-rs, so cache that; the key follows the tesseract-rs pin
+      # in the workspace Cargo.toml.
+      - name: Cache Tesseract static build (Linux)
+        if: matrix.target == 'linux'
+        uses: actions/cache@v5
+        with:
+          path: ~/.tesseract-rs
+          key: tesseract-rs-ubuntu-22.04-${{ hashFiles('Cargo.toml') }}
 
       - name: Install frontend dependencies
         run: npm ci
@@ -269,6 +280,12 @@ jobs:
           args: ${{ matrix.args }}
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
           includeUpdaterJson: false
+
+      # The binary must not need a distro-specific libtesseract/liblept soname:
+      # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).
+      - name: Verify no system OCR library dependency (Linux)
+        if: matrix.target == 'linux'
+        run: bash scripts/linux-ocr-linkage-check.sh ../target/release/open-pdf-studio
 
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding

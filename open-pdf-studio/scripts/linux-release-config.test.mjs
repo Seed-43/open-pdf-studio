@@ -113,3 +113,51 @@ test('every AppImage build pins the same checksum-verified linuxdeploy (#362)', 
   }
 });
 
+
+test('Linux links Tesseract statically instead of a system soname (#620)', async () => {
+  const cargo = await readFile(new URL('src-tauri/Cargo.toml', appRoot), 'utf8');
+  const deps = cargo
+    .split('\n')
+    .filter((line) => /^tesseract-rs\s*=/.test(line));
+  assert.ok(deps.length > 0, 'tesseract-rs is a dependency');
+  for (const line of deps) {
+    assert.doesNotMatch(line, /use-system-tesseract/, line);
+    assert.match(line, /"build-tesseract"/, line);
+  }
+  assert.doesNotMatch(cargo, /target_os = "linux"\)'\.dependencies\]\s*\ntesseract-rs/);
+
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml', 'snap.yml']) {
+    const workflow = await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8');
+    assert.doesNotMatch(workflow, /libtesseract-dev|libleptonica-dev/, `${name} installs no system Tesseract`);
+  }
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml']) {
+    const workflow = await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8');
+    assert.match(
+      workflow,
+      /bash scripts\/linux-ocr-linkage-check\.sh \.\.\/target\/release\/open-pdf-studio/,
+      `${name} checks the binary's NEEDED entries`,
+    );
+  }
+
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const depends = [
+    ...(base.bundle.linux?.deb?.depends ?? []),
+    ...(linux.bundle.linux?.deb?.depends ?? []),
+  ];
+  assert.ok(
+    !depends.some((dep) => /tesseract|leptonica|lept5/.test(dep)),
+    'the .deb does not depend on a system Tesseract',
+  );
+});
+
+test('the AUR reference PKGBUILD and .SRCINFO agree (#620)', async () => {
+  const pkgbuild = await readFile(new URL('packaging/aur/PKGBUILD', repoRoot), 'utf8');
+  const srcinfo = await readFile(new URL('packaging/aur/.SRCINFO', repoRoot), 'utf8');
+  const pkgver = pkgbuild.match(/^pkgver=(.+)$/m)?.[1];
+  assert.ok(pkgver, 'PKGBUILD sets pkgver');
+  assert.match(srcinfo, new RegExp(`^\tpkgver = ${pkgver.replace(/\./g, '\.')}$`, 'm'));
+  assert.match(srcinfo, /^\tdepends = webkit2gtk-4\.1$/m);
+  assert.doesNotMatch(srcinfo, /depends = .*(tesseract|leptonica)/i);
+  assert.doesNotMatch(srcinfo, /\r/, '.SRCINFO uses LF line endings');
+});

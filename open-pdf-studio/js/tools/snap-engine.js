@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { getPdfSnapPointsNear, getPdfEdgeSegmentsNear } from './pdf-snap-extractor.js';
 import { snapPointToGrid } from '../annotations/rendering/ui-state.js';
 import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from '../annotations/veelhoek-punten.js';
 
 // ─── Polar tracking ────────────────────────────────────────────────────
 // A "polar anchor" is a point set by a tool when a draw operation has a
@@ -173,6 +174,18 @@ function extractSnapPoints(ann, points, prefs, annotations) {
 
     case 'polygon':
     case 'cloud': {
+      // Getekende veelhoek (#622): de hoekpunten, de middens van de zijden en
+      // het midden van het vak, zoals het scherm de vorm toont.
+      if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
+        const vp = veelhoekPuntenOpScherm(ann);
+        vp.forEach((p, i) => {
+          const q = vp[(i + 1) % vp.length];
+          if (doEndpoints) points.push({ x: p.x, y: p.y, type: 'endpoint', annotation: ann });
+          if (doMidpoints) points.push({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, type: 'midpoint', annotation: ann });
+        });
+        if (doCenters) points.push({ x: ann.x + ann.width / 2, y: ann.y + ann.height / 2, type: 'center', annotation: ann });
+        break;
+      }
       // These have x, y, width, height bounding box
       addRectSnapPoints(ann.x, ann.y, ann.width, ann.height, ann, points, doEndpoints, doMidpoints, doCenters);
       break;
@@ -382,6 +395,15 @@ function getEdgeSegments(ann) {
     case 'callout':
     case 'polygon':
     case 'cloud':
+      // Getekende veelhoek (#622): zijn eigen zijden, ook de sluitende.
+      if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
+        const vp = veelhoekPuntenOpScherm(ann);
+        vp.forEach((p, i) => {
+          const q = vp[(i + 1) % vp.length];
+          segments.push({ x1: p.x, y1: p.y, x2: q.x, y2: q.y });
+        });
+        break;
+      }
       addRectEdgeSegments(ann.x, ann.y, ann.width, ann.height, segments);
       break;
 

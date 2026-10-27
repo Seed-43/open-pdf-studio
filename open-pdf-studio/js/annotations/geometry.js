@@ -18,6 +18,7 @@ import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
 import { puntInVlak } from './vlak-ringen.js';
 import { raakbaarBijKlik } from '../plattegrond/ruimte-koppeling.js';
 import { caretHit } from './corrections/geometry.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from './veelhoek-punten.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
 // het scherm kleiner is dan het minimale raakvlak krijgt een marge in
@@ -462,6 +463,19 @@ export function findAnnotationAt(x, y, pageNum = null) {
         break;
       case 'polygon':
       case 'cloud': {
+        // Getekende veelhoek (#622): raken op de hoekpunten zoals het scherm
+        // ze toont (door het vak, gedraaid). Op een zijde of erbinnen raakt;
+        // een klik in het vak maar naast de vorm (de hoek van een driehoek)
+        // niet.
+        if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
+          const vp = veelhoekPuntenOpScherm(ann);
+          for (let i = 0; i < vp.length; i++) {
+            const j = (i + 1) % vp.length;
+            if (distanceToLine(x, y, vp[i].x, vp[i].y, vp[j].x, vp[j].y) < tol) return ann;
+          }
+          if (pointInPolygon(x, y, vp)) return ann;
+          break;
+        }
         // Edge proximity check (when annotation has explicit points array)
         if (ann.points && ann.points.length >= 2) {
           for (let i = 0; i < ann.points.length - 1; i++) {

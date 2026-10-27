@@ -52,6 +52,6 @@ test('ook een heel grote reeks gaat in één keer (geen spread-limiet)', () => {
 test('de loader zet een pagina om en voegt haar annotaties daarna in één keer toe', () => {
   const loader = readFileSync(new URL('../loader.js', import.meta.url), 'utf8');
   const functie = loader.slice(loader.indexOf('async function _convertAndPushAnnotations'), loader.indexOf('// Cache for original PDF bytes'));
-  assert.match(functie, /voegAnnotatiesToe\(doc, nieuw\)/);
+  assert.match(functie, /voegAnnotatiesToe\(doc, await zetPaginaAnnotatiesOm\(/);
   assert.doesNotMatch(functie, /doc\.annotations\.push\(/);
 });

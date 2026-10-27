@@ -145,6 +145,9 @@ export const undoIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 
 export const clearPageIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`;
 
 export const clearAllIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2zM12 11V7"/></svg>`;
+// Alles vlakken / terughalen (#615): de markering zakt in de pagina, of komt eruit omhoog.
+export const flattenAllIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" stroke-width="1.5"/><path d="M12 6v7m-3-3l3 3 3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="17" x2="17" y2="17" stroke-width="2"/></svg>`;
+export const unflattenAllIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" stroke-width="1.5"/><path d="M12 14V7m-3 3l3-3 3 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="17" x2="17" y2="17" stroke-width="2"/></svg>`;
 
 // --- View tab ---
 

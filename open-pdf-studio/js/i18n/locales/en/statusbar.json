@@ -29,7 +29,8 @@
     "formCheckbox": "Form Checkbox",
     "formRadio": "Form Radio Button",
     "screenshot": "Screenshot",
-    "pageLabelPick": "Pick Text for Page Label"
+    "pageLabelPick": "Pick Text for Page Label",
+    "proofread": "Proofreading"
   },
   "toolLabel": "Tool:",
   "annotationsLabel": "Annotations:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Page {{page}}",
   "searchHitsOne": "1 match",
   "searchHitsMany": "{{count}} matches",
-  "passwordProtectedBar": "Protected with a password: opened read-only."
+  "passwordProtectedBar": "Protected with a password: opened read-only.",
+  "documentSearch": {
+    "title": "Search documents",
+    "query": "Search text",
+    "scope": "Search in",
+    "active": "Current document",
+    "open": "Open documents",
+    "folder": "Folder",
+    "choose": "Choose folder",
+    "annotations": "Include comments",
+    "search": "Search",
+    "cancel": "Cancel",
+    "stale": "The document has changed. Run the search again.",
+    "folderHint": "Searches PDF files directly in this folder, without opening tabs or changing files.",
+    "limited": "Result limit reached. Refine your search.",
+    "cancelled": "Search cancelled; results are incomplete.",
+    "ocrHint": "No searchable text on pages {{pages}}. Open the document and run OCR explicitly if needed.",
+    "status": {
+      "searching": "Searching",
+      "complete": "Complete",
+      "needs_ocr": "Contains pages without searchable text",
+      "encrypted": "Password required",
+      "unreadable": "Could not search",
+      "changed": "Document changed; search again",
+      "cancelled": "Cancelled",
+      "limited": "Result limit reached"
+    },
+    "failed": "Search failed. Check the query and folder, then try again.",
+    "prepareOcr": "Open for OCR…"
+  },
+  "symbolSearch": "Find symbols",
+  "findMoreOptions": "More search options",
+  "watchActive": "Watching {{folder}}",
+  "watchFailed": "Watch error: {{folder}}",
+  "watchTitle": "Document workflow is watching {{input}} and writing to {{output}}. Click to stop watching.",
+  "renderDiagnostics": {
+    "title": "Go to the next render finding. No findings does not certify complete rendering.",
+    "count": "Render findings: {{count}}",
+    "detail": "Page {{page}}: {{code}}. Try a lower zoom or reopen the document; completeness is not certified."
+  }
 }

@@ -63,6 +63,8 @@
     "strokeColor": "Farba obrysu",
     "color": "Farba",
     "opacity": "Priehľadnosť",
+    "fillOpacity": "Priehľadnosť výplne",
+    "strokeOpacity": "Priehľadnosť obrysu",
     "lineWidth": "Šírka čiary",
     "borderWidth": "Šírka okraja",
     "borderStyle": "Štýl okraja",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Prepojiť obrázok",
     "imageFilter": "Obrázky"
   },
+  "sizeUnit": {
+    "tooltip": "Jednotka rozmerov"
+  },
   "multiSelect": "{{count}} anotácií vybraných",
   "pdfText": "PDF text",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importovať komentáre...",
     "exportComments": "Exportovať komentáre do dátového súboru...",
     "exportSelectedComments": "Exportovať vybrané komentáre do dátového súboru...",
+    "exportListCsv": "Exportovať zoznam do CSV...",
+    "summarizeComingSoon": "Už čoskoro",
+    "listExported": "Zoznam komentárov bol exportovaný do CSV",
+    "csvPage": "Strana",
+    "csvType": "Typ",
+    "csvAuthor": "Autor",
+    "csvDate": "Dátum",
+    "csvStatus": "Stav",
+    "csvSubject": "Predmet",
+    "csvContents": "Obsah",
+    "csvColor": "Farba",
+    "csvLayer": "Vrstva",
     "schedules": "Výkazy",
     "addPage": "Pridať stranu",
-    "pageLabels": "Menovky strán (tvorba názvov)"
+    "pageLabels": "Menovky strán (tvorba názvov)",
+    "portfolio": "Portfólio PDF",
+    "recognizeForm": "Rozpoznať polia formulára"
   },
   "scaleBar": {
     "title": "Grafická mierka",
@@ -403,7 +422,8 @@
       "image": "Obrázky a pečiatky"
     },
     "preview": "Náhľad",
-    "exportCsv": "Exportovať CSV"
+    "exportCsv": "Exportovať CSV",
+    "workbookBindings": "Väzby na tabuľku"
   },
   "wizard": {
     "title": "Sprievodca výkazom",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Názov súboru",
       "width": "Šírka",
-      "height": "Výška"
+      "height": "Výška",
+      "location": "Umiestnenie",
+      "locationSource": "Zdroj umiestnenia"
     },
     "type": {
       "line": "Čiara",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Typ",
+    "profileType": "Typ profilu",
+    "profileTypeTitle": "Oceľový profil",
     "unknownSymbol": "Neznámy symbol",
     "listNew": "Nový",
     "listAdd": "Pridať",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Tento objekt bol zmenený inde. Formulár zobrazuje aktuálne hodnoty; vaše zmeny neboli použité.",
     "failed": "Zmeny sa nepodarilo použiť: {{error}}"
+  },
+  "location": {
+    "title": "Umiestnenie",
+    "none": "Nepriradené",
+    "manual": "Ručne",
+    "computed": "Vypočítané",
+    "override": "Ručné prepísanie (prázdne umiestnenie vymaže)",
+    "automatic": "Použiť automatické umiestnenie",
+    "zoneName": "Použiť tento tvar ako pomenovanú zónu",
+    "parent": "Nadradená zóna",
+    "removeZone": "Odstrániť definíciu zóny",
+    "invalid": "Umiestnenie sa nedá aktualizovať",
+    "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
+    "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
   }
 }

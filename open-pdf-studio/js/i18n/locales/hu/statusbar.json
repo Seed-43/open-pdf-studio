@@ -29,7 +29,8 @@
     "formCheckbox": "Űrlap jelölőnégyzet",
     "formRadio": "Űrlap rádiógomb",
     "screenshot": "Képernyőkép",
-    "pageLabelPick": "Szöveg kiválasztása oldalcímkéhez"
+    "pageLabelPick": "Szöveg kiválasztása oldalcímkéhez",
+    "proofread": "Korrektúra"
   },
   "toolLabel": "Eszköz:",
   "annotationsLabel": "Annotációk:",
@@ -108,5 +109,44 @@
   "searchResultPage": "{{page}}. oldal",
   "searchHitsOne": "1 találat",
   "searchHitsMany": "{{count}} találat",
-  "passwordProtectedBar": "Jelszóval védett: csak olvasásra megnyitva."
+  "passwordProtectedBar": "Jelszóval védett: csak olvasásra megnyitva.",
+  "documentSearch": {
+    "title": "Keresés a dokumentumokban",
+    "query": "Keresett szöveg",
+    "scope": "Keresés helye",
+    "active": "Aktuális dokumentum",
+    "open": "Megnyitott dokumentumok",
+    "folder": "Mappa",
+    "choose": "Mappa kiválasztása",
+    "annotations": "Megjegyzésekkel együtt",
+    "search": "Keresés",
+    "cancel": "Mégse",
+    "stale": "A dokumentum megváltozott. Futtassa újra a keresést.",
+    "folderHint": "Közvetlenül ebben a mappában keres a PDF-fájlokban, lapok megnyitása és a fájlok módosítása nélkül.",
+    "limited": "Elérte a találatok korlátját. Szűkítse a keresést.",
+    "cancelled": "A keresés megszakítva; a találatok hiányosak.",
+    "ocrHint": "Nincs kereshető szöveg a következő oldalakon: {{pages}}. Szükség esetén nyissa meg a dokumentumot, és futtassa az OCR-t.",
+    "status": {
+      "searching": "Keresés",
+      "complete": "Kész",
+      "needs_ocr": "Kereshető szöveg nélküli oldalakat tartalmaz",
+      "encrypted": "Jelszó szükséges",
+      "unreadable": "Nem kereshető",
+      "changed": "A dokumentum megváltozott; keressen újra",
+      "cancelled": "Megszakítva",
+      "limited": "Találati korlát elérve"
+    },
+    "failed": "A keresés sikertelen. Ellenőrizze a keresőkifejezést és a mappát, majd próbálja újra.",
+    "prepareOcr": "Megnyitás OCR-hez…"
+  },
+  "symbolSearch": "Szimbólumok keresése",
+  "findMoreOptions": "További keresési beállítások",
+  "watchActive": "Figyelés: {{folder}}",
+  "watchFailed": "Figyelési hiba: {{folder}}",
+  "watchTitle": "A dokumentum-munkafolyamat figyeli a(z) {{input}} mappát, és ide ír: {{output}}. Kattintson a figyelés leállításához.",
+  "renderDiagnostics": {
+    "title": "Ugrás a következő megjelenítési észrevételre. Az észrevételek hiánya nem garantálja a teljes megjelenítést.",
+    "count": "Megjelenítési észrevételek: {{count}}",
+    "detail": "{{page}}. oldal: {{code}}. Próbáljon kisebb nagyítást, vagy nyissa meg újra a dokumentumot; a teljesség nem garantált."
+  }
 }

@@ -71,6 +71,12 @@
     "site": "이 사이트",
     "noSiteDocuments": "이 사이트에 문서가 없습니다",
     "siteListError": "이 사이트의 문서를 불러올 수 없습니다",
+    "versions": "버전",
+    "versionNumber": "버전 {{version}}",
+    "currentVersion": "현재",
+    "noVersions": "버전 없음",
+    "versionsError": "버전을 불러올 수 없습니다",
+    "olderVersionsHint": "이전 버전은 읽기 전용으로 열립니다. 다른 이름으로 저장을 사용하면 사본이 다운로드됩니다.",
     "save": "저장"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "페이지",
     "officeTable": "표",
     "officeText": "텍스트",
-    "officeFailed": "문서를 내보내지 못했습니다."
+    "officeFailed": "문서를 내보내지 못했습니다.",
+    "protect": "암호로 보호",
+    "protectDesc": "암호로 보호된 사본 저장 (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "출력 프로필",
@@ -211,5 +219,9 @@
     "activationFailed": "비활성: {{error}}",
     "viaMcp": "AI 연결을 통해"
   },
-  "annotateScreenshot": "클립보드 스크린샷에 주석 달기"
+  "annotateScreenshot": "클립보드 스크린샷에 주석 달기",
+  "workflows": "문서 워크플로",
+  "drawingSets": "도면 세트",
+  "sheetLinks": "도면 간 링크",
+  "approvalRouting": "승인 라우팅"
 }

@@ -63,6 +63,8 @@
     "strokeColor": "Stregfarve",
     "color": "Farve",
     "opacity": "Gennemsigtighed",
+    "fillOpacity": "Fyldets gennemsigtighed",
+    "strokeOpacity": "Stregens gennemsigtighed",
     "lineWidth": "Linjebredde",
     "borderWidth": "Kantbredde",
     "borderStyle": "Kantstil",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Sammenkæd billede",
     "imageFilter": "Billeder"
   },
+  "sizeUnit": {
+    "tooltip": "Enhed for mål"
+  },
   "multiSelect": "{{count}} annotationer valgt",
   "pdfText": "PDF-tekst",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Importér kommentarer...",
     "exportComments": "Eksportér kommentarer til datafil...",
     "exportSelectedComments": "Eksportér valgte kommentarer til datafil...",
+    "exportListCsv": "Eksportér listen til CSV...",
+    "summarizeComingSoon": "Kommer snart",
+    "listExported": "Kommentarlisten er eksporteret til CSV",
+    "csvPage": "Side",
+    "csvType": "Type",
+    "csvAuthor": "Forfatter",
+    "csvDate": "Dato",
+    "csvStatus": "Status",
+    "csvSubject": "Emne",
+    "csvContents": "Indhold",
+    "csvColor": "Farve",
+    "csvLayer": "Lag",
     "schedules": "Lister",
     "addPage": "Tilføj side",
-    "pageLabels": "Sideetiketter (navnegenerator)"
+    "pageLabels": "Sideetiketter (navnegenerator)",
+    "portfolio": "PDF-portefølje",
+    "recognizeForm": "Genkend formularfelter"
   },
   "scaleBar": {
     "title": "Skalabjælke",
@@ -403,7 +422,8 @@
       "image": "Billeder og stempler"
     },
     "preview": "Eksempel",
-    "exportCsv": "Eksportér CSV"
+    "exportCsv": "Eksportér CSV",
+    "workbookBindings": "Regnearkskoblinger"
   },
   "wizard": {
     "title": "Listeguide",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Filnavn",
       "width": "Bredde",
-      "height": "Højde"
+      "height": "Højde",
+      "location": "Placering",
+      "locationSource": "Kilde til placering"
     },
     "type": {
       "line": "Linje",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
+    "profileType": "Profiltype",
+    "profileTypeTitle": "Stålprofil",
     "unknownSymbol": "Ukendt symbol",
     "listNew": "Ny",
     "listAdd": "Tilføj",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Dette objekt er blevet ændret et andet sted. Formularen viser de aktuelle værdier; dine ændringer blev ikke anvendt.",
     "failed": "Ændringerne kunne ikke anvendes: {{error}}"
+  },
+  "location": {
+    "title": "Placering",
+    "none": "Ikke tildelt",
+    "manual": "Manuel",
+    "computed": "Beregnet",
+    "override": "Manuel tilsidesættelse (tom rydder placeringen)",
+    "automatic": "Brug automatisk placering",
+    "zoneName": "Brug denne figur som en navngivet zone",
+    "parent": "Overordnet zone",
+    "removeZone": "Fjern zonedefinition",
+    "invalid": "Placeringen kunne ikke opdateres",
+    "rules": "Tildelingen bruger midten af markeringens afgrænsningsramme, inklusive kanter. Den dybeste zone vinder, derefter det mindste areal og derefter zone-id. Brug lige polygoner uden huller eller uroterede rektangler. Ugyldige eller dublerede zoneidentiteter udelades.",
+    "loading": "Annotationer indlæses: placeringer kan stadig ændre sig."
   }
 }

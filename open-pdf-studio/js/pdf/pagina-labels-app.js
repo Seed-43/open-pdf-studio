@@ -6,7 +6,7 @@
 import { invoke, isTauri } from '../core/platform.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
-  normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan,
+  normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
   tekstInGebied, woordenInGebied, draaiVak,
 } from './pagina-labels.js';
 
@@ -60,8 +60,10 @@ const _labelsBijBytes = new WeakMap();
  * Met een paginatoewijzing (invoegen, verwijderen, verplaatsen) verhuizen de
  * namen mee met hun pagina en schrijft de volgende save de /PageLabels
  * opnieuw: de bytes van zo'n bewerking dragen de oude (of geen) labels.
+ * `ingevoegdeLabels` (paginanummer → label): de labels van ingevoegde
+ * pagina's die het samenvoegen in de nieuwe bytes schreef.
  */
-export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = null, pageMapping = null } = {}) {
+export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = null, pageMapping = null, ingevoegdeLabels = null } = {}) {
   if (!doc?.pdfDoc) return;
   const aantal = doc.pdfDoc.numPages;
   const voor = { labels: doc.pageLabels ? Array.from(doc.pageLabels) : null, dirty: !!doc.pageLabelsDirty };
@@ -72,7 +74,7 @@ export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = nu
   if (bewaard && (!bewaard.labels || bewaard.labels.length === aantal)) {
     na = bewaard;
   } else if (pageMapping) {
-    const labels = herschikLabels(voor.labels, pageMapping, aantal);
+    const labels = vulLabelsAan(herschikLabels(voor.labels, pageMapping, aantal), ingevoegdeLabels, aantal);
     na = { labels, dirty: voor.dirty || !!labels || !!voor.labels };
   } else if (!voor.labels || voor.labels.length === aantal) {
     na = voor;

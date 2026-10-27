@@ -12,7 +12,7 @@
 // tests) draait.
 
 // PDF-datum (D:YYYYMMDDHHmmSS...) of ISO-string → ISO-string (of null).
-function toIsoDate(raw) {
+export function toIsoDate(raw) {
   if (!raw || typeof raw !== 'string') return null;
   try {
     if (raw.startsWith('D:')) {

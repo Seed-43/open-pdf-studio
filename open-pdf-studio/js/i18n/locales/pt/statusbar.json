@@ -29,7 +29,8 @@
     "formCheckbox": "Caixa de seleção de formulário",
     "formRadio": "Botão de opção de formulário",
     "screenshot": "Captura de tela",
-    "pageLabelPick": "Escolher texto para o rótulo da página"
+    "pageLabelPick": "Escolher texto para o rótulo da página",
+    "proofread": "Revisão"
   },
   "toolLabel": "Ferramenta:",
   "annotationsLabel": "Anotações:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Página {{page}}",
   "searchHitsOne": "1 correspondência",
   "searchHitsMany": "{{count}} correspondências",
-  "passwordProtectedBar": "Protegido por senha: aberto somente para leitura."
+  "passwordProtectedBar": "Protegido por senha: aberto somente para leitura.",
+  "documentSearch": {
+    "title": "Pesquisar documentos",
+    "query": "Texto da pesquisa",
+    "scope": "Pesquisar em",
+    "active": "Documento atual",
+    "open": "Documentos abertos",
+    "folder": "Pasta",
+    "choose": "Escolher pasta",
+    "annotations": "Incluir comentários",
+    "search": "Pesquisar",
+    "cancel": "Cancelar",
+    "stale": "O documento foi alterado. Execute a pesquisa novamente.",
+    "folderHint": "Pesquisa arquivos PDF diretamente nesta pasta, sem abrir abas nem alterar arquivos.",
+    "limited": "Limite de resultados atingido. Refine sua pesquisa.",
+    "cancelled": "Pesquisa cancelada; os resultados estão incompletos.",
+    "ocrHint": "Nenhum texto pesquisável nas páginas {{pages}}. Abra o documento e execute o OCR explicitamente, se necessário.",
+    "status": {
+      "searching": "Pesquisando",
+      "complete": "Concluída",
+      "needs_ocr": "Contém páginas sem texto pesquisável",
+      "encrypted": "Senha obrigatória",
+      "unreadable": "Não foi possível pesquisar",
+      "changed": "Documento alterado; pesquise novamente",
+      "cancelled": "Cancelada",
+      "limited": "Limite de resultados atingido"
+    },
+    "failed": "A pesquisa falhou. Verifique a consulta e a pasta e tente novamente.",
+    "prepareOcr": "Abrir para OCR…"
+  },
+  "symbolSearch": "Localizar símbolos",
+  "findMoreOptions": "Mais opções de pesquisa",
+  "watchActive": "Monitorando {{folder}}",
+  "watchFailed": "Erro de monitoramento: {{folder}}",
+  "watchTitle": "O fluxo de trabalho de documentos está monitorando {{input}} e gravando em {{output}}. Clique para parar o monitoramento.",
+  "renderDiagnostics": {
+    "title": "Ir para o próximo aviso de renderização. A ausência de avisos não garante uma renderização completa.",
+    "count": "Avisos de renderização: {{count}}",
+    "detail": "Página {{page}}: {{code}}. Tente um zoom menor ou reabra o documento; a completude não é garantida."
+  }
 }

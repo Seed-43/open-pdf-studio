@@ -1,4 +1,5 @@
 import { For, Show } from 'solid-js';
+import { openDialog } from '../../../stores/dialogStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import { groups, countText, emptyMessage } from '../../../stores/panels/formFieldsStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
@@ -19,6 +20,15 @@ export default function FormFieldsPanel() {
     <div class={`left-panel-content${activeTab() === 'form-fields' ? ' active' : ''}`} id="form-fields-panel">
       <div class="left-panel-header">
         <span>{t('leftPanel.formFields')}</span>
+      </div>
+      <div class="attachments-toolbar">
+        <button
+          class="attachments-toolbar-btn"
+          title={t('leftPanel.recognizeForm')}
+          onClick={() => openDialog('form-recognition')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="13" height="16"/><line x1="6" y1="9" x2="13" y2="9"/><line x1="6" y1="13" x2="10" y2="13"/><circle cx="17" cy="15" r="3"/><line x1="19.2" y1="17.2" x2="22" y2="20"/></svg>
+        </button>
       </div>
       <div class="form-fields-container">
         <Show when={emptyMessage()}>

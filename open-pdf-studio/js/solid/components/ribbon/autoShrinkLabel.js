@@ -2,10 +2,29 @@ const MIN_FONT_SIZE = 7;
 const DEFAULT_FONT_SIZE = 10;
 const MAX_LINES = 2;
 
+// Labels to measure in the next frame. Measuring reads layout; done straight
+// from the MutationObserver (a microtask) it forced a full layout in the
+// middle of the startup render, for every label that got its text (#707).
+// Batched in one requestAnimationFrame it runs with the frame's own layout,
+// still before that frame is painted.
+const pending = new Set();
+let frame = 0;
+
+function schedule(el) {
+  pending.add(el);
+  if (frame) return;
+  frame = requestAnimationFrame(() => {
+    frame = 0;
+    const labels = [...pending];
+    pending.clear();
+    for (const label of labels) shrink(label);
+  });
+}
+
 const observer = new MutationObserver((mutations) => {
   for (const m of mutations) {
     const el = m.target.nodeType === Node.TEXT_NODE ? m.target.parentElement : m.target;
-    if (el) shrink(el);
+    if (el) schedule(el);
   }
 });
 
@@ -40,6 +59,6 @@ function shrink(el) {
  * Shrinks font-size so text fits within 2 lines without breaking words.
  */
 export function autoShrinkLabel(el) {
-  requestAnimationFrame(() => shrink(el));
+  schedule(el);
   observer.observe(el, { childList: true, characterData: true, subtree: true });
 }

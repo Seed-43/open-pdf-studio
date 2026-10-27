@@ -179,7 +179,7 @@
 }
 
 .property-group input[type="color"],
-.property-group input[type="number"],
+.property-group input[data-getal],
 .property-group input[type="text"],
 .property-group textarea,
 .property-group select {
@@ -193,6 +193,29 @@
   color: var(--theme-text);
   box-sizing: border-box;
   margin: 0;
+}
+
+/* Papiermaat in de gekozen eenheid (#598): invoerveld + eenheid ernaast.
+   Keuzelijst en vast label even breed, zodat de velden eronder uitlijnen. */
+.property-group input.papier-maat-invoer {
+  min-width: 0;
+}
+
+.property-group select.papier-eenheid-keuze {
+  flex: 0 0 48px;
+  width: 48px;
+  padding-right: 16px;
+  background-position: right 3px center;
+}
+
+.property-group .papier-eenheid-label {
+  flex: 0 0 48px;
+  width: 48px;
+  box-sizing: border-box;
+  padding-left: 5px;
+  font-size: 11px;
+  color: var(--theme-text-secondary);
+  user-select: none;
 }
 
 .property-group textarea {
@@ -422,7 +445,7 @@
 .color-hex {
   font-size: 11px;
   color: var(--theme-text-secondary);
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: var(--ui-font-mono);
 }
 
 /* Color Palette Picker - Dropdown Style */
@@ -469,7 +492,7 @@
 .color-picker-button .color-hex {
   font-size: 11px;
   color: var(--theme-text);
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: var(--ui-font-mono);
   flex: 1;
 }
 
@@ -832,3 +855,14 @@
 .scoped-instance-panel-message.failed {
   color: #dc2626;
 }
+
+.spatial-location { color: var(--theme-text); font-size: 11px; padding: 4px 8px; }
+.spatial-location p { margin: 4px 0 8px; overflow-wrap: anywhere; }
+.spatial-location .property-group { flex-direction: column; align-items: stretch; padding: 0; gap: 4px; }
+.spatial-location .property-group label { width: auto; text-align: left; }
+.spatial-location button {
+  font: inherit; color: var(--theme-text); background: var(--theme-surface);
+  border: 1px solid var(--theme-border); border-radius: 0; padding: 4px;
+  white-space: normal; max-width: 100%;
+}
+.spatial-location button:disabled { opacity: .5; }

@@ -107,6 +107,12 @@ test("a zoom implies custom-scale, and custom-scale needs a zoom", () => {
   assert.equal(leesPrintOpdracht({ path: DOEL, zoom: 42.4 }, {}).zoom, 42);
 });
 
+test("a remembered poster print in the dialog does not carry over to a command", () => {
+  const o = leesPrintOpdracht({ path: DOEL }, { onthouden: { scaling: "poster" }, venster: GEEN_INSTELLING });
+  assert.equal(o.schaling, "fit");
+  assert.equal(leesPrintOpdracht({ path: DOEL, scaling: "poster" }, {}).error !== undefined, true);
+});
+
 test("paper takes a size, \"page\" or \"printer\", each where it makes sense", () => {
   assert.equal(leesPrintOpdracht({ path: DOEL, paper: "A3L" }, {}).papier, "a3l");
   assert.equal(leesPrintOpdracht({ path: DOEL, paper: "a3l" }, {}).papier, "a3l");

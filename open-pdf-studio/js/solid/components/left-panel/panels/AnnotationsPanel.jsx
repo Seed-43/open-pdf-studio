@@ -102,6 +102,68 @@ export default function AnnotationsPanel() {
   };
 
   const hasSelection = () => !!state.documents[state.activeDocumentIndex]?.selectedAnnotation;
+  const hasDocument = () => !!state.documents[state.activeDocumentIndex];
+  const hasAnnotations = () => (state.documents[state.activeDocumentIndex]?.annotations?.length || 0) > 0;
+  const hasListRows = () => items().some(i => !i.isHeader);
+
+  // Opmerkingen importeren/exporteren vanuit het paneel (#383): dezelfde
+  // XFDF-routines als het app-menu.
+  const importComments = () => {
+    import('../../../../annotations/xfdf.js').then(m => m.importXFDFFromFile());
+  };
+
+  const exportComments = () => {
+    import('../../../../annotations/xfdf.js').then(m => m.exportXFDFToFile());
+  };
+
+  // Alleen de selectie (een vervanging in haar geheel), in documentvolgorde.
+  const exportSelectedComments = async () => {
+    const doc = getActiveDocument();
+    if (!doc) return;
+    const selectie = doc.selectedAnnotations?.length ? doc.selectedAnnotations
+      : (doc.selectedAnnotation ? [doc.selectedAnnotation] : []);
+    const [{ geselecteerdVoorExport }, { exportXFDFToFile }] = await Promise.all([
+      import('../../../../annotations/opmerkingen-export.js'),
+      import('../../../../annotations/xfdf.js'),
+    ]);
+    const anns = geselecteerdVoorExport(doc.annotations, selectie);
+    if (anns.length > 0) exportXFDFToFile({ annotations: anns, suffix: '-selection' });
+  };
+
+  // De lijst zoals het paneel haar toont (filter, groepering, sortering) als
+  // CSV, UTF-8 met BOM.
+  const exportListCsv = async () => {
+    const doc = getActiveDocument();
+    if (!doc) return;
+    const [exp, helpers, lagen, platform, statusBar, i18n] = await Promise.all([
+      import('../../../../annotations/opmerkingen-export.js'),
+      import('../../../../utils/helpers.js'),
+      import('../../../../annotations/annotatie-lagen.js'),
+      import('../../../../core/platform.js'),
+      import('../../../../ui/chrome/status-bar.js'),
+      import('../../../../i18n/config.js'),
+    ]);
+    const i18next = i18n.default;
+    const anns = exp.opmerkingenInLijstvolgorde(items(), doc.annotations);
+    if (anns.length === 0) return;
+    const byId = new Map(doc.annotations.map(a => [a.id, a]));
+    const standaardLaag = i18next.t('annotationLayers.defaultName', { ns: 'ribbon' });
+    const namen = {
+      typeNaam: (a) => helpers.getAnnotationDisplayName(a, byId),
+      statusNaam: (s) => {
+        const hoofd = s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+        return i18next.t(`annotation.status${hoofd}`, { ns: 'context', defaultValue: hoofd });
+      },
+      laagNaam: (a) => lagen.layerDisplayName(lagen.layerOf(doc, a), standaardLaag),
+    };
+    const koppen = exp.CSV_KOLOMMEN.map(k => i18next.t(`leftPanel.csv${k.charAt(0).toUpperCase()}${k.slice(1)}`, { ns: 'properties' }));
+    const csv = exp.bouwCsv(koppen, anns.map(a => exp.opmerkingRij(a, namen)));
+    const baseName = doc.filePath ? doc.filePath.replace(/\.pdf$/i, '') : 'annotations';
+    const pad = await platform.saveFileDialog(baseName + '-comments.csv', [{ name: 'CSV', extensions: ['csv'] }]);
+    if (!pad) return;
+    await platform.writeBinaryFile(pad, new TextEncoder().encode(csv));
+    statusBar.updateStatusMessage(i18next.t('leftPanel.listExported', { ns: 'properties' }));
+  };
 
   const cutSelected = () => {
     const doc = getActiveDocument();
@@ -258,22 +320,39 @@ export default function AnnotationsPanel() {
 
               <div class="annotations-menu-separator"></div>
 
-              {/* Summarize / Import / Export */}
-              <div class="annotations-menu-item disabled">
+              {/* Summarize / Import / Export (#383). Samenvatten (PDF-rapport
+                  met uitsneden) volgt nog. */}
+              <div class="annotations-menu-item disabled" title={t('leftPanel.summarizeComingSoon')}>
                 <span class="annotations-menu-icon" innerHTML={summarizeIcon}></span>
                 <span class="annotations-menu-label">{t('leftPanel.summarize')}</span>
               </div>
-              <div class="annotations-menu-item disabled">
+              <div
+                class={`annotations-menu-item${!hasDocument() ? ' disabled' : ''}`}
+                onClick={() => hasDocument() && closeAndRun(importComments)}
+              >
                 <span class="annotations-menu-icon" innerHTML={importIcon}></span>
                 <span class="annotations-menu-label">{t('leftPanel.importComments')}</span>
               </div>
-              <div class="annotations-menu-item disabled">
+              <div
+                class={`annotations-menu-item${!hasAnnotations() ? ' disabled' : ''}`}
+                onClick={() => hasAnnotations() && closeAndRun(exportComments)}
+              >
                 <span class="annotations-menu-icon" innerHTML={exportCommentsIcon}></span>
                 <span class="annotations-menu-label">{t('leftPanel.exportComments')}</span>
               </div>
-              <div class="annotations-menu-item disabled">
+              <div
+                class={`annotations-menu-item${!hasSelection() ? ' disabled' : ''}`}
+                onClick={() => hasSelection() && closeAndRun(exportSelectedComments)}
+              >
                 <span class="annotations-menu-icon" innerHTML={exportCommentsIcon}></span>
                 <span class="annotations-menu-label">{t('leftPanel.exportSelectedComments')}</span>
+              </div>
+              <div
+                class={`annotations-menu-item${!hasListRows() ? ' disabled' : ''}`}
+                onClick={() => hasListRows() && closeAndRun(exportListCsv)}
+              >
+                <span class="annotations-menu-icon" innerHTML={exportIcon}></span>
+                <span class="annotations-menu-label">{t('leftPanel.exportListCsv')}</span>
               </div>
 
               <div class="annotations-menu-separator"></div>

@@ -35,8 +35,38 @@
   cursor: default !important;
 }
 
+/* ==============================
+   Interface-lettertype (#600)
+   ==============================
+   Eén centrale plek voor het lettertype van de hele bediening: menu's,
+   lint, dialogen, panelen, eigenschappen, tabellen, knoppen en tooltips.
+   system-ui volgt het lettertype van het besturingssysteem (Windows:
+   Segoe UI, macOS: San Francisco, Linux: het bureaubladfont). De rest is
+   terugval voor WebViews zonder system-ui.
+   Stylesheets gebruiken var(--ui-font) of erven; een eigen lettertype per
+   onderdeel bewaakt js/ui/ui-lettertype.test.mjs.
+   Niet voor PDF-inhoud: tekst die in of op de pagina komt (annotaties,
+   tekstvakken, stempels, formuliervelden) houdt zijn eigen lettertype. */
+:root {
+  --ui-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+  /* Voor code, hexwaarden en tokens waar vaste breedte helpt. */
+  --ui-font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'DejaVu Sans Mono', 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Formulierelementen erven het lettertype niet vanzelf; zonder deze regel
+   kiest de browser er een eigen systeemfont voor en wijken knoppen en
+   invoervelden af van de rest. Alleen de familie: groottes blijven zoals
+   de onderdelen ze zelf zetten. */
+button,
+input,
+select,
+textarea,
+optgroup {
+  font-family: inherit;
+}
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--ui-font);
   background: var(--theme-bg);
   height: 100vh;
   display: flex;

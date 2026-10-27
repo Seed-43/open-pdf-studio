@@ -10,7 +10,6 @@ import { toggleSymbolPalette } from '../SymbolPalette.jsx';
 import { symbolPaletteVisible } from '../../stores/symbolStore.js';
 import { toggleKeystrokeOverlay, keystrokeOverlayVisible } from '../KeystrokeOverlay.jsx';
 import { setViewMode } from '../../../pdf/renderer.js';
-import { redrawAnnotations } from '../../../annotations/rendering.js';
 import { toggleLeftPanel } from '../../../ui/panels/left-panel.js';
 import { toggleAnnotationsListPanel } from '../../../ui/panels/annotations-list.js';
 import { togglePropertiesPanel } from '../../../ui/panels/properties-panel.js';
@@ -77,12 +76,9 @@ export default function ViewTab() {
             disabled={noPdf()}
             active={state.preferences?.thinLines}
             onClick={() => {
-              state.preferences.thinLines = !state.preferences.thinLines;
-              import('../../../pdf/renderer.js').then(m => {
-                const doc = state.documents[state.activeDocumentIndex];
-                if (doc) m.renderPage(doc.currentPage);
-              });
-              redrawAnnotations();
+              // Thin Lines (#595): preference + page re-render in the new line
+              // mode (all render paths and caches, see pdf/thin-lines.js).
+              import('../../../pdf/thin-lines.js').then(m => m.toggleThinLines());
             }} />
           <RibbonButton id="reader-mode-toggle"
             title={t('view.readerModeTip') || 'Remember this PDF\'s page, scroll position and zoom across closing and reopening it. While switched on, a small file is kept next to this PDF, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.); switching it off removes that file.'}

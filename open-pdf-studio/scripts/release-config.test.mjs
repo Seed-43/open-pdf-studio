@@ -207,22 +207,8 @@ test('release workflows compile macOS once and retry only the bundle phase', asy
   }
 });
 
-test('release metadata is versie-consistent met package.json', async () => {
-  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
-  const packageLock = JSON.parse(await readFile(new URL('../package-lock.json', import.meta.url), 'utf8'));
-  const config = JSON.parse(await readFile(new URL('../src-tauri/tauri.conf.json', import.meta.url), 'utf8'));
-  const cargo = await readFile(new URL('../src-tauri/Cargo.toml', import.meta.url), 'utf8');
-  const cargoLock = await readFile(new URL('../src-tauri/Cargo.lock', import.meta.url), 'utf8');
-  // Geen hardgecodeerde versie: elke bump brak deze test terwijl er niets mis
-  // was. Het contract is CONSISTENTIE — alle metadata volgt package.json.
-  const v = pkg.version;
-  assert.match(v, /^\d+\.\d+\.\d+$/);
-  assert.equal(packageLock.version, v);
-  assert.equal(packageLock.packages[''].version, v);
-  assert.equal(config.version, v);
-  assert.match(cargo, new RegExp(`^version = "${v.replaceAll('.', '\.')}"$`, 'm'));
-  assert.match(cargoLock, new RegExp(`name = "open-pdf-studio"\r?\nversion = "${v.replaceAll('.', '\.')}"`));
-});
+// De versievelden (allemaal gelijk, schema JJJJ.W.N) en het ontbreken van
+// een MSI-build bewaakt scripts/versievelden.test.mjs (#667).
 
 test('development optimization profiles live at the workspace root', async () => {
   const workspaceCargo = await readFile(path.join(repoDir, 'Cargo.toml'), 'utf8');

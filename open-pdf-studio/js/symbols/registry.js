@@ -138,10 +138,11 @@ export function normalizeListParam(def, raw, params = {}) {
 /**
  * Alle lijst-parameters van een template genormaliseerd (de rest blijft zoals
  * hij is). Voor de MCP-kant: wat de assistent aanmaakt of bijwerkt, staat er
- * daarna precies zo in als het getekend wordt.
+ * daarna precies zo in als het getekend wordt. Waarden in een oudere
+ * schrijfwijze (een kokermaat "Koker 100x100x5") worden eerst bijgewerkt.
  */
 export function normalizeParams(template, params = {}) {
-  const out = { ...(params || {}) };
+  const out = { ...migrateParams(template, params || {}) };
   if (!template || !Array.isArray(template.params)) return out;
   for (const def of template.params) {
     if (def.type !== 'list' || !(def.key in out)) continue;
@@ -150,6 +151,31 @@ export function normalizeParams(template, params = {}) {
     else delete out[def.key];
   }
   return out;
+}
+
+/**
+ * Parameters uit een ouder bestand naar de huidige waarden van het template
+ * (bijvoorbeeld een kokermaat "Koker 100x100x5" → "K100/5"). Een template
+ * zonder migrateParams laat ze ongemoeid.
+ */
+export function migrateParams(template, params) {
+  if (!template || typeof template.migrateParams !== 'function' || !params) return params;
+  return template.migrateParams(params);
+}
+
+/**
+ * Extra zoektermen van een parametrisch symbool voor het symbolenpalet: de
+ * maten uit de keuzelijst `maat` plus wat het template zelf opgeeft
+ * (`zoektermen`, zoals de oude schrijfwijze van een kokermaat).
+ */
+export function searchTermsFor(templateId) {
+  const tpl = getTemplate(templateId);
+  if (!tpl) return [];
+  const termen = [];
+  const maat = (tpl.params || []).find(p => p.key === 'maat');
+  for (const o of maat?.options || []) termen.push(typeof o === 'string' ? o : (o?.label || o?.value));
+  if (Array.isArray(tpl.zoektermen)) termen.push(...tpl.zoektermen);
+  return termen.filter(t => typeof t === 'string' && t);
 }
 
 export function listCategories() {

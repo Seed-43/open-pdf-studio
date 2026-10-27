@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { pdfjsFallbackNodig } from './render-route.js';
+import { pdfjsFallbackNodig, rustRenderPadBeschikbaar } from './render-route.js';
 
 test('bureaublad met bestandspad: PDFium tekent, PDF.js blijft eraf', () => {
   assert.equal(
@@ -45,4 +45,32 @@ test('viewport-pad heeft de pagina geclaimd: PDF.js blijft eraf', () => {
       );
     }
   }
+});
+
+test('Android/iOS: Tauri met bestandspad, maar geen PDFium, dus PDF.js (#593)', () => {
+  // De APK bevat alleen libapp_lib.so en het pad is een content://-URI: elke
+  // Rust-render faalt. Zonder deze regel bleef de pagina wit.
+  assert.equal(
+    pdfjsFallbackNodig({ inTauri: true, hasFilePath: true, mobiel: true }),
+    true,
+  );
+  assert.equal(
+    pdfjsFallbackNodig({ inTauri: true, hasFilePath: false, mobiel: true }),
+    true,
+  );
+});
+
+test('mobiel en viewport-claim: de RAF-lus blijft de enige tekenaar', () => {
+  assert.equal(
+    pdfjsFallbackNodig({ inTauri: true, hasFilePath: true, mobiel: true, viewportNamHetOver: true }),
+    false,
+  );
+});
+
+test('Rust-renderpad alleen in de bureaubladschil (#593)', () => {
+  assert.equal(rustRenderPadBeschikbaar({ inTauri: true }), true);
+  assert.equal(rustRenderPadBeschikbaar({ inTauri: true, mobiel: false }), true);
+  assert.equal(rustRenderPadBeschikbaar({ inTauri: true, mobiel: true }), false);
+  assert.equal(rustRenderPadBeschikbaar({ inTauri: false }), false);
+  assert.equal(rustRenderPadBeschikbaar({ inTauri: false, mobiel: true }), false);
 });

@@ -93,7 +93,22 @@
     "editBookmark": "Sửa Dấu trang",
     "deleteBookmark": "Xóa Dấu trang",
     "expandAll": "Mở rộng Tất cả",
-    "collapseAll": "Thu gọn Tất cả"
+    "collapseAll": "Thu gọn Tất cả",
+    "color": "Màu sắc",
+    "colorDefault": "Mặc định",
+    "colorRed": "Đỏ",
+    "colorOrange": "Cam",
+    "colorGreen": "Xanh lá",
+    "colorBlue": "Xanh dương",
+    "colorPurple": "Tím",
+    "colorGray": "Xám",
+    "colorCustom": "Tùy chỉnh...",
+    "bold": "Đậm",
+    "italic": "Nghiêng",
+    "nestUnderNew": "Lồng vào dấu trang mới...",
+    "indent": "Thụt lề",
+    "outdent": "Giảm thụt lề",
+    "deleteBookmarks": "Xóa {{count}} dấu trang"
   },
   "thumbnail": {
     "rotateLeft": "Xoay trái",

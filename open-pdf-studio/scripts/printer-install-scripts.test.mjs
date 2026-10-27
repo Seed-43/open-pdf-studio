@@ -20,12 +20,18 @@ test('installer installs the printer as "Open PDF Printer" through the generated
   assert.match(hooks, /OPDS_RUN_PRINTER_SCRIPT "install-printer\.ps1" ""/);
   assert.match(hooks, /OPDS_RUN_PRINTER_SCRIPT "install-printer\.ps1" "upgrade"/);
   assert.match(hooks, /OPDS_RUN_PRINTER_SCRIPT "uninstall-printer\.ps1" ""/);
-  // The page tells the user the real name and the paper sizes.
-  assert.match(hooks, /Adds 'Open PDF Printer' to your Windows printers list/);
-  for (const size of ['A1', 'A0', 'A3L', 'A2L', 'A1L']) {
-    assert.match(hooks, new RegExp(`\\b${size}\\b`), `${size} is not mentioned on the page`);
+  // The options page (texts in strings.nsh) tells the user the real name and
+  // the paper sizes, in every language the installer has.
+  const strings = read('strings.nsh');
+  const hints = strings.split('\n').filter((line) => line.includes('LangString opdsPrinterHint '));
+  assert.ok(hints.length >= 2, 'the printer hint exists in English and Dutch');
+  for (const hint of hints) {
+    assert.match(hint, /'Open PDF Printer'/);
+    for (const size of ['A1', 'A0', 'A3L', 'A2L', 'A1L']) {
+      assert.match(hint, new RegExp(`\\b${size}\\b`), `${size} is not mentioned on the page`);
+    }
   }
-  assert.doesNotMatch(hooks, /Adds 'Open PDF Studio'/);
+  assert.doesNotMatch(strings, /'Open PDF Studio'/);
 });
 
 test('installer runs PowerShell by full path and takes the scripts from next to hooks.nsh', () => {

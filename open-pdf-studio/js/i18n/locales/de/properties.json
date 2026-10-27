@@ -63,6 +63,8 @@
     "strokeColor": "Konturfarbe",
     "color": "Farbe",
     "opacity": "Deckkraft",
+    "fillOpacity": "Deckkraft der Füllung",
+    "strokeOpacity": "Deckkraft der Kontur",
     "borderStyle": "Rahmenstil",
     "cross": "Kreuz",
     "crossHint": "Zeichnet ein Kreuz in das Rechteck, den Kreis oder die Ellipse (z.B. eine Aussparung)",
@@ -247,6 +249,9 @@
     "linkImageTitle": "Bild verknüpfen",
     "imageFilter": "Bilder"
   },
+  "sizeUnit": {
+    "tooltip": "Einheit für Abmessungen"
+  },
   "multiSelect": "{{count}} Anmerkungen ausgewählt",
   "pdfText": "PDF-Text",
   "types": {
@@ -349,9 +354,23 @@
     "importComments": "Kommentare importieren...",
     "exportComments": "Kommentare in Datendatei exportieren...",
     "exportSelectedComments": "Ausgewählte Kommentare in Datendatei exportieren...",
+    "exportListCsv": "Liste als CSV exportieren...",
+    "summarizeComingSoon": "Demnächst verfügbar",
+    "listExported": "Kommentarliste als CSV exportiert",
+    "csvPage": "Seite",
+    "csvType": "Typ",
+    "csvAuthor": "Autor",
+    "csvDate": "Datum",
+    "csvStatus": "Status",
+    "csvSubject": "Betreff",
+    "csvContents": "Inhalt",
+    "csvColor": "Farbe",
+    "csvLayer": "Ebene",
     "schedules": "Listen",
     "addPage": "Seite hinzufügen",
-    "pageLabels": "Seitenbeschriftungen (Namensgenerator)"
+    "pageLabels": "Seitenbeschriftungen (Namensgenerator)",
+    "portfolio": "PDF-Portfolio",
+    "recognizeForm": "Formularfelder erkennen"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",
@@ -403,7 +422,8 @@
       "image": "Bilder & Stempel"
     },
     "preview": "Vorschau",
-    "exportCsv": "CSV exportieren"
+    "exportCsv": "CSV exportieren",
+    "workbookBindings": "Tabellenverknüpfungen"
   },
   "wizard": {
     "title": "Listen-Assistent",
@@ -585,7 +605,9 @@
       "symbolId": "Symbol",
       "imageName": "Dateiname",
       "width": "Breite",
-      "height": "Höhe"
+      "height": "Höhe",
+      "location": "Standort",
+      "locationSource": "Standortquelle"
     },
     "type": {
       "line": "Linie",
@@ -631,6 +653,8 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Typ",
+    "profileType": "Profiltyp",
+    "profileTypeTitle": "Stahlprofil",
     "unknownSymbol": "Unbekanntes Symbol",
     "listNew": "Neu",
     "listAdd": "Hinzufügen",
@@ -684,5 +708,19 @@
   "scopedPanel": {
     "stale": "Dieses Objekt wurde an anderer Stelle geändert. Das Formular zeigt die aktuellen Werte; Ihre Änderungen wurden nicht übernommen.",
     "failed": "Die Änderungen konnten nicht übernommen werden: {{error}}"
+  },
+  "location": {
+    "title": "Standort",
+    "none": "Nicht zugewiesen",
+    "manual": "Manuell",
+    "computed": "Berechnet",
+    "override": "Manuelle Überschreibung (leer löscht den Standort)",
+    "automatic": "Automatischen Standort verwenden",
+    "zoneName": "Diese Form als benannte Zone verwenden",
+    "parent": "Übergeordnete Zone",
+    "removeZone": "Zonendefinition entfernen",
+    "invalid": "Standort konnte nicht aktualisiert werden",
+    "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
+    "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
   }
 }

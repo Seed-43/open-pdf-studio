@@ -12,7 +12,8 @@
 //   MCP_PORT=<poort> CDP_PORT=<poort> node scripts/verify-extensies.mjs --map <map> [--data <OPDS_DATA_DIR>]
 //       de live controle; <map> krijgt de pakketten, --data controleert de schijf
 //
-// Voorwaarden: een eigen rig (OPDS_DETACHED=1, OPS_ENABLE_MCP=1, eigen
+// Voorwaarden: een eigen rig (OPDS_DETACHED=1, OPS_ENABLE_MCP=1,
+// OPDS_HEADLESS=1 zodat het venster buiten beeld blijft, eigen
 // OPDS_DATA_DIR en WEBVIEW2_USER_DATA_FOLDER) met --mcp-server op een vrije
 // poort, en CDP via WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=<CDP_PORT>
 // (alleen om bij het verwijderen de bevestigingsvraag van het paneel te

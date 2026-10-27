@@ -1,3 +1,4 @@
+import { relinkCopiedZones } from './spatial-zones.js';
 // "Plakken op plaats" (paste in place) — GitHub issue #269.
 //
 // Pure clone-logic: kopieert clipboard-annotaties naar een doelpagina met
@@ -46,5 +47,6 @@ export function cloneAnnotationsInPlace(sources, targetPage, opts = {}) {
     return clone;
   });
   // Vervangingen (#508) koppelen aan hun eigen kopie; geen gedeelde /NM.
+  relinkCopiedZones(list, result);
   return relinkPastedCorrections(list, result);
 }

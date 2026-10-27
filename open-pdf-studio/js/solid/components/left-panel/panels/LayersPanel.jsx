@@ -8,7 +8,10 @@ const INSPRINGING = 14;
 
 export default function LayersPanel() {
   const { t } = useTranslation('properties');
-  const { t: tCommon } = useTranslation('common');
+
+  const wissel = (layer, zichtbaar) => {
+    import('../../../../ui/panels/layers.js').then((m) => m.toggleLayer(layer.id, zichtbaar));
+  };
 
   return (
     <div class={`left-panel-content${activeTab() === 'layers' ? ' active' : ''}`} id="layers-panel">
@@ -27,12 +30,21 @@ export default function LayersPanel() {
                 style={{ 'margin-left': `${(layer.depth || 0) * INSPRINGING}px` }}
               >
                 <Show when={!layer.kop}>
-                  {/* Toont de stand; schakelen volgt (zie layers.js). */}
-                  <span class="layer-list-toggle" title={tCommon('leftPanel.layerToggleUnavailable')}>
-                    <input type="checkbox" checked={layer.visible} disabled />
+                  {/* Laag aan/uit in de weergave (#684, zie pdf/lagen-schakelen.js). */}
+                  <span class="layer-list-toggle">
+                    <input
+                      type="checkbox"
+                      id={`layer-toggle-${layer.id}`}
+                      checked={layer.visible}
+                      onChange={(e) => wissel(layer, e.currentTarget.checked)}
+                    />
                   </span>
                 </Show>
-                <span class="layer-list-name">{layer.name}</span>
+                <Show when={layer.kop} fallback={
+                  <label class="layer-list-name" for={`layer-toggle-${layer.id}`}>{layer.name}</label>
+                }>
+                  <span class="layer-list-name">{layer.name}</span>
+                </Show>
               </div>
             )}
           </For>

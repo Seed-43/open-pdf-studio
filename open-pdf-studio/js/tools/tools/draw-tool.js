@@ -23,10 +23,11 @@ export const drawTool = {
     canvasCtx.save();
     applyToolTransform(canvasCtx);
     const prefs = state.preferences;
-    // Ribbon picker values win over prefs so the live preview matches what
-    // will be saved (annotation-creators uses the same priority order).
-    canvasCtx.strokeStyle = ctx.getColorPickerValue() || prefs.drawStrokeColor || '#000000';
-    canvasCtx.lineWidth = ctx.getLineWidthValue() || prefs.drawLineWidth || 2;
+    // Zelfde volgorde als annotation-creators: de voorkeur van het
+    // gereedschap, dan pas de lintwaarde (#668). Zo past het voorbeeld bij
+    // wat er straks staat.
+    canvasCtx.strokeStyle = prefs.drawStrokeColor || ctx.getColorPickerValue() || '#000000';
+    canvasCtx.lineWidth = prefs.drawLineWidth || ctx.getLineWidthValue() || 2;
     canvasCtx.globalAlpha = (prefs.drawOpacity || 100) / 100;
     canvasCtx.lineCap = 'round';
     canvasCtx.lineJoin = 'round';

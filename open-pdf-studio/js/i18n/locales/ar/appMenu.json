@@ -71,6 +71,12 @@
     "site": "على هذا الموقع",
     "noSiteDocuments": "لا توجد مستندات على هذا الموقع",
     "siteListError": "تعذّر تحميل مستندات هذا الموقع",
+    "versions": "الإصدارات",
+    "versionNumber": "الإصدار {{version}}",
+    "currentVersion": "الحالي",
+    "noVersions": "لا توجد إصدارات",
+    "versionsError": "تعذّر تحميل الإصدارات",
+    "olderVersionsHint": "تُفتح الإصدارات الأقدم للقراءة فقط؛ ويُنزّل «حفظ باسم» نسخة.",
     "save": "حفظ"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "صفحة",
     "officeTable": "جدول",
     "officeText": "نص",
-    "officeFailed": "فشل تصدير المستند."
+    "officeFailed": "فشل تصدير المستند.",
+    "protect": "الحماية بكلمة مرور",
+    "protectDesc": "حفظ نسخة محمية بكلمة مرور (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "ملف تعريف الإخراج",
@@ -211,5 +219,9 @@
     "activationFailed": "غير نشط: {{error}}",
     "viaMcp": "عبر اتصال الذكاء الاصطناعي"
   },
-  "annotateScreenshot": "إضافة تعليقات إلى لقطة الشاشة من الحافظة"
+  "annotateScreenshot": "إضافة تعليقات إلى لقطة الشاشة من الحافظة",
+  "workflows": "سير عمل المستندات",
+  "drawingSets": "مجموعات الرسومات",
+  "sheetLinks": "روابط بين اللوحات",
+  "approvalRouting": "توجيه الموافقات"
 }

@@ -271,7 +271,8 @@ test('een gewone veelhoek zonder punten blijft de ingeschreven veelhoek', async 
 
 test('opslag en lader halen de regel uit saver/veelhoek-grondvorm.js', () => {
   const opslag = readFileSync(new URL('./saver.js', import.meta.url), 'utf8');
-  assert.match(opslag, /veelhoekGrondvorm\(ann\)/, 'de opslag bouwt /Vertices niet meer zelf');
+  // Uit het getoonde vak (annVak), sinds #619 ook op een gedraaide pagina.
+  assert.match(opslag, /veelhoekGrondvorm\(annVak\)/, 'de opslag bouwt /Vertices niet meer zelf');
   assert.match(opslag, /from '\.\/saver\/veelhoek-grondvorm\.js'/);
   const lader = readFileSync(new URL('./loader/annotation-converter.js', import.meta.url), 'utf8');
   assert.match(lader, /wolkVakUitHoeken\(polyPoints\)/, 'de lader haalt het vak niet uit de punten');

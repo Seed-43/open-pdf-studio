@@ -1,6 +1,8 @@
 // Downloads the OCR proof-of-concept's runtime assets (Tesseract trained-data
-// files for English + Traditional Chinese, and a CJK-capable font used to
-// embed the invisible searchable text layer) — SHA-256-verified, cached
+// files for English + Traditional Chinese, and the CJK fonts used to embed
+// the invisible searchable text layer and text-box appearances: Noto Sans TC
+// first, Noto Sans SC for the Simplified characters TC lacks; see
+// js/pdf/saver/cjk-fonts.js) — SHA-256-verified, cached
 // locally, never committed to the repo. Mirrors native-runtime.mjs's
 // download/verify pattern for libpdfium.dylib.
 import { createHash } from 'node:crypto';
@@ -31,6 +33,12 @@ export const OCR_RUNTIME_ASSETS = Object.freeze([
     url: 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf',
     sha256: '5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537',
     destination: path.join(FONTS_DIR, 'NotoSansTC-Regular.ttf'),
+  },
+  {
+    name: 'NotoSansSC-Regular.otf',
+    url: 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf',
+    sha256: 'faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9',
+    destination: path.join(FONTS_DIR, 'NotoSansSC-Regular.otf'),
   },
 ]);
 

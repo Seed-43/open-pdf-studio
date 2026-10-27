@@ -266,7 +266,7 @@ export default function QuantitiesProperties() {
                         <td>{f.label}</td>
                         <td><input class="schedule-input" value={fmtAt(f.key).heading ?? ''} placeholder={f.label} onInput={(e) => setFmtAt(f.key, { heading: e.target.value })} /></td>
                         <td><input class="schedule-input q-narrow" value={fmtAt(f.key).unit ?? f.unit ?? ''} onInput={(e) => setFmtAt(f.key, { unit: e.target.value })} /></td>
-                        <td><input class="schedule-input q-narrow" type="number" min="0" max="6" value={fmtAt(f.key).decimals ?? (f.dec ?? (f.kind === 'number' ? 2 : 0))} onInput={(e) => setFmtAt(f.key, { decimals: parseInt(e.target.value, 10) })} disabled={f.kind !== 'number'} /></td>
+                        <td><input class="schedule-input q-narrow" type="text" inputmode="decimal" data-getal min="0" max="6" value={fmtAt(f.key).decimals ?? (f.dec ?? (f.kind === 'number' ? 2 : 0))} onInput={(e) => setFmtAt(f.key, { decimals: parseInt(e.target.value, 10) })} disabled={f.kind !== 'number'} /></td>
                         <td>
                           <select class="schedule-select" value={fmtAt(f.key).align ?? (f.kind === 'number' ? 'right' : 'left')} onChange={(e) => setFmtAt(f.key, { align: e.target.value })}>
                             <option value="left">{t('quantities.alignLeft')}</option>

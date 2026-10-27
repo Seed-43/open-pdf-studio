@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.42.7"
+version = "2026.43.11"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -82,6 +82,9 @@ p256 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8
 p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
 zeroize = "1"
 rand = "0.8"
+aes = "0.8"
+stringprep = "0.1"
+unicode-normalization = "0.1"
 url = "2"
 urlencoding = "2"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time"] }
@@ -104,38 +107,38 @@ flate2 = "1"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
 #
-# use-system-tesseract (Linux only): link against Tesseract/Leptonica already
-# installed on the build machine (pkg-config) instead of compiling them from
-# source. build-tesseract pulled in reqwest (default features -> native-tls
-# -> openssl-sys) purely to download the source archives at build time — Linux
-# CI installs libtesseract-dev/libleptonica-dev to avoid that. Local dev needs
-# them too.
+# build-tesseract on every desktop platform: tesseract-rs compiles pinned
+# Leptonica/Tesseract sources (versions in its build.rs) and links them
+# STATICALLY into the binary, with image codecs, curl, libarchive, ICU and
+# OpenMP disabled. The release binaries therefore need no libtesseract or
+# libleptonica on the user's machine.
 #
-# build-tesseract (macOS/Windows): kept as source-build on both. macOS can't
-# use use-system-tesseract for the universal (arm64+x86_64) build — Homebrew
-# dropped support for the Rosetta x86_64-on-Apple-Silicon install pattern
-# ("Homebrew on macOS is only supported on Apple Silicon processors!"), so
-# there's no way to get x86_64 Tesseract/Leptonica via brew on an Apple
-# Silicon runner any more. The macOS arch-mismatch link error this was meant
-# to fix instead needs release.yml/ci.yml/nightly.yml to pre-build each Apple
-# target as its own `cargo build` invocation with tesseract-rs's external
-# build cache (~/Library/Application Support/tesseract-rs) cleared between
-# them, so the stale-cache bug in its build.rs never gets a chance to bite —
-# see the "Build Tauri app / Build macOS app" steps there. Windows has no
-# equivalent "system-installed Tesseract" story without adding a vcpkg
-# dependency, and that CI leg already builds cleanly from source.
+# Linux used to link the build machine's system Tesseract via
+# use-system-tesseract (pkg-config). That baked the Ubuntu 22.04 soname
+# libtesseract.so.4 into the binary as a NEEDED entry, so the raw binary and
+# anything repackaged from the .deb failed to start on distributions that
+# ship Tesseract 5 (libtesseract.so.5, e.g. Arch) or none at all (#620); the
+# .deb never declared the dependency either. Static linking removes the
+# dependency instead of chasing sonames. (The old worry that build-tesseract
+# drags in native-tls/openssl-sys no longer holds: the pinned tesseract-rs
+# uses reqwest 0.13 with rustls, and its use-system-tesseract feature already
+# enabled build-tesseract, so reqwest was compiled on Linux regardless.)
+# Building needs cmake and a C++ compiler; the first build downloads the
+# sources and caches the static libs in ~/.tesseract-rs/<target>/.
+#
+# macOS builds both Apple targets from source for the universal binary; the
+# [patch] of tesseract-rs in the workspace Cargo.toml namespaces that cache
+# by target triple so the second architecture does not reuse the first one's
+# libraries. Windows has no system-Tesseract story without vcpkg and builds
+# cleanly from source.
 #
 # Android: no OCR. The source build of Tesseract/Leptonica does not work with
 # the NDK (CMake misses CpuFeaturesNdkCompat, the link step misses
 # -lleptonica), so the crate is left out entirely and `ocr_pdf_page` is a
 # stub that returns an error (see src/lib.rs).
-[target.'cfg(target_os = "linux")'.dependencies]
-tesseract-rs = { version = "0.4", default-features = false, features = ["use-system-tesseract"] }
-
-[target.'cfg(not(any(target_os = "linux", target_os = "android")))'.dependencies]
+[target.'cfg(not(target_os = "android"))'.dependencies]
 tesseract-rs = { version = "0.4", default-features = false, features = ["build-tesseract"] }
 
-[target.'cfg(not(target_os = "android"))'.dependencies]
 tauri-plugin-updater = "2"
 # Drag-out window detach — desktop only (the crate has no mobile platform
 # backend and fails to compile for Android/iOS).
@@ -160,7 +163,7 @@ rustls-native-certs = "0.8"
 [target.'cfg(target_os = "windows")'.dependencies]
 webview2-com = "0.38.2"
 windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
-windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry"] }
+windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

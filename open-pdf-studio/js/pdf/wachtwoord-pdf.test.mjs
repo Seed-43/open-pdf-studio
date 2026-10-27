@@ -14,7 +14,7 @@ import { register } from 'node:module';
 import {
   FOUT_VERKEERD_WACHTWOORD, isWachtwoordFout, isOnjuistWachtwoordPdfjs, isWachtwoordNodigPdfjs,
   soortOntsleutelFout, isBeveiligdDocument, isAlleenLezen, opslaanGeweigerd, bronPad, hoortBijPad,
-  sessieBestanden, vraagEnOntsleutel, markeerBeveiligd,
+  sessieBestanden, vraagEnOntsleutel, markeerBeveiligd, isHostAlleenLezen,
 } from './wachtwoord-pdf.js';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
@@ -98,6 +98,18 @@ test('a password-protected document is read-only and cannot be made editable', (
   doc.pdfADismissed = true;
   assert.equal(isAlleenLezen(doc), true);
   assert.equal(opslaanGeweigerd(doc), true);
+});
+
+test('a document the host opened read-only (#704) cannot be edited; it is not password-protected', () => {
+  const doc = { filePath: 'opds-host://DOC-1/a.pdf', hostAlleenLezen: true };
+  assert.equal(isHostAlleenLezen(doc), true);
+  assert.equal(isAlleenLezen(doc), true);
+  doc.pdfaCompliance = { part: 2, conformance: 'B' };
+  doc.pdfADismissed = true;
+  assert.equal(isAlleenLezen(doc), true, '"Bewerken inschakelen" van PDF/A heft het niet op');
+  assert.equal(opslaanGeweigerd(doc), false, 'opslaan als (een download) mag; de saver weigert alleen het terugschrijven');
+  assert.equal(isHostAlleenLezen({ filePath: 'opds-host://DOC-2/b.pdf' }), false);
+  assert.equal(isHostAlleenLezen(null), false);
 });
 
 test('PDF/A stays read-only until editing is enabled, and may be saved', () => {

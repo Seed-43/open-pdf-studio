@@ -15,6 +15,8 @@
 // loopt — zo schrijft een ander programma zijn /Polygon met /BE /S /C ook.
 // Voor een rechthoekige wolk zijn dat de vier hoekpunten van het vak.
 
+import { veelhoekPunten } from '../../annotations/veelhoek-punten.js';
+
 // Hoek van hoekpunt i van een ingeschreven regelmatige n-hoek: hoekpunt 0
 // ligt boven het midden (in app-coördinaten loopt y naar beneden).
 const veelhoekHoek = (i, zijden) => (i * 2 * Math.PI / zijden) - Math.PI / 2;
@@ -52,9 +54,17 @@ export function wolkVakHoeken(ann) {
  * De punten die als /Vertices weggeschreven worden (app-coördinaten):
  * de eigen punten van de vorm, anders de vier hoekpunten van een
  * rechthoekige wolk, anders de ingeschreven regelmatige veelhoek van het vak.
+ *
+ * De punten van een veelhoek gaan door zijn vak, zoals het scherm ze tekent
+ * (#622): na een maatwijziging via het vak (greep, paneel, maatbadge) rekken
+ * de punten op het scherm mee, en zo komen ze ook in het bestand.
  */
 export function veelhoekGrondvorm(ann) {
   if (!ann) return [];
+  if (ann.type === 'polygon') {
+    const punten = veelhoekPunten(ann);
+    if (punten) return punten;
+  }
   if (Array.isArray(ann.points) && ann.points.length >= 3) return ann.points;
   return wolkVakHoeken(ann) || regelmatigeVeelhoek(ann, ann.sides || 6);
 }

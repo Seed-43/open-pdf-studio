@@ -1,6 +1,6 @@
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { goToPage } from './renderer.js';
-import { openExternal } from '../core/platform.js';
+import { openExtern } from '../core/extern-openen.js';
 import { destTopOffsetPt, isSafeLinkUrl, parseDestinationArray } from './link-destination.js';
 import i18next from '../i18n/config.js';
 import { viewportRectangle } from './pdfjs-record.js';
@@ -201,7 +201,7 @@ function bindExternalLink(linkEl, url) {
  */
 function openExternalLink(url) {
   if (!isSafeLinkUrl(url)) return;
-  openExternal(url);
+  openExtern(url);
 }
 
 /**

@@ -25,6 +25,8 @@
  *    waarden als de halve maat;
  *  - boven de float32-resolutie van PDF-lezers op A0-coördinaten.
  */
+import { leesGetalBegin } from '../core/getal-invoer.js';
+
 export const MIN_VORM_MAAT_PT = 0.01;
 
 /** Onder deze sleepafstand (schermpixels, per as) telt een sleep als klik. */
@@ -349,7 +351,7 @@ export function symboolRasterPxPerPt(langsteZijdePt, pxPerPt = 4, minPx = MIN_SY
 export function leesMaatInvoer(waarde) {
   let n;
   if (typeof waarde === 'number') n = waarde;
-  else if (typeof waarde === 'string') n = parseFloat(waarde.trim().replace(',', '.'));
+  else if (typeof waarde === 'string') n = leesGetalBegin(waarde);
   else return null;
   if (!Number.isFinite(n) || n <= 0) return null;
   return klemMaat(n);

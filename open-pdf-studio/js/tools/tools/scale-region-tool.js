@@ -10,17 +10,13 @@
  */
 import { state, getActiveDocument } from '../../core/state.js';
 import { createScaleRegion, invalidateScaleRegionCache } from '../../annotations/scale-region.js';
-import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
-import { annotationCtx } from '../../ui/dom-elements.js';
 import { openDialog } from '../../bridge.js';
 import { MIN_GEBIED_PX, schermPxNaarPt } from '../../annotations/minimummaat.js';
 import { applyToolTransform } from '../tool-transform.js';
+import { getEffectiveScale } from '../effective-scale.js';
+import { previewCtx, redrawForViewMode } from '../preview-target.js';
 
-function redraw() {
-  const doc = getActiveDocument();
-  if (doc?.viewMode === 'continuous') redrawContinuous();
-  else redrawAnnotations();
-}
+const redraw = () => redrawForViewMode();
 
 // Module-level placement state — survives across pointer events.
 const _placement = { firstX: null, firstY: null };
@@ -29,13 +25,17 @@ function _reset() {
   _placement.firstX = _placement.firstY = null;
 }
 
-// Draw the orange dashed preview rectangle in app coordinates.
-function _drawPreview(curX, curY) {
-  if (_placement.firstX === null || !annotationCtx) return;
+// Draw the orange dashed preview rectangle in app coordinates, on the canvas
+// the user sees: `doelCtx` is the tool context's canvasCtx — in continuous
+// view the page's own canvas, not the overlay that is off screen there (#616).
+function _drawPreview(curX, curY, doelCtx = null) {
+  if (_placement.firstX === null) return;
+  const ctx = previewCtx(doelCtx);
+  if (!ctx) return;
   redraw();
-  const vp = window.__pdfViewport;
-  const doc = getActiveDocument();
-  const ctx = annotationCtx;
+  // Screen pixels of the current view; an inactive viewport (continuous view)
+  // keeps a stale zoom.
+  const zoom = getEffectiveScale() || 1.5;
   ctx.save();
   // Zelfde transform als de annotatieweergave (ook met een gedraaide weergave, #200).
   applyToolTransform(ctx);
@@ -45,8 +45,8 @@ function _drawPreview(curX, curY) {
   const h = Math.abs(curY - _placement.firstY);
   ctx.strokeStyle = '#ff9800';
   ctx.fillStyle = 'rgba(255, 152, 0, 0.10)';
-  ctx.lineWidth = 1.5 / (vp?.zoom || doc?.scale || 1.5);
-  ctx.setLineDash([6 / (vp?.zoom || 1), 4 / (vp?.zoom || 1)]);
+  ctx.lineWidth = 1.5 / zoom;
+  ctx.setLineDash([6 / zoom, 4 / zoom]);
   ctx.fillRect(x1, y1, w, h);
   ctx.strokeRect(x1, y1, w, h);
   ctx.restore();
@@ -71,7 +71,7 @@ export const scaleRegionTool = {
     if (_placement.firstX === null) {
       _placement.firstX = ctx.x;
       _placement.firstY = ctx.y;
-      _drawPreview(ctx.x, ctx.y);
+      _drawPreview(ctx.x, ctx.y, ctx.canvasCtx);
       return;
     }
 
@@ -111,7 +111,7 @@ export const scaleRegionTool = {
 
   onPointerMove(ctx) {
     if (_placement.firstX === null) return;
-    _drawPreview(ctx.x, ctx.y);
+    _drawPreview(ctx.x, ctx.y, ctx.canvasCtx);
   },
 
   // Escape (GitHub #273): zelfde annulering als rechtermuisklik — lopende

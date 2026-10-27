@@ -84,7 +84,7 @@ export default function CropMarginsDialog(props) {
         <div class="crop-margins-row">
           <label class="crop-margins-label">{t('cropMargins.padding')}</label>
           <input
-            type="number"
+            type="text" inputmode="decimal" data-getal
             class="crop-margins-input"
             value={padding()}
             min="0"

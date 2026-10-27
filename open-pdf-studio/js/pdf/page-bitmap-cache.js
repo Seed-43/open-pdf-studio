@@ -1,3 +1,4 @@
+import { invalidateRenderDiagnostics } from './render-diagnostics.js';
 /**
  * High-res page bitmap cache for sharp rendering at high zoom levels.
  *
@@ -8,13 +9,18 @@
  * bitmap as the page background. The vector layer is then drawn on top so
  * text and lines stay vector-crisp.
  *
- * The cache is keyed by (filePath, pageNum, rotation, zoomBucket). Zoom
+ * The cache is keyed by (filePath, pageNum, rotation, zoomBucket, line mode).
+ * The line mode is Thin Lines on/off (#595): the same page at the same zoom is
+ * a different picture with hairlines, and getters default to the current
+ * preference, so a toggle never shows the other look and switching back is a
+ * cache hit. Zoom
  * buckets are powers of 2 (1, 2, 4, 8, 16) of zoom*dpr — buckets bound
  * memory growth and limit re-renders to actually-different scales.
  */
 
 import { isTauri, invoke } from '../core/platform.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
+import { thinLinesKey, thinLinesOn } from './thin-lines.js';
 
 // Map<key, { bitmap: ImageBitmap, w, h, scale }>
 const _cache = new Map();
@@ -25,8 +31,8 @@ const _pending = new Map(); // key -> Promise
 // Per-page LRU bookkeeping (drop oldest entries above limit)
 const MAX_ENTRIES = 12;
 
-function _key(filePath, pageNum, rotation, zoomBucket) {
-  return `${filePath}:${pageNum}:${(rotation || 0) % 360}:${zoomBucket}`;
+function _key(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
+  return `${filePath}:${pageNum}:${(rotation || 0) % 360}:${zoomBucket}:${thinLinesKey(thin)}`;
 }
 
 // Compute the zoom bucket (power of 2) to render at, given a target scale.
@@ -69,8 +75,8 @@ export function computeZoomBucket(targetScale) {
   return 128;
 }
 
-export function getCachedBitmap(filePath, pageNum, rotation, zoomBucket) {
-  const entry = _cache.get(_key(filePath, pageNum, rotation, zoomBucket));
+export function getCachedBitmap(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
+  const entry = _cache.get(_key(filePath, pageNum, rotation, zoomBucket, thin));
   return entry || null;
 }
 
@@ -79,9 +85,10 @@ export function getCachedBitmap(filePath, pageNum, rotation, zoomBucket) {
  * onder dezelfde key als ensureBitmap, zodat zoom/pan/re-visit op deze pagina
  * cache-hits blijven (getBestAvailableBitmap vindt hem net als een normale
  * whole-page render). Sluit een eventuele vorige bitmap onder deze key.
+ * `thin` = de lijnstand (Thin Lines, #595) waarin de bitmap gerenderd is.
  */
-export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bitmap, w, h, scale) {
-  const key = _key(filePath, pageNum, rotation, zoomBucket);
+export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bitmap, w, h, scale, thin = thinLinesOn()) {
+  const key = _key(filePath, pageNum, rotation, zoomBucket, thin);
   const prev = _cache.get(key);
   if (prev && prev.bitmap && prev.bitmap !== bitmap) {
     try { prev.bitmap.close && prev.bitmap.close(); } catch {}
@@ -92,9 +99,10 @@ export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bi
 
 // Find the best available cached bitmap for a target bucket: prefer exact
 // match, otherwise the nearest available bucket (lower preferred for speed,
-// higher acceptable as fallback during downscale).
-export function getBestAvailableBitmap(filePath, pageNum, rotation, targetBucket) {
-  const exact = getCachedBitmap(filePath, pageNum, rotation, targetBucket);
+// higher acceptable as fallback during downscale). Only bitmaps of the given
+// line mode (Thin Lines, #595) count.
+export function getBestAvailableBitmap(filePath, pageNum, rotation, targetBucket, thin = thinLinesOn()) {
+  const exact = getCachedBitmap(filePath, pageNum, rotation, targetBucket, thin);
   if (exact) return exact;
   // Search by proximity (in log space) to targetBucket. Includes the higher
   // buckets that computeZoomBucket can now produce so a tile prefetched at
@@ -106,7 +114,7 @@ export function getBestAvailableBitmap(filePath, pageNum, rotation, targetBucket
     Math.abs(Math.log2(b) - Math.log2(targetBucket))
   );
   for (const b of sorted) {
-    const e = getCachedBitmap(filePath, pageNum, rotation, b);
+    const e = getCachedBitmap(filePath, pageNum, rotation, b, thin);
     if (e) return e;
   }
   return null;
@@ -163,7 +171,10 @@ export function prefetchFallbackBitmap(filePath, pageNum, rotation, prefetchScal
 }
 
 function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderScale) {
-  const key = _key(filePath, pageNum, rotation, cacheBucket);
+  // Line mode captured once: the render and the cache key must agree even if
+  // the user switches Thin Lines while this render is in flight.
+  const thin = thinLinesOn();
+  const key = _key(filePath, pageNum, rotation, cacheBucket, thin);
   if (_cache.has(key)) return Promise.resolve(_cache.get(key));
   if (_pending.has(key)) return _pending.get(key);
   if (!isTauri() || !filePath) return Promise.resolve(null);
@@ -184,6 +195,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         pageIndex: pageNum - 1,
         scale: renderScale,
         rotation: rotation || 0,
+        thinLines: thin,
       });
       console.log(`[pbc] whole-page KLAAR p${pageNum} scale=${renderScale.toFixed(3)} @${Math.round(performance.now() - _t0)}ms`);
       const fileBytes = result instanceof Uint8Array ? result : new Uint8Array(result);
@@ -220,6 +232,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
 /// Drop ALL bitmap entries for a specific (filePath, pageNum). Use when page
 /// content changes (e.g. annotations saved into the PDF stream).
 export function invalidatePageBitmaps(filePath, pageNum) {
+  invalidateRenderDiagnostics(filePath, pageNum);
   const prefix = `${filePath}:${pageNum}:`;
   for (const k of Array.from(_cache.keys())) {
     if (k.startsWith(prefix)) {
@@ -232,6 +245,7 @@ export function invalidatePageBitmaps(filePath, pageNum) {
 
 /// Alle bitmaps van één document weg (tabblad gesloten).
 export function invalidateDocumentBitmaps(filePath) {
+  invalidateRenderDiagnostics(filePath);
   const prefix = `${filePath}:`;
   for (const k of Array.from(_cache.keys())) {
     if (k.startsWith(prefix)) {
@@ -243,6 +257,7 @@ export function invalidateDocumentBitmaps(filePath) {
 }
 
 export function clearAllBitmaps() {
+  invalidateRenderDiagnostics();
   for (const e of _cache.values()) {
     try { e.bitmap.close && e.bitmap.close(); } catch {}
   }

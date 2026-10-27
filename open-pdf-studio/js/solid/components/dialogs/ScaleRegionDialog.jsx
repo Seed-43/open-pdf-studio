@@ -1,4 +1,5 @@
 import { createSignal, Show } from 'solid-js';
+import { leesVerhouding } from '../../../core/getal-invoer.js';
 import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
@@ -55,11 +56,11 @@ export default function ScaleRegionDialog(props) {
   // (typos, blank, "1:" etc.) falls back to 1:100 so we never store
   // an invalid scaleString that would break measurement calculations.
   function normalizeScaleString(raw) {
-    const trimmed = String(raw || '').trim().replace(/\s+/g, '');
-    const m = trimmed.match(/^(\d+(?:[.,]\d+)?):(\d+(?:[.,]\d+)?)$/);
-    if (!m) return '1:100';
-    const a = parseFloat(m[1].replace(',', '.'));
-    const b = parseFloat(m[2].replace(',', '.'));
+    // Komma en punt zijn allebei een decimaalteken (core/getal-invoer.js).
+    const v = leesVerhouding(String(raw || '').replace(/\s+/g, ''));
+    if (!v) return '1:100';
+    const a = v.teller;
+    const b = v.noemer;
     if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) return '1:100';
     return `${a}:${b}`;
   }

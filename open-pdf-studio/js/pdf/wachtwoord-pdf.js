@@ -56,12 +56,22 @@ export function isBeveiligdDocument(doc) {
 }
 
 /**
- * Alleen-lezen: met een wachtwoord geopend (altijd), of PDF/A zolang de
- * gebruiker bewerken niet heeft ingeschakeld.
+ * Door de gastsite alleen-lezen geopend (de werkplek, #704: `alleen_lezen` in
+ * het antwoord op open, bv. omdat iemand anders het bestand vastheeft).
+ */
+export function isHostAlleenLezen(doc) {
+  return !!doc && doc.hostAlleenLezen === true;
+}
+
+/**
+ * Alleen-lezen: met een wachtwoord geopend (altijd), door de gastsite
+ * alleen-lezen geopend, of PDF/A zolang de gebruiker bewerken niet heeft
+ * ingeschakeld.
  */
 export function isAlleenLezen(doc) {
   if (!doc) return false;
   if (isBeveiligdDocument(doc)) return true;
+  if (isHostAlleenLezen(doc)) return true;
   return !!doc.pdfaCompliance && !doc.pdfADismissed;
 }
 

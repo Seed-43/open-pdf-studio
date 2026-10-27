@@ -3,7 +3,9 @@ import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
-import { colorPickerValue, setColorPickerValue, lineWidthValue, setLineWidthValue } from '../../stores/ribbonStore.js';
+import { colorPickerValue, lineWidthValue } from '../../stores/ribbonStore.js';
+import { strokeColor, fmtLineWidth, isLocked, opmaakDoel, opmaakOndersteunt, zetOpmaak } from '../../stores/formatStore.js';
+import { zetRanddikte } from '../../../annotations/rendering/textbox-layout.js';
 import { setTool } from '../../../tools/manager.js';
 import { state, getActiveDocument, noPdf } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
@@ -17,7 +19,7 @@ import {
   textAnnotIcon, textboxIcon, noteIcon, calloutIcon,
   stampIcon, signatureIcon,
   redactionIcon, applyRedactionsIcon,
-  clearPageIcon, clearAllIcon,
+  clearPageIcon, clearAllIcon, flattenAllIcon, unflattenAllIcon,
   measureDistanceIcon, measureAreaIcon, measurePerimeterIcon, measureAngleIcon, calibrateIcon
 } from '../../data/ribbonIcons.js';
 
@@ -27,6 +29,10 @@ import { savePreferences } from '../../../core/preferences.js';
 import { toggleSchedule, scheduleVisible } from '../../stores/scheduleStore.js';
 import { isDynamicScalingEnabled, setDynamicScalingEnabled } from '../../../annotations/dynamic-scaling.js';
 import PrefSelect from '../preferences/PrefSelect.jsx';
+import { toggleProofreading, PROOFREAD_TOOL } from '../../../tools/proofreading-mode.js';
+
+// Proofreading (#508): lines of text, a struck word (red) and an insert caret (blue).
+const proofreadIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="5" x2="21" y2="5" stroke-width="1.5"/><line x1="3" y1="11" x2="8" y2="11" stroke-width="1.5"/><line x1="10" y1="11" x2="21" y2="11" stroke-width="1.5"/><line x1="10" y1="11" x2="16" y2="11" stroke="#FF0000" stroke-width="2"/><line x1="3" y1="17" x2="21" y2="17" stroke-width="1.5"/><path d="M6 21.5 L8.5 17.5 L11 21.5" stroke="#0066FF" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
 
 const scheduleIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1.5" stroke-width="1.5"/><line x1="3" y1="8" x2="21" y2="8" stroke-width="1.5"/><line x1="3" y1="13" x2="21" y2="13" stroke-width="1"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="1"/><line x1="9" y1="8" x2="9" y2="21" stroke-width="1"/><line x1="15" y1="8" x2="15" y2="21" stroke-width="1"/></svg>`;
 
@@ -35,6 +41,11 @@ const scheduleIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
 // drawing groups inside a single AdaptiveGroups container.
 export function CommentGroups() {
   const { t } = useTranslation('ribbon');
+
+  // Kleur en breedte (#668) werken op hetzelfde doel als de opmaakwerkbalk:
+  // de selectie, anders het volgende object van het actieve gereedschap (of
+  // de invoegsessie van symbolen). Zonder doel staan ze uit.
+  const kan = (key) => !noPdf() && !isPdfAReadOnly() && !isLocked() && opmaakOndersteunt(key);
 
   return (
     <>
@@ -53,6 +64,11 @@ export function CommentGroups() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'callout'} onClick={() => setTool('callout')} />
           <RibbonButton id="tool-comment" title={t('comment.note')} icon={noteIcon} label={t('comment.note')}
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'comment'} onClick={() => setTool('comment')} />
+        </RibbonGroup>
+
+        <RibbonGroup label={t('proofread.group')}>
+          <RibbonButton id="tool-proofread" title={t('proofread.tooltip')} icon={proofreadIcon} label={t('proofread.button')}
+            disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === PROOFREAD_TOOL} onClick={() => toggleProofreading()} />
         </RibbonGroup>
 
         <RibbonGroup label={t('comment.stamp')}>
@@ -83,16 +99,31 @@ export function CommentGroups() {
             <div class="ribbon-input-row">
               <label class="ribbon-input-label">{t('comment.color')}</label>
               <input type="color" id="color-picker" class="ribbon-color-input"
-                value={colorPickerValue()}
-                disabled={noPdf() || isPdfAReadOnly()}
-                onInput={(e) => setColorPickerValue(e.target.value)} />
+                title={t('comment.propertiesHint')}
+                value={opmaakDoel() ? strokeColor() : colorPickerValue()}
+                disabled={!kan('strokeColor')}
+                onChange={(e) => {
+                  const kleur = e.currentTarget.value;
+                  zetOpmaak({ strokeColor: kleur }, ann => {
+                    ann.strokeColor = kleur;
+                    ann.color = kleur;
+                    // Een markering kleurt met haar vulling, zoals het
+                    // markeergereedschap haar maakt.
+                    if (ann.type === 'highlight') ann.fillColor = kleur;
+                  });
+                }} />
             </div>
             <div class="ribbon-input-row">
               <label class="ribbon-input-label">{t('comment.width')}</label>
-              <input type="number" id="line-width" class="ribbon-input" min="1" max="20"
-                value={lineWidthValue()}
-                disabled={noPdf() || isPdfAReadOnly()}
-                onInput={(e) => setLineWidthValue(parseInt(e.target.value) || 3)} />
+              <input type="text" inputmode="decimal" data-getal id="line-width" class="ribbon-input" min="0.1" max="50"
+                title={t('comment.propertiesHint')}
+                value={opmaakDoel() ? fmtLineWidth() : lineWidthValue()}
+                disabled={!kan('lineWidth')}
+                onInput={(e) => {
+                  const dikte = parseFloat(e.currentTarget.value);
+                  if (!Number.isFinite(dikte) || dikte <= 0) return;
+                  zetOpmaak({ lineWidth: dikte }, ann => { zetRanddikte(ann, dikte); });
+                }} />
             </div>
           </RibbonButtonStack>
         </RibbonGroup>
@@ -129,6 +160,17 @@ export function CommentGroups() {
                   hideProperties();
                   if (getActiveDocument()?.viewMode === 'continuous') { redrawContinuous(); } else { redrawAnnotations(); }
                 }
+              }} />
+          </RibbonButtonStack>
+          {/* Alles vlakken / terughalen (#615): in het geopende document, ongedaan te maken. */}
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="ribbon-flatten-all" title={t('comment.flattenAllTooltip')} icon={flattenAllIcon} label={t('comment.flattenAll')}
+              disabled={noPdf() || isPdfAReadOnly()} onClick={() => {
+                import('../../../pdf/flatten-all.js').then((m) => m.flattenAllMarkups());
+              }} />
+            <RibbonButton size="small" id="ribbon-unflatten-all" title={t('comment.unflattenAllTooltip')} icon={unflattenAllIcon} label={t('comment.unflattenAll')}
+              disabled={noPdf() || isPdfAReadOnly()} onClick={() => {
+                import('../../../pdf/flatten-all.js').then((m) => m.unflattenAllMarkups());
               }} />
           </RibbonButtonStack>
         </RibbonGroup>

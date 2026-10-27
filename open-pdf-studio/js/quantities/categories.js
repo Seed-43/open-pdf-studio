@@ -4,6 +4,7 @@
 
 import { totalBarLengthM } from '../annotations/stavenreeks.js';
 import { nettoVlakOppervlak } from '../annotations/vlak-ringen.js';
+import { veelhoekPunten } from '../annotations/veelhoek-punten.js';
 
 // --- Vertaalhaak -----------------------------------------------------------
 // Deze module blijft puur: hij kent i18next niet. De UI-laag injecteert via
@@ -145,7 +146,8 @@ const GEOMETRISCHE_VLAKKEN = new Set([
 // komt uit vlak-ringen.js — dezelfde regel die het scherm en het opgeslagen
 // bestand volgen (GitHub #457).
 function pixelArea(el) {
-  const pts = Array.isArray(el.points) ? el.points : null;
+  // Een veelhoek (#622): de hoekpunten zoals het scherm ze in zijn vak tekent.
+  const pts = (el.type === 'polygon' && veelhoekPunten(el)) || (Array.isArray(el.points) ? el.points : null);
   if (pts && pts.length >= 3) return nettoVlakOppervlak(pts, el.holes);
   const w = Math.abs(el.width || 0), h = Math.abs(el.height || 0);
   if (w > 0 && h > 0) {
@@ -257,10 +259,26 @@ const COMMON = [
   // meet-vlak geeft ("Woonkamer"). Die stond nergens in de staat, waardoor de
   // Label-kolom voor oppervlaktes altijd leeg bleef.
   F('label', 'Label', 'text', el => el.label || el.measureName || el.subject || ''),
+  F('location', 'Location', 'text', el => el.__location?.path || ''),
+  F('locationSource', 'Location source', 'text', el => el.__location?.source || 'none'),
   F('color', 'Color', 'text', el => el.color || el.strokeColor || el.fillColor || ''),
   F('ifcCategory', 'IFC category', 'text', el => el.ifcCategory || ''),
   F('count', 'Count', 'number', () => 1, '', 0),
 ];
+
+// Velden die per element een zone-opzoeking kosten (spatial-zones.js).
+const LOCATION_FIELDS = new Set(['location', 'locationSource']);
+
+/**
+ * Heeft de staat de locatie van de elementen nodig: als kolom, filter of
+ * sortering? Alleen dan zoekt de hoeveelhedenstaat per element de zone op.
+ * @param {{fields?: string[], filters?: {field: string}[], sort?: {field: string}[]}} cfg
+ */
+export function scheduleUsesLocation({ fields = [], filters = [], sort = [] } = {}) {
+  return (fields || []).some((key) => LOCATION_FIELDS.has(key))
+    || (filters || []).some((f) => LOCATION_FIELDS.has(f?.field))
+    || (sort || []).some((s) => LOCATION_FIELDS.has(s?.field));
+}
 
 export const FIELD_REGISTRY = {
   'area': [...COMMON,

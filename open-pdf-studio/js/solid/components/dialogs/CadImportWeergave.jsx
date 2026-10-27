@@ -45,7 +45,7 @@ export function CadKleurstand(props) {
       <Show when={inst.colors === 'mono'}>
         <div class="cad-row">
           <label class="cad-label" for="cad-import-mono-threshold">{t('cadImport.monoThreshold')}</label>
-          <input id="cad-import-mono-threshold" type="number" class="cad-input cad-input-short" min="0" max="100" step="5"
+          <input id="cad-import-mono-threshold" type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="0" max="100" step="5"
             value={inst.monoThreshold}
             onChange={(e) => { props.setInst('monoThreshold', drempelProcent(e.target.value)); e.target.value = inst.monoThreshold; }} />
           <span class="cad-note">%</span>
@@ -97,7 +97,7 @@ export function CadKleurentabel(props) {
               {(pen, index) => (
                 <div class="cad-subrow" role="listitem">
                   <KleurVeld label={`${t('cadImport.penColour')} ${index() + 1}`} waarde={pen.color} opKies={(kleur) => zetKleur(index(), kleur)} />
-                  <input type="number" class="cad-input cad-input-short" step="0.05" min="0" max={MAX_PENDIKTE_MM}
+                  <input type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" step="0.05" min="0" max={MAX_PENDIKTE_MM}
                     aria-label={`${t('cadImport.penWidth')} ${index() + 1}`} title={t('cadImport.penWidth')} value={pen.lineweightMm}
                     onChange={(e) => zetDikte(index(), e.target)} />
                   <span class="cad-note">mm</span>
@@ -270,7 +270,7 @@ export function CadGeavanceerd(props) {
         </label>
         <div class="cad-row">
           <label class="cad-label cad-label-wide" for="cad-import-max-image">{t('cadImport.maxImagePixels')}</label>
-          <input id="cad-import-max-image" type="number" class="cad-input cad-input-short" min="1" max={hoogsteMp()} step="1"
+          <input id="cad-import-max-image" type="text" inputmode="decimal" data-getal class="cad-input cad-input-short" min="1" max={hoogsteMp()} step="1"
             disabled={!inst.images} value={Math.min(inst.maxImageMegapixels, hoogsteMp())} onChange={(e) => zetMegapixels(e.target)} />
         </div>
       </div>

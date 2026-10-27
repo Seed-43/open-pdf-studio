@@ -5,6 +5,7 @@ import { symbolInsertPreviewStyle } from '../../symbols/symbol-insert-format-sto
 import { stampPxPerMm } from '../../annotations/stamp-scale.js';
 import { getActiveDocument } from '../../core/state.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
+import { blendCanvasWaarde } from '../../annotations/blend-modes.js';
 
 /**
  * Text tools — comment, text, stamp, signature, editText
@@ -79,7 +80,7 @@ export const stampTool = {
     // kleur en lijndikte zitten al in het voorbeeldraster.
     const stijl = symbolInsertPreviewStyle();
     canvasCtx.globalAlpha = 0.6 * stijl.opacity;
-    if (stijl.blendMode === 'multiply') canvasCtx.globalCompositeOperation = 'multiply';
+    canvasCtx.globalCompositeOperation = blendCanvasWaarde(stijl.blendMode);
     canvasCtx.drawImage(previewImg, ctx.x - w / 2, ctx.y - h / 2, w, h);
     canvasCtx.restore();
   },

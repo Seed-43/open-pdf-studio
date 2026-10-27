@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import PrefColorPicker from './PrefColorPicker.jsx';
 import PrefComboBox from './PrefComboBox.jsx';
 import PrefSelect from './PrefSelect.jsx';
+import { PAPIER_EENHEDEN } from '../../../annotations/papiermaat-eenheid.js';
 
 const SUB_TABS = [
   { id: 'general', key: 'annotations.subtabGeneral' },
@@ -122,6 +123,12 @@ export default function AnnotationsTab(props) {
               <div class="pref-row">
                 <label>{t('annotations.defaultFontSize')}</label>
                 <PrefComboBox value={p.defaultFontSize[0]} setValue={p.defaultFontSize[1]} options={[7,8,9,10,11,12,14,16,18,20,22,24,26,28,36,48,72]} min={1} max={200} fallback={16} suffix="pt" />
+              </div>
+              {/* Eenheid van papiermaten in het eigenschappenpaneel (#598). */}
+              <div class="pref-row">
+                <label>{t('annotations.paperSizeUnit')}</label>
+                <PrefSelect value={p.paperSizeUnit[0]} setValue={p.paperSizeUnit[1]}
+                  options={PAPIER_EENHEDEN.map(u => ({ value: u, label: u }))} style={{ width: '80px' }} />
               </div>
               <div class="pref-row">
                 <label>{t('annotations.highlightOpacity')}</label>
@@ -331,7 +338,7 @@ export default function AnnotationsTab(props) {
               </div>
               <div class="pref-row">
                 <label>{t('drawing.headSize')}</label>
-                <input type="number" min="4" max="40" value={p.arrowHeadSize[0]()} onInput={e => p.arrowHeadSize[1](parseInt(e.target.value) || 12)} />
+                <input type="text" inputmode="decimal" data-getal min="4" max="40" value={p.arrowHeadSize[0]()} onInput={e => p.arrowHeadSize[1](parseInt(e.target.value) || 12)} />
               </div>
               <div class="pref-row">
                 <label>{t('drawing.opacity')}</label>
@@ -487,7 +494,7 @@ export default function AnnotationsTab(props) {
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.headSize')}</label>
-                  <input type="number" min="4" max="40" value={p.measureDistHeadSize[0]()} onInput={e => p.measureDistHeadSize[1](parseInt(e.target.value) || 12)} />
+                  <input type="text" inputmode="decimal" data-getal min="4" max="40" value={p.measureDistHeadSize[0]()} onInput={e => p.measureDistHeadSize[1](parseInt(e.target.value) || 12)} />
                 </div>
               </fieldset>
 
@@ -495,7 +502,7 @@ export default function AnnotationsTab(props) {
                 <legend>{t('measurement.scalePrecision')}</legend>
                 <div class="pref-row">
                   <label>{t('measurement.scale')}</label>
-                  <input type="number" step="0.001" min="0" value={p.measureDistDimScale[0]()} onInput={e => p.measureDistDimScale[1](parseFloat(e.target.value) || 0)} />
+                  <input type="text" inputmode="decimal" data-getal step="0.001" min="0" value={p.measureDistDimScale[0]()} onInput={e => p.measureDistDimScale[1](parseFloat(e.target.value) || 0)} />
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.unit')}</label>
@@ -539,7 +546,7 @@ export default function AnnotationsTab(props) {
                 <legend>{t('measurement.scalePrecision')}</legend>
                 <div class="pref-row">
                   <label>{t('measurement.scale')}</label>
-                  <input type="number" step="0.001" min="0" value={p.measureAreaDimScale[0]()} onInput={e => p.measureAreaDimScale[1](parseFloat(e.target.value) || 0)} />
+                  <input type="text" inputmode="decimal" data-getal step="0.001" min="0" value={p.measureAreaDimScale[0]()} onInput={e => p.measureAreaDimScale[1](parseFloat(e.target.value) || 0)} />
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.unit')}</label>
@@ -595,7 +602,7 @@ export default function AnnotationsTab(props) {
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.headSize')}</label>
-                  <input type="number" min="4" max="40" value={p.measurePerimHeadSize[0]()} onInput={e => p.measurePerimHeadSize[1](parseInt(e.target.value) || 12)} />
+                  <input type="text" inputmode="decimal" data-getal min="4" max="40" value={p.measurePerimHeadSize[0]()} onInput={e => p.measurePerimHeadSize[1](parseInt(e.target.value) || 12)} />
                 </div>
               </fieldset>
 
@@ -603,7 +610,7 @@ export default function AnnotationsTab(props) {
                 <legend>{t('measurement.scalePrecision')}</legend>
                 <div class="pref-row">
                   <label>{t('measurement.scale')}</label>
-                  <input type="number" step="0.001" min="0" value={p.measurePerimDimScale[0]()} onInput={e => p.measurePerimDimScale[1](parseFloat(e.target.value) || 0)} />
+                  <input type="text" inputmode="decimal" data-getal step="0.001" min="0" value={p.measurePerimDimScale[0]()} onInput={e => p.measurePerimDimScale[1](parseFloat(e.target.value) || 0)} />
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.unit')}</label>

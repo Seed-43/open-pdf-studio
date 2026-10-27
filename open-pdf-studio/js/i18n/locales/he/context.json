@@ -93,7 +93,22 @@
     "editBookmark": "עריכת סימנייה",
     "deleteBookmark": "מחיקת סימנייה",
     "expandAll": "הרחבת הכל",
-    "collapseAll": "כיווץ הכל"
+    "collapseAll": "כיווץ הכל",
+    "color": "צבע",
+    "colorDefault": "ברירת מחדל",
+    "colorRed": "אדום",
+    "colorOrange": "כתום",
+    "colorGreen": "ירוק",
+    "colorBlue": "כחול",
+    "colorPurple": "סגול",
+    "colorGray": "אפור",
+    "colorCustom": "מותאם אישית...",
+    "bold": "מודגש",
+    "italic": "נטוי",
+    "nestUnderNew": "קינון תחת סימנייה חדשה...",
+    "indent": "הגדלת כניסה",
+    "outdent": "הקטנת כניסה",
+    "deleteBookmarks": "מחיקת {{count}} סימניות"
   },
   "thumbnail": {
     "rotateLeft": "סיבוב שמאלה",

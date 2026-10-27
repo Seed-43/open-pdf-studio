@@ -289,6 +289,11 @@ export async function generateThumbnails() {
   if (!activeDoc || !activeDoc.pdfDoc) {
     return;
   }
+  // De mobiele weergave heeft geen miniaturenpaneel: alle pagina's op de
+  // achtergrond met PDF.js tekenen hield de hoofdthread op een zwaar
+  // document tientallen seconden bezet (#596).
+  const { isMobile } = await import('../../core/platform.js');
+  if (isMobile()) return;
 
   const pdfDoc = activeDoc.pdfDoc;
   const docId = activeDoc.id;
@@ -789,7 +794,10 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
   // vector content is rendered (fast). Image decoding is skipped because
   // it can take 17+ seconds per page for complex PDFs, blocking the Rust
   // backend and preventing page navigation.
-  if (doc?.filePath && window.__TAURI__) {
+  // Alleen op het bureaublad: op Android/iOS zit er geen PDFium in de app
+  // (#593) en tekent PDF.js hieronder de miniatuur.
+  const { heeftRustRenderer } = await import('../../core/platform.js');
+  if (doc?.filePath && heeftRustRenderer()) {
     try {
       const { invoke } = window.__TAURI__.core;
       // Pass the in-session user rotation so the Rust render matches the main
@@ -861,10 +869,12 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
       canvas.height = viewport.height;
       const ctx = canvas.getContext('2d');
 
+      const { pdfjsLaagOpties } = await import('../../pdf/lagen-schakelen.js');
       await page.render({
         canvasContext: ctx,
         viewport: viewport,
-        annotationMode: 0
+        annotationMode: 0,
+        ...pdfjsLaagOpties(doc),
       }).promise;
 
       // Overlay plugin/Solid-store annotations op dezelfde ctx vóór toDataURL.

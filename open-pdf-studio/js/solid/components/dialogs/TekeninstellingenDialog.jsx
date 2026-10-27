@@ -22,6 +22,7 @@ import {
   DEFAULT_SCALE_KEY, TEKST_SOORTEN, duplicateRegelset,
 } from '../../../drafting/tekeningtype.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
+import { leesGetalBegin } from '../../../core/getal-invoer.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -84,7 +85,7 @@ export default function TekeninstellingenDialog() {
   function setTextHeight(soort, value) {
     const cur = current();
     if (!cur) return;
-    const v = parseFloat(String(value).replace(',', '.'));
+    const v = leesGetalBegin(value);
     if (!cur.textHeightsMm) cur.textHeightsMm = {};
     if (Number.isFinite(v) && v > 0) { cur.textHeightsMm[soort] = v; commit(); }
   }
@@ -92,7 +93,7 @@ export default function TekeninstellingenDialog() {
   function setLineWidth(cat, value) {
     const cur = current();
     if (!cur) return;
-    const v = parseFloat(String(value).replace(',', '.'));
+    const v = leesGetalBegin(value);
     if (!cur.lineWidthsMm) cur.lineWidthsMm = {};
     if (!cur.lineWidthsMm[cat]) cur.lineWidthsMm[cat] = {};
     if (Number.isFinite(v) && v > 0) {
@@ -208,7 +209,7 @@ export default function TekeninstellingenDialog() {
               {(soort) => (
                 <label style="display:flex;align-items:center;gap:4px">
                   <span>{soortLabels[soort]}</span>
-                  <input type="number" step="0.1" min="0.5" class="ribbon-input"
+                  <input type="text" inputmode="decimal" data-getal step="0.1" min="0.5" class="ribbon-input"
                     style={NUM_INPUT_STYLE}
                     value={current()?.textHeightsMm?.[soort] ?? ''}
                     onChange={e => setTextHeight(soort, e.target.value)} />
@@ -227,7 +228,7 @@ export default function TekeninstellingenDialog() {
                 <tr>
                   <td style="padding:1px 6px 1px 0">{catLabel(cat)}</td>
                   <td style="width:70px;text-align:right;padding:1px 0">
-                    <input type="number" step="0.05" min="0.05" class="ribbon-input"
+                    <input type="text" inputmode="decimal" data-getal step="0.05" min="0.05" class="ribbon-input"
                       style={NUM_INPUT_STYLE}
                       value={lineWidthOf(cat)}
                       onChange={e => setLineWidth(cat, e.target.value)} />

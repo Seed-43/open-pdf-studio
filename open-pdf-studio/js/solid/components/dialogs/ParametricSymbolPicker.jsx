@@ -24,7 +24,7 @@ export default function ParametricSymbolPicker() {
         style="position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:9000;display:flex;align-items:center;justify-content:center"
         onMouseDown={(e) => { if (e.target === e.currentTarget) setPickerOpen(false); }}>
         <div class="ops-modal"
-          style="background:#fff;border:1px solid #d4d4d4;width:420px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(0,0,0,0.2);font-family:Segoe UI, sans-serif">
+          style="background:#fff;border:1px solid #d4d4d4;width:420px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(0,0,0,0.2);font-family:var(--ui-font)">
           <div class="ops-modal-header"
             style="background:linear-gradient(180deg,#ffffff,#f5f5f5);border-bottom:1px solid #d4d4d4;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600">
             <span>{t('parametricSymbolPicker.title')}</span>

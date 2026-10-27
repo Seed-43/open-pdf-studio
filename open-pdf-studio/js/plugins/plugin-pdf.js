@@ -51,6 +51,9 @@ export async function createPluginPdfAnnotation(pdfDoc, annotation, rect, pngByt
     OPS_Subtype: PDFString.of('plugin'),
     OPS_PluginData: pdfTextString(data),
   });
+  // Zonder afbeelding (de extensie kon niet tekenen, #621) alleen de gegevens:
+  // de lader maakt er weer dezelfde annotatie van.
+  if (!pngBytes) return dict;
   const image = await pdfDoc.embedPng(pngBytes);
   const width = rect[2] - rect[0];
   const height = rect[3] - rect[1];

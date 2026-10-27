@@ -33,17 +33,21 @@ export default function MergePdfsDialog() {
         const fileName = filePath.split(/[\\/]/).pop();
 
         let pageCount = null;
+        let signed = false;
         try {
           const { readBinaryFile } = await import('../../../core/platform.js');
           const { PDFDocument } = await import('pdf-lib');
           const data = await readBinaryFile(filePath);
           const doc = await PDFDocument.load(new Uint8Array(data), { ignoreEncryption: true });
           pageCount = doc.getPageCount();
+          // Een ondertekend bestand is na samenvoegen niet meer ondertekend.
+          const { telHandtekeningen } = await import('../../../pdf/samenvoegen.js');
+          signed = telHandtekeningen(doc) > 0;
         } catch (e) {
           console.warn('Could not read page count for:', fileName, e);
         }
 
-        newFiles.push({ path: filePath, name: fileName, pages: pageCount });
+        newFiles.push({ path: filePath, name: fileName, pages: pageCount, signed });
       }
       setFileList(newFiles);
     } catch (e) {
@@ -170,6 +174,9 @@ export default function MergePdfsDialog() {
               </For>
             </Show>
           </div>
+          <Show when={fileList().some(f => f.signed)}>
+            <div class="merge-pdfs-warning" role="note">{t('mergePdfs.signedWarning')}</div>
+          </Show>
         </div>
       </div>
     </Dialog>

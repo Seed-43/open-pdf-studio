@@ -71,6 +71,12 @@
     "site": "Kwenye tovuti hii",
     "noSiteDocuments": "Hakuna nyaraka kwenye tovuti hii",
     "siteListError": "Imeshindwa kupakia nyaraka za tovuti hii",
+    "versions": "Matoleo",
+    "versionNumber": "Toleo {{version}}",
+    "currentVersion": "la sasa",
+    "noVersions": "Hakuna matoleo",
+    "versionsError": "Matoleo hayakuweza kupakiwa",
+    "olderVersionsHint": "Matoleo ya zamani hufunguka kwa kusoma tu; Hifadhi Kama hupakua nakala.",
     "save": "Hifadhi"
   },
   "importPanel": {
@@ -133,7 +139,9 @@
     "officePage": "Ukurasa",
     "officeTable": "Jedwali",
     "officeText": "Maandishi",
-    "officeFailed": "Kuhamisha nje hati kumeshindwa."
+    "officeFailed": "Kuhamisha nje hati kumeshindwa.",
+    "protect": "Linda kwa Nenosiri",
+    "protectDesc": "Hifadhi nakala iliyolindwa kwa nenosiri (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Wasifu wa matokeo",
@@ -211,5 +219,9 @@
     "activationFailed": "Haitumiki: {{error}}",
     "viaMcp": "Kupitia muunganisho wa AI"
   },
-  "annotateScreenshot": "Weka Maelezo kwenye Picha ya Skrini ya Ubao wa Kunakili"
+  "annotateScreenshot": "Weka Maelezo kwenye Picha ya Skrini ya Ubao wa Kunakili",
+  "workflows": "Mitiririko ya kazi ya hati",
+  "drawingSets": "Seti za michoro",
+  "sheetLinks": "Viungo kati ya laha",
+  "approvalRouting": "Upitishaji wa idhini"
 }

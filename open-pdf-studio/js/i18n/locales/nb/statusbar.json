@@ -29,7 +29,8 @@
     "formCheckbox": "Skjema-avkrysningsboks",
     "formRadio": "Skjema-radioknapp",
     "screenshot": "Skjermbilde",
-    "pageLabelPick": "Velg tekst for sideetikett"
+    "pageLabelPick": "Velg tekst for sideetikett",
+    "proofread": "Korrektur"
   },
   "toolLabel": "Verktøy:",
   "annotationsLabel": "Merknader:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Side {{page}}",
   "searchHitsOne": "1 treff",
   "searchHitsMany": "{{count}} treff",
-  "passwordProtectedBar": "Beskyttet med passord: åpnet skrivebeskyttet."
+  "passwordProtectedBar": "Beskyttet med passord: åpnet skrivebeskyttet.",
+  "documentSearch": {
+    "title": "Søk i dokumenter",
+    "query": "Søketekst",
+    "scope": "Søk i",
+    "active": "Gjeldende dokument",
+    "open": "Åpne dokumenter",
+    "folder": "Mappe",
+    "choose": "Velg mappe",
+    "annotations": "Ta med kommentarer",
+    "search": "Søk",
+    "cancel": "Avbryt",
+    "stale": "Dokumentet er endret. Kjør søket på nytt.",
+    "folderHint": "Søker i PDF-filer direkte i denne mappen uten å åpne faner eller endre filer.",
+    "limited": "Resultatgrensen er nådd. Avgrens søket.",
+    "cancelled": "Søket ble avbrutt; resultatene er ufullstendige.",
+    "ocrHint": "Ingen søkbar tekst på sidene {{pages}}. Åpne dokumentet og kjør OCR eksplisitt ved behov.",
+    "status": {
+      "searching": "Søker",
+      "complete": "Fullført",
+      "needs_ocr": "Inneholder sider uten søkbar tekst",
+      "encrypted": "Passord kreves",
+      "unreadable": "Kunne ikke søke",
+      "changed": "Dokumentet er endret; søk på nytt",
+      "cancelled": "Avbrutt",
+      "limited": "Resultatgrensen er nådd"
+    },
+    "failed": "Søket mislyktes. Kontroller søket og mappen, og prøv på nytt.",
+    "prepareOcr": "Åpne for OCR…"
+  },
+  "symbolSearch": "Finn symboler",
+  "findMoreOptions": "Flere søkealternativer",
+  "watchActive": "Overvåker {{folder}}",
+  "watchFailed": "Overvåkingsfeil: {{folder}}",
+  "watchTitle": "Dokumentarbeidsflyten overvåker {{input}} og skriver til {{output}}. Klikk for å stoppe overvåkingen.",
+  "renderDiagnostics": {
+    "title": "Gå til neste gjengivelsesfunn. Ingen funn garanterer ikke en fullstendig gjengivelse.",
+    "count": "Gjengivelsesfunn: {{count}}",
+    "detail": "Side {{page}}: {{code}}. Prøv lavere zoom, eller åpne dokumentet på nytt; fullstendigheten er ikke garantert."
+  }
 }

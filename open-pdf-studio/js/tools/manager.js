@@ -311,6 +311,12 @@ export function setTool(tool) {
   // Invoegmodus voor symbolen (#587): hetzelfde of een ander symbool houdt
   // de gekozen opmaak vast, elk ander gereedschap zet haar terug.
   syncSymbolInsertSession(tool, state.toolOverrides);
+  // Het Opmaak-tabblad volgt het gereedschap (#668): het verschijnt bij een
+  // tekengereedschap met een stijl en verdwijnt weer, ook als er daarna
+  // niets hertekend wordt.
+  import('../annotations/rendering/ui-state.js')
+    .then((m) => m.updateContextualTabs())
+    .catch(() => { /* lint nog niet geladen */ });
 
   // Activate the new tool via lifecycle — also when it is the same tool,
   // because choosing it again (ribbon, library) is a new activation. Only

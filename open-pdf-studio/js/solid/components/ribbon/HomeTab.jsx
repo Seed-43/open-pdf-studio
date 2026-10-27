@@ -83,14 +83,25 @@ export default function HomeTab() {
             id="screenshot-split-btn"
             mainIcon={screenshotIcon}
             mainLabel={t('home.screenshot')}
-            mainTitle={t('home.captureFullPage')}
+            mainTitle={t('home.captureRegionTitle')}
             dropdownTitle={t('home.screenshotOptions')}
             disabled={noPdf()}
             onMainClick={async () => {
-              const { screenshotFullPage } = await import('../../../tools/screenshot.js');
-              screenshotFullPage();
+              const { startRegionScreenshot } = await import('../../../tools/screenshot.js');
+              startRegionScreenshot();
             }}
           >
+            <button class="ribbon-split-btn-menu-item" id="screenshot-menu-region"
+              onClick={async () => {
+                const { startRegionScreenshot } = await import('../../../tools/screenshot.js');
+                startRegionScreenshot();
+              }}>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h4M4 4v4M20 4h-4M20 4v4M4 20h4M4 20v-4M20 20h-4M20 20v-4"/>
+                <rect x="8" y="8" width="8" height="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke-dasharray="2 2"/>
+              </svg>
+              {t('home.region')}
+            </button>
             <button class="ribbon-split-btn-menu-item" id="screenshot-menu-page"
               onClick={async () => {
                 const { screenshotFullPage } = await import('../../../tools/screenshot.js');
@@ -102,16 +113,17 @@ export default function HomeTab() {
               </svg>
               {t('home.fullPage')}
             </button>
-            <button class="ribbon-split-btn-menu-item" id="screenshot-menu-region"
+            <button class="ribbon-split-btn-menu-item" id="screenshot-menu-quick-copy"
+              title={t('home.quickCopyTitle')}
               onClick={async () => {
                 const { startRegionScreenshot } = await import('../../../tools/screenshot.js');
-                startRegionScreenshot();
+                startRegionScreenshot({ snelKopieren: true });
               }}>
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h4M4 4v4M20 4h-4M20 4v4M4 20h4M4 20v-4M20 20h-4M20 20v-4"/>
-                <rect x="8" y="8" width="8" height="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <rect x="8" y="8" width="12" height="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
               </svg>
-              {t('home.region')}
+              {t('home.quickCopy')}
             </button>
             <button class="ribbon-split-btn-menu-item" id="screenshot-menu-overlay"
               title={t('home.placeAsOverlayTitle')}

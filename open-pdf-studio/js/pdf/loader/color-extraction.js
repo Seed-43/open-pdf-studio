@@ -7,8 +7,11 @@ import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.
 import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 import { laagVanOc } from '../saver/annotatie-lagen.js';
+import { leesRuweSleutels } from '../saver/ruwe-sleutels.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
+import { blendUitPdf } from '../../annotations/blend-modes.js';
+import { leesStempelAp } from './stempel-ap.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -63,10 +66,13 @@ async function decodeApStream(stream) {
  * annotatie als geheel beschrijft en geven we niets terug. Bij meerdere
  * vul-alfa's telt de alfa van het eerste vlak (zie fillAlphaAtFirstFill).
  *
- * @returns {Promise<{fillAlpha: number|null, strokeAlpha: number|null}>}
+ * Uit dezelfde graphics-states komt de mengmodus (/BM, #614): één modus als
+ * alle geactiveerde states dezelfde zetten, anders geen.
+ *
+ * @returns {Promise<{fillAlpha: number|null, strokeAlpha: number|null, blendMode: string|null}>}
  */
 async function extractApAlphas(context, nStream) {
-  const empty = { fillAlpha: null, strokeAlpha: null };
+  const empty = { fillAlpha: null, strokeAlpha: null, blendMode: null };
   try {
     const nDict = nStream.dict || nStream;
     const resRaw = nDict.get(PDFName.of('Resources'));
@@ -89,6 +95,7 @@ async function extractApAlphas(context, nStream) {
 
     const fills = new Set();
     const strokes = new Set();
+    const modi = new Set();
     const fillAlphaByName = new Map();
     for (const name of used) {
       const gsRefRaw = egs.get(PDFName.of(name));
@@ -104,6 +111,8 @@ async function extractApAlphas(context, nStream) {
         fillAlphaByName.set(name, ca);
       }
       if (CA !== null && CA >= 0 && CA <= 1) strokes.add(CA);
+      const modus = leesBlendMode(context, gs.get(PDFName.of('BM')));
+      if (modus) modi.add(modus);
     }
     // Meerdere vul-alfa's: geen enkele /ca geldt voor de hele stream. Gangbaar
     // bij meetvlakken — het vlak op 30%, het maatlabel in een eigen
@@ -115,10 +124,19 @@ async function extractApAlphas(context, nStream) {
     return {
       fillAlpha,
       strokeAlpha: strokes.size === 1 ? [...strokes][0] : null,
+      blendMode: modi.size === 1 ? [...modi][0] : null,
     };
   } catch (_) {
     return empty;
   }
+}
+
+/** De mengmodus uit een /BM-waarde (naam of array), of null. */
+function leesBlendMode(context, raw) {
+  if (raw === undefined || raw === null) return null;
+  const v = context.lookup(raw) || raw;
+  if (v instanceof PDFArray) return blendUitPdf(v.asArray().map((x) => String(context.lookup(x) || x)));
+  return blendUitPdf(String(v));
 }
 
 const TEKSTCORRECTIE_SOORTEN = new Set(['/Caret', '/Highlight', '/Underline', '/StrikeOut', '/Squiggly']);
@@ -131,7 +149,7 @@ function leesTekstString(context, raw) {
   return (v instanceof PDFString || v instanceof PDFHexString) ? v.decodeText() : undefined;
 }
 
-// /Sy, /RD, /NM, /Subj, de rauwe /QuadPoints (bestandsvolgorde),
+// /Sy, /RD, de rauwe /QuadPoints (bestandsvolgorde),
 // /OPS_TextDir en /OPS_MarkedText; bij een /Caret ook de eigen /Contents (als
 // kind in een groep geeft pdf.js die van de ouder).
 function leesTekstcorrectieExtra(context, annotDict, subtypeName, colors) {
@@ -149,10 +167,6 @@ function leesTekstcorrectieExtra(context, annotDict, subtypeName, colors) {
   }
   const rd = getallen(annotDict.get(PDFName.of('RD')));
   if (rd && rd.length === 4) colors.rd = rd;
-  const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
-  if (nm) colors.nm = nm;
-  const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));
-  if (subj) colors.subj = subj;
   const quads = getallen(annotDict.get(PDFName.of('QuadPoints')));
   if (quads && quads.length >= 8) colors.rawQuadPoints = quads;
   const tdRaw = annotDict.get(PDFName.of('OPS_TextDir'));
@@ -172,6 +186,7 @@ function leesTekstcorrectieExtra(context, annotDict, subtypeName, colors) {
 // Returns Map<rectKey, { ic, apStrokeColor }> where ic = Interior Color hex, apStrokeColor = stroke from appearance stream
 export async function extractAnnotationColors(pageNum, pdfDoc) {
   const colorMap = new Map();
+  const perRect = new Map(); // rauwe /Rect -> [[@ref-sleutel, gegevens], …]
   try {
     const page = pdfDoc.getPages()[pageNum - 1];
     if (!page) return colorMap;
@@ -230,7 +245,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const nForAlpha = apDict?.get?.(PDFName.of('N'));
           const nStreamForAlpha = nForAlpha ? context.lookup(nForAlpha) : null;
           if (nStreamForAlpha) {
-            const { fillAlpha, strokeAlpha } = await extractApAlphas(context, nStreamForAlpha);
+            const { fillAlpha, strokeAlpha, blendMode } = await extractApAlphas(context, nStreamForAlpha);
+            if (blendMode) colors.blendMode = blendMode;
             // Gelijk aan /CA is het de algehele doorzichtigheid die ook in de
             // appearance staat (#512), geen aparte vul-alfa.
             if (fillAlpha !== null && fillAlpha !== colors.opacity) colors.fillOpacity = fillAlpha;
@@ -238,6 +254,15 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           }
         }
       } catch (_) { /* appearance zonder bruikbare graphics-state */ }
+
+      // Mengmodus (#614): uit de appearance hierboven; anders /BM op de
+      // annotatie zelf (PDF 2.0). Bij een tekstmarkering is vermenigvuldigen
+      // gewoon haar uiterlijk (zie correction-dicts.js), geen keuze.
+      if (!colors.blendMode) {
+        const bmDict = leesBlendMode(context, annotDict.get(PDFName.of('BM')));
+        if (bmDict) colors.blendMode = bmDict;
+      }
+      if (colors.blendMode === 'multiply' && TEKSTCORRECTIE_SOORTEN.has(subtypeName)) delete colors.blendMode;
 
       // /FillOpacity: niet-standaard sleutel die externe tekenpakketten naast de
       // appearance zetten. Alleen terugval: de appearance hierboven is wat andere
@@ -248,6 +273,15 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (foRaw !== undefined) {
           const fo = pdfNum(context.lookup(foRaw) || foRaw);
           if (fo !== null && fo >= 0 && fo <= 1) colors.fillOpacity = fo;
+        }
+      }
+      // /ca op de annotatie (PDF 2.0): de vul-dekking als een lezer de
+      // appearance zelf opbouwt (#685). Ook alleen terugval.
+      if (colors.fillOpacity === undefined) {
+        const caVulRaw = annotDict.get(PDFName.of('ca'));
+        if (caVulRaw !== undefined) {
+          const caVul = pdfNum(context.lookup(caVulRaw) || caVulRaw);
+          if (caVul !== null && caVul >= 0 && caVul <= 1 && caVul !== colors.opacity) colors.fillOpacity = caVul;
         }
       }
 
@@ -262,7 +296,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       const ofoRaw = annotDict.get(PDFName.of('OPS_FillOpacity'));
       if (ofoRaw !== undefined) {
         const ofo = pdfNum(context.lookup(ofoRaw) || ofoRaw);
-        if (ofo !== null && ofo >= 0 && ofo <= 1) colors.fillOpacity = ofo;
+        if (ofo !== null && ofo >= 0 && ofo <= 1) {
+          colors.fillOpacity = ofo;
+          // Uitdrukkelijk door de app bewaard: een schaalgebied (#611) neemt
+          // alleen deze over, niet de alfa die uit zijn appearance volgt.
+          colors.opsFillOpacity = ofo;
+        }
       }
 
       // Read /BE (border effect) — { /S /C } = cloudy border ("wolkjes", zoals
@@ -301,6 +340,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const tekst = leesPdfTekst(context, opsTekstRaw);
           if (tekst) colors.opsStampText = tekst;
         }
+        // Vak en draaiing van een stempel of afbeelding komen uit de
+        // appearance (stempel-geometrie.js).
+        const stempelAp = await leesStempelAp(context, annotDict);
+        if (stempelAp) colors.stempelAp = stempelAp;
         // Read /OPS_CropLeft.. (non-destructive image crop, fractions 0-1
         // per side — issue #212). The AP embeds the FULL bitmap, so these
         // fractions re-apply the crop after the image round-trips.
@@ -329,6 +372,13 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
+      // Een afbeelding als /Square met /IT /SquareImage (ander programma):
+      // vak en draaiing ook uit de appearance, zoals bij een stempel.
+      if (subtypeName === '/Square' && annotDict.get(PDFName.of('IT'))?.toString() === '/SquareImage') {
+        const stempelAp = await leesStempelAp(context, annotDict);
+        if (stempelAp) colors.stempelAp = stempelAp;
+      }
+
       // Kruis in een rechthoek of cirkel/ellips (OPS_Cross, zie saver).
       const opsCrossRaw = annotDict.get(PDFName.of('OPS_Cross'));
       if (opsCrossRaw) {
@@ -336,11 +386,40 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (cv === true || (cv && typeof cv.value === 'boolean' && cv.value)) colors.cross = true;
       }
 
-      // Read /OPS_Rotation (our custom rotation key) for ALL annotation types
+      // Read /OPS_Rotation (our custom rotation key) for ALL annotation types.
+      // For stamps and images it is only a legacy fallback: their rotation
+      // lives in the appearance and the saver no longer writes the key
+      // (stempel-geometrie.js, kiesStempelWeergave).
       const opsRotRaw = annotDict.get(PDFName.of('OPS_Rotation'));
       if (opsRotRaw) {
         const rv = pdfNum(context.lookup(opsRotRaw) || opsRotRaw);
         if (rv !== null) colors.rotation = rv;
+      }
+
+      // Naam, onderwerp en alternatieve tekst, voor ELKE soort (#619; zie
+      // loader/annotatie-algemeen.js). /NM en /Subj zijn standaard; voor een
+      // alternatieve tekst naast /Contents kent de specificatie geen sleutel.
+      const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
+      if (nm) colors.nm = nm;
+      const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));
+      if (subj) colors.subj = subj;
+      const altTekst = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_AltText')));
+      if (altTekst) colors.opsAltText = altTekst;
+      const zoneText = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_SpatialZone')));
+      if (zoneText && zoneText.length < 2000) { try { colors.spatialZone = JSON.parse(zoneText); } catch {} }
+      const locationOverride = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_LocationOverride')));
+      if (typeof locationOverride === 'string') colors.locationOverride = locationOverride.slice(0, 1000);
+
+      // Boog: middelpunt, straal en hoeken in de app-ruimte van de ongedraaide
+      // pagina (zie de 'arc'-tak van saver.js). /Vertices is de benadering
+      // voor andere lezers (#619).
+      if (subtypeName === '/PolyLine') {
+        for (const [sleutel, veld] of [['OPS_CenterX', 'opsCenterX'], ['OPS_CenterY', 'opsCenterY'],
+          ['OPS_Radius', 'opsRadius'], ['OPS_StartAngle', 'opsStartAngle'], ['OPS_EndAngle', 'opsEndAngle']]) {
+          const raw = annotDict.get(PDFName.of(sleutel));
+          const v = raw !== undefined ? pdfNum(context.lookup(raw) || raw) : null;
+          if (typeof v === 'number' && Number.isFinite(v)) colors[veld] = v;
+        }
       }
 
       // /OPS_LineHeads: exacte lijnkoppen die /LE niet kent (lijnkoppen.js).
@@ -734,6 +813,18 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
+      // Telmarkering van de app (#621, saver/telling.js).
+      if (subtypeName === '/Circle') {
+        const nr = annotDict.get(PDFName.of('OPS_CountNumber'));
+        const nv = nr !== undefined ? pdfNum(context.lookup(nr) || nr) : null;
+        if (nv !== null) colors.opsCountNumber = nv;
+        for (const [sleutel, veld] of [['OPS_CountCategory', 'opsCountCategory'],
+          ['OPS_MarkerStyle', 'opsMarkerStyle'], ['OPS_SymbolId', 'opsSymbolId']]) {
+          const t = leesPdfTekst(context, annotDict.get(PDFName.of(sleutel)));
+          if (t) colors[veld] = t;
+        }
+      }
+
       // Read /OPS_HatchPattern, /OPS_HatchColor, /OPS_HatchScale, /OPS_HatchAngle
       // (used by 'filledArea' annotations to persist user-controlled hatch fill).
       const hpRaw = annotDict.get(PDFName.of('OPS_HatchPattern'));
@@ -757,6 +848,21 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (haRaw) {
         const ha = pdfNum(context.lookup(haRaw) || haRaw);
         if (ha !== null) colors.opsHatchAngle = ha;
+      }
+      // Tegelpatroon van een ander programma (#621): de naam in /PatternName
+      // (tekst of naam) en de kleur in /PatternColor. Het patroon zelf staat
+      // in de appearance; een bekende naam wordt een arcering van de app
+      // (saver/hatch-meta.js), de sleutels zelf reizen ongewijzigd mee.
+      const pnRaw = annotDict.get(PDFName.of('PatternName'));
+      if (pnRaw !== undefined) {
+        const pn = context.lookup(pnRaw) || pnRaw;
+        const naam = pn instanceof PDFName ? pn.decodeText() : leesTekstString(context, pn);
+        if (naam) colors.pdfPatternName = naam;
+      }
+      const pcRaw = annotDict.get(PDFName.of('PatternColor'));
+      if (pcRaw !== undefined) {
+        const pc = pdfColorToHex(context.lookup(pcRaw) || pcRaw, context);
+        if (pc) colors.pdfPatternColor = pc;
       }
 
       // Read /OPS_DikteMm — wall thickness in real-world mm (wall round-trip)
@@ -1298,6 +1404,14 @@ const result = {};
               const marge = parseFloat(marginMatch[1]);
               if (Number.isFinite(marge)) colors.dsMargin = marge;
             }
+            // text-decoration (onderstreept, doorgehaald) van het hele vak
+            // (#619). /RC hierboven wint: die beschrijft de tekst zelf.
+            const dsDecoMatch = dsStr.match(/text-decoration\s*:\s*([^;]+)/i);
+            if (dsDecoMatch) {
+              const deco = dsDecoMatch[1].toLowerCase();
+              colors.dsUnderline = deco.includes('underline');
+              colors.dsStrikethrough = deco.includes('line-through');
+            }
             if (!colors.rawLineHeight) {
               const lhMatch = dsStr.match(/line-height\s*:\s*([\d.]+)/i);
               if (lhMatch) {
@@ -1307,12 +1421,33 @@ const result = {};
           } catch (e) { /* ignore DS parsing errors */ }
         }
 
+        // /Q: uitlijning van de tekst (0 links, 1 midden, 2 rechts) (#619).
+        const qRaw = annotDict.get(PDFName.of('Q'));
+        if (qRaw !== undefined) {
+          const q = pdfNum(context.lookup(qRaw) || qRaw);
+          if (q === 0 || q === 1 || q === 2) colors.q = q;
+        }
+
         // Extract /OPS_Rotation (our custom key only — ignore standard /Rotation
         // which other tools use for text orientation, not whole-annotation rotation)
         const opsRotRaw = annotDict.get(PDFName.of('OPS_Rotation'));
         if (opsRotRaw) {
           const rv = pdfNum(context.lookup(opsRotRaw) || opsRotRaw);
           if (rv !== null) colors.rotation = rv;
+          // De app schrijft deze sleutel bij elke FreeText: een eigen bestand.
+          colors.opsRotationKey = true;
+        }
+
+        // /LE van een callout (#612): volgens de specificatie één naam, sommige
+        // programma's schrijven een rij. pdf.js geeft /LE alleen voor lijnen.
+        const ftLeRaw = annotDict.get(PDFName.of('LE'));
+        if (ftLeRaw) {
+          const ftLe = context.lookup(ftLeRaw) || ftLeRaw;
+          const naam = (o) => (o instanceof PDFName ? o.decodeText() : null);
+          if (ftLe instanceof PDFName) colors.calloutLE = naam(ftLe);
+          else if (ftLe && typeof ftLe.size === 'function') {
+            colors.calloutLE = Array.from({ length: ftLe.size() }, (_, i) => naam(context.lookup(ftLe.get(i)) || ftLe.get(i)) || 'None');
+          }
         }
 
         // Extract /C (Color) entry directly for FreeText — needed for callout stroke detection
@@ -1619,17 +1754,32 @@ const result = {};
         delete colors.rawLineHeight;
       }
 
+      // Sleutels die het model niet kent, ruw bewaard voor de saver (#621).
+      const ruw = leesRuweSleutels(context, annotDict);
+      if (ruw) colors.pdfRaw = ruw;
+
       if (Object.keys(colors).length > 0) colorMap.set(key, colors);
       // Invoegteken en tekstmarkeringen ook op objectverwijzing, ook zonder
       // gegevens: markeringen op dezelfde woorden hebben dezelfde /Rect, en de
       // latere gaf anders haar /IT, /NM en /Subj aan de eerdere. Zie
       // extra-sleutel.js.
-      if (TEKSTCORRECTIE_SOORTEN.has(subtypeName)) {
-        const ref = annots.get(i);
-        if (Number.isInteger(ref?.objectNumber)) {
-          colorMap.set(`@ref:${ref.objectNumber}R${ref.generationNumber || ''}`, colors);
-        }
+      const ref = annots.get(i);
+      const refSleutel = Number.isInteger(ref?.objectNumber)
+        ? `@ref:${ref.objectNumber}R${ref.generationNumber || ''}` : null;
+      if (refSleutel && TEKSTCORRECTIE_SOORTEN.has(subtypeName)) colorMap.set(refSleutel, colors);
+      if (refSleutel) {
+        const zelfde = perRect.get(key);
+        if (zelfde) zelfde.push([refSleutel, colors]);
+        else perRect.set(key, [[refSleutel, colors]]);
       }
+    }
+    // Ook elke andere annotatie die haar /Rect met een andere deelt, krijgt
+    // haar gegevens op objectverwijzing: een reviewstatus, markering of
+    // antwoord neemt de /Rect van zijn annotatie over en wiste zo de
+    // draaiing, vulling en eigen sleutels van een rechthoek met een status
+    // (#619).
+    for (const zelfde of perRect.values()) {
+      if (zelfde.length > 1) for (const [refSleutel, gegevens] of zelfde) colorMap.set(refSleutel, gegevens);
     }
   } catch (e) {
     console.warn('Failed to extract annotation colors:', e);

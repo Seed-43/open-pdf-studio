@@ -29,7 +29,8 @@
     "formCheckbox": "表单复选框",
     "formRadio": "表单单选按钮",
     "screenshot": "截图",
-    "pageLabelPick": "选择页面标签文字"
+    "pageLabelPick": "选择页面标签文字",
+    "proofread": "校对"
   },
   "toolLabel": "工具：",
   "annotationsLabel": "批注：",
@@ -108,5 +109,44 @@
   "searchResultPage": "第 {{page}} 页",
   "searchHitsOne": "1 处匹配",
   "searchHitsMany": "{{count}} 处匹配",
-  "passwordProtectedBar": "受密码保护：已以只读方式打开。"
+  "passwordProtectedBar": "受密码保护：已以只读方式打开。",
+  "documentSearch": {
+    "title": "搜索文档",
+    "query": "搜索文本",
+    "scope": "搜索范围",
+    "active": "当前文档",
+    "open": "已打开的文档",
+    "folder": "文件夹",
+    "choose": "选择文件夹",
+    "annotations": "包括批注",
+    "search": "搜索",
+    "cancel": "取消",
+    "stale": "文档已更改。请重新运行搜索。",
+    "folderHint": "直接搜索此文件夹中的 PDF 文件，不会打开标签页或更改文件。",
+    "limited": "已达到结果上限。请细化搜索条件。",
+    "cancelled": "搜索已取消；结果不完整。",
+    "ocrHint": "第 {{pages}} 页没有可搜索的文本。如有需要，请打开文档并手动运行 OCR。",
+    "status": {
+      "searching": "正在搜索",
+      "complete": "已完成",
+      "needs_ocr": "包含没有可搜索文本的页面",
+      "encrypted": "需要密码",
+      "unreadable": "无法搜索",
+      "changed": "文档已更改；请重新搜索",
+      "cancelled": "已取消",
+      "limited": "已达到结果上限"
+    },
+    "failed": "搜索失败。请检查查询和文件夹，然后重试。",
+    "prepareOcr": "打开以进行 OCR…"
+  },
+  "symbolSearch": "查找符号",
+  "findMoreOptions": "更多搜索选项",
+  "watchActive": "正在监视 {{folder}}",
+  "watchFailed": "监视错误：{{folder}}",
+  "watchTitle": "文档工作流正在监视 {{input}} 并写入 {{output}}。单击以停止监视。",
+  "renderDiagnostics": {
+    "title": "转到下一条渲染提示。没有提示并不保证渲染完整。",
+    "count": "渲染提示：{{count}}",
+    "detail": "第 {{page}} 页：{{code}}。请尝试降低缩放比例或重新打开文档；不保证完整性。"
+  }
 }

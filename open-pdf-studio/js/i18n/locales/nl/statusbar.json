@@ -29,7 +29,8 @@
     "formRadio": "Formulier keuzerondje",
     "screenshot": "Schermafbeelding",
     "cloudPolyline": "Wolk-polylijn",
-    "pageLabelPick": "Tekst kiezen voor paginalabel"
+    "pageLabelPick": "Tekst kiezen voor paginalabel",
+    "proofread": "Proeflezen"
   },
   "toolLabel": "Gereedschap:",
   "annotationsLabel": "Annotaties:",
@@ -108,5 +109,44 @@
   "searchResultPage": "Pagina {{page}}",
   "searchHitsOne": "1 treffer",
   "searchHitsMany": "{{count}} treffers",
-  "passwordProtectedBar": "Beveiligd met een wachtwoord: alleen-lezen geopend."
+  "passwordProtectedBar": "Beveiligd met een wachtwoord: alleen-lezen geopend.",
+  "documentSearch": {
+    "title": "Documenten doorzoeken",
+    "query": "Zoektekst",
+    "scope": "Zoeken in",
+    "active": "Huidig document",
+    "open": "Open documenten",
+    "folder": "Map",
+    "choose": "Map kiezen",
+    "annotations": "Opmerkingen meenemen",
+    "search": "Zoeken",
+    "cancel": "Annuleren",
+    "stale": "Het document is gewijzigd. Zoek opnieuw.",
+    "folderHint": "Doorzoekt PDF-bestanden direct in deze map, zonder tabbladen te openen of bestanden te wijzigen.",
+    "limited": "Resultaatlimiet bereikt. Verfijn de zoekopdracht.",
+    "cancelled": "Zoeken geannuleerd; resultaten zijn onvolledig.",
+    "ocrHint": "Geen doorzoekbare tekst op pagina’s {{pages}}. Open het document en voer zo nodig expliciet OCR uit.",
+    "status": {
+      "searching": "Bezig met zoeken",
+      "complete": "Voltooid",
+      "needs_ocr": "Bevat pagina’s zonder doorzoekbare tekst",
+      "encrypted": "Wachtwoord nodig",
+      "unreadable": "Niet doorzoekbaar",
+      "changed": "Document gewijzigd; zoek opnieuw",
+      "cancelled": "Geannuleerd",
+      "limited": "Resultaatlimiet bereikt"
+    },
+    "failed": "Zoeken mislukt. Controleer de zoekterm en map en probeer opnieuw.",
+    "prepareOcr": "Openen voor OCR…"
+  },
+  "symbolSearch": "Symbolen zoeken",
+  "findMoreOptions": "Meer zoekopties",
+  "watchActive": "Bewaakt {{folder}}",
+  "watchFailed": "Bewaakfout: {{folder}}",
+  "watchTitle": "Documentworkflow bewaakt {{input}} en schrijft naar {{output}}. Klik om het bewaken te stoppen.",
+  "renderDiagnostics": {
+    "title": "Ga naar de volgende rendermelding. Geen melding garandeert geen volledige weergave.",
+    "count": "Rendermeldingen: {{count}}",
+    "detail": "Pagina {{page}}: {{code}}. Probeer een lagere zoom of heropen het document; de volledigheid is niet gecertificeerd."
+  }
 }

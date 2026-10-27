@@ -122,7 +122,7 @@ export default function ResizePagesDialog(props) {
           <div class="crop-margins-row">
             <label class="crop-margins-label">{t('resizePages.width')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="crop-margins-input"
               value={customW()}
               min="1"
@@ -134,7 +134,7 @@ export default function ResizePagesDialog(props) {
           <div class="crop-margins-row">
             <label class="crop-margins-label">{t('resizePages.height')}</label>
             <input
-              type="number"
+              type="text" inputmode="decimal" data-getal
               class="crop-margins-input"
               value={customH()}
               min="1"

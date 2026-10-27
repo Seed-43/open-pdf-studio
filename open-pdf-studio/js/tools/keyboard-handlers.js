@@ -37,6 +37,7 @@ import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewer
 import { gevelPreset } from '../gevelelement/herkenning.js';
 import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
+import { installProofreadingKeys } from './proofreading-mode.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -138,11 +139,8 @@ const CAD_CHORDS = {
   // max 1pt hairline instead of true widths. Pure display toggle —
   // annotation lineWidth values stay untouched.
   'tl': () => {
-    state.preferences.thinLines = !state.preferences.thinLines;
-    // '[render]' prefix lands in the MCP console ring → observable in tests.
-    console.log('[render] thinLines =', state.preferences.thinLines);
-    import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
-    redraw();
+    // Also the PAGE content, not only the annotations (#595).
+    import('../pdf/thin-lines.js').then(m => m.toggleThinLines());
   },
   // 'co' = Copy: duplicate + move via the EDIT-OPS layer (edit-ops.js) —
   // the one place where target resolution, cloning and the move session
@@ -921,14 +919,7 @@ export async function handleKeydown(e) {
     fitPage();
   } else if (ctrl && e.key === '5') {
     e.preventDefault();
-    state.preferences.thinLines = !state.preferences.thinLines;
-    if (getActiveDocument()?.pdfDoc) {
-      if (getActiveDocument()?.viewMode === 'continuous') {
-        import('../pdf/renderer.js').then(m => m.renderContinuous());
-      } else {
-        import('../pdf/renderer.js').then(m => m.renderPage(getActiveDocument()?.currentPage || 1));
-      }
-    }
+    import('../pdf/thin-lines.js').then(m => m.toggleThinLines());
   }
 
   // Tool shortcuts (only if PDF is loaded). Nooit met Ctrl: een Ctrl-letter
@@ -1044,6 +1035,9 @@ function handlePaste(e) {
 export function initKeyboardHandlers() {
   // Capture-fase op window: vóór alle keydown-luisteraars op document en
   // daaronder, ook de capture-luisteraars (#539).
+  // Proofreading mode (#508): F2, and while it is on every key it uses,
+  // before any other handler (also before the tab switch keys).
+  installProofreadingKeys();
   window.addEventListener('keydown', handleTabSneltoets, true);
   document.addEventListener('keydown', handleKeydown);
   document.addEventListener('paste', handlePaste);
