@@ -632,6 +632,20 @@ export async function handleKeydown(e) {
     }
   }
 
+  // PageDown/PageUp: volgende/vorige pagina, in elke weergave. Ctrl+PageUp/
+  // PageDown blijft de tabwissel (#539); invoervelden houden hun eigen gedrag.
+  else if (!ctrl && !shift && !e.altKey && (e.key === 'PageDown' || e.key === 'PageUp')
+      && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName) && !e.target?.isContentEditable) {
+    const navDoc = getActiveDocument();
+    if (navDoc?.pdfDoc) {
+      e.preventDefault();
+      const total = navDoc.pdfDoc.numPages || 1;
+      const cur = navDoc.currentPage || 1;
+      const next = e.key === 'PageDown' ? Math.min(total, cur + 1) : Math.max(1, cur - 1);
+      if (next !== cur) goToPage(next);
+    }
+  }
+
   else if (ctrl && shift && shortcutKey === 'c') {
     e.preventDefault();
     let confirmed = false;
