@@ -773,5 +773,12 @@
       "mep": "عمارتی خدمات (MEP)",
       "infra": "بنیادی ڈھانچہ"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "remove": "Remove"
   }
 }

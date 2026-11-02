@@ -782,5 +782,12 @@
       "mep": "Installatietechniek (MEP)",
       "infra": "Infra"
     }
+  },
+  "clipboardPalette": {
+    "title": "Klembord",
+    "tip": "Klik een kopie aan en druk dan Ctrl+V op het blad: hij komt bij de muis.",
+    "empty": "Kopieer markeringen (Ctrl+C) om ze hier te verzamelen.",
+    "clear": "Klembord leegmaken",
+    "remove": "Verwijderen"
   }
 }
