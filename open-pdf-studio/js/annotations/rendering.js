@@ -626,8 +626,19 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'highlight':
+      // Turned with its rotation about the centre, like a box; the selection
+      // frame already turned, the fill stayed level.
+      ctx.save();
+      if (annotation.rotation) {
+        const hcx = annotation.x + annotation.width / 2;
+        const hcy = annotation.y + annotation.height / 2;
+        ctx.translate(hcx, hcy);
+        ctx.rotate(annotation.rotation * Math.PI / 180);
+        ctx.translate(-hcx, -hcy);
+      }
       ctx.fillStyle = fillColor;
       ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+      ctx.restore();
       break;
 
     case 'line':
