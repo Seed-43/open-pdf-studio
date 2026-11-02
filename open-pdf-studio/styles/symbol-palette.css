@@ -251,8 +251,7 @@
   border-color: var(--theme-ribbon-btn-active-border);
 }
 
-/* --- Clipboard section: session copies, click one then Ctrl+V --- */
-.sp-clip { flex-shrink: 0; border-bottom: 1px solid var(--theme-border); }
+/* --- Clipboard window grid: session copies, click one then Ctrl+V --- */
 .sp-clip-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -296,6 +295,36 @@
 }
 .sp-clip-item:hover .sp-clip-remove { display: flex; }
 .sp-clip-empty { padding: 8px; }
+
+/* Clipboard window beside the tool palette */
+.clip-window {
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  color: var(--theme-text);
+}
+.clip-window-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 6px 5px 8px;
+  font-size: 11px; font-weight: 600;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-panel-tab-bg, var(--theme-surface));
+}
+.clip-window-title { flex: 1; }
+.clip-window-btn {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  font-size: 10px; border: 1px solid transparent; border-radius: 2px;
+  background: transparent; color: var(--theme-text-secondary); cursor: pointer;
+}
+.clip-window-btn:hover { background: var(--theme-hover); border-color: var(--theme-border); }
+.clip-window-hint { padding: 4px 8px; font-size: 10px; color: var(--theme-text-secondary); }
+.clip-window .sp-clip-grid { max-height: none; overflow-y: auto; flex: 1; min-height: 0; }
 
 /* --- Empty state --- */
 .sp-empty {
