@@ -89,7 +89,21 @@ export function buildTextMarkupDict(context, ann, map, { opacity, pageRot = 0, r
   const rects = Array.isArray(ann.rects) && ann.rects.length > 0
     ? ann.rects : [{ x: ann.x, y: ann.y, width: ann.width, height: ann.height }];
   const textDir = ann.textDir ?? 0;
-  const berekend = buildStrikeQuads(rects, textDir, map);
+  // A turned area highlight: its rectangle turned about the centre, as quads
+  // (begin-top, end-top, begin-bottom, end-bottom), like text at an angle.
+  if (ann.type === 'highlight' && ann.rotation && !Array.isArray(ann.quads)) {
+    const t = ann.rotation * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
+    const cx = ann.x + ann.width / 2, cy = ann.y + ann.height / 2;
+    const draai = (x, y) => ({ x: cx + (x - cx) * c - (y - cy) * s, y: cy + (x - cx) * s + (y - cy) * c });
+    const x1 = ann.x, y1 = ann.y, x2 = ann.x + ann.width, y2 = ann.y + ann.height;
+    ann = { ...ann, quads: [[draai(x1, y1), draai(x2, y1), draai(x1, y2), draai(x2, y2)]] };
+  }
+  // Text at an angle: its own turned quads (begin-top, end-top, begin-bottom,
+  // end-bottom in app page space), so other readers follow the text too.
+  const schuin = Array.isArray(ann.quads) && ann.quads.length > 0 && ann.quads.every(q => Array.isArray(q) && q.length === 4);
+  const berekend = schuin
+    ? ann.quads.map(q => q.map(p => { const u = map(p.x, p.y); return { x: Math.round(u.x * 1000) / 1000, y: Math.round(u.y * 1000) / 1000 }; }))
+    : buildStrikeQuads(rects, textDir, map);
   const bron = neemBron(bronnen, markupSubtype, berekend);
   const quads = bron
     ? berekend.map((q, i) => (houdBronQuad(bron[i], q) ? alsPunten(bron[i]) : q))
