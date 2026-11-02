@@ -80,8 +80,9 @@ export function initTextSelection() {
   // Clear selection when clicking outside text layer
   document.addEventListener('mousedown', handleMouseDown);
 
-  // Text highlight: double-click highlights a whole label.
-  document.addEventListener('dblclick', handleDoubleClick);
+  // Text highlight: double-click highlights a whole label. The second click
+  // (detail 2), in the capture phase, so no other handler can swallow it.
+  document.addEventListener('click', handleDoubleClick, true);
 
   // Einde van een sleep: hef de kolom-begrenzing en endOfContent weer op.
   // Document-breed zodat het ook vuurt als de muis buiten de tekstlaag loslaat.
@@ -205,17 +206,71 @@ function handleMouseUp(e) {
 // Text highlight: double-click a label to highlight all of it (the whole
 // text-layer span under the pointer, not just the word).
 function handleDoubleClick(e) {
-  if (!state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
-  let span = e.target?.closest?.('.textLayer span');
-  if (!span) {
-    const el = document.elementsFromPoint(e.clientX, e.clientY).find(n => n.closest?.('.textLayer span'));
-    span = el ? el.closest('.textLayer span') : null;
-  }
-  if (!span || !span.textContent.trim()) return;
+  if (e.detail !== 2 || !state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
+  // Found by position, not hit-testing: the markup canvas or a text layer
+  // with pointer-events off can be what the double-click lands on.
+  const span = spanOpPunt(e.clientX, e.clientY);
+  if (!span) return;
   e.preventDefault();
+  // Drawings often store a label one word per span ("ISSUED", "FOR",
+  // "APPROVAL"): take in the neighbouring spans on the same line.
+  const regel = regelVan(span);
   const bereik = document.createRange();
-  bereik.selectNodeContents(span);
+  bereik.setStartBefore(regel[0]);
+  bereik.setEndAfter(regel[regel.length - 1]);
   markeerBereiken([bereik]);
+}
+
+// The spans that read as one label with `span`: neighbours in the text layer
+// (file order) at the same angle, on the same line, with at most about one
+// letter height between them.
+function regelVan(span) {
+  const laag = span.closest('.textLayer');
+  if (!laag) return [span];
+  // Word spans only; the blank spans between words come along in the range.
+  const woorden = [...laag.querySelectorAll('span')].filter(s => !s.querySelector('span') && s.textContent.trim());
+  const i = woorden.indexOf(span);
+  if (i < 0) return [span];
+  // Geometry in the text layer's own space (before the page's view rotation):
+  // origin, reading direction from --rotate, length and letter height.
+  const maat = (s) => {
+    const t = ((parseFloat(s.style.getPropertyValue('--rotate')) || 0) * Math.PI) / 180;
+    const m = getComputedStyle(s).transform;
+    const v = m && m !== 'none' ? m.match(/-?[\d.e]+/g).map(Number) : [1, 0, 0, 1];
+    return { x: s.offsetLeft, y: s.offsetTop, t, len: s.offsetWidth * Math.hypot(v[0], v[1]), h: s.offsetHeight * Math.hypot(v[2], v[3]) };
+  };
+  const hoort = (sa, sb) => {
+    const a = maat(sa), b = maat(sb);
+    if (Math.abs(a.t - b.t) > 0.01) return false;
+    const h = Math.max(1, Math.min(a.h, b.h));
+    if (Math.abs(a.h - b.h) > h * 0.5) return false;
+    const ux = Math.cos(a.t), uy = Math.sin(a.t);
+    const dx = b.x - a.x, dy = b.y - a.y;
+    // Same line: little offset across the reading direction.
+    if (Math.abs(-dx * uy + dy * ux) > h * 0.5) return false;
+    // Close along it: at most about a letter between the two words.
+    const s = dx * ux + dy * uy;
+    const gat = s >= 0 ? s - a.len : -s - b.len;
+    return gat >= -h * 0.5 && gat <= h * 1.2;
+  };
+  let a = i, b = i;
+  while (a > 0 && hoort(woorden[a], woorden[a - 1])) a--;
+  while (b < woorden.length - 1 && hoort(woorden[b], woorden[b + 1])) b++;
+  return woorden.slice(a, b + 1);
+}
+
+// The word span at a screen point: the one whose box holds the point, the
+// nearest centre winning when boxes of rotated labels overlap.
+function spanOpPunt(x, y) {
+  let beste = null, bd = Infinity;
+  for (const s of document.querySelectorAll('.textLayer span')) {
+    if (s.querySelector('span') || !s.textContent.trim()) continue;
+    const r = s.getBoundingClientRect();
+    if (x < r.left - 2 || x > r.right + 2 || y < r.top - 2 || y > r.bottom + 2) continue;
+    const d = Math.hypot(x - (r.left + r.right) / 2, y - (r.top + r.bottom) / 2);
+    if (d < bd) { bd = d; beste = s; }
+  }
+  return beste;
 }
 
 // Turn each range into a text highlight, then leave nothing selected so the
