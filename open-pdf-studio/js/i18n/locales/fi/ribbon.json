@@ -115,6 +115,7 @@
     "areaHighlight": "Area highlight",
     "areaHighlightTitle": "Draw a box to highlight an area",
     "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Vapaapiirto",
     "line": "Viiva",
     "arrow": "Nuoli",

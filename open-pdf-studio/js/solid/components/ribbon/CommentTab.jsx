@@ -4,6 +4,7 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import SplitButton from './SplitButton.jsx';
+import { highlightMode, highlightActive, kiesMarkering, markeringKnop } from '../../../tools/highlight-mode.js';
 import { colorPickerValue, lineWidthValue } from '../../stores/ribbonStore.js';
 import { strokeColor, fmtLineWidth, isLocked, opmaakDoel, opmaakOndersteunt, zetOpmaak } from '../../stores/formatStore.js';
 import { zetRanddikte } from '../../../annotations/rendering/textbox-layout.js';
@@ -46,15 +47,6 @@ export function CommentGroups() {
   // Kleur en breedte (#668) werken op hetzelfde doel als de opmaakwerkbalk:
   // de selectie, anders het volgende object van het actieve gereedschap (of
   // de invoegsessie van symbolen). Zonder doel staan ze uit.
-  // Highlight mode, remembered per session: 'area' draws a box, 'text'
-  // highlights the text you drag across.
-  const kiesMarkering = (mode) => {
-    setHighlightMode(mode);
-    try { localStorage.setItem('ops.highlightMode', mode); } catch {}
-    if (mode === 'text') { setTool('selectText'); state.textHighlightMode = true; }
-    else setTool('highlight');
-  };
-
   const kan = (key) => !noPdf() && !isPdfAReadOnly() && !isLocked() && opmaakOndersteunt(key);
 
   return (
@@ -72,8 +64,8 @@ export function CommentGroups() {
             mainTitle={highlightMode() === 'text' ? t('comment.textHighlightTitle') : t('comment.areaHighlightTitle')}
             dropdownTitle={t('comment.highlightMode')}
             disabled={noPdf() || isPdfAReadOnly()}
-            active={state.currentTool === 'highlight' || (state.currentTool === 'selectText' && !!state.textHighlightMode)}
-            onMainClick={() => kiesMarkering(highlightMode())}
+            active={highlightActive()}
+            onMainClick={markeringKnop}
           >
             <button class="ribbon-split-btn-menu-item" id="highlight-menu-area" onClick={() => kiesMarkering('area')}>
               <span style="width:14px; height:14px; display:inline-block;" innerHTML={highlightIcon}></span>
@@ -236,10 +228,6 @@ export function CommentGroups() {
     </>
   );
 }
-
-let _startMode = 'area';
-try { if (localStorage.getItem('ops.highlightMode') === 'text') _startMode = 'text'; } catch {}
-const [highlightMode, setHighlightMode] = createSignal(_startMode);
 
 export default function CommentTab() {
   return (
