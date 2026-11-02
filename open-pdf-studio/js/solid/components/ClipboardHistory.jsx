@@ -13,7 +13,7 @@ import { useTranslation } from '../../i18n/useTranslation.js';
 export const clipboardIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6z"/><path d="M5.5 8h5M5.5 10.5h5"/></svg>`;
 const closeSvg = `<svg width="8" height="8" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>`;
 
-export function ClipboardGrid() {
+export function ClipboardGrid(props) {
   const { t } = useTranslation('ribbon');
   return (
     <Show when={clipboardHistory().length > 0} fallback={<div class="sp-empty sp-clip-empty">{t('clipboardPalette.empty')}</div>}>
@@ -23,7 +23,7 @@ export function ClipboardGrid() {
             <div
               class={`sp-clip-item${clipboardHistoryActive() === item.id ? ' active' : ''}`}
               title={`${item.label}\n${t('clipboardPalette.tip')}`}
-              onClick={() => useClipboardHistoryItem(item.id)}
+              onClick={() => { useClipboardHistoryItem(item.id); props?.onPick?.(item); }}
             >
               <Show when={item.thumb} fallback={<div class="sp-clip-thumb sp-clip-nothumb">{item.label}</div>}>
                 <img class="sp-clip-thumb" src={item.thumb} alt="" draggable={false} />
@@ -40,7 +40,7 @@ export function ClipboardGrid() {
 }
 
 // ── Window next to the tool palette ──────────────────────────────────────
-// Stays open while you pick and paste; closed with its × or the button.
+// Picking a copy closes it, ready for Ctrl+V; also closed with its × or the button.
 const [venster, setVenster] = createSignal(null); // { left, top } or null
 export const clipboardWindowOpen = () => !!venster();
 
@@ -79,7 +79,7 @@ export function ClipboardWindow() {
               <button class="clip-window-btn" title={t('view.closePalette')} onClick={() => setVenster(null)} innerHTML={closeSvg} />
             </div>
             <div class="clip-window-hint">{t('clipboardPalette.tip')}</div>
-            <ClipboardGrid />
+            <ClipboardGrid onPick={() => setVenster(null)} />
           </div>
         </Portal>
       )}
