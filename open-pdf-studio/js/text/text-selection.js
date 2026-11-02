@@ -120,12 +120,16 @@ function handleMouseUp() {
   const wasDragging = _selectionDragActive;
   _selectionDragActive = false;
   endSelectionDrag();
-  // Text highlight tool: the selection made by this drag becomes a highlight
-  // as soon as the mouse is released; the tool stays active for the next one.
-  if (wasDragging && state.textHighlightMode && state.currentTool === 'selectText') {
+  // Text highlight (Select tool + state.textHighlightMode): the page text
+  // selected by this drag becomes a highlight as soon as the mouse is
+  // released; the mode stays on for the next one. Checked on the selection
+  // itself, not only on where the drag started, because the select tool's
+  // canvas can take the mousedown and pass the drag on to the text layer.
+  if (state.textHighlightMode && state.currentTool === 'select') {
     setTimeout(async () => {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
+      if (!wasDragging && !findParentTextLayer(sel.anchorNode)) return;
       const { createTextMarkupAnnotation } = await import('./text-markup.js');
       createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
       clearTextSelection();

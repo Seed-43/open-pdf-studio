@@ -254,7 +254,9 @@ function ToolBtn(props) {
   // Highlight: area or text mode (highlight-mode.js); clicking it while it
   // is on switches mode, and the icon shows which one is active.
   const isHighlight = props.tool === 'highlight';
-  const isActive = () => (isHighlight ? highlightActive() : state.currentTool === props.tool) && !state.toolOverrides;
+  // Text highlight runs on the Select tool; then only Highlight shows as on.
+  const isActive = () => (isHighlight ? highlightActive()
+    : state.currentTool === props.tool && !(props.tool === 'select' && state.textHighlightMode)) && !state.toolOverrides;
   const icon = () => (isHighlight && highlightMode() === 'text' ? textHighlightIcon : props.icon);
   const title = () => (isHighlight
     ? `${highlightMode() === 'text' ? props.textTitle : props.areaTitle}\n${props.switchTip}`
