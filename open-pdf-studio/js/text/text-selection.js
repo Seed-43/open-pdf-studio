@@ -16,6 +16,56 @@ let _guardRestricted = [];
 let _activeEndOfContent = null;
 // True from a left-button mousedown in a text layer until the next mouseup.
 let _selectionDragActive = false;
+// Screen point of the last left-button mousedown (text highlight drag line).
+let _dragStart = null;
+
+// Does the line (screen px) pass within `marge` px of the rectangle?
+// Sampled every 2 px, which is plenty for text boxes on screen.
+function lijnRaaktRect(l, r, marge) {
+  const dx = l.x2 - l.x1, dy = l.y2 - l.y1;
+  const stappen = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 2));
+  for (let i = 0; i <= stappen; i++) {
+    const x = l.x1 + (dx * i) / stappen, y = l.y1 + (dy * i) / stappen;
+    if (x >= r.left - marge && x <= r.right + marge && y >= r.top - marge && y <= r.bottom + marge) return true;
+  }
+  return false;
+}
+
+/**
+ * The parts of `range` that the drag line crosses, as ranges, one per run of
+ * consecutive text-layer spans (so text elsewhere on the sheet is left out).
+ * Returns null when the range covers a single span or nothing needs dropping,
+ * so the caller can use the selection as it is; [] when no span is crossed.
+ */
+function gekruisteDelen(range, lijn) {
+  const laag = findParentTextLayer(range.commonAncestorContainer)
+    || findParentTextLayer(range.startContainer);
+  if (!laag) return null;
+  const spans = [...laag.querySelectorAll('span')].filter(s =>
+    !s.querySelector('span') && s.textContent && range.intersectsNode(s));
+  if (spans.length <= 1) return null;
+  const geraakt = spans.map(s => {
+    const r = s.getBoundingClientRect();
+    return lijnRaaktRect(lijn, r, Math.max(4, Math.min(r.width, r.height) * 0.5));
+  });
+  if (geraakt.every(Boolean)) return null;
+  const delen = [];
+  let i = 0;
+  while (i < spans.length) {
+    if (!geraakt[i]) { i++; continue; }
+    let j = i;
+    while (j + 1 < spans.length && geraakt[j + 1]) j++;
+    const deel = document.createRange();
+    const eerste = spans[i], laatste = spans[j];
+    if (eerste.contains(range.startContainer)) deel.setStart(range.startContainer, range.startOffset);
+    else deel.setStartBefore(eerste);
+    if (laatste.contains(range.endContainer)) deel.setEnd(range.endContainer, range.endOffset);
+    else deel.setEndAfter(laatste);
+    if (!deel.collapsed && deel.toString().trim()) delen.push(deel);
+    i = j + 1;
+  }
+  return delen;
+}
 
 /**
  * Initializes text selection event listeners
@@ -95,6 +145,10 @@ function handleMouseDown(e) {
   // Don't clear selection if clicking on context menu
   if (e.target.closest('.context-menu')) return;
 
+  // Text highlight keeps only the text the drag line crosses; remember where
+  // it started (the canvas may take this mousedown before the text layer).
+  if (e.button === 0) _dragStart = { x: e.clientX, y: e.clientY };
+
   // Don't clear selection if clicking within text layer
   const textLayer = findParentTextLayer(e.target);
   if (textLayer) {
@@ -116,9 +170,11 @@ function handleMouseDown(e) {
 /**
  * Handles mouseup: end a selection drag and lift the temporary column guard.
  */
-function handleMouseUp() {
+function handleMouseUp(e) {
   const wasDragging = _selectionDragActive;
   _selectionDragActive = false;
+  const lijn = _dragStart && e ? { x1: _dragStart.x, y1: _dragStart.y, x2: e.clientX, y2: e.clientY } : null;
+  _dragStart = null;
   endSelectionDrag();
   // Text highlight (Select tool + state.textHighlightMode): the page text
   // selected by this drag becomes a highlight as soon as the mouse is
@@ -131,7 +187,19 @@ function handleMouseUp() {
       if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
       if (!wasDragging && !findParentTextLayer(sel.anchorNode)) return;
       const { createTextMarkupAnnotation } = await import('./text-markup.js');
-      createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+      // On drawings the text layer is in file order, not reading order, so a
+      // native selection can pull in labels from elsewhere on the sheet.
+      // Highlight only the runs of text the drag line actually crosses.
+      const delen = lijn ? gekruisteDelen(sel.getRangeAt(0), lijn) : null;
+      if (delen && delen.length) {
+        for (const deel of delen) {
+          sel.removeAllRanges();
+          sel.addRange(deel);
+          createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+        }
+      } else if (!delen) {
+        createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+      }
       clearTextSelection();
       // Keep highlighting: don't leave the new markup selected (that would
       // switch the ribbon to its Format tab after every line).
