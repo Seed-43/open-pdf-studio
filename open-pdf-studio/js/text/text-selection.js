@@ -203,15 +203,29 @@ function handleMouseUp(e) {
   }
 }
 
-// Text highlight: double-click a label to highlight all of it (the whole
-// text-layer span under the pointer, not just the word).
+// Text highlight: double-click highlights the word under the pointer
+// ("150X6.0SHS"), triple-click the whole label line ("150X6.0SHS x 5730
+// LENGTH"). The double-click waits a moment so a third click can take over.
+const MEERKLIK_MS = 350;
+let _woordTimer = null;
 function handleDoubleClick(e) {
-  if (e.detail !== 2 || !state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
+  if (e.detail < 2 || !state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
   // Found by position, not hit-testing: the markup canvas or a text layer
-  // with pointer-events off can be what the double-click lands on.
-  const span = spanOpPunt(e.clientX, e.clientY);
+  // with pointer-events off can be what the click lands on.
+  const x = e.clientX, y = e.clientY;
+  const span = spanOpPunt(x, y);
   if (!span) return;
   e.preventDefault();
+  clearTimeout(_woordTimer);
+  if (e.detail === 2) {
+    _woordTimer = setTimeout(() => {
+      _woordTimer = null;
+      const bereik = woordBereik(span, x, y);
+      if (bereik) markeerBereiken([bereik]);
+    }, MEERKLIK_MS);
+    return;
+  }
+  if (e.detail !== 3) return;
   // Drawings often store a label one word per span ("ISSUED", "FOR",
   // "APPROVAL"): take in the neighbouring spans on the same line.
   const regel = regelVan(span);
@@ -219,6 +233,34 @@ function handleDoubleClick(e) {
   bereik.setStartBefore(regel[0]);
   bereik.setEndAfter(regel[regel.length - 1]);
   markeerBereiken([bereik]);
+}
+
+// The word (text between spaces) of `span` at screen point (x, y). Found by
+// measuring the characters, so it works on rotated text and when the text
+// layer is not the hit-test target.
+function woordBereik(span, x, y) {
+  const tekstNode = [...span.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.length);
+  if (!tekstNode) return null;
+  const tekst = tekstNode.data;
+  const meet = document.createRange();
+  let bij = -1, bd = Infinity;
+  for (let i = 0; i < tekst.length; i++) {
+    if (/\s/.test(tekst[i])) continue;
+    meet.setStart(tekstNode, i);
+    meet.setEnd(tekstNode, i + 1);
+    const r = meet.getBoundingClientRect();
+    if (!r.width && !r.height) continue;
+    const d = Math.hypot(x - (r.left + r.right) / 2, y - (r.top + r.bottom) / 2);
+    if (d < bd) { bd = d; bij = i; }
+  }
+  if (bij < 0) return null;
+  let a = bij, b = bij + 1;
+  while (a > 0 && !/\s/.test(tekst[a - 1])) a--;
+  while (b < tekst.length && !/\s/.test(tekst[b])) b++;
+  const bereik = document.createRange();
+  bereik.setStart(tekstNode, a);
+  bereik.setEnd(tekstNode, b);
+  return bereik;
 }
 
 // The spans that read as one label with `span`: neighbours in the text layer
