@@ -14,6 +14,58 @@ import { selectionTextDir } from './leesrichting.js';
 let _guardRestricted = [];
 // De .endOfContent-div van de tekstlaag waarin de huidige sleep begon.
 let _activeEndOfContent = null;
+// True from a left-button mousedown in a text layer until the next mouseup.
+let _selectionDragActive = false;
+// Screen point of the last left-button mousedown (text highlight drag line).
+let _dragStart = null;
+
+// Does the line (screen px) pass within `marge` px of the rectangle?
+// Sampled every 2 px, which is plenty for text boxes on screen.
+function lijnRaaktRect(l, r, marge) {
+  const dx = l.x2 - l.x1, dy = l.y2 - l.y1;
+  const stappen = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 2));
+  for (let i = 0; i <= stappen; i++) {
+    const x = l.x1 + (dx * i) / stappen, y = l.y1 + (dy * i) / stappen;
+    if (x >= r.left - marge && x <= r.right + marge && y >= r.top - marge && y <= r.bottom + marge) return true;
+  }
+  return false;
+}
+
+/**
+ * The parts of `range` that the drag line crosses, as ranges, one per run of
+ * consecutive text-layer spans (so text elsewhere on the sheet is left out).
+ * Returns null when the range covers a single span or nothing needs dropping,
+ * so the caller can use the selection as it is; [] when no span is crossed.
+ */
+function gekruisteDelen(range, lijn) {
+  const laag = findParentTextLayer(range.commonAncestorContainer)
+    || findParentTextLayer(range.startContainer);
+  if (!laag) return null;
+  const spans = [...laag.querySelectorAll('span')].filter(s =>
+    !s.querySelector('span') && s.textContent && range.intersectsNode(s));
+  if (spans.length <= 1) return null;
+  const geraakt = spans.map(s => {
+    const r = s.getBoundingClientRect();
+    return lijnRaaktRect(lijn, r, Math.max(4, Math.min(r.width, r.height) * 0.5));
+  });
+  if (geraakt.every(Boolean)) return null;
+  const delen = [];
+  let i = 0;
+  while (i < spans.length) {
+    if (!geraakt[i]) { i++; continue; }
+    let j = i;
+    while (j + 1 < spans.length && geraakt[j + 1]) j++;
+    const deel = document.createRange();
+    const eerste = spans[i], laatste = spans[j];
+    if (eerste.contains(range.startContainer)) deel.setStart(range.startContainer, range.startOffset);
+    else deel.setStartBefore(eerste);
+    if (laatste.contains(range.endContainer)) deel.setEnd(range.endContainer, range.endOffset);
+    else deel.setEndAfter(laatste);
+    if (!deel.collapsed && deel.toString().trim()) delen.push(deel);
+    i = j + 1;
+  }
+  return delen;
+}
 
 /**
  * Initializes text selection event listeners
@@ -27,6 +79,10 @@ export function initTextSelection() {
 
   // Clear selection when clicking outside text layer
   document.addEventListener('mousedown', handleMouseDown);
+
+  // Text highlight: double-click highlights a whole label. The second click
+  // (detail 2), in the capture phase, so no other handler can swallow it.
+  document.addEventListener('click', handleDoubleClick, true);
 
   // Einde van een sleep: hef de kolom-begrenzing en endOfContent weer op.
   // Document-breed zodat het ook vuurt als de muis buiten de tekstlaag loslaat.
@@ -93,11 +149,15 @@ function handleMouseDown(e) {
   // Don't clear selection if clicking on context menu
   if (e.target.closest('.context-menu')) return;
 
+  // Text highlight keeps only the text the drag line crosses; remember where
+  // it started (the canvas may take this mousedown before the text layer).
+  if (e.button === 0) _dragStart = { x: e.clientX, y: e.clientY };
+
   // Don't clear selection if clicking within text layer
   const textLayer = findParentTextLayer(e.target);
   if (textLayer) {
     // Alleen de linkermuisknop start een tekstselectie-sleep.
-    if (e.button === 0) beginSelectionDrag(textLayer, e);
+    if (e.button === 0) { _selectionDragActive = true; beginSelectionDrag(textLayer, e); }
     return;
   }
 
@@ -114,8 +174,165 @@ function handleMouseDown(e) {
 /**
  * Handles mouseup: end a selection drag and lift the temporary column guard.
  */
-function handleMouseUp() {
+function handleMouseUp(e) {
+  const wasDragging = _selectionDragActive;
+  _selectionDragActive = false;
+  const lijn = _dragStart && e ? { x1: _dragStart.x, y1: _dragStart.y, x2: e.clientX, y2: e.clientY } : null;
+  _dragStart = null;
   endSelectionDrag();
+  // Text highlight (Select tool + state.textHighlightMode): the page text
+  // selected by this drag becomes a highlight as soon as the mouse is
+  // released; the mode stays on for the next one. Checked on the selection
+  // itself, not only on where the drag started, because the select tool's
+  // canvas can take the mousedown and pass the drag on to the text layer.
+  // A double-click's own mouseup is left to handleDoubleClick, which
+  // highlights the whole label instead of the word the browser picked.
+  // A plain click (no drag) highlights nothing either.
+  const geklikt = lijn && Math.hypot(lijn.x2 - lijn.x1, lijn.y2 - lijn.y1) < 3;
+  if (state.textHighlightMode && state.currentTool === 'select' && !(e && e.detail >= 2) && !geklikt) {
+    setTimeout(async () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
+      if (!wasDragging && !findParentTextLayer(sel.anchorNode)) return;
+      // On drawings the text layer is in file order, not reading order, so a
+      // native selection can pull in labels from elsewhere on the sheet.
+      // Highlight only the runs of text the drag line actually crosses.
+      const delen = lijn ? gekruisteDelen(sel.getRangeAt(0), lijn) : null;
+      await markeerBereiken(delen ? delen : [sel.getRangeAt(0)]);
+    }, 0);
+  }
+}
+
+// Text highlight: double-click highlights the word under the pointer
+// ("150X6.0SHS"), triple-click the whole label line ("150X6.0SHS x 5730
+// LENGTH"). The double-click waits a moment so a third click can take over.
+const MEERKLIK_MS = 350;
+let _woordTimer = null;
+function handleDoubleClick(e) {
+  if (e.detail < 2 || !state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
+  // Found by position, not hit-testing: the markup canvas or a text layer
+  // with pointer-events off can be what the click lands on.
+  const x = e.clientX, y = e.clientY;
+  const span = spanOpPunt(x, y);
+  if (!span) return;
+  e.preventDefault();
+  clearTimeout(_woordTimer);
+  if (e.detail === 2) {
+    _woordTimer = setTimeout(() => {
+      _woordTimer = null;
+      const bereik = woordBereik(span, x, y);
+      if (bereik) markeerBereiken([bereik]);
+    }, MEERKLIK_MS);
+    return;
+  }
+  if (e.detail !== 3) return;
+  // Drawings often store a label one word per span ("ISSUED", "FOR",
+  // "APPROVAL"): take in the neighbouring spans on the same line.
+  const regel = regelVan(span);
+  const bereik = document.createRange();
+  bereik.setStartBefore(regel[0]);
+  bereik.setEndAfter(regel[regel.length - 1]);
+  markeerBereiken([bereik]);
+}
+
+// The word (text between spaces) of `span` at screen point (x, y). Found by
+// measuring the characters, so it works on rotated text and when the text
+// layer is not the hit-test target.
+function woordBereik(span, x, y) {
+  const tekstNode = [...span.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.length);
+  if (!tekstNode) return null;
+  const tekst = tekstNode.data;
+  const meet = document.createRange();
+  let bij = -1, bd = Infinity;
+  for (let i = 0; i < tekst.length; i++) {
+    if (/\s/.test(tekst[i])) continue;
+    meet.setStart(tekstNode, i);
+    meet.setEnd(tekstNode, i + 1);
+    const r = meet.getBoundingClientRect();
+    if (!r.width && !r.height) continue;
+    const d = Math.hypot(x - (r.left + r.right) / 2, y - (r.top + r.bottom) / 2);
+    if (d < bd) { bd = d; bij = i; }
+  }
+  if (bij < 0) return null;
+  let a = bij, b = bij + 1;
+  while (a > 0 && !/\s/.test(tekst[a - 1])) a--;
+  while (b < tekst.length && !/\s/.test(tekst[b])) b++;
+  const bereik = document.createRange();
+  bereik.setStart(tekstNode, a);
+  bereik.setEnd(tekstNode, b);
+  return bereik;
+}
+
+// The spans that read as one label with `span`: neighbours in the text layer
+// (file order) at the same angle, on the same line, with at most about one
+// letter height between them.
+function regelVan(span) {
+  const laag = span.closest('.textLayer');
+  if (!laag) return [span];
+  // Word spans only; the blank spans between words come along in the range.
+  const woorden = [...laag.querySelectorAll('span')].filter(s => !s.querySelector('span') && s.textContent.trim());
+  const i = woorden.indexOf(span);
+  if (i < 0) return [span];
+  // Geometry in the text layer's own space (before the page's view rotation):
+  // origin, reading direction from --rotate, length and letter height.
+  const maat = (s) => {
+    const t = ((parseFloat(s.style.getPropertyValue('--rotate')) || 0) * Math.PI) / 180;
+    const m = getComputedStyle(s).transform;
+    const v = m && m !== 'none' ? m.match(/-?[\d.e]+/g).map(Number) : [1, 0, 0, 1];
+    return { x: s.offsetLeft, y: s.offsetTop, t, len: s.offsetWidth * Math.hypot(v[0], v[1]), h: s.offsetHeight * Math.hypot(v[2], v[3]) };
+  };
+  const hoort = (sa, sb) => {
+    const a = maat(sa), b = maat(sb);
+    if (Math.abs(a.t - b.t) > 0.01) return false;
+    const h = Math.max(1, Math.min(a.h, b.h));
+    if (Math.abs(a.h - b.h) > h * 0.5) return false;
+    const ux = Math.cos(a.t), uy = Math.sin(a.t);
+    const dx = b.x - a.x, dy = b.y - a.y;
+    // Same line: little offset across the reading direction.
+    if (Math.abs(-dx * uy + dy * ux) > h * 0.5) return false;
+    // Close along it: at most about a letter between the two words.
+    const s = dx * ux + dy * uy;
+    const gat = s >= 0 ? s - a.len : -s - b.len;
+    return gat >= -h * 0.5 && gat <= h * 1.2;
+  };
+  let a = i, b = i;
+  while (a > 0 && hoort(woorden[a], woorden[a - 1])) a--;
+  while (b < woorden.length - 1 && hoort(woorden[b], woorden[b + 1])) b++;
+  return woorden.slice(a, b + 1);
+}
+
+// The word span at a screen point: the one whose box holds the point, the
+// nearest centre winning when boxes of rotated labels overlap.
+function spanOpPunt(x, y) {
+  let beste = null, bd = Infinity;
+  for (const s of document.querySelectorAll('.textLayer span')) {
+    if (s.querySelector('span') || !s.textContent.trim()) continue;
+    const r = s.getBoundingClientRect();
+    if (x < r.left - 2 || x > r.right + 2 || y < r.top - 2 || y > r.bottom + 2) continue;
+    const d = Math.hypot(x - (r.left + r.right) / 2, y - (r.top + r.bottom) / 2);
+    if (d < bd) { bd = d; beste = s; }
+  }
+  return beste;
+}
+
+// Turn each range into a text highlight, then leave nothing selected so the
+// mode stays ready for the next one (a selected markup would also switch
+// the ribbon to its Format tab after every line).
+async function markeerBereiken(bereiken) {
+  const sel = window.getSelection();
+  if (!sel) return;
+  if (!bereiken.length) { clearTextSelection(); return; }
+  const { createTextMarkupAnnotation } = await import('./text-markup.js');
+  for (const bereik of bereiken) {
+    sel.removeAllRanges();
+    sel.addRange(bereik);
+    createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+  }
+  clearTextSelection();
+  const { clearSelection } = await import('../core/stores/selection-helpers.js');
+  clearSelection();
+  const r = await import('../annotations/rendering.js');
+  if (getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous(); else r.redrawAnnotations();
 }
 
 /**
