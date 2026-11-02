@@ -1,11 +1,15 @@
-import { createSignal, For, Show } from 'solid-js';
+import { createSignal, For, Show, onMount } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { mergeFiles } from '../../../pdf/page-manager.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
-export default function MergePdfsDialog() {
+// data.files: paths to list at once; data.combineNew: combine them into a
+// NEW document (Explorer "Combine into one PDF", core/shell-acties.js)
+// instead of merging into the open one.
+export default function MergePdfsDialog(props) {
   const { t } = useTranslation('dialogs');
+  const combineNew = () => !!props?.data?.combineNew;
   const { t: tCommon } = useTranslation('common');
 
   const [position, setPosition] = createSignal('end');
@@ -25,8 +29,18 @@ export default function MergePdfsDialog() {
       });
 
       if (!result) return;
-      const paths = Array.isArray(result) ? result : [result];
+      await addPaths(Array.isArray(result) ? result : [result]);
+    } catch (e) {
+      console.error('Error opening file dialog:', e);
+    }
+  }
 
+  onMount(() => {
+    if (Array.isArray(props?.data?.files) && props.data.files.length) addPaths(props.data.files);
+  });
+
+  async function addPaths(paths) {
+    try {
       const newFiles = [...fileList()];
       for (const filePath of paths) {
         if (newFiles.some(f => f.path === filePath)) continue;
@@ -86,7 +100,7 @@ export default function MergePdfsDialog() {
     setSelectedIndex(idx + 1);
   }
 
-  function handleMerge() {
+  async function handleMerge() {
     if (fileList().length === 0) {
       showMessage(t('mergePdfs.addAtLeastOne'));
       return;
@@ -94,6 +108,13 @@ export default function MergePdfsDialog() {
     const paths = fileList().map(f => f.path);
     const pos = position();
     close();
+    if (combineNew()) {
+      // A new untitled document from the first file, then the rest after it.
+      const { createDocFromTemplate } = await import('../../../pdf/loader.js');
+      await createDocFromTemplate(paths[0]);
+      if (paths.length > 1) await mergeFiles(paths.slice(1), 'end');
+      return;
+    }
     mergeFiles(paths, pos);
   }
 
@@ -107,7 +128,7 @@ export default function MergePdfsDialog() {
     <>
       <div class="merge-pdfs-file-count">{fileCountText()}</div>
       <div class="merge-pdfs-footer-right">
-        <button class="pref-btn pref-btn-primary" onClick={handleMerge}>{tCommon('merge')}</button>
+        <button class="pref-btn pref-btn-primary" onClick={handleMerge}>{combineNew() ? t('mergePdfs.combineButton') : tCommon('merge')}</button>
         <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
       </div>
     </>
@@ -115,7 +136,7 @@ export default function MergePdfsDialog() {
 
   return (
     <Dialog
-      title={t('mergePdfs.title')}
+      title={combineNew() ? t('mergePdfs.combineTitle') : t('mergePdfs.title')}
       overlayClass="merge-pdfs-overlay"
       dialogClass="merge-pdfs-dialog"
       headerClass="merge-pdfs-header"
@@ -125,6 +146,7 @@ export default function MergePdfsDialog() {
       footer={footer}
     >
       <div class="merge-pdfs-form">
+        <Show when={!combineNew()}>
         <div class="merge-pdfs-row">
           <label class="merge-pdfs-label">{t('mergePdfs.insertAt')}</label>
           <select
@@ -137,6 +159,7 @@ export default function MergePdfsDialog() {
             <option value="start">{t('mergePdfs.beginningOfDocument')}</option>
           </select>
         </div>
+        </Show>
         <div class="merge-pdfs-file-section">
           <div class="merge-pdfs-file-toolbar">
             <span class="merge-pdfs-file-toolbar-label">{t('mergePdfs.filesToMerge')}</span>

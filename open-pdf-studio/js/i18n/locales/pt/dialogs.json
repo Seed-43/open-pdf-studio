@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Mesclar PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Inserir em:",
     "endOfDocument": "Final do documento",
     "afterCurrentPage": "Após a página atual",

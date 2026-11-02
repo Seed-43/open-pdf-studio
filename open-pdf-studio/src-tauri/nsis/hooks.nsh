@@ -138,6 +138,47 @@ Var VPrinterState
   SetRegView lastused
 !macroend
 
+; ============================================================
+; File Explorer right-click: "Combine into one PDF" on PDFs and "Convert to
+; PDF" on images and CAD drawings (the app: js/core/shell-acties.js). Classic
+; verbs under SystemFileAssociations, so they work beside any default PDF
+; app; on Windows 11 they are under "Show more options". Written on every
+; install (also silent and update runs), removed on uninstall.
+; ============================================================
+!define OPDS_SHELL_SFA "Software\Classes\SystemFileAssociations"
+
+!macro OPDS_SHELL_VERB _EXT _KEY _LABEL _FLAG
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "" "${_LABEL}"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "MUIVerb" "${_LABEL}"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "Icon" "$INSTDIR\${MAINBINARYNAME}.exe,0"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" ${_FLAG} $\"%1$\""
+!macroend
+
+!macro OPDS_SHELL_VERBS_WRITE
+  DetailPrint "Adding Combine / Convert to PDF to the File Explorer menu..."
+  !insertmacro OPDS_SHELL_VERB ".pdf" "OpenPDFStudio.Combine" "Combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".jpg" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".jpeg" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".png" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".bmp" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".gif" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".webp" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".dwg" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".dxf" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+!macroend
+
+!macro OPDS_SHELL_VERBS_REMOVE
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.pdf\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.jpg\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.jpeg\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.png\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.bmp\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.gif\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.webp\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.dwg\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.dxf\shell\OpenPDFStudio.ConvertToPdf"
+!macroend
+
 !macro NSIS_HOOK_PREINSTALL
   !insertmacro OPDS_THUMB_MOVE_ASIDE
 !macroend
@@ -152,6 +193,10 @@ Var VPrinterState
 ; Post-install: apply file association, shortcut, and virtual printer
 ; ============================================================
 !macro NSIS_HOOK_POSTINSTALL
+
+  ; --- File Explorer right-click: Combine / Convert to PDF ---
+  !insertmacro OPDS_SHELL_VERBS_WRITE
+  System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
 
   ; --- PDF file association ---
   ${If} $AssocPDFState == ${BST_CHECKED}
@@ -214,6 +259,7 @@ Var VPrinterState
     DeleteRegValue SHCTX "Software\Classes\.pdf" ""
   ${EndIf}
   DeleteRegKey SHCTX "Software\Classes\OpenPDFStudio.pdf"
+  !insertmacro OPDS_SHELL_VERBS_REMOVE
   Delete "$INSTDIR\file-icon.ico"
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
 

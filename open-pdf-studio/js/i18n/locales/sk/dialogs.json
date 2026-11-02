@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Zlúčiť PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Vložiť na:",
     "endOfDocument": "Koniec dokumentu",
     "afterCurrentPage": "Za aktuálnu stranu",

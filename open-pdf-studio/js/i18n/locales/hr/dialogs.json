@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Spoji PDF-ove",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Umetni na:",
     "endOfDocument": "Kraj dokumenta",
     "afterCurrentPage": "Nakon trenutne stranice",

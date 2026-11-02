@@ -109,6 +109,8 @@ import { startHostBrug } from './core/host-brug-start.js';
 import { installeerWorkerShim } from './core/blob-worker.js';
 import { installeerWerkmapDialogen } from './core/openaec-omgeving.js';
 import { sneltoetsActief } from './core/keybindings/app-shortcuts.js';
+// Explorer right-click Combine / Convert to PDF: listens from the start.
+import { startShellActies } from './core/shell-acties.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -405,6 +407,7 @@ async function init() {
   }
   pendingOpenFiles = [];
   appReady = true;
+  startShellActies().catch(e => console.warn('[shell-action] failed:', e));
 
   // Als gast in de OpenAEC-site: het document dat de site meegeeft openen
   // via het opslagcontract van de site (#546). Zonder contract gebeurt niets.

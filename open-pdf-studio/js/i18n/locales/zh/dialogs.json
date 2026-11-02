@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "合并 PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "插入位置：",
     "endOfDocument": "文档末尾",
     "afterCurrentPage": "当前页面之后",

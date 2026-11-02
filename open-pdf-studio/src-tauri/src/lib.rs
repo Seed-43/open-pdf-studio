@@ -87,6 +87,40 @@ use tauri_plugin_fs::FsExt;
 // Store the file paths passed via command line
 struct OpenedFiles(Mutex<Vec<String>>);
 
+// Explorer right-click actions (installer hooks.nsh): "--combine <pdf>" and
+// "--convert-to-pdf <file>". The frontend collects the files of one
+// multi-select (Explorer starts the app once per file) and combines or
+// converts them; see js/core/shell-acties.js.
+struct ShellAction(Mutex<Vec<ShellActie>>);
+
+#[derive(Clone, serde::Serialize)]
+struct ShellActie {
+    mode: String,
+    files: Vec<String>,
+}
+
+fn shell_actie_uit_args(args: &[String]) -> Option<ShellActie> {
+    let mode = if args.iter().any(|a| a == "--combine") {
+        "combine"
+    } else if args.iter().any(|a| a == "--convert-to-pdf") {
+        "convert"
+    } else {
+        return None;
+    };
+    let files: Vec<String> = args.iter().skip(1)
+        .filter(|a| !a.starts_with('-') && !a.contains("://"))
+        .cloned()
+        .collect();
+    if files.is_empty() { return None; }
+    Some(ShellActie { mode: mode.to_string(), files })
+}
+
+/// The right-click action this instance was started with (taken once).
+#[tauri::command]
+fn get_shell_action(state: tauri::State<ShellAction>) -> Vec<ShellActie> {
+    std::mem::take(&mut *state.0.lock().unwrap())
+}
+
 // Store locked file handles to prevent other apps from writing
 struct LockedFiles(Mutex<HashMap<String, File>>);
 
@@ -2925,11 +2959,16 @@ pub fn run(opts: StartupOpts) {
         openaec_omgeving::huidige(),
         &openaec_omgeving::Waarneming::van_systeem(),
     );
-    let opened_files: Vec<String> = args.iter()
+    // A right-click action (Combine / Convert to PDF) is not an "open".
+    let start_shell_actie = shell_actie_uit_args(&args).map(|mut a| {
+        a.files = a.files.iter().map(|f| openaec_omgeving::absoluut_argument(f, startmap.as_deref())).collect();
+        a
+    });
+    let opened_files: Vec<String> = if start_shell_actie.is_some() { Vec::new() } else { args.iter()
         .skip(1)
         .filter_map(|arg| pdf_uit_argument(arg))
         .map(|pad| openaec_omgeving::absoluut_argument(&pad, startmap.as_deref()))
-        .collect();
+        .collect() };
     if !opened_files.is_empty() {
         eprintln!("[startup] command-line files: {opened_files:?}");
     }
@@ -2989,6 +3028,7 @@ pub fn run(opts: StartupOpts) {
 
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
+        .manage(ShellAction(Mutex::new(start_shell_actie.into_iter().collect())))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
         .manage(spraak::SpraakProces::default())
         .manage(beveiligde_pdf::BeveiligdeKopieen::default())
@@ -3060,6 +3100,14 @@ pub fn run(opts: StartupOpts) {
                     } else if let Some(window) = app.get_webview_window("main") {
                         let _ = window.unminimize();
                         let _ = window.set_focus();
+                    }
+                    // A right-click action from another Explorer launch.
+                    if let Some(actie) = shell_actie_uit_args(&argv) {
+                        for path in &actie.files {
+                            let _ = app.fs_scope().allow_file(path);
+                        }
+                        let _ = app.emit("shell-action", &actie);
+                        return;
                     }
                     let files: Vec<String> = argv.iter()
                         .filter_map(|arg| pdf_uit_argument(arg))
@@ -3209,6 +3257,11 @@ pub fn run(opts: StartupOpts) {
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
                 let _ = app.fs_scope().allow_file(path);
             }
+            for actie in app.state::<ShellAction>().0.lock().unwrap().iter() {
+                for path in &actie.files {
+                    let _ = app.fs_scope().allow_file(path);
+                }
+            }
 
             // Set the window icon (desktop only — not applicable on Android)
             #[cfg(not(target_os = "android"))]
@@ -3342,6 +3395,7 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            get_shell_action,
             save_session,
             load_session,
             get_username,

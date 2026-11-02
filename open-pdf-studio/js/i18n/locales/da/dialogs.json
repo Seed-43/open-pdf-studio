@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Flet PDF-filer",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Indsæt ved:",
     "endOfDocument": "Slutningen af dokumentet",
     "afterCurrentPage": "Efter aktuel side",

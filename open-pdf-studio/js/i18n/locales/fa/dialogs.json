@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "ادغام فایل‌های PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "درج در:",
     "endOfDocument": "انتهای سند",
     "afterCurrentPage": "بعد از صفحه فعلی",

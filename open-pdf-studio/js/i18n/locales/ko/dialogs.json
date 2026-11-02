@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "PDF 병합",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "삽입 위치:",
     "endOfDocument": "문서 끝",
     "afterCurrentPage": "현재 페이지 뒤",

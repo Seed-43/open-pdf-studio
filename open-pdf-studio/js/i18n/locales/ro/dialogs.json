@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Imbinare PDF-uri",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Inserare la:",
     "endOfDocument": "Sfarsitul documentului",
     "afterCurrentPage": "Dupa pagina curenta",
