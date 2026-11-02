@@ -284,7 +284,7 @@ function ToolList() {
           <>
             {showSep && <div class="tp-sep" />}
             <ToolBtn tool={item.tool} title={t(item.key)} icon={item.icon}
-              areaTitle={t('comment.areaHighlight')} textTitle={t('comment.textHighlight')}
+              areaTitle={t('comment.areaHighlight')} textTitle={`${t('comment.textHighlight')}\n${t('comment.textHighlightTitle')}`}
               switchTip={t('comment.highlightSwitchTip')} />
           </>
         );
