@@ -14,6 +14,7 @@ import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { annotationBounds } from './spatial-index.js';
 import { applyMoveGeneric } from './transforms.js';
+import { addToClipboardHistory } from './clipboard-history.js';
 
 // ── Paste at the mouse cursor ────────────────────────────────────────────
 // Ctrl+V puts what is pasted centred on the mouse when the mouse is over a
@@ -68,6 +69,7 @@ export function copyAnnotation(annotation) {
   state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
+  addToClipboardHistory([annotation]);
   // Reset the paste cascade so the first paste lands one step from the source
   // and each subsequent paste steps a further step (instead of every paste
   // stacking on the exact same spot, which made repeated Ctrl+V look like it
@@ -341,6 +343,7 @@ export function copyAnnotations(annotations) {
   if (!annotations || annotations.length === 0) return;
   state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
   state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat
+  addToClipboardHistory(annotations);
   state._pasteSeq = 0; // reset paste cascade (see copyAnnotation)
   updateStatusMessage(`${annotations.length} annotations copied`);
 }

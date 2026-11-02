@@ -251,6 +251,52 @@
   border-color: var(--theme-ribbon-btn-active-border);
 }
 
+/* --- Clipboard section: session copies, click one then Ctrl+V --- */
+.sp-clip { flex-shrink: 0; border-bottom: 1px solid var(--theme-border); }
+.sp-clip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.sp-clip-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--theme-border);
+  border-radius: 3px;
+  cursor: pointer;
+  background: #fff;
+}
+.sp-clip-item:hover { border-color: var(--theme-ribbon-btn-hover-border); }
+.sp-clip-item.active {
+  border-color: var(--theme-ribbon-btn-active-border);
+  box-shadow: inset 0 0 0 1px var(--theme-ribbon-btn-active-border);
+}
+.sp-clip-thumb { width: 100%; height: 48px; object-fit: contain; display: block; }
+.sp-clip-nothumb {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #555; overflow: hidden;
+}
+.sp-clip-label {
+  font-size: 9px; line-height: 1.2; color: #444;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sp-clip-remove {
+  position: absolute; top: 1px; right: 1px;
+  width: 14px; height: 14px; padding: 0;
+  display: none; align-items: center; justify-content: center;
+  border: none; border-radius: 2px;
+  background: rgba(0, 0, 0, 0.55); color: #fff; cursor: pointer;
+}
+.sp-clip-item:hover .sp-clip-remove { display: flex; }
+.sp-clip-empty { padding: 8px; }
+
 /* --- Empty state --- */
 .sp-empty {
   padding: 16px 8px;
