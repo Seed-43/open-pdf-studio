@@ -111,7 +111,7 @@
     "drawing": "Tekening",
     "highlight": "Markeren",
     "textHighlight": "Tekst markeren",
-    "textHighlightTitle": "Sleep over tekst om die te markeren",
+    "textHighlightTitle": "Sleep over tekst om die te markeren. Dubbelklik: één woord. Driemaal klikken: het hele label.",
     "areaHighlight": "Gebied markeren",
     "areaHighlightTitle": "Trek een vak om te markeren",
     "highlightMode": "Markeren: gebied of tekst",

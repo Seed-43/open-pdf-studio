@@ -111,7 +111,7 @@
     "drawing": "आरेखण",
     "highlight": "हाइलाइट",
     "textHighlight": "Text highlight",
-    "textHighlightTitle": "Drag across text to highlight it",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
     "areaHighlight": "Area highlight",
     "areaHighlightTitle": "Draw a box to highlight an area",
     "highlightMode": "Highlight: area or text",
