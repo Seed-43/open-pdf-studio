@@ -89,7 +89,12 @@ export function buildTextMarkupDict(context, ann, map, { opacity, pageRot = 0, r
   const rects = Array.isArray(ann.rects) && ann.rects.length > 0
     ? ann.rects : [{ x: ann.x, y: ann.y, width: ann.width, height: ann.height }];
   const textDir = ann.textDir ?? 0;
-  const berekend = buildStrikeQuads(rects, textDir, map);
+  // Text at an angle: its own turned quads (begin-top, end-top, begin-bottom,
+  // end-bottom in app page space), so other readers follow the text too.
+  const schuin = Array.isArray(ann.quads) && ann.quads.length > 0 && ann.quads.every(q => Array.isArray(q) && q.length === 4);
+  const berekend = schuin
+    ? ann.quads.map(q => q.map(p => { const u = map(p.x, p.y); return { x: Math.round(u.x * 1000) / 1000, y: Math.round(u.y * 1000) / 1000 }; }))
+    : buildStrikeQuads(rects, textDir, map);
   const bron = neemBron(bronnen, markupSubtype, berekend);
   const quads = bron
     ? berekend.map((q, i) => (houdBronQuad(bron[i], q) ? alsPunten(bron[i]) : q))

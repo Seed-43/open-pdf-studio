@@ -263,6 +263,18 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
+      // The highlight's own /QuadPoints: pdf.js hands them over as level boxes,
+      // which loses the angle of a highlight on text at an angle.
+      if (subtypeName === '/Highlight') {
+        const qpRaw = annotDict.get(PDFName.of('QuadPoints'));
+        const qp = qpRaw ? context.lookup(qpRaw) || qpRaw : null;
+        if (qp && typeof qp.size === 'function' && qp.size() >= 8) {
+          const getallen = [];
+          for (let k = 0; k < qp.size(); k++) getallen.push(pdfNum(context.lookup(qp.get(k)) || qp.get(k)));
+          if (getallen.every(n => typeof n === 'number' && Number.isFinite(n))) colors.rawQuadPoints = getallen;
+        }
+      }
+
       // Doorzichtigheid uit de graphics-state van de appearance-stream — zie
       // extractApAlphas(). Geldt voor ALLE annotatiesoorten. De annotatie-dict
       // /CA hierboven wint: die is expliciet voor deze annotatie gezet.

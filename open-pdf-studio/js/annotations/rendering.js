@@ -1566,7 +1566,20 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // alpha gives the cleanest multiply result.
       ctx.fillStyle = fillColor;
       ctx.globalAlpha = 1;
-      if (annotation.rects && annotation.rects.length > 0) {
+      if (Array.isArray(annotation.quads) && annotation.quads.length > 0) {
+        // Text at an angle: turned quads [begin-top, end-top, begin-bottom,
+        // end-bottom] that follow the text.
+        for (const q of annotation.quads) {
+          if (!Array.isArray(q) || q.length < 4) continue;
+          ctx.beginPath();
+          ctx.moveTo(q[0].x, q[0].y);
+          ctx.lineTo(q[1].x, q[1].y);
+          ctx.lineTo(q[3].x, q[3].y);
+          ctx.lineTo(q[2].x, q[2].y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (annotation.rects && annotation.rects.length > 0) {
         annotation.rects.forEach(rect => {
           ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
         });

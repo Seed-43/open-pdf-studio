@@ -216,6 +216,27 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         }
       }
 
+      // Quads at an angle (text that is not level or vertical) keep their
+      // shape, so the highlight follows the text as it was saved.
+      // pdf.js gives level boxes, so the file's own /QuadPoints are read
+      // through color-extraction.js (rawQuadPoints).
+      let quads;
+      const qpBron = Array.isArray(extraColors.rawQuadPoints) ? extraColors.rawQuadPoints : null;
+      if (qpBron && qpBron.length >= 8) {
+        const q = [];
+        let schuin = false;
+        for (let i = 0; i + 7 < qpBron.length; i += 8) {
+          const pts = [0, 2, 4, 6].map(k => {
+            const [x, y] = convertPoint(qpBron[i + k], qpBron[i + k + 1]);
+            return { x, y };
+          });
+          const hoek = Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x) * 180 / Math.PI;
+          if (Math.abs(((hoek % 90) + 90) % 90 - 45) < 44) schuin = true;
+          q.push(pts);
+        }
+        if (schuin) quads = q;
+      }
+
       // Calculate overall bounding box
       let minX, maxX, minY, maxY;
       if (rects.length > 0) {
@@ -239,6 +260,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         width: maxX - minX,
         height: maxY - minY,
         rects: rects.length > 0 ? rects : undefined,
+        ...(quads && markupType === 'textHighlight' ? { quads } : {}),
         color: colorArrayToHex(annot.color, '#FFFF00'),
         fillColor: colorArrayToHex(annot.color, '#FFFF00'),
         // Proefleescorrecties (#508): /IT, /NM, /Subj, gemarkeerde tekst en
