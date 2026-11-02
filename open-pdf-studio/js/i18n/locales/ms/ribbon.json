@@ -169,7 +169,9 @@
     "flattenAll": "Ratakan semua",
     "flattenAllTooltip": "Ratakan semua penanda ke dalam kandungan halaman",
     "unflattenAll": "Buat asal perataan",
-    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan"
+    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan",
+    "fileAttachment": "Lampirkan fail",
+    "fileAttachmentTitle": "Lampiran fail: klik pada halaman dan pilih fail"
   },
   "view": {
     "pageDisplay": "Paparan Halaman",
@@ -198,6 +200,7 @@
     "thinLines": "Garisan Nipis",
     "compareGroup": "Banding",
     "fullscreen": "Skrin Penuh",
+    "fullscreenUnavailable": "Skrin penuh tidak tersedia di sini: pelayar atau halaman yang memaparkan aplikasi menolaknya. Gunakan pilihan skrin penuh dalam menu pelayar anda.",
     "window": "Tetingkap",
     "display": "Paparan",
     "keystrokes": "Ketukan kekunci",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Putar Paparan ke Kiri",
     "rotateViewRight": "Putar Paparan ke Kanan",
     "rotateViewLeftTitle": "Memutar paparan 90° lawan arah jam. Dokumen itu sendiri tidak berubah.",
-    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah."
+    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah.",
+    "splitGroup": "Pisah",
+    "split": "Pisah",
+    "splitTitle": "Pisahkan paparan kepada dua anak tetingkap bagi dokumen yang sama",
+    "splitOptions": "Pilihan pisah",
+    "splitVertical": "Pisah Menegak",
+    "splitHorizontal": "Pisah Mendatar",
+    "unsplit": "Nyahpisah",
+    "splitSync": "Segerak",
+    "splitSyncTitle": "Tatal dan zum kedua-dua anak tetingkap bersama",
+    "splitDividerTitle": "Seret untuk mengubah saiz anak tetingkap. Dwiklik untuk kembali ke 50/50.",
+    "accessibilityGroup": "Kebolehcapaian",
+    "readAloud": "Baca dengan kuat",
+    "readAloudPause": "Jeda",
+    "readAloudTitle": "Baca pilihan, atau dokumen dari halaman semasa, dengan kuat",
+    "tagsPanel": "Tag",
+    "tagsPanelTitle": "Tunjukkan tag struktur dokumen",
+    "accessibilityCheck": "Semak",
+    "accessibilityCheckTitle": "Cari teks alternatif yang tiada dan kandungan tanpa tag"
   },
   "elementVisibility": {
     "buttonTitle": "Keterlihatan Elemen — tunjuk/sembunyi dan malapkan jenis anotasi",
@@ -328,7 +349,9 @@
     "scanText": "Sunting Teks Imbasan",
     "scanTextHint": "Klik perkataan yang dikenal pasti untuk menggantikannya. Perkataan lama dalam imbasan akan ditutup.",
     "scanTextNone": "Tiada teks yang dikenal pasti pada halaman ini. Jalankan Pengecaman Teks (OCR) dahulu.",
-    "shiftPage": "Alih halaman"
+    "shiftPage": "Alih halaman",
+    "editPages": "Edit Halaman",
+    "editPagesTitle": "Edit halaman secara visual: susun semula, putar, sisip, padam, ekstrak dan pisah"
   },
   "help": {
     "settings": "Tetapan",
@@ -348,6 +371,7 @@
     "updates": "Kemas Kini",
     "checkForUpdates": "Semak Kemas Kini",
     "updatesLabel": "Kemas Kini",
+    "updatesManaged": "Kemas kini untuk pemasangan ini diurus secara berpusat.",
     "startupDiagnosticsTitle": "Tunjukkan fail diagnostik permulaan yang selamat privasi",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Perkaitan Fail",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Tampal kawasan yang dipotong di sini, dengan mengekalkan data vektor",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Saiz simbol baharu diletakkan",
-    "symbolScaleCustom": "Skala tersuai"
+    "symbolScaleCustom": "Skala tersuai",
+    "count": "Kira",
+    "arc": "Lengkok"
   },
   "proofread": {
     "group": "Pembacaan Pruf",
@@ -678,6 +704,7 @@
     "saveNote": "Nota dan penanda lain tanpa rupa pada halaman kekal sebagai penanda. Fail hanya berubah apabila anda menyimpan; sehingga itu Buat asal membatalkan langkah ini.",
     "ok": "Ratakan",
     "busy": "Meratakan penanda...",
+    "cancelled": "Pemerataan dibatalkan. Dokumen tidak diubah.",
     "nothing": "Dokumen ini tiada penanda untuk diratakan.",
     "nothingBaked": "Tiada penanda yang mempunyai rupa pada halaman, jadi tiada apa yang diratakan.",
     "notLoaded": "Penanda dokumen ini masih dimuatkan. Cuba lagi sebentar nanti.",
@@ -691,5 +718,60 @@
     "noRecovery": "Penanda dalam dokumen ini diratakan tanpa membenarkan pemulihan. Ia sebahagian daripada kandungan halaman dan tidak boleh dipulihkan.",
     "done": "Penanda dipulihkan: {{count}}.",
     "failed": "Pemulihan gagal: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Ikon kecil",
+    "largeIcons": "Ikon besar",
+    "settings": "Tetapan"
+  },
+  "symbolPalette": {
+    "search": "Cari simbol...",
+    "noResults": "Tiada simbol ditemui",
+    "drawingSettings": "Tetapan lukisan",
+    "manageSystemTypes": "Urus jenis sistem",
+    "settingsTitle": "Tetapan pustaka simbol",
+    "industry": "Industri",
+    "country": "Negara",
+    "libraryLoading": "Memuatkan pustaka dalam talian…",
+    "libraryOffline": "Pustaka dalam talian tidak dapat dicapai — senarai negara terhad",
+    "downloading": "Memuat turun {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Koleksi tersedia dalam talian: {{n}} ({{symbols}} simbol)",
+    "activateDownloaded": "Koleksi dimuat turun untuk diaktifkan bagi negara ini: {{n}}",
+    "download": "Muat turun",
+    "downloadFailed": "Muat turun gagal: {{error}}",
+    "builtIn": "Terbina dalam",
+    "online": "Dalam talian",
+    "addSymbol": "+ Tambah simbol",
+    "export": "Eksport",
+    "remove": "Alih keluar",
+    "noSymbolsYet": "Belum ada simbol",
+    "newGroupName": "Nama kumpulan baharu...",
+    "addGroup": "Tambah kumpulan",
+    "importGroup": "Import kumpulan",
+    "catalogLoaded": "Katalog '{{id}}' dimuatkan: {{families}} keluarga, {{sizes}} saiz",
+    "catalogNoPreview": "{{n}} tanpa pratonton dalam fail",
+    "fileNotRecognized": "Fail tidak dikenali: bukan kumpulan simbol dan bukan katalog",
+    "importFailed": "Import gagal: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Pembinaan",
+      "nl-elektra": "NL Elektrik",
+      "nl-bouwplaats": "NL Tapak bina",
+      "nl-sanitair": "NL Sanitari",
+      "nl-keuken": "NL Dapur",
+      "nen1414-tb": "NL NEN 1414 — Perlindungan kebakaran",
+      "nen1414-tbk": "NL NEN 1414 — Sistem pemadam",
+      "nen1414-td": "NL NEN 1414 — Pintu",
+      "nen1414-tn": "NL NEN 1414 — Lampu kecemasan",
+      "nen1414-tr": "NL NEN 1414 — Pengeluaran asap/haba",
+      "nen1414-tv": "NL NEN 1414 — Pengudaraan",
+      "nen1414-tw": "NL NEN 1414 — Air/Pemercik"
+    },
+    "sectors": {
+      "aec": "AEC (Pembinaan)",
+      "electrical": "Kejuruteraan elektrik",
+      "process": "Proses / P&ID",
+      "mep": "Perkhidmatan bangunan (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

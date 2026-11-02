@@ -169,7 +169,9 @@
     "flattenAll": "Aplatizare totală",
     "flattenAllTooltip": "Aplatizează toate marcajele în conținutul paginii",
     "unflattenAll": "Anulare aplatizare",
-    "unflattenAllTooltip": "Restaurează marcajele aplatizate cu restaurarea permisă"
+    "unflattenAllTooltip": "Restaurează marcajele aplatizate cu restaurarea permisă",
+    "fileAttachment": "Atașează fișier",
+    "fileAttachmentTitle": "Atașament: faceți clic pe pagină și alegeți un fișier"
   },
   "view": {
     "pageDisplay": "Afisare pagina",
@@ -198,6 +200,7 @@
     "thinLines": "Linii subțiri",
     "compareGroup": "Comparare",
     "fullscreen": "Ecran complet",
+    "fullscreenUnavailable": "Ecranul complet nu este disponibil aici: browserul sau pagina care afișează aplicația l-a refuzat. Folosiți în schimb opțiunea de ecran complet din meniul browserului.",
     "window": "Fereastră",
     "display": "Afișare",
     "keystrokes": "Taste apăsate",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Rotire vizualizare la stânga",
     "rotateViewRight": "Rotire vizualizare la dreapta",
     "rotateViewLeftTitle": "Rotește vizualizarea cu 90° în sens invers acelor de ceasornic. Documentul în sine nu se modifică.",
-    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică."
+    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică.",
+    "splitGroup": "Împarte",
+    "split": "Împarte",
+    "splitTitle": "Împarte vizualizarea în două panouri cu același document",
+    "splitOptions": "Opțiuni de împărțire",
+    "splitVertical": "Împarte vertical",
+    "splitHorizontal": "Împarte orizontal",
+    "unsplit": "Anulează împărțirea",
+    "splitSync": "Sincronizează",
+    "splitSyncTitle": "Derulează și mărește ambele panouri împreună",
+    "splitDividerTitle": "Trageți pentru a redimensiona panourile. Dublu clic pentru a reveni la 50/50.",
+    "accessibilityGroup": "Accesibilitate",
+    "readAloud": "Citire cu voce tare",
+    "readAloudPause": "Pauză",
+    "readAloudTitle": "Citește cu voce tare selecția sau documentul de la pagina curentă",
+    "tagsPanel": "Etichete",
+    "tagsPanelTitle": "Afișează etichetele de structură ale documentului",
+    "accessibilityCheck": "Verificare",
+    "accessibilityCheckTitle": "Caută text alternativ lipsă și conținut fără etichete"
   },
   "elementVisibility": {
     "buttonTitle": "Vizibilitatea elementelor — afișare/ascundere și estompare tipuri de adnotări",
@@ -328,7 +349,9 @@
     "scanText": "Editare text scanat",
     "scanTextHint": "Faceți clic pe un cuvânt recunoscut pentru a-l înlocui. Cuvântul vechi din scanare este acoperit.",
     "scanTextNone": "Nu există text recunoscut pe această pagină. Rulați mai întâi Recunoaștere text (OCR).",
-    "shiftPage": "Deplasează pagina"
+    "shiftPage": "Deplasează pagina",
+    "editPages": "Editare pagini",
+    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
   },
   "help": {
     "settings": "Setări",
@@ -348,6 +371,7 @@
     "updates": "Actualizari",
     "checkForUpdates": "Verificare actualizari",
     "updatesLabel": "Actualizari",
+    "updatesManaged": "Actualizările acestei instalări sunt gestionate central.",
     "startupDiagnosticsTitle": "Afișează fișierul de diagnosticare la pornire (sigur pentru confidențialitate)",
     "startupDiagnostics": "Diagnosticare",
     "fileAssociation": "Asociere fisiere",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Lipiți aici zona decupată, păstrând datele vectoriale",
     "symbolScale": "Scară",
     "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
-    "symbolScaleCustom": "Scară personalizată"
+    "symbolScaleCustom": "Scară personalizată",
+    "count": "Numărare",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Corectură",
@@ -678,6 +704,7 @@
     "saveNote": "Notele și alte marcaje fără aspect pe pagină rămân marcaje. Fișierul se modifică doar la salvare; până atunci, Anulare revine asupra acestui pas.",
     "ok": "Aplatizează",
     "busy": "Se aplatizează marcajele...",
+    "cancelled": "Aplatizare anulată. Documentul nu a fost modificat.",
     "nothing": "Acest document nu are marcaje de aplatizat.",
     "nothingBaked": "Niciun marcaj nu are aspect pe pagină, așa că nu s-a aplatizat nimic.",
     "notLoaded": "Marcajele acestui document încă se încarcă. Încercați din nou peste câteva momente.",
@@ -691,5 +718,60 @@
     "noRecovery": "Marcajele din acest document au fost aplatizate fără a permite restaurarea. Fac parte din conținutul paginii și nu pot fi restaurate.",
     "done": "Marcaje restaurate: {{count}}.",
     "failed": "Restaurarea a eșuat: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Pictograme mici",
+    "largeIcons": "Pictograme mari",
+    "settings": "Setări"
+  },
+  "symbolPalette": {
+    "search": "Căutare simboluri...",
+    "noResults": "Nu s-au găsit simboluri",
+    "drawingSettings": "Setări desen",
+    "manageSystemTypes": "Gestionare tipuri de sistem",
+    "settingsTitle": "Setări bibliotecă de simboluri",
+    "industry": "Domeniu",
+    "country": "Țară",
+    "libraryLoading": "Se încarcă biblioteca online…",
+    "libraryOffline": "Biblioteca online nu poate fi accesată — listă de țări limitată",
+    "downloading": "Se descarcă {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Colecții disponibile online: {{n}} ({{symbols}} simboluri)",
+    "activateDownloaded": "Colecții descărcate de activat pentru această țară: {{n}}",
+    "download": "Descărcare",
+    "downloadFailed": "Descărcarea a eșuat: {{error}}",
+    "builtIn": "Încorporat",
+    "online": "Online",
+    "addSymbol": "+ Adăugare simbol",
+    "export": "Export",
+    "remove": "Eliminare",
+    "noSymbolsYet": "Încă nu există simboluri",
+    "newGroupName": "Numele grupului nou...",
+    "addGroup": "Adăugare grup",
+    "importGroup": "Importare grup",
+    "catalogLoaded": "Catalogul '{{id}}' a fost încărcat: {{families}} familii, {{sizes}} dimensiuni",
+    "catalogNoPreview": "{{n}} fără previzualizare în fișier",
+    "fileNotRecognized": "Fișier nerecunoscut: nu este nici grup de simboluri, nici catalog",
+    "importFailed": "Importul a eșuat: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcții",
+      "nl-elektra": "NL Electric",
+      "nl-bouwplaats": "NL Șantier",
+      "nl-sanitair": "NL Sanitare",
+      "nl-keuken": "NL Bucătărie",
+      "nen1414-tb": "NL NEN 1414 — Protecție la incendiu",
+      "nen1414-tbk": "NL NEN 1414 — Sisteme de stingere",
+      "nen1414-td": "NL NEN 1414 — Uși",
+      "nen1414-tn": "NL NEN 1414 — Iluminat de siguranță",
+      "nen1414-tr": "NL NEN 1414 — Evacuare fum/căldură",
+      "nen1414-tv": "NL NEN 1414 — Ventilație",
+      "nen1414-tw": "NL NEN 1414 — Apă/Sprinklere"
+    },
+    "sectors": {
+      "aec": "AEC (Construcții)",
+      "electrical": "Electrotehnică",
+      "process": "Procese / P&ID",
+      "mep": "Instalații pentru construcții (MEP)",
+      "infra": "Infrastructură"
+    }
   }
 }

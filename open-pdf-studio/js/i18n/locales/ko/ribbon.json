@@ -169,7 +169,9 @@
     "flattenAll": "모두 병합",
     "flattenAllTooltip": "모든 마크업을 페이지 내용으로 병합",
     "unflattenAll": "병합 취소",
-    "unflattenAllTooltip": "복원을 허용하고 병합한 마크업 복원"
+    "unflattenAllTooltip": "복원을 허용하고 병합한 마크업 복원",
+    "fileAttachment": "파일 첨부",
+    "fileAttachmentTitle": "파일 첨부: 페이지를 클릭하고 파일을 선택하세요"
   },
   "view": {
     "pageDisplay": "페이지 표시",
@@ -198,6 +200,7 @@
     "thinLines": "가는 선",
     "compareGroup": "비교",
     "fullscreen": "전체 화면",
+    "fullscreenUnavailable": "여기서는 전체 화면을 사용할 수 없습니다. 브라우저 또는 앱을 표시하는 페이지가 요청을 거부했습니다. 대신 브라우저 메뉴의 전체 화면 옵션을 사용하세요.",
     "window": "창",
     "display": "표시",
     "keystrokes": "키 입력 표시",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "보기 왼쪽으로 회전",
     "rotateViewRight": "보기 오른쪽으로 회전",
     "rotateViewLeftTitle": "보기를 시계 반대 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
-    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다."
+    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
+    "splitGroup": "분할",
+    "split": "분할",
+    "splitTitle": "같은 문서의 보기를 두 개의 창으로 분할합니다",
+    "splitOptions": "분할 옵션",
+    "splitVertical": "세로 분할",
+    "splitHorizontal": "가로 분할",
+    "unsplit": "분할 해제",
+    "splitSync": "동기화",
+    "splitSyncTitle": "두 창을 함께 스크롤하고 확대/축소합니다",
+    "splitDividerTitle": "드래그하여 창 크기를 조정합니다. 두 번 클릭하면 50/50으로 돌아갑니다.",
+    "accessibilityGroup": "접근성",
+    "readAloud": "소리 내어 읽기",
+    "readAloudPause": "일시 중지",
+    "readAloudTitle": "선택 영역 또는 현재 페이지부터 문서를 소리 내어 읽습니다",
+    "tagsPanel": "태그",
+    "tagsPanelTitle": "문서의 구조 태그를 표시합니다",
+    "accessibilityCheck": "검사",
+    "accessibilityCheckTitle": "누락된 대체 텍스트와 태그가 없는 콘텐츠를 찾습니다"
   },
   "elementVisibility": {
     "buttonTitle": "요소 가시성 — 주석 유형 표시/숨기기 및 흐리게 하기",
@@ -328,7 +349,9 @@
     "scanText": "스캔 텍스트 편집",
     "scanTextHint": "인식된 단어를 클릭하여 바꿉니다. 스캔에 있는 기존 단어는 가려집니다.",
     "scanTextNone": "이 페이지에 인식된 텍스트가 없습니다. 먼저 텍스트 인식(OCR)을 실행하세요.",
-    "shiftPage": "페이지 이동"
+    "shiftPage": "페이지 이동",
+    "editPages": "페이지 편집",
+    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할"
   },
   "help": {
     "settings": "설정",
@@ -348,6 +371,7 @@
     "updates": "업데이트",
     "checkForUpdates": "업데이트 확인",
     "updatesLabel": "업데이트",
+    "updatesManaged": "이 설치의 업데이트는 중앙에서 관리됩니다.",
     "startupDiagnosticsTitle": "개인 정보를 보호하는 시작 진단 파일 표시",
     "startupDiagnostics": "진단",
     "fileAssociation": "파일 연결",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "잘라낸 영역을 벡터 데이터 그대로 여기에 붙여넣습니다",
     "symbolScale": "축척",
     "symbolScaleTitle": "새 기호를 배치할 때의 크기",
-    "symbolScaleCustom": "사용자 지정 축척"
+    "symbolScaleCustom": "사용자 지정 축척",
+    "count": "개수 세기",
+    "arc": "호"
   },
   "proofread": {
     "group": "교정",
@@ -678,6 +704,7 @@
     "saveNote": "메모 등 페이지에 모양이 없는 마크업은 마크업으로 남습니다. 파일은 저장할 때만 변경되며, 그 전까지는 실행 취소로 이 단계를 되돌릴 수 있습니다.",
     "ok": "병합",
     "busy": "마크업 병합 중...",
+    "cancelled": "병합이 취소되었습니다. 문서는 변경되지 않았습니다.",
     "nothing": "이 문서에는 병합할 마크업이 없습니다.",
     "nothingBaked": "페이지에 모양이 있는 마크업이 없어 아무것도 병합되지 않았습니다.",
     "notLoaded": "이 문서의 마크업을 아직 불러오는 중입니다. 잠시 후 다시 시도하세요.",
@@ -691,5 +718,60 @@
     "noRecovery": "이 문서의 마크업은 복원을 허용하지 않고 병합되었습니다. 페이지 내용의 일부이므로 복원할 수 없습니다.",
     "done": "복원된 마크업: {{count}}",
     "failed": "복원 실패: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "작은 아이콘",
+    "largeIcons": "큰 아이콘",
+    "settings": "설정"
+  },
+  "symbolPalette": {
+    "search": "기호 검색...",
+    "noResults": "기호를 찾을 수 없음",
+    "drawingSettings": "도면 설정",
+    "manageSystemTypes": "시스템 유형 관리",
+    "settingsTitle": "기호 라이브러리 설정",
+    "industry": "업종",
+    "country": "국가",
+    "libraryLoading": "온라인 라이브러리 불러오는 중…",
+    "libraryOffline": "온라인 라이브러리에 연결할 수 없음 — 제한된 국가 목록",
+    "downloading": "다운로드 중 {{current}}/{{total}}: {{label}}",
+    "availableOnline": "온라인에서 사용 가능한 컬렉션: {{n}} (기호 {{symbols}}개)",
+    "activateDownloaded": "이 국가에 활성화할 다운로드된 컬렉션: {{n}}",
+    "download": "다운로드",
+    "downloadFailed": "다운로드 실패: {{error}}",
+    "builtIn": "기본 제공",
+    "online": "온라인",
+    "addSymbol": "+ 기호 추가",
+    "export": "내보내기",
+    "remove": "제거",
+    "noSymbolsYet": "아직 기호가 없음",
+    "newGroupName": "새 그룹 이름...",
+    "addGroup": "그룹 추가",
+    "importGroup": "그룹 가져오기",
+    "catalogLoaded": "카탈로그 '{{id}}' 불러옴: 패밀리 {{families}}개, 크기 {{sizes}}개",
+    "catalogNoPreview": "파일에 미리 보기 없음: {{n}}",
+    "fileNotRecognized": "파일을 인식할 수 없음: 기호 그룹도 카탈로그도 아님",
+    "importFailed": "가져오기 실패: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC 건축",
+      "nl-elektra": "NL 전기",
+      "nl-bouwplaats": "NL 건설 현장",
+      "nl-sanitair": "NL 위생 설비",
+      "nl-keuken": "NL 주방",
+      "nen1414-tb": "NL NEN 1414 — 방화",
+      "nen1414-tbk": "NL NEN 1414 — 소화 설비",
+      "nen1414-td": "NL NEN 1414 — 문",
+      "nen1414-tn": "NL NEN 1414 — 비상 조명",
+      "nen1414-tr": "NL NEN 1414 — 배연/배열",
+      "nen1414-tv": "NL NEN 1414 — 환기",
+      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러"
+    },
+    "sectors": {
+      "aec": "AEC(건설)",
+      "electrical": "전기공학",
+      "process": "공정 / P&ID",
+      "mep": "건축 설비(MEP)",
+      "infra": "인프라"
+    }
   }
 }

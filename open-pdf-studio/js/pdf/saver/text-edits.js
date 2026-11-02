@@ -36,11 +36,58 @@ import { OntbrekendeGlyfenFout, isOntbrekendeGlyfenFout } from '../../text/glyf-
 // OntbrekendeGlyfenFout, voordat er iets in het bestand komt. Eerder werden
 // ze stil een '?'.
 export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocument(),
-  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten } = {}) {
+  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten, annulering = null } = {}) {
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
+  const getEditFont = maakEditFontLader(pdfDocLib);
+
+  const pending = doc.textEdits.filter(e => e && !e.baked);
+  if (pending.length === 0) return;
+
+  // In-place-analyse: knipt originele runs waar dat eenduidig en veilig kan.
+  let inplaceResults = new Map();
+  try {
+    inplaceResults = applyInPlaceTextEdits(pdfDocLib, pages, pending);
+  } catch (err) {
+    console.warn('[text-edits] In-place bewerking uitgevallen; terugval op afdekvlak:', err);
+  }
+
+  for (const edit of pending) {
+    // Veilig punt per bewerking: een geannuleerde save stopt hier (#766). De
+    // fout gaat bewust buiten de try hieronder om.
+    if (annulering) await annulering.punt();
+    // Eén corrupte/onencodeerbare edit mag NOOIT de hele save laten falen:
+    // alle andere wijzigingen (annotaties, andere edits) moeten doorgaan.
+    try {
+      await saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplaceResults.get(edit) || null,
+        { kiesUnicodeFont, fontKeten });
+    } catch (editErr) {
+      if (edit.mcpStrict || isOntbrekendeGlyfenFout(editErr)) throw editErr;
+      console.warn(
+        `[text-edits] Edit ${edit?.id ?? '?'} (pagina ${edit?.page ?? '?'}) ` +
+        'overgeslagen bij opslaan:', editErr,
+      );
+    }
+  }
+}
+
+/**
+ * Tekent de nieuwe tekst van één edit precies zoals de saver dat doet, met
+ * een gegeven in-place-resultaat (encodeRun enz.). Voor de live weergave in
+ * het originele font (#723): die tekent zo een tijdelijk document dat
+ * dezelfde operatoren en glyfcodes bevat als het opgeslagen bestand.
+ * Fouten (bv. OntbrekendeGlyfenFout) gaan naar de aanroeper.
+ */
+export async function tekenTextEdit(pdfDocLib, pages, edit, inplace,
+  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten } = {}) {
+  await saveOneTextEdit(pdfDocLib, pages, edit, maakEditFontLader(pdfDocLib), inplace || null,
+    { kiesUnicodeFont, fontKeten });
+}
+
+// Standard-14-fonts per familievariant, één keer ingebed per document.
+function maakEditFontLader(pdfDocLib) {
   const fontCache = {};
-  async function getEditFont(fontFamily) {
+  return async function getEditFont(fontFamily) {
     if (fontCache[fontFamily]) return fontCache[fontFamily];
     // Map font family string (may include bold/italic variant) to StandardFonts
     const fontMap = {
@@ -61,33 +108,7 @@ export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocu
     const font = await pdfDocLib.embedFont(stdFont);
     fontCache[fontFamily] = font;
     return font;
-  }
-
-  const pending = doc.textEdits.filter(e => e && !e.baked);
-  if (pending.length === 0) return;
-
-  // In-place-analyse: knipt originele runs waar dat eenduidig en veilig kan.
-  let inplaceResults = new Map();
-  try {
-    inplaceResults = applyInPlaceTextEdits(pdfDocLib, pages, pending);
-  } catch (err) {
-    console.warn('[text-edits] In-place bewerking uitgevallen; terugval op afdekvlak:', err);
-  }
-
-  for (const edit of pending) {
-    // Eén corrupte/onencodeerbare edit mag NOOIT de hele save laten falen:
-    // alle andere wijzigingen (annotaties, andere edits) moeten doorgaan.
-    try {
-      await saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplaceResults.get(edit) || null,
-        { kiesUnicodeFont, fontKeten });
-    } catch (editErr) {
-      if (edit.mcpStrict || isOntbrekendeGlyfenFout(editErr)) throw editErr;
-      console.warn(
-        `[text-edits] Edit ${edit?.id ?? '?'} (pagina ${edit?.page ?? '?'}) ` +
-        'overgeslagen bij opslaan:', editErr,
-      );
-    }
-  }
+  };
 }
 
 // Tekent één run in het originele paginafont via rauwe operatoren op het

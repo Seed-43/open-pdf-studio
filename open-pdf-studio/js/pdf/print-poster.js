@@ -46,6 +46,7 @@ export const POSTER_STANDAARD = Object.freeze({
   snijtekens: true,
   labels: true,
   alleenGroot: true,
+  randAfsnijden: true,
 });
 
 /** Strook binnen het bedrukbare gebied voor snijtekens en labels (mm). */
@@ -62,8 +63,18 @@ export const LABEL_PT = 6;
 export const LABEL_BASIS_MM = 6.3;
 /** Kleiner dan dit (mm) mag een venster niet worden door de strook. */
 const MIN_VENSTER_MM = 20;
-/** Hoeveel mm een pagina een venster mag overschrijden en toch één tegel blijft. */
-const SPELING_MM = 0.5;
+/**
+ * Speling per tegel (mm): zoveel mag een pagina per tegel langer zijn dan het
+ * raster en toch dat aantal tegels houden (#855). ISO-maten zijn bij elke
+ * halvering naar beneden afgerond op hele mm (2 x 420 = 840 mm, een A1 is
+ * 841 mm) en een PDF-pagina is een geheel aantal punten (2384 pt = 841,02
+ * mm); zonder speling werd een A1 op randloze A3 3 x 3 in plaats van 2 x 2.
+ * Het raster ligt gecentreerd, dus het teveel valt verdeeld over beide
+ * buitenranden (bij twee tegels hooguit 0,75 mm per kant, bij n tegels
+ * hooguit n x 0,375 mm). De keuze randAfsnijden staat standaard aan; uit
+ * dekt het raster de hele pagina, desnoods met een extra vel.
+ */
+export const SPELING_PER_TEGEL_MM = 0.75;
 
 /** Het vel als het papier onbekend is: A4. */
 export const STANDAARD_VEL = Object.freeze({ breedteMm: 210, hoogteMm: 297 });
@@ -100,6 +111,7 @@ export function posterOpties(o = {}) {
     snijtekens: b(o.snijtekens, POSTER_STANDAARD.snijtekens),
     labels: b(o.labels, POSTER_STANDAARD.labels),
     alleenGroot: b(o.alleenGroot, POSTER_STANDAARD.alleenGroot),
+    randAfsnijden: b(o.randAfsnijden, POSTER_STANDAARD.randAfsnijden),
   };
 }
 
@@ -123,14 +135,18 @@ export function posterPapier(papier) {
 /**
  * Het raster langs één as: een pagina van `lengte` mm in vensters van
  * `venster` mm die `overlap` mm overlappen. Het raster ligt gecentreerd over
- * de pagina: `begin` is de plek van de eerste tegel (≤ 0), `stap` de afstand
- * tussen twee tegels.
+ * de pagina: `begin` is de plek van de eerste tegel (≤ 0, of iets meer dan 0
+ * als de pagina binnen de speling langer is dan het raster), `stap` de
+ * afstand tussen twee tegels. `randAfsnijden` false: geen speling, het
+ * raster dekt de hele pagina.
  */
-export function rasterLangs(lengte, venster, overlap) {
+export function rasterLangs(lengte, venster, overlap, randAfsnijden = true) {
   const stap = venster - overlap;
-  const aantal = lengte <= venster + SPELING_MM
-    ? 1
-    : Math.max(1, Math.ceil((lengte - overlap) / stap - 1e-9));
+  // n tegels dekken n * stap + overlap mm, met n * SPELING_PER_TEGEL_MM
+  // speling: het kleinste n waarvoor dat de pagina haalt. De 1e-9 vangt
+  // rekenruis op een precies veelvoud.
+  const speling = randAfsnijden === false ? 0 : SPELING_PER_TEGEL_MM;
+  const aantal = Math.max(1, Math.ceil((lengte - overlap) / (stap + speling) - 1e-9));
   const dekking = aantal === 1 ? venster : aantal * stap + overlap;
   return { aantal, begin: (lengte - dekking) / 2, stap };
 }
@@ -166,8 +182,8 @@ function rasterVoorStand(vel, or, paginaMm, o) {
     hoogte: bedrukbaar.hoogte - 2 * rand,
   };
   const overlap = Math.min(o.overlap, venster.breedte / 2, venster.hoogte / 2);
-  const x = rasterLangs(paginaMm.breedte, venster.breedte, overlap);
-  const y = rasterLangs(paginaMm.hoogte, venster.hoogte, overlap);
+  const x = rasterLangs(paginaMm.breedte, venster.breedte, overlap, o.randAfsnijden);
+  const y = rasterLangs(paginaMm.hoogte, venster.hoogte, overlap, o.randAfsnijden);
   return { or, velB, velH, marges, bedrukbaar, rand, venster, overlap, x, y, aantal: x.aantal * y.aantal };
 }
 
@@ -303,7 +319,8 @@ function enkelVel(vel, orientatie, pagina, s) {
  *           orientatie?: 'auto'|'portrait'|'landscape',
  *           pagina: {breedtePt:number, hoogtePt:number},
  *           opties?: {schaal?:number, overlap?:number, snijtekens?:boolean,
- *                     labels?:boolean, alleenGroot?:boolean} }} p
+ *                     labels?:boolean, alleenGroot?:boolean,
+ *                     randAfsnijden?:boolean} }} p
  *   pagina = de pagina zoals getoond (met draaiing), dezelfde maat als de
  *   pagina in de print-PDF; orientatie 'auto' = de stand met de minste vellen
  *   (gelijk: die van de pagina).
@@ -396,6 +413,22 @@ export function posterVellen(indelingen) {
     for (const vel of indeling.vellen) uit.push({ paginaIndex, indeling, vel });
   });
   return uit;
+}
+
+/**
+ * Hoeveel mm de afdruk hooguit van één buitenrand van een pagina afsnijdt
+ * (de speling van SPELING_PER_TEGEL_MM): het raster ligt gecentreerd, dus
+ * een eerste tegel die op x of y > 0 begint, laat aan die kant en aan de
+ * overkant evenveel weg. 0 als alles op papier komt.
+ */
+export function posterRandAfsnijding(indelingen) {
+  let max = 0;
+  for (const indeling of indelingen || []) {
+    if (!indeling || !indeling.getegeld) continue;
+    const tegel = indeling.vellen[0] && indeling.vellen[0].tegel;
+    if (tegel) max = Math.max(max, tegel.x, tegel.y);
+  }
+  return max;
 }
 
 /** Hoeveel vellen de afdruk wordt. */

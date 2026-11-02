@@ -9,7 +9,8 @@
     "behavior": "Zachowanie",
     "fileAssociation": "Skojarzenie plików",
     "virtualPrinter": "Drukarka wirtualna",
-    "pageDisplay": "Wyświetlanie strony"
+    "pageDisplay": "Wyświetlanie strony",
+    "keyboardShortcuts": "Skróty klawiaturowe"
   },
   "resetToDefaults": "Przywróć ustawienia domyślne",
   "resetConfirm": "Przywrócić wszystkie preferencje do wartości domyślnych?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktywne na {{adres}}",
     "aiLinkViaFlag": "Aktywne przez parametr uruchomienia ({{adres}})",
     "aiLinkOff": "Wyłączone",
-    "aiLinkError": "Nie uruchomiono: {{fout}}"
+    "aiLinkError": "Nie uruchomiono: {{fout}}",
+    "interfaceScale": "Rozmiar interfejsu"
   },
   "annotations": {
     "generalDefaults": "Ogólne ustawienia domyślne",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Otwarta strzałka (odwrócona)",
     "headClosedReversed": "Zamknięta strzałka (odwrócona)",
     "headSlash": "Ukośnik",
-    "polylineDefaults": "Ustawienia domyślne polilinii"
+    "polylineDefaults": "Ustawienia domyślne polilinii",
+    "smoothing": "Wygładzanie",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "pressureMinWidth": "Minimalna szerokość (%)",
+    "penOnly": "Tylko pióro (ignoruj dotyk)",
+    "penOnlyHint": "Dotyk nie rysuje narzędziem odręcznym; przydatne przeciw dotykowi dłoni podczas pisania piórem"
   },
   "shapes": {
     "rectangleDefaults": "Ustawienia domyślne prostokąta",
@@ -161,12 +169,19 @@
     "snapToNearest": "Przyciągaj do najbliższego",
     "objectSnapRadius": "Promień przyciągania (piksele)",
     "snapToPdfContent": "Przyciągaj do zawartości rysunku PDF",
+    "moveInference": "Wskazówki przy przesuwaniu (G / mv)",
+    "moveInferenceTracking": "Linie śledzenia (wyrównanie do punktów innej geometrii)",
+    "moveInferenceExtension": "Przedłużenia linii i lic ścian",
+    "moveInferenceParallel": "Równolegle / prostopadle do pobliskich linii",
+    "moveInferenceHint": "Przytrzymaj kursor chwilę nad punktem, aby go przechwycić, przytrzymaj Shift, aby zablokować linię pomocniczą, Tab przełącza między odległością a kątem. Linie biegunowe działają według ustawień śledzenia biegunowego.",
     "creation": "Tworzenie",
     "autoSelectAfterCreation": "Automatycznie zaznacz adnotację po utworzeniu",
     "deletion": "Usuwanie",
     "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji",
     "navigation": "Nawigacja",
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
+    "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
+    "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
     "dynamicScaling": "Automatyczne skalowanie adnotacji"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Aby ustawić Open PDF Studio jako domyślną przeglądarkę PDF na macOS:\n\n1. Kliknij prawym przyciskiem myszy dowolny plik PDF w Finderze\n2. Wybierz \"Informacje\"\n3. W sekcji \"Otwórz za pomocą\" wybierz Open PDF Studio\n4. Kliknij \"Zmień wszystko...\"",
     "linuxInstructions": "Aby ustawić Open PDF Studio jako domyślną przeglądarkę PDF na Linux:\n\nUruchom w terminalu:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Sprawdź Finder > Informacje",
-    "notSet": "Nie ustawiono"
+    "notSet": "Nie ustawiono",
+    "chosenInSystemSettings": "Wybrane w ustawieniach systemu",
+    "sandboxInstructions": "Open PDF Studio działa jako pakiet {{package}} i nie może samodzielnie zmienić domyślnej aplikacji PDF.\n\nWybierz Open PDF Studio w ustawieniach systemu w sekcji Aplikacje domyślne lub kliknij prawym przyciskiem plik PDF i użyj opcji Otwórz za pomocą.",
+    "xdgMimeMissing": "xdg-mime (pakiet xdg-utils) nie jest zainstalowany, więc domyślnej aplikacji PDF nie można ustawić stąd.\n\nZainstaluj xdg-utils lub wybierz Open PDF Studio w ustawieniach systemu w sekcji Aplikacje domyślne.",
+    "linuxDone": "Open PDF Studio jest teraz domyślną aplikacją dla plików PDF.",
+    "linuxFailed": "Nie udało się ustawić Open PDF Studio jako domyślnej aplikacji PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Eksplorator plików",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Mocne",
     "pageSharpenLevel4": "Maksymalne",
     "showScrollbars": "Pokaż paski przewijania obszaru roboczego",
+    "backgroundColor": "Kolor tła",
+    "backgroundColorDefault": "Domyślny",
+    "backgroundColorHint": "Kolor obszaru wokół stron i między nimi. Sama strona, drukowanie i eksport nie ulegają zmianie.",
     "panels": "Panele",
     "showPropertiesPanel": "Domyślnie pokazuj panel właściwości",
     "showToolPalette": "Domyślnie pokazuj paletę narzędzi",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Otwarta strzałka (odwrócona)",
     "closedArrowReversed": "Zamknięta strzałka (odwrócona)",
     "slash": "Ukośnik"
+  },
+  "keyboardShortcuts": {
+    "title": "Skróty klawiaturowe",
+    "search": "Szukaj według polecenia lub klawisza",
+    "command": "Polecenie",
+    "shortcuts": "Skróty",
+    "none": "Brak",
+    "noMatches": "Żadne polecenie nie pasuje do wyszukiwania.",
+    "selectHint": "Wybierz polecenie, aby zmienić jego skróty.",
+    "addShortcut": "Dodaj skrót",
+    "remove": "Usuń skrót",
+    "resetCommand": "Przywróć domyślne",
+    "resetAll": "Przywróć wszystko",
+    "resetAllConfirm": "Przywrócić wszystkie skróty klawiaturowe do wartości domyślnych?",
+    "loadPreset": "Wczytaj ustawienie wstępne…",
+    "replaceConfirm": "Spowoduje to zastąpienie Twoich własnych skrótów klawiszowych. Kontynuować?",
+    "presets": {
+      "markupStyle": "Skróty w stylu znakowania"
+    },
+    "import": "Importuj…",
+    "export": "Eksportuj…",
+    "fileType": "Skróty klawiaturowe",
+    "imported": "Skróty zaimportowane. Kliknij Zapisz, aby je zastosować.",
+    "importFailed": "To nie jest prawidłowy plik skrótów klawiaturowych.",
+    "exported": "Skróty wyeksportowane.",
+    "exportFailed": "Eksport skrótów nie powiódł się:",
+    "recording": "Naciśnij nową kombinację klawiszy… (Esc anuluje)",
+    "conflict": "{{keys}} jest już używany przez „{{command}}”.",
+    "reassign": "Przypisz ponownie",
+    "reserved": "{{keys}} ma stałe znaczenie i nie można go przypisać.",
+    "defaultLabel": "Domyślnie: {{keys}}",
+    "customize": "Dostosuj…",
+    "fixedGroup": "Stałe klawisze",
+    "applyHint": "Zmiany obowiązują po kliknięciu Zapisz.",
+    "categories": {
+      "file": "Plik",
+      "edit": "Edycja",
+      "view": "Widok",
+      "search": "Znajdź",
+      "tools": "Narzędzia",
+      "drafting": "Pomoce rysunkowe",
+      "panels": "Panele",
+      "review": "Recenzja",
+      "help": "Pomoc",
+      "extensions": "Rozszerzenia",
+      "ribbon": "Wstążka: {{tab}}",
+      "other": "Inne"
+    },
+    "commands": {
+      "findNext": "Znajdź następny",
+      "splitPaneLarger": "Powiększ aktywny panel",
+      "splitPaneSmaller": "Pomniejsz aktywny panel"
+    }
   }
 }

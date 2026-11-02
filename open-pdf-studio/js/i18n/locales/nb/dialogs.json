@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Storformat",
+      "detailblad": "Detaljark",
+      "voorblad": "Forside"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "stående",
+      "landscape": "liggende"
+    },
     "title": "Nytt dokument",
     "paperSize": "Papirstørrelse:",
     "widthMm": "Bredde (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Skriv ut sidekant",
     "perSheetNote": "Hver side skaleres for å passe i sin celle, så sideskaleringen ovenfor gjelder ikke.",
     "poster": "Plakat (fliser)",
+    "posterOverview": "Plakatoversikt",
+    "posterOverlapLegend": "Skyggelagte områder gjentas på tilstøtende ark",
     "posterScale": "Flisskala",
     "posterOverlap": "Overlapp",
     "posterCutMarks": "Skjæremerker",
     "posterLabels": "Etiketter (fil, side, flis)",
     "posterOnlyLarge": "Del bare store sider",
+    "posterEdgeCrop": "Beskjær små ytterkanter",
+    "posterEdgeCropHint": "Opptil {{max}} mm per ytterkant, bare for denne utskriften. Av: behold alt innhold.",
     "posterTileInfo": "Side {{page}}: flis {{row}},{{col}} (rad, kolonne) av {{rows}} × {{cols}}",
     "posterNotTiled": "Side {{page}} får plass på ett ark og deles ikke.",
     "posterAssumedPaper": "Ukjent papirstørrelse: flisene legges ut på {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokument og markeringer",
     "document": "Dokument",
     "printAsImage": "Skriv ut som bilde",
+    "colorMode": "Fargemodus:",
+    "colorModeColor": "Farge",
+    "colorModeGrayscale": "Gråtoner",
+    "colorModeBlackWhite": "Svart-hvitt",
     "pagesToPrint": "side(r) til utskrift",
     "noPrinterSelected": "Ingen skriver valgt.",
     "noPagesToPrint": "Ingen sider å skrive ut.",
@@ -346,7 +364,13 @@
     "chooseImage": "Velg bilde...",
     "scale": "Skalering:",
     "selectImageFirst": "Vennligst velg et bilde først.",
-    "defaultText": "UTKAST"
+    "defaultText": "UTKAST",
+    "autoFit": "Tilpass automatisk til siden",
+    "autoFitHint": "Tilpasser teksten til hver side. Størrelsen som vises, gjelder gjeldende side.",
+    "increaseFontSize": "Øk skriftstørrelse",
+    "decreaseFontSize": "Reduser skriftstørrelse",
+    "textHistory": "Tidligere brukte tekster",
+    "removeFromHistory": "Fjern fra loggen"
   },
   "headerFooter": {
     "addTitle": "Legg til topptekst/bunntekst",
@@ -430,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Legg under nytt bokmerke",
     "deleteTitle": "Slett bokmerker",
-    "deleteConfirm": "Slette {{count}} valgte bokmerker og alt under dem?"
+    "deleteConfirm": "Slette {{count}} valgte bokmerker og alt under dem?",
+    "replaceAll": "Erstatt alle bokmerker"
   },
   "formValidation": {
     "title": "Valideringsfeil"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Lagre som IFC-rapport",
     "failed": "Lagring av IFC-rapporten mislyktes: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Eksporter til IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) er fortsatt under utvikling. Kontroller resultatet før du stoler på det.",
+    "pages": "Sider:",
+    "allPages": "Alle sider",
+    "currentPage": "Gjeldende side",
+    "customPages": "Sideområde",
+    "rangePlaceholder": "f.eks. 1-3, 5",
+    "includeRaster": "Ta med bilder",
+    "includeText": "Ta med tekst",
+    "includeAnnotations": "Merknader på et eget lag",
+    "export": "Eksporter",
+    "progress": "Eksporterer side {{done}} av {{total}}…",
+    "done": "Skrevet: {{file}} ({{sheets}} ark, {{paths}} baner, {{texts}} tekster, {{images}} bilder, {{annotations}} merknader).",
+    "capPaths": "Side {{page}}: {{kept}} av {{total}} baner eksportert; resten går over grensen.",
+    "capTexts": "Side {{page}}: {{kept}} av {{total}} tekstlinjer eksportert; resten går over grensen.",
+    "capImages": "Side {{page}}: {{kept}} av {{total}} bilder eksportert; resten går over grensen.",
+    "imagesOmitted": "Bilder uten pikseldata (ikke støttet eller for store): {{count}}. Plasseringen deres beholdes.",
+    "sizeLimit": "Side {{page}} og sidene etter ble ikke eksportert: filen nådde størrelsesgrensen.",
+    "noPages": "Ingen sider valgt.",
+    "noBytes": "PDF-dataene for dette dokumentet er ikke tilgjengelige. Lagre dokumentet og prøv igjen.",
+    "failed": "IFCX-eksport mislyktes: {{error}}",
+    "unsavedNote": "Ulagrede endringer i sideinnholdet tas ikke med; merknader gjør det."
   },
   "styleType": {
     "lineTypes": "Linjetyper",
@@ -1598,6 +1647,57 @@
       "cancel": "Avbrutt",
       "supersede": "Erstattet",
       "expire": "Utløpt"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Rediger sider",
+    "hint": "Dra sider for å flytte dem; slipp en PDF-fil for å sette inn sidene i den. Ctrl+klikk, Skift+klikk eller avmerkingsboksene velger flere sider. Ingenting endres før Bruk.",
+    "moveLeft": "Flytt til venstre",
+    "moveRight": "Flytt til høyre",
+    "moveToStart": "Flytt til starten",
+    "moveToEnd": "Flytt til slutten",
+    "selection": "{{selected}} av {{total}} sider valgt",
+    "rotateLeft": "Roter til venstre",
+    "rotateRight": "Roter til høyre",
+    "split": "Del opp",
+    "splitTitle": "Sett delemerker rundt de valgte sidene: hver serie blir en egen fil",
+    "splitHere": "Del her (sett eller fjern et delemerke)",
+    "extractTitle": "Trekk ut de valgte sidene til en ny fil",
+    "blankPage": "Tom side",
+    "pagesFromFile": "Sider fra fil…",
+    "insertHere": "Sett inn sider her",
+    "select": "Velg side",
+    "zoom": "Zoom",
+    "parts": "Deles i {{count}} filer ved Bruk",
+    "chooseFolder": "Velg mappen for de oppdelte filene",
+    "fileFailed": "Kunne ikke lese {{name}}: {{error}}",
+    "applyFailed": "Kunne ikke bruke sideendringene: {{error}}",
+    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}",
+    "blankSetup": "Oppsett for tom side",
+    "sameAsAdjacent": "Samme som tilstøtende side",
+    "width": "Bredde:",
+    "height": "Høyde:",
+    "unit": "Enhet:"
+  },
+  "accessibilityReport": {
+    "title": "Tilgjengelighetskontroll",
+    "starting": "Kontrollerer...",
+    "checking": "Kontrollerer side {{done}} av {{total}}...",
+    "noIssues": "Fant ingen problemer.",
+    "summary": "Fant {{count}} problem(er). Dobbeltklikk på et element for å gå til siden.",
+    "failed": "Kontrollen kunne ikke kjøres på dette dokumentet.",
+    "recheck": "Kontroller på nytt",
+    "close": "Lukk",
+    "goTo": "Dobbeltklikk for å gå til siden",
+    "page": "Side {{page}}",
+    "kind": {
+      "notTagged": "Dokumentet har ingen tagger: det finnes ikke noe strukturtre, så hjelpemidler kan ikke følge leserekkefølgen.",
+      "notMarked": "Dokumentet er ikke merket som tagget (/MarkInfo /Marked).",
+      "noLanguage": "Dokumentspråket er ikke angitt.",
+      "figureNoAlt": "{{role}} uten alternativ tekst",
+      "pageNotTagged": "Ikke noe tagget innhold på denne siden ({{count}} tekstelementer)",
+      "untaggedContent": "{{count}} tekstelement(er) utenfor taggene",
+      "annotationNoText": "Merknad ({{type}}) uten beskrivelse"
     }
   }
 }

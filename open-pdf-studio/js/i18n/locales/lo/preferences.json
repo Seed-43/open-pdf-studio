@@ -9,7 +9,8 @@
     "behavior": "ການເຮັດວຽກ",
     "fileAssociation": "ການເຊື່ອມໂຍງໄຟລ໌",
     "virtualPrinter": "ເຄື່ອງພິມສະເໝືອນ",
-    "pageDisplay": "ການສະແດງຜົນໜ້າເຈ້ຍ"
+    "pageDisplay": "ການສະແດງຜົນໜ້າເຈ້ຍ",
+    "keyboardShortcuts": "ປຸ່ມລັດແປ້ນພິມ"
   },
   "resetToDefaults": "ຕັ້ງຄືນເປັນຄ່າເລີ່ມຕົ້ນ",
   "resetConfirm": "ຣີເຊັດການຕັ້ງຄ່າທັງໝົດເປັນຄ່າເລີ່ມຕົ້ນແທ້ບໍ?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "ກຳລັງເຮັດວຽກຢູ່ {{adres}}",
     "aiLinkViaFlag": "ກຳລັງເຮັດວຽກຜ່ານຄຳສັ່ງ command-line ({{adres}})",
     "aiLinkOff": "ປິດ",
-    "aiLinkError": "ບໍ່ໄດ້ເລີ່ມຕົ້ນ: {{fout}}"
+    "aiLinkError": "ບໍ່ໄດ້ເລີ່ມຕົ້ນ: {{fout}}",
+    "interfaceScale": "ຂະໜາດສ່ວນຕິດຕໍ່"
   },
   "annotations": {
     "generalDefaults": "ຄ່າເລີ່ມຕົ້ນທົ່ວໄປ",
@@ -139,7 +141,13 @@
     "headOpenReversed": "ລູກສອນໂປ່ງ (ກັບດ້ານ)",
     "headClosedReversed": "ລູກສອນຕັນ (ກັບດ້ານ)",
     "headSlash": "ເສັ້ນຂີດຕັດ",
-    "polylineDefaults": "ຄ່າເລີ່ມຕົ້ນເສັ້ນຕໍ່ເນື່ອງ"
+    "polylineDefaults": "ຄ່າເລີ່ມຕົ້ນເສັ້ນຕໍ່ເນື່ອງ",
+    "smoothing": "ການເຮັດໃຫ້ລຽບ",
+    "pressure": "ແຮງກົດປາກກາ",
+    "pressureHint": "ແຮງກົດປາກກາປ່ຽນຄວາມກວ້າງຂອງເສັ້ນ (ເສັ້ນຈາກເມົ້າມີຄວາມກວ້າງຄົງທີ່)",
+    "pressureMinWidth": "ຄວາມກວ້າງຕໍ່າສຸດ (%)",
+    "penOnly": "ປາກກາເທົ່ານັ້ນ (ບໍ່ສົນໃຈການສຳຜັດ)",
+    "penOnlyHint": "ການສຳຜັດຈະບໍ່ແຕ້ມດ້ວຍເຄື່ອງມືແຕ້ມອິດສະຫຼະ ຊ່ວຍປ້ອງກັນຝາມືແຕະໜ້າຈໍຂະນະຂຽນດ້ວຍປາກກາ"
   },
   "shapes": {
     "rectangleDefaults": "ຄ່າເລີ່ມຕົ້ນຮູບສີ່ແຈ",
@@ -190,12 +198,19 @@
     "snapToNearest": "ດຶງຕິດຈຸດທີ່ໃກ້ທີ່ສຸດ",
     "objectSnapRadius": "ລັດສະໝີການດຶງດູດ (pixels)",
     "snapToPdfContent": "ດຶງຕິດເນື້ອຫາເສັ້ນແຕ້ມໃນ PDF",
+    "moveInference": "ເສັ້ນຊ່ວຍຂະນະຍ້າຍ (G / mv)",
+    "moveInferenceTracking": "ເສັ້ນຕິດຕາມ (ຈັດແນວກັບຈຸດຂອງຮູບຊົງອື່ນ)",
+    "moveInferenceExtension": "ສ່ວນຕໍ່ຂະຫຍາຍຂອງເສັ້ນ ແລະ ໜ້າຝາ",
+    "moveInferenceParallel": "ຂະໜານ / ຕັ້ງສາກກັບເສັ້ນທີ່ຢູ່ໃກ້",
+    "moveInferenceHint": "ວາງເຄີເຊີໄວ້ເທິງຈຸດໜຶ່ງຄາວໜຶ່ງເພື່ອຈັບຈຸດນັ້ນ, ກົດ Shift ຄ້າງໄວ້ເພື່ອລັອກເສັ້ນຊ່ວຍ, Tab ສະຫຼັບລະຫວ່າງໄລຍະທາງ ແລະ ມຸມ. ເສັ້ນຊ່ວຍແບບຂົ້ວປະຕິບັດຕາມການຕັ້ງຄ່າການກຳນົດທິດທາງມຸມ.",
     "creation": "ການສ້າງ",
     "autoSelectAfterCreation": "ເລືອກຄຳອະທິບາຍປະກອບໂດຍອັດຕະໂນມັດຫຼັງຈາກສ້າງ",
     "deletion": "ການລຶບ",
     "confirmBeforeDeleting": "ຢືນຢັນກ່ອນລຶບຄຳອະທິບາຍປະກອບ",
     "navigation": "ການເລື່ອນເບິ່ງ",
     "wheelZoomWithoutCtrl": "ຊູມດ້ວຍລໍ້ເມົ້າ (ໂດຍບໍ່ຕ້ອງກົດ Ctrl ຄ້າງ)",
+    "middleDoubleClickFit": "ຄລິກສອງເທື່ອດ້ວຍປຸ່ມກາງຂອງເມົ້າເພື່ອປັບໃຫ້ພໍດີໜ້າ",
+    "ribbonWheelSwitchesTabs": "ສະຫຼັບແຖບເມນູດ້ວຍລໍ້ເມົ້າ",
     "dynamicScaling": "ປັບຂະໜາດເຄື່ອງໝາຍອັດຕະໂນມັດ"
   },
   "pageDisplay": {
@@ -210,6 +225,9 @@
     "pageSharpenLevel3": "ແຮງ",
     "pageSharpenLevel4": "ສູງສຸດ",
     "showScrollbars": "ສະແດງແຖບເລື່ອນ (Scrollbars)",
+    "backgroundColor": "ສີພື້ນຫຼັງ",
+    "backgroundColorDefault": "ຄ່າເລີ່ມຕົ້ນ",
+    "backgroundColorHint": "ສີຂອງພື້ນທີ່ອ້ອມຮອບ ແລະ ລະຫວ່າງໜ້າ. ໜ້າເອງ, ການພິມ ແລະ ການສົ່ງອອກບໍ່ປ່ຽນແປງ.",
     "panels": "ແຜງຄວບຄຸມ",
     "showPropertiesPanel": "ສະແດງແຜງຄຸນສົມບັດ (Properties) ເປັນຄ່າເລີ່ມຕົ້ນ",
     "showToolPalette": "ສະແດງແຖບເຄື່ອງມື (Tool Palette) ເປັນຄ່າເລີ່ມຕົ້ນ",
@@ -245,7 +263,12 @@
     "macInstructions": "ວິທີຕັ້ງ Open PDF Studio ເປັນຕົວເປີດ PDF ເລີ່ມຕົ້ນໃນ macOS:\n\n1. ຄລິກຂວາໃສ່ໄຟລ໌ PDF ໃດກໍໄດ້ໃນ Finder\n2. ເລືອກ \"Get Info\"\n3. ພາຍໃຕ້ \"Open with\", ເລືອກ Open PDF Studio\n4. ຄລິກ \"Change All...\"",
     "linuxInstructions": "ວິທີຕັ້ງ Open PDF Studio ເປັນຕົວເປີດ PDF ເລີ່ມຕົ້ນໃນ Linux:\n\nຮັນຄຳສັ່ງໃນ terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "ກວດເບິ່ງ Finder > Get Info",
-    "notSet": "ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ"
+    "notSet": "ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ",
+    "chosenInSystemSettings": "ເລືອກໄວ້ໃນການຕັ້ງຄ່າລະບົບ",
+    "sandboxInstructions": "Open PDF Studio ເຮັດວຽກເປັນແພັກເກດ {{package}} ແລະ ບໍ່ສາມາດປ່ຽນແອັບ PDF ເລີ່ມຕົ້ນໄດ້ເອງ.\n\nເລືອກ Open PDF Studio ໃນການຕັ້ງຄ່າລະບົບທີ່ ແອັບພລິເຄຊັນເລີ່ມຕົ້ນ, ຫຼື ຄລິກຂວາທີ່ໄຟລ໌ PDF ແລ້ວໃຊ້ ເປີດດ້ວຍ.",
+    "xdgMimeMissing": "ບໍ່ໄດ້ຕິດຕັ້ງ xdg-mime (ແພັກເກດ xdg-utils), ສະນັ້ນຈຶ່ງບໍ່ສາມາດຕັ້ງແອັບ PDF ເລີ່ມຕົ້ນຈາກບ່ອນນີ້ໄດ້.\n\nຕິດຕັ້ງ xdg-utils, ຫຼື ເລືອກ Open PDF Studio ໃນການຕັ້ງຄ່າລະບົບທີ່ ແອັບພລິເຄຊັນເລີ່ມຕົ້ນ.",
+    "linuxDone": "ຕອນນີ້ Open PDF Studio ເປັນແອັບເລີ່ມຕົ້ນສຳລັບໄຟລ໌ PDF ແລ້ວ.",
+    "linuxFailed": "ບໍ່ສາມາດຕັ້ງ Open PDF Studio ເປັນແອັບ PDF ເລີ່ມຕົ້ນໄດ້.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "ຕົວສຳຫຼວດໄຟລ໌",
@@ -284,5 +307,58 @@
     "how3": "ເບິ່ງຕົວຢ່າງ, ຈັດລຳດັບໃໝ່, ຮວມ ແລະ ບັນທຶກລາຍການເປັນ PDF ດຽວ ຫຼື ເປີດໃນ Studio.",
     "openWindow": "ເປີດໜ້າຕ່າງເຄື່ອງພິມ",
     "openWindowTip": "ສະແດງລາຍການພິມທີ່ຖືກດັກຈັບ"
+  },
+  "keyboardShortcuts": {
+    "title": "ປຸ່ມລັດແປ້ນພິມ",
+    "search": "ຊອກຫາຕາມຄຳສັ່ງ ຫຼື ປຸ່ມ",
+    "command": "ຄຳສັ່ງ",
+    "shortcuts": "ປຸ່ມລັດ",
+    "none": "ບໍ່ມີ",
+    "noMatches": "ບໍ່ມີຄຳສັ່ງທີ່ກົງກັບການຊອກຫາ.",
+    "selectHint": "ເລືອກຄຳສັ່ງເພື່ອປ່ຽນປຸ່ມລັດຂອງມັນ.",
+    "addShortcut": "ເພີ່ມປຸ່ມລັດ",
+    "remove": "ລຶບປຸ່ມລັດ",
+    "resetCommand": "ຕັ້ງຄືນເປັນຄ່າເລີ່ມຕົ້ນ",
+    "resetAll": "ຕັ້ງຄືນທັງໝົດ",
+    "resetAllConfirm": "ຕັ້ງຄືນປຸ່ມລັດທັງໝົດເປັນຄ່າເລີ່ມຕົ້ນບໍ?",
+    "loadPreset": "ໂຫຼດຄ່າທີ່ຕັ້ງໄວ້…",
+    "replaceConfirm": "ນີ້ຈະແທນທີ່ປຸ່ມລັດແປ້ນພິມທີ່ທ່ານກຳນົດເອງ. ດຳເນີນການຕໍ່ບໍ?",
+    "presets": {
+      "markupStyle": "ປຸ່ມລັດແບບການໝາຍ"
+    },
+    "import": "ນຳເຂົ້າ…",
+    "export": "ສົ່ງອອກ…",
+    "fileType": "ປຸ່ມລັດແປ້ນພິມ",
+    "imported": "ນຳເຂົ້າປຸ່ມລັດແລ້ວ. ຄລິກບັນທຶກເພື່ອນຳໃຊ້.",
+    "importFailed": "ນີ້ບໍ່ແມ່ນໄຟລ໌ປຸ່ມລັດທີ່ຖືກຕ້ອງ.",
+    "exported": "ສົ່ງອອກປຸ່ມລັດແລ້ວ.",
+    "exportFailed": "ສົ່ງອອກປຸ່ມລັດບໍ່ສຳເລັດ:",
+    "recording": "ກົດປຸ່ມປະສົມໃໝ່… (Esc ເພື່ອຍົກເລີກ)",
+    "conflict": "{{keys}} ຖືກໃຊ້ໂດຍ “{{command}}” ແລ້ວ.",
+    "reassign": "ກຳນົດໃໝ່",
+    "reserved": "{{keys}} ມີຄວາມໝາຍຄົງທີ່ ແລະ ກຳນົດບໍ່ໄດ້.",
+    "defaultLabel": "ຄ່າເລີ່ມຕົ້ນ: {{keys}}",
+    "customize": "ປັບແຕ່ງ…",
+    "fixedGroup": "ປຸ່ມຄົງທີ່",
+    "applyHint": "ການປ່ຽນແປງຈະມີຜົນເມື່ອຄລິກບັນທຶກ.",
+    "categories": {
+      "file": "ໄຟລ໌",
+      "edit": "ແກ້ໄຂ",
+      "view": "ມຸມມອງ",
+      "search": "ຊອກຫາ",
+      "tools": "ເຄື່ອງມື",
+      "drafting": "ຕົວຊ່ວຍແຕ້ມ",
+      "panels": "ແຜງ",
+      "review": "ກວດທານ",
+      "help": "ຊ່ວຍເຫຼືອ",
+      "extensions": "ສ່ວນຂະຫຍາຍ",
+      "ribbon": "ໂບ: {{tab}}",
+      "other": "ອື່ນໆ"
+    },
+    "commands": {
+      "findNext": "ຊອກຫາຖັດໄປ",
+      "splitPaneLarger": "ຂະຫຍາຍແຜງທີ່ໃຊ້ງານ",
+      "splitPaneSmaller": "ຫຍໍ້ແຜງທີ່ໃຊ້ງານ"
+    }
   }
 }

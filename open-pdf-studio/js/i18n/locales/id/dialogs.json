@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format besar",
+      "detailblad": "Lembar detail",
+      "voorblad": "Lembar sampul"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "potret",
+      "landscape": "lanskap"
+    },
     "title": "Dokumen Baru",
     "paperSize": "Ukuran Kertas:",
     "widthMm": "Lebar (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Cetak bingkai halaman",
     "perSheetNote": "Setiap halaman diskalakan agar pas di selnya, sehingga penskalaan halaman di atas tidak berlaku.",
     "poster": "Poster (ubin)",
+    "posterOverview": "Ikhtisar poster",
+    "posterOverlapLegend": "Area berarsir diulang pada lembar yang bersebelahan",
     "posterScale": "Skala ubin",
     "posterOverlap": "Tumpang tindih",
     "posterCutMarks": "Tanda potong",
     "posterLabels": "Label (file, halaman, ubin)",
     "posterOnlyLarge": "Hanya bagi halaman besar",
+    "posterEdgeCrop": "Pangkas sedikit tepi luar",
+    "posterEdgeCropHint": "Hingga {{max}} mm per tepi luar, hanya untuk cetakan ini. Nonaktif: pertahankan semua konten.",
     "posterTileInfo": "Halaman {{page}}: ubin {{row}},{{col}} (baris, kolom) dari {{rows}} × {{cols}}",
     "posterNotTiled": "Halaman {{page}} muat di satu lembar dan tidak dibagi.",
     "posterAssumedPaper": "Ukuran kertas tidak diketahui: ubin ditata pada {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokumen dan Markup",
     "document": "Dokumen",
     "printAsImage": "Cetak sebagai Gambar",
+    "colorMode": "Mode warna:",
+    "colorModeColor": "Berwarna",
+    "colorModeGrayscale": "Skala abu-abu",
+    "colorModeBlackWhite": "Hitam putih",
     "pagesToPrint": "halaman untuk dicetak",
     "noPrinterSelected": "Tidak ada printer yang dipilih.",
     "noPagesToPrint": "Tidak ada halaman untuk dicetak.",
@@ -346,7 +364,13 @@
     "chooseImage": "Pilih Gambar...",
     "scale": "Skala:",
     "selectImageFirst": "Silakan pilih gambar terlebih dahulu.",
-    "defaultText": "DRAF"
+    "defaultText": "DRAF",
+    "autoFit": "Sesuaikan otomatis dengan halaman",
+    "autoFitHint": "Menyesuaikan teks dengan setiap halaman. Ukuran yang ditampilkan berlaku untuk halaman saat ini.",
+    "increaseFontSize": "Perbesar ukuran font",
+    "decreaseFontSize": "Perkecil ukuran font",
+    "textHistory": "Teks yang pernah digunakan",
+    "removeFromHistory": "Hapus dari riwayat"
   },
   "headerFooter": {
     "addTitle": "Tambah Header/Footer",
@@ -430,7 +454,8 @@
     "styleLabel": "Gaya:",
     "nestTitle": "Sarangkan di bawah penanda baru",
     "deleteTitle": "Hapus penanda",
-    "deleteConfirm": "Hapus {{count}} penanda terpilih beserta semua yang ada di bawahnya?"
+    "deleteConfirm": "Hapus {{count}} penanda terpilih beserta semua yang ada di bawahnya?",
+    "replaceAll": "Ganti semua markah buku"
   },
   "formValidation": {
     "title": "Kesalahan Validasi"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Simpan sebagai laporan IFC",
     "failed": "Gagal menyimpan laporan IFC: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Ekspor ke IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) masih dalam pengembangan. Periksa hasilnya sebelum Anda mengandalkannya.",
+    "pages": "Halaman:",
+    "allPages": "Semua halaman",
+    "currentPage": "Halaman saat ini",
+    "customPages": "Rentang halaman",
+    "rangePlaceholder": "mis. 1-3, 5",
+    "includeRaster": "Sertakan gambar",
+    "includeText": "Sertakan teks",
+    "includeAnnotations": "Anotasi pada lapisan terpisah",
+    "export": "Ekspor",
+    "progress": "Mengekspor halaman {{done}} dari {{total}}…",
+    "done": "Ditulis: {{file}} ({{sheets}} lembar, {{paths}} jalur, {{texts}} teks, {{images}} gambar, {{annotations}} anotasi).",
+    "capPaths": "Halaman {{page}}: {{kept}} dari {{total}} jalur diekspor; sisanya melebihi batas.",
+    "capTexts": "Halaman {{page}}: {{kept}} dari {{total}} baris teks diekspor; sisanya melebihi batas.",
+    "capImages": "Halaman {{page}}: {{kept}} dari {{total}} gambar diekspor; sisanya melebihi batas.",
+    "imagesOmitted": "Gambar tanpa data piksel (tidak didukung atau terlalu besar): {{count}}. Posisinya tetap dipertahankan.",
+    "sizeLimit": "Halaman {{page}} dan halaman sesudahnya tidak diekspor: file mencapai batas ukurannya.",
+    "noPages": "Tidak ada halaman yang dipilih.",
+    "noBytes": "Data PDF dokumen ini tidak tersedia. Simpan dokumen lalu coba lagi.",
+    "failed": "Ekspor IFCX gagal: {{error}}",
+    "unsavedNote": "Perubahan konten halaman yang belum disimpan tidak disertakan; anotasi disertakan."
   },
   "styleType": {
     "lineTypes": "Jenis garis",
@@ -1598,6 +1647,57 @@
       "cancel": "Dibatalkan",
       "supersede": "Digantikan",
       "expire": "Kedaluwarsa"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Edit Halaman",
+    "hint": "Seret halaman untuk memindahkannya; jatuhkan file PDF untuk menyisipkan halamannya. Ctrl+klik, Shift+klik, atau kotak centang memilih beberapa halaman. Tidak ada yang berubah sampai Terapkan.",
+    "moveLeft": "Pindah ke kiri",
+    "moveRight": "Pindah ke kanan",
+    "moveToStart": "Pindah ke awal",
+    "moveToEnd": "Pindah ke akhir",
+    "selection": "{{selected}} dari {{total}} halaman dipilih",
+    "rotateLeft": "Putar Kiri",
+    "rotateRight": "Putar Kanan",
+    "split": "Pisahkan",
+    "splitTitle": "Pasang tanda pemisah di sekitar halaman terpilih: setiap rangkaian menjadi file tersendiri",
+    "splitHere": "Pisahkan di sini (pasang atau hapus tanda pemisah)",
+    "extractTitle": "Ekstrak halaman terpilih ke file baru",
+    "blankPage": "Halaman kosong",
+    "pagesFromFile": "Halaman dari file…",
+    "insertHere": "Sisipkan halaman di sini",
+    "select": "Pilih halaman",
+    "zoom": "Zoom",
+    "parts": "Dipisah menjadi {{count}} file saat diterapkan",
+    "chooseFolder": "Pilih folder untuk file hasil pemisahan",
+    "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
+    "applyFailed": "Gagal menerapkan pengeditan halaman: {{error}}",
+    "extractFailed": "Gagal mengekstrak halaman: {{error}}",
+    "blankSetup": "Pengaturan halaman kosong",
+    "sameAsAdjacent": "Sama dengan halaman di sebelahnya",
+    "width": "Lebar:",
+    "height": "Tinggi:",
+    "unit": "Satuan:"
+  },
+  "accessibilityReport": {
+    "title": "Pemeriksaan Aksesibilitas",
+    "starting": "Memeriksa...",
+    "checking": "Memeriksa halaman {{done}} dari {{total}}...",
+    "noIssues": "Tidak ditemukan masalah.",
+    "summary": "Ditemukan {{count}} masalah. Klik dua kali sebuah item untuk membuka halamannya.",
+    "failed": "Pemeriksaan tidak dapat dijalankan pada dokumen ini.",
+    "recheck": "Periksa lagi",
+    "close": "Tutup",
+    "goTo": "Klik dua kali untuk membuka halaman",
+    "page": "Halaman {{page}}",
+    "kind": {
+      "notTagged": "Dokumen tidak memiliki tag: tidak ada pohon struktur, sehingga teknologi bantu tidak dapat mengikuti urutan bacanya.",
+      "notMarked": "Dokumen tidak ditandai sebagai bertag (/MarkInfo /Marked).",
+      "noLanguage": "Bahasa dokumen belum diatur.",
+      "figureNoAlt": "{{role}} tanpa teks alternatif",
+      "pageNotTagged": "Tidak ada konten bertag di halaman ini ({{count}} item teks)",
+      "untaggedContent": "{{count}} item teks di luar tag",
+      "annotationNoText": "Anotasi ({{type}}) tanpa deskripsi"
     }
   }
 }

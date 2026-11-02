@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Large format",
+      "detailblad": "Detail sheet",
+      "voorblad": "Cover sheet"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portrait",
+      "landscape": "landscape"
+    },
     "title": "New Document",
     "paperSize": "Paper Size:",
     "widthMm": "Width (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Print page border",
     "perSheetNote": "Each page is scaled to fit its cell, so the page scaling above does not apply.",
     "poster": "Poster (tiles)",
+    "posterOverview": "Poster overview",
+    "posterOverlapLegend": "Shaded areas are repeated on adjacent sheets",
     "posterScale": "Tile scale",
     "posterOverlap": "Overlap",
     "posterCutMarks": "Cut marks",
     "posterLabels": "Labels (file, page, tile)",
     "posterOnlyLarge": "Tile only large pages",
+    "posterEdgeCrop": "Crop small outer edges",
+    "posterEdgeCropHint": "Up to {{max}} mm per outer edge, for this print only. Off: preserve all content.",
     "posterTileInfo": "Page {{page}}: tile {{row}},{{col}} (row, column) of {{rows}} × {{cols}}",
     "posterNotTiled": "Page {{page}} fits on one sheet and is not tiled.",
     "posterAssumedPaper": "Paper size unknown: tiles are laid out on {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Document and Markups",
     "document": "Document",
     "printAsImage": "Print as Image",
+    "colorMode": "Color mode:",
+    "colorModeColor": "Color",
+    "colorModeGrayscale": "Grayscale",
+    "colorModeBlackWhite": "Black & White",
     "pagesToPrint": "page(s) to print",
     "noPrinterSelected": "No printer selected.",
     "noPagesToPrint": "No pages to print.",
@@ -346,7 +364,13 @@
     "chooseImage": "Choose Image...",
     "scale": "Scale:",
     "selectImageFirst": "Please select an image first.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "Auto-fit to page",
+    "autoFitHint": "Fits the text to each page. The size shown is for the current page.",
+    "increaseFontSize": "Increase font size",
+    "decreaseFontSize": "Decrease font size",
+    "textHistory": "Previously used texts",
+    "removeFromHistory": "Remove from history"
   },
   "headerFooter": {
     "addTitle": "Add Header/Footer",
@@ -430,7 +454,8 @@
     "styleLabel": "Style:",
     "nestTitle": "Nest Under New Bookmark",
     "deleteTitle": "Delete Bookmarks",
-    "deleteConfirm": "Delete {{count}} selected bookmarks and everything under them?"
+    "deleteConfirm": "Delete {{count}} selected bookmarks and everything under them?",
+    "replaceAll": "Replace all bookmarks"
   },
   "formValidation": {
     "title": "Validation Error"
@@ -610,6 +635,30 @@
   "ifcExport": {
     "saveTitle": "Save as IFC report",
     "failed": "Saving the IFC report failed: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Export to IFCX (Beta)",
+    "betaNote": "Beta: IFCX (IFC5) is still being developed. Check the result before you rely on it.",
+    "pages": "Pages:",
+    "allPages": "All pages",
+    "currentPage": "Current page",
+    "customPages": "Page range",
+    "rangePlaceholder": "e.g. 1-3, 5",
+    "includeRaster": "Include images",
+    "includeText": "Include text",
+    "includeAnnotations": "Annotations on a separate layer",
+    "export": "Export",
+    "progress": "Exporting page {{done}} of {{total}}…",
+    "done": "Written: {{file}} ({{sheets}} sheets, {{paths}} paths, {{texts}} texts, {{images}} images, {{annotations}} annotations).",
+    "capPaths": "Page {{page}}: {{kept}} of {{total}} paths exported; the rest is over the limit.",
+    "capTexts": "Page {{page}}: {{kept}} of {{total}} text runs exported; the rest is over the limit.",
+    "capImages": "Page {{page}}: {{kept}} of {{total}} images exported; the rest is over the limit.",
+    "imagesOmitted": "Images without pixel data (unsupported or too large): {{count}}. Their position is kept.",
+    "sizeLimit": "Page {{page}} and the pages after it were not exported: the file reached its size limit.",
+    "noPages": "No pages selected.",
+    "noBytes": "The PDF data of this document is not available. Save the document and try again.",
+    "failed": "IFCX export failed: {{error}}",
+    "unsavedNote": "Unsaved changes to the page content are not included; annotations are."
   },
   "styleType": {
     "lineTypes": "Line types",
@@ -1597,6 +1646,57 @@
       "cancel": "Cancelled",
       "supersede": "Superseded",
       "expire": "Expired"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Edit Pages",
+    "hint": "Drag pages to move them; drop a PDF file to insert its pages. Ctrl+click, Shift+click or the checkboxes select several pages. Nothing changes until Apply.",
+    "moveLeft": "Move left",
+    "moveRight": "Move right",
+    "moveToStart": "Move to start",
+    "moveToEnd": "Move to end",
+    "selection": "{{selected}} of {{total}} pages selected",
+    "rotateLeft": "Rotate Left",
+    "rotateRight": "Rotate Right",
+    "split": "Split",
+    "splitTitle": "Place split marks around the selected pages: each run becomes a separate file",
+    "splitHere": "Split here (place or remove a split mark)",
+    "extractTitle": "Extract the selected pages to a new file",
+    "blankPage": "Blank page",
+    "pagesFromFile": "Pages from file…",
+    "insertHere": "Insert pages here",
+    "select": "Select page",
+    "zoom": "Zoom",
+    "parts": "Split into {{count}} files on Apply",
+    "chooseFolder": "Choose the folder for the split files",
+    "fileFailed": "Could not read {{name}}: {{error}}",
+    "applyFailed": "Applying the page edits failed: {{error}}",
+    "extractFailed": "Extracting the pages failed: {{error}}",
+    "blankSetup": "Blank page setup",
+    "sameAsAdjacent": "Same as adjacent page",
+    "width": "Width:",
+    "height": "Height:",
+    "unit": "Unit:"
+  },
+  "accessibilityReport": {
+    "title": "Accessibility Check",
+    "starting": "Checking...",
+    "checking": "Checking page {{done}} of {{total}}...",
+    "noIssues": "No problems found.",
+    "summary": "{{count}} problem(s) found. Double-click an item to go to its page.",
+    "failed": "The check could not be run on this document.",
+    "recheck": "Check again",
+    "close": "Close",
+    "goTo": "Double-click to go to the page",
+    "page": "Page {{page}}",
+    "kind": {
+      "notTagged": "The document is not tagged: there is no structure tree, so assistive technology cannot follow its reading order.",
+      "notMarked": "The document is not marked as tagged (/MarkInfo /Marked).",
+      "noLanguage": "The document language is not set.",
+      "figureNoAlt": "{{role}} without alternate text",
+      "pageNotTagged": "No tagged content on this page ({{count}} text items)",
+      "untaggedContent": "{{count}} text item(s) outside the tags",
+      "annotationNoText": "Annotation ({{type}}) without a description"
     }
   }
 }

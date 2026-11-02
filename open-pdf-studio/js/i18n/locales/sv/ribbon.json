@@ -169,7 +169,9 @@
     "flattenAll": "Platta till alla",
     "flattenAllTooltip": "Platta till alla markeringar till sidinnehåll",
     "unflattenAll": "Ångra tillplattning",
-    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten"
+    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten",
+    "fileAttachment": "Bifoga fil",
+    "fileAttachmentTitle": "Filbilaga: klicka på sidan och välj en fil"
   },
   "view": {
     "pageDisplay": "Sidvisning",
@@ -198,6 +200,7 @@
     "thinLines": "Tunna linjer",
     "compareGroup": "Jämför",
     "fullscreen": "Helskärm",
+    "fullscreenUnavailable": "Helskärm är inte tillgängligt här: webbläsaren eller sidan som visar appen nekade det. Använd i stället helskärmsalternativet i webbläsarens meny.",
     "window": "Fönster",
     "display": "Visning",
     "keystrokes": "Tangenttryck",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Rotera vyn åt vänster",
     "rotateViewRight": "Rotera vyn åt höger",
     "rotateViewLeftTitle": "Roterar vyn 90° moturs. Själva dokumentet ändras inte.",
-    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte."
+    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte.",
+    "splitGroup": "Dela",
+    "split": "Dela",
+    "splitTitle": "Dela vyn i två fönsterrutor med samma dokument",
+    "splitOptions": "Alternativ för delning",
+    "splitVertical": "Dela lodrätt",
+    "splitHorizontal": "Dela vågrätt",
+    "unsplit": "Ta bort delning",
+    "splitSync": "Synkronisera",
+    "splitSyncTitle": "Rulla och zooma båda fönsterrutorna tillsammans",
+    "splitDividerTitle": "Dra för att ändra storlek på fönsterrutorna. Dubbelklicka för att återställa till 50/50.",
+    "accessibilityGroup": "Tillgänglighet",
+    "readAloud": "Läs upp",
+    "readAloudPause": "Pausa",
+    "readAloudTitle": "Läs upp markeringen, eller dokumentet från aktuell sida",
+    "tagsPanel": "Taggar",
+    "tagsPanelTitle": "Visa dokumentets strukturtaggar",
+    "accessibilityCheck": "Kontrollera",
+    "accessibilityCheckTitle": "Sök efter saknad alternativtext och innehåll utan taggar"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighet — visa/dölj och dämpa anteckningstyper",
@@ -328,7 +349,9 @@
     "scanText": "Redigera skannad text",
     "scanTextHint": "Klicka på ett igenkänt ord för att ersätta det. Det gamla ordet i skanningen täcks över.",
     "scanTextNone": "Ingen igenkänd text på den här sidan. Kör Textigenkänning (OCR) först.",
-    "shiftPage": "Flytta sida"
+    "shiftPage": "Flytta sida",
+    "editPages": "Redigera sidor",
+    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela"
   },
   "help": {
     "settings": "Inställningar",
@@ -348,6 +371,7 @@
     "updates": "Uppdateringar",
     "checkForUpdates": "Sök efter uppdateringar",
     "updatesLabel": "Uppdateringar",
+    "updatesManaged": "Uppdateringar för den här installationen hanteras centralt.",
     "startupDiagnosticsTitle": "Visa den integritetssäkra diagnostikfilen för uppstart",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Filassociation",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Klistra in det urklippta området här med vektordata bevarade",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Storlek som en ny symbol placeras i",
-    "symbolScaleCustom": "Anpassad skala"
+    "symbolScaleCustom": "Anpassad skala",
+    "count": "Räkna",
+    "arc": "Båge"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +704,7 @@
     "saveNote": "Anteckningar och andra markeringar utan utseende på sidan förblir markeringar. Filen ändras först när du sparar; fram till dess ångrar Ångra det här steget.",
     "ok": "Platta till",
     "busy": "Plattar till markeringar...",
+    "cancelled": "Utplattningen avbröts. Dokumentet ändrades inte.",
     "nothing": "Det här dokumentet har inga markeringar att platta till.",
     "nothingBaked": "Ingen av markeringarna har ett utseende på sidan, så inget plattades till.",
     "notLoaded": "Dokumentets markeringar läses fortfarande in. Försök igen om en stund.",
@@ -691,5 +718,60 @@
     "noRecovery": "Markeringarna i det här dokumentet plattades till utan att återställning tilläts. De är en del av sidinnehållet och kan inte återställas.",
     "done": "Återställda markeringar: {{count}}.",
     "failed": "Återställningen misslyckades: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Små ikoner",
+    "largeIcons": "Stora ikoner",
+    "settings": "Inställningar"
+  },
+  "symbolPalette": {
+    "search": "Sök symboler...",
+    "noResults": "Inga symboler hittades",
+    "drawingSettings": "Ritningsinställningar",
+    "manageSystemTypes": "Hantera systemtyper",
+    "settingsTitle": "Inställningar för symbolbibliotek",
+    "industry": "Bransch",
+    "country": "Land",
+    "libraryLoading": "Läser in onlinebiblioteket…",
+    "libraryOffline": "Onlinebiblioteket kan inte nås — begränsad landslista",
+    "downloading": "Hämtar {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Samlingar tillgängliga online: {{n}} ({{symbols}} symboler)",
+    "activateDownloaded": "Hämtade samlingar att aktivera för detta land: {{n}}",
+    "download": "Hämta",
+    "downloadFailed": "Hämtningen misslyckades: {{error}}",
+    "builtIn": "Inbyggd",
+    "online": "Online",
+    "addSymbol": "+ Lägg till symbol",
+    "export": "Exportera",
+    "remove": "Ta bort",
+    "noSymbolsYet": "Inga symboler ännu",
+    "newGroupName": "Namn på ny grupp...",
+    "addGroup": "Lägg till grupp",
+    "importGroup": "Importera grupp",
+    "catalogLoaded": "Katalogen '{{id}}' inläst: {{families}} familjer, {{sizes}} storlekar",
+    "catalogNoPreview": "{{n}} utan förhandsvisning i filen",
+    "fileNotRecognized": "Filen kändes inte igen: varken en symbolgrupp eller en katalog",
+    "importFailed": "Importen misslyckades: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bygg",
+      "nl-elektra": "NL El",
+      "nl-bouwplaats": "NL Byggarbetsplats",
+      "nl-sanitair": "NL Sanitet",
+      "nl-keuken": "NL Kök",
+      "nen1414-tb": "NL NEN 1414 — Brandskydd",
+      "nen1414-tbk": "NL NEN 1414 — Släcksystem",
+      "nen1414-td": "NL NEN 1414 — Dörrar",
+      "nen1414-tn": "NL NEN 1414 — Nödbelysning",
+      "nen1414-tr": "NL NEN 1414 — Brandgasventilation",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Vatten/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bygg)",
+      "electrical": "Elteknik",
+      "process": "Processteknik / P&ID",
+      "mep": "Installationsteknik (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

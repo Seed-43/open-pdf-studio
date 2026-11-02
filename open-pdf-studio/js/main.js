@@ -29,6 +29,10 @@ import './pdf/pdf-lib-snelheid.js';
 // Polyfills voor oudere Android-WebViews (#596): vóór PDF.js en de rest van
 // de app (pdf-lib hierboven heeft ze niet nodig).
 import './core/oude-webview-start.js';
+// Gesplitste weergave (#715): vroeg, zodat zijn capture-luisteraar op window
+// vóór die van de gereedschappen staat (die pas bij hun init komen); zie
+// split-haken.js. Zonder afhankelijkheden.
+import './pdf/split-view/split-haken.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initDomElements } from './ui/dom-elements.js';
@@ -93,7 +97,8 @@ import App from './solid/App.jsx';
 import { addRecentFile } from './mobile/recent-files.js';
 
 // Tauri API
-import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, defaultPdfAppStatus, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { moetBalkTonen } from './core/standaard-pdf-app.js';
 import { instantieRol, taakToegestaan } from './core/instantie-rol.js';
 import { volgendeTaak } from './core/volgende-taak.js';
 import { meldSchoonAfsluiten } from './herstel/haken.js';
@@ -102,6 +107,8 @@ import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
 // De brug naar de gastpagina (#694): alleen in de gehoste bouw.
 import { startHostBrug } from './core/host-brug-start.js';
 import { installeerWorkerShim } from './core/blob-worker.js';
+import { installeerWerkmapDialogen } from './core/openaec-omgeving.js';
+import { sneltoetsActief } from './core/keybindings/app-shortcuts.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -172,6 +179,10 @@ function disableBrowserShortcuts() {
     // preventDefault that already suppresses the other accelerators above.
     if (e.key.toLowerCase() === 'p' && !e.shiftKey && !e.altKey && !e.target.matches('input, textarea')) {
       e.preventDefault();
+      // De afdrukdialoog van de WebView blijft altijd weg; de onze opent
+      // alleen zolang Ctrl+P bij Afdrukken hoort. Gaf de gebruiker Ctrl+P aan
+      // een andere opdracht, dan handelt de gewone toetsafhandeling hem af (#714).
+      if (!sneltoetsActief('file.print', 'Ctrl+P')) return;
       e.stopImmediatePropagation();
       import('./ui/chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
       return;
@@ -205,6 +216,8 @@ async function init() {
     installeerWorkerShim(window);
     startHostBrug();
   }
+  // OpenAEC Linux (#863): open- en opslagdialogen starten in OPENAEC_MAP.
+  installeerWerkmapDialogen(window);
   // Getalvelden accepteren komma én punt; ze tonen het decimaalteken van de
   // app-taal en schakelen mee bij een taalwissel (ui/getal-veld.js).
   installeerGetalVelden({ taal: () => language() });
@@ -459,6 +472,16 @@ async function init() {
   // Desktop-only: check default PDF app (deferred to avoid blocking startup)
   if (!mobile) {
     if (taakToegestaan('standaard-app', rol)) setTimeout(() => checkDefaultPdfApp(), 3000);
+    // Draagbaar (#881): melden als de map naast het programma niet
+    // beschrijfbaar is en de gegevens dus toch in het gebruikersprofiel staan.
+    import('./core/draagbaar.js')
+      .then((m) => m.leesDraagbaar())
+      .then(async (s) => {
+        if (!s.dataDirError) return;
+        const { showMessage } = await import('./solid/stores/dialogStore.js');
+        showMessage(i18next.t('common:portable.notWritable', { dir: s.exeDir || '' }));
+      })
+      .catch(() => {});
     // Geen automatische update-check meer bij het opstarten: het update-venster
     // verscheen ongevraagd. Updaten kan nog handmatig via Help → Controleren op
     // updates (checkForUpdates(false)).
@@ -606,14 +629,19 @@ async function restoreLastSession() {
   }
 }
 
-// Check if this app is the default PDF handler and show info bar if not
+// Check if this app is the default PDF handler and show info bar if not.
+// Only when another app is known to be the default and this one can change
+// that: in a Flatpak/Snap (or without xdg-mime) it cannot be checked, and
+// asking at every start would lead nowhere (standaard-pdf-app.js).
 async function checkDefaultPdfApp() {
   if (!isTauri()) return;
   if (state.preferences.dontAskDefaultPdf) return;
+  // Draagbaar (#881): niet bij Windows geregistreerd, dus niet vragen.
+  const { leesDraagbaar, functieBeschikbaar } = await import('./core/draagbaar.js');
+  if (!functieBeschikbaar('defaultAppPrompt', await leesDraagbaar())) return;
 
   try {
-    const isDefault = await isDefaultPdfApp();
-    if (isDefault) return;
+    if (!moetBalkTonen(await defaultPdfAppStatus())) return;
 
     const { showDefaultAppBar } = await import('./solid/stores/defaultAppBarStore.js');
     showDefaultAppBar();

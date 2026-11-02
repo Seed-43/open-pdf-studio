@@ -9,7 +9,8 @@
     "behavior": "আচরণ",
     "fileAssociation": "ফাইল সংযুক্তি",
     "virtualPrinter": "ভার্চুয়াল প্রিন্টার",
-    "pageDisplay": "পৃষ্ঠা প্রদর্শন"
+    "pageDisplay": "পৃষ্ঠা প্রদর্শন",
+    "keyboardShortcuts": "কীবোর্ড শর্টকাট"
   },
   "resetToDefaults": "ডিফল্টে পুনরায় সেট করুন",
   "resetConfirm": "সমস্ত পছন্দ ডিফল্ট মানে পুনরায় সেট করবেন?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "{{adres}}-এ সক্রিয়",
     "aiLinkViaFlag": "স্টার্টআপ প্যারামিটারের মাধ্যমে সক্রিয় ({{adres}})",
     "aiLinkOff": "বন্ধ",
-    "aiLinkError": "শুরু হয়নি: {{fout}}"
+    "aiLinkError": "শুরু হয়নি: {{fout}}",
+    "interfaceScale": "ইন্টারফেসের আকার"
   },
   "annotations": {
     "generalDefaults": "সাধারণ ডিফল্ট",
@@ -105,7 +107,13 @@
     "headOpenReversed": "খোলা তীর (বিপরীত)",
     "headClosedReversed": "বন্ধ তীর (বিপরীত)",
     "headSlash": "স্ল্যাশ",
-    "polylineDefaults": "পলিলাইন ডিফল্ট"
+    "polylineDefaults": "পলিলাইন ডিফল্ট",
+    "smoothing": "মসৃণকরণ",
+    "pressure": "কলমের চাপ",
+    "pressureHint": "কলমের চাপে রেখার প্রস্থ বদলায় (মাউসের রেখার প্রস্থ স্থির থাকে)",
+    "pressureMinWidth": "ন্যূনতম প্রস্থ (%)",
+    "penOnly": "শুধু কলম (স্পর্শ উপেক্ষা)",
+    "penOnlyHint": "স্পর্শে ফ্রিহ্যান্ড টুল দিয়ে আঁকা হয় না; কলম দিয়ে লেখার সময় হাতের তালুর স্পর্শ এড়াতে উপযোগী"
   },
   "shapes": {
     "rectangleDefaults": "আয়তক্ষেত্র ডিফল্ট",
@@ -165,8 +173,15 @@
     "deletion": "মুছে ফেলা",
     "confirmBeforeDeleting": "টীকা মুছে ফেলার আগে নিশ্চিত করুন",
     "snapToPdfContent": "PDF অঙ্কনের বিষয়বস্তুতে স্ন্যাপ করুন",
+    "moveInference": "সরানোর সময় সহায়ক রেখা (G / mv)",
+    "moveInferenceTracking": "ট্র্যাকিং রেখা (অন্য জ্যামিতির বিন্দুর সাথে সারিবদ্ধ)",
+    "moveInferenceExtension": "রেখা ও দেয়ালের তলের বর্ধিতাংশ",
+    "moveInferenceParallel": "কাছের রেখার সমান্তরাল / লম্ব",
+    "moveInferenceHint": "কোনো বিন্দু ধরতে কার্সারটি কিছুক্ষণ তার উপর রাখুন, কোনো গাইড লক করতে Shift চেপে ধরে রাখুন, Tab দূরত্ব ও কোণের মধ্যে বদলায়। পোলার গাইড পোলার ট্র্যাকিংয়ের সেটিংস অনুসরণ করে।",
     "navigation": "নেভিগেশন",
     "wheelZoomWithoutCtrl": "মাউস হুইল দিয়ে জুম করুন (Ctrl না চেপে)",
+    "middleDoubleClickFit": "পৃষ্ঠা মানানসই করতে মাউসের মাঝের বোতামে ডাবল-ক্লিক করুন",
+    "ribbonWheelSwitchesTabs": "মাউস হুইল দিয়ে রিবন ট্যাব বদলান",
     "dynamicScaling": "মার্কআপ স্বয়ংক্রিয়ভাবে স্কেল করুন"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "macOS-এ Open PDF Studio কে ডিফল্ট PDF ভিউয়ার হিসেবে সেট করতে:\n\n1. ফাইন্ডারে যেকোনো PDF ফাইলে ডান-ক্লিক করুন\n2. \"তথ্য পান\" নির্বাচন করুন\n3. \"এর সাথে খুলুন\" এ Open PDF Studio নির্বাচন করুন\n4. \"সমস্ত পরিবর্তন করুন...\" ক্লিক করুন",
     "linuxInstructions": "লিনাক্সে Open PDF Studio কে ডিফল্ট PDF ভিউয়ার হিসেবে সেট করতে:\n\nটার্মিনালে চালান:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "ফাইন্ডার > তথ্য পান দেখুন",
-    "notSet": "সেট করা নেই"
+    "notSet": "সেট করা নেই",
+    "chosenInSystemSettings": "সিস্টেম সেটিংসে নির্বাচিত",
+    "sandboxInstructions": "Open PDF Studio একটি {{package}} প্যাকেজ হিসেবে চলছে এবং নিজে ডিফল্ট PDF অ্যাপ পরিবর্তন করতে পারে না।\n\nসিস্টেম সেটিংসে ডিফল্ট অ্যাপ্লিকেশন অংশে Open PDF Studio বেছে নিন, অথবা কোনো PDF ফাইলে ডান-ক্লিক করে এর সাথে খুলুন ব্যবহার করুন।",
+    "xdgMimeMissing": "xdg-mime (প্যাকেজ xdg-utils) ইনস্টল করা নেই, তাই এখান থেকে ডিফল্ট PDF অ্যাপ সেট করা যাবে না।\n\nxdg-utils ইনস্টল করুন, অথবা সিস্টেম সেটিংসে ডিফল্ট অ্যাপ্লিকেশন অংশে Open PDF Studio বেছে নিন।",
+    "linuxDone": "Open PDF Studio এখন PDF ফাইলের ডিফল্ট অ্যাপ।",
+    "linuxFailed": "Open PDF Studio-কে ডিফল্ট PDF অ্যাপ হিসেবে সেট করা যায়নি।\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "ফাইল এক্সপ্লোরার",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "জোরালো",
     "pageSharpenLevel4": "সর্বোচ্চ",
     "showScrollbars": "ক্যানভাস স্ক্রলবার দেখান",
+    "backgroundColor": "পটভূমির রং",
+    "backgroundColorDefault": "ডিফল্ট",
+    "backgroundColorHint": "পৃষ্ঠাগুলির চারপাশে ও মাঝখানের অংশের রং। পৃষ্ঠা নিজে, মুদ্রণ ও রপ্তানি বদলায় না।",
     "panels": "প্যানেল",
     "showPropertiesPanel": "ডিফল্টভাবে বৈশিষ্ট্য প্যানেল দেখান",
     "showToolPalette": "ডিফল্টভাবে টুল প্যালেট দেখান",
@@ -291,5 +314,58 @@
     "openArrowReversed": "খোলা তীর (বিপরীত)",
     "closedArrowReversed": "বন্ধ তীর (বিপরীত)",
     "slash": "স্ল্যাশ"
+  },
+  "keyboardShortcuts": {
+    "title": "কীবোর্ড শর্টকাট",
+    "search": "কমান্ড বা কী দিয়ে খুঁজুন",
+    "command": "কমান্ড",
+    "shortcuts": "শর্টকাট",
+    "none": "কোনোটি নয়",
+    "noMatches": "অনুসন্ধানের সাথে কোনো কমান্ড মেলেনি।",
+    "selectHint": "শর্টকাট বদলাতে একটি কমান্ড বেছে নিন।",
+    "addShortcut": "শর্টকাট যোগ করুন",
+    "remove": "শর্টকাট সরান",
+    "resetCommand": "ডিফল্টে ফেরান",
+    "resetAll": "সব ফেরান",
+    "resetAllConfirm": "সব কীবোর্ড শর্টকাট ডিফল্টে ফেরাবেন?",
+    "loadPreset": "প্রিসেট লোড করুন…",
+    "replaceConfirm": "এটি আপনার নিজস্ব কীবোর্ড শর্টকাটগুলি প্রতিস্থাপন করবে। চালিয়ে যাবেন?",
+    "presets": {
+      "markupStyle": "মার্কআপ-ধাঁচের শর্টকাট"
+    },
+    "import": "আমদানি…",
+    "export": "রপ্তানি…",
+    "fileType": "কীবোর্ড শর্টকাট",
+    "imported": "শর্টকাট আমদানি হয়েছে। প্রয়োগ করতে সংরক্ষণে ক্লিক করুন।",
+    "importFailed": "এটি বৈধ কীবোর্ড শর্টকাট ফাইল নয়।",
+    "exported": "শর্টকাট রপ্তানি হয়েছে।",
+    "exportFailed": "শর্টকাট রপ্তানি ব্যর্থ হয়েছে:",
+    "recording": "নতুন কী সমন্বয় চাপুন… (Esc বাতিল করে)",
+    "conflict": "{{keys}} ইতিমধ্যে “{{command}}” ব্যবহার করছে।",
+    "reassign": "পুনরায় বরাদ্দ",
+    "reserved": "{{keys}}-এর অর্থ নির্দিষ্ট, তাই এটি বরাদ্দ করা যায় না।",
+    "defaultLabel": "ডিফল্ট: {{keys}}",
+    "customize": "কাস্টমাইজ…",
+    "fixedGroup": "নির্দিষ্ট কী",
+    "applyHint": "সংরক্ষণে ক্লিক করলে পরিবর্তন কার্যকর হয়।",
+    "categories": {
+      "file": "ফাইল",
+      "edit": "সম্পাদনা",
+      "view": "দৃশ্য",
+      "search": "খুঁজুন",
+      "tools": "সরঞ্জাম",
+      "drafting": "অঙ্কন সহায়ক",
+      "panels": "প্যানেল",
+      "review": "পর্যালোচনা",
+      "help": "সহায়তা",
+      "extensions": "এক্সটেনশন",
+      "ribbon": "রিবন: {{tab}}",
+      "other": "অন্যান্য"
+    },
+    "commands": {
+      "findNext": "পরবর্তী খুঁজুন",
+      "splitPaneLarger": "সক্রিয় প্যান বড় করুন",
+      "splitPaneSmaller": "সক্রিয় প্যান ছোট করুন"
+    }
   }
 }

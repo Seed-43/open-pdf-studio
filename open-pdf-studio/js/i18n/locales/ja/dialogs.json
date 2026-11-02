@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大判",
+      "detailblad": "詳細図面",
+      "voorblad": "表紙"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "縦向き",
+      "landscape": "横向き"
+    },
     "title": "新規ドキュメント",
     "paperSize": "用紙サイズ：",
     "widthMm": "幅 (mm)：",
@@ -128,11 +138,15 @@
     "pageBorder": "ページの境界線を印刷",
     "perSheetNote": "各ページはセルに収まるように拡大縮小されるため、上のページの拡大縮小設定は適用されません。",
     "poster": "ポスター（タイル）",
+    "posterOverview": "ポスター全体のプレビュー",
+    "posterOverlapLegend": "色付きの部分は隣接する用紙に重複して印刷されます",
     "posterScale": "タイルの倍率",
     "posterOverlap": "重なり",
     "posterCutMarks": "トンボ（裁断マーク）",
     "posterLabels": "ラベル（ファイル、ページ、タイル）",
     "posterOnlyLarge": "大きいページのみ分割",
+    "posterEdgeCrop": "外周をわずかに切り取る",
+    "posterEdgeCropHint": "今回の印刷のみ、各外周から最大 {{max}} mm 切り取ります。オフの場合はすべての内容を保持します。",
     "posterTileInfo": "{{page}} ページ: タイル {{row}},{{col}}（行, 列）/ {{rows}} × {{cols}}",
     "posterNotTiled": "{{page}} ページは 1 枚の用紙に収まるため分割されません。",
     "posterAssumedPaper": "用紙サイズが不明です: タイルは {{paper}} に配置されます。",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "ドキュメントと注釈",
     "document": "ドキュメント",
     "printAsImage": "画像として印刷",
+    "colorMode": "カラーモード：",
+    "colorModeColor": "カラー",
+    "colorModeGrayscale": "グレースケール",
+    "colorModeBlackWhite": "白黒",
     "pagesToPrint": "ページを印刷",
     "noPrinterSelected": "プリンターが選択されていません。",
     "noPagesToPrint": "印刷するページがありません。",
@@ -346,7 +364,13 @@
     "chooseImage": "画像を選択...",
     "scale": "スケール：",
     "selectImageFirst": "先に画像を選択してください。",
-    "defaultText": "下書き"
+    "defaultText": "下書き",
+    "autoFit": "ページに自動フィット",
+    "autoFitHint": "各ページに合わせてテキストを調整します。表示されるサイズは現在のページのものです。",
+    "increaseFontSize": "フォントサイズを大きくする",
+    "decreaseFontSize": "フォントサイズを小さくする",
+    "textHistory": "以前に使用したテキスト",
+    "removeFromHistory": "履歴から削除"
   },
   "headerFooter": {
     "addTitle": "ヘッダー/フッターを追加",
@@ -430,7 +454,8 @@
     "styleLabel": "スタイル：",
     "nestTitle": "新しいしおりの下に入れる",
     "deleteTitle": "しおりの削除",
-    "deleteConfirm": "選択した {{count}} 件のしおりと、その下のすべてを削除しますか？"
+    "deleteConfirm": "選択した {{count}} 件のしおりと、その下のすべてを削除しますか？",
+    "replaceAll": "すべてのブックマークを置き換える"
   },
   "formValidation": {
     "title": "入力エラー"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "IFC レポートとして保存",
     "failed": "IFC レポートの保存に失敗しました：{{error}}"
+  },
+  "ifcxExport": {
+    "title": "IFCX にエクスポート（ベータ）",
+    "betaNote": "ベータ版: IFCX（IFC5）はまだ開発中です。結果を利用する前に確認してください。",
+    "pages": "ページ:",
+    "allPages": "すべてのページ",
+    "currentPage": "現在のページ",
+    "customPages": "ページ範囲",
+    "rangePlaceholder": "例: 1-3, 5",
+    "includeRaster": "画像を含める",
+    "includeText": "テキストを含める",
+    "includeAnnotations": "注釈を別レイヤーに",
+    "export": "エクスポート",
+    "progress": "{{total}} ページ中 {{done}} ページ目をエクスポート中…",
+    "done": "書き込み完了: {{file}}（シート {{sheets}}、パス {{paths}}、テキスト {{texts}}、画像 {{images}}、注釈 {{annotations}}）",
+    "capPaths": "{{page}} ページ: パス {{total}} 個のうち {{kept}} 個をエクスポートしました。残りは上限を超えています。",
+    "capTexts": "{{page}} ページ: テキスト行 {{total}} 個のうち {{kept}} 個をエクスポートしました。残りは上限を超えています。",
+    "capImages": "{{page}} ページ: 画像 {{total}} 個のうち {{kept}} 個をエクスポートしました。残りは上限を超えています。",
+    "imagesOmitted": "ピクセルデータのない画像（未対応またはサイズ超過）: {{count}}。位置は保持されます。",
+    "sizeLimit": "{{page}} ページ以降はエクスポートされませんでした。ファイルがサイズの上限に達しました。",
+    "noPages": "ページが選択されていません。",
+    "noBytes": "この文書の PDF データを利用できません。文書を保存してから再試行してください。",
+    "failed": "IFCX のエクスポートに失敗しました: {{error}}",
+    "unsavedNote": "ページ内容の未保存の変更は含まれません。注釈は含まれます。"
   },
   "styleType": {
     "lineTypes": "線種",
@@ -1598,6 +1647,57 @@
       "cancel": "キャンセル",
       "supersede": "置き換え",
       "expire": "期限切れ"
+    }
+  },
+  "pageOrganizer": {
+    "title": "ページの編集",
+    "hint": "ページをドラッグして移動します。PDF ファイルをドロップするとそのページを挿入します。Ctrl+クリック、Shift+クリック、またはチェックボックスで複数ページを選択します。「適用」するまで何も変更されません。",
+    "moveLeft": "左へ移動",
+    "moveRight": "右へ移動",
+    "moveToStart": "先頭へ移動",
+    "moveToEnd": "末尾へ移動",
+    "selection": "{{total}} ページ中 {{selected}} ページを選択",
+    "rotateLeft": "左に回転",
+    "rotateRight": "右に回転",
+    "split": "分割",
+    "splitTitle": "選択したページの前後に分割マークを置きます: 各範囲が別のファイルになります",
+    "splitHere": "ここで分割 (分割マークの配置/解除)",
+    "extractTitle": "選択したページを新しいファイルに抽出",
+    "blankPage": "空白ページ",
+    "pagesFromFile": "ファイルからページ…",
+    "insertHere": "ここにページを挿入",
+    "select": "ページを選択",
+    "zoom": "ズーム",
+    "parts": "適用時に {{count}} 個のファイルに分割",
+    "chooseFolder": "分割したファイルの保存先フォルダーを選択",
+    "fileFailed": "{{name}} を読み込めませんでした: {{error}}",
+    "applyFailed": "ページの編集を適用できませんでした: {{error}}",
+    "extractFailed": "ページを抽出できませんでした: {{error}}",
+    "blankSetup": "空白ページの設定",
+    "sameAsAdjacent": "隣接ページと同じ",
+    "width": "幅：",
+    "height": "高さ：",
+    "unit": "単位："
+  },
+  "accessibilityReport": {
+    "title": "アクセシビリティ チェック",
+    "starting": "チェック中...",
+    "checking": "{{total}} ページ中 {{done}} ページ目をチェック中...",
+    "noIssues": "問題は見つかりませんでした。",
+    "summary": "{{count}} 件の問題が見つかりました。項目をダブルクリックするとそのページへ移動します。",
+    "failed": "この文書ではチェックを実行できませんでした。",
+    "recheck": "再チェック",
+    "close": "閉じる",
+    "goTo": "ダブルクリックでページへ移動",
+    "page": "{{page}} ページ",
+    "kind": {
+      "notTagged": "文書にタグがありません。構造ツリーがないため、支援技術は読み上げ順序をたどれません。",
+      "notMarked": "文書がタグ付きとしてマークされていません (/MarkInfo /Marked)。",
+      "noLanguage": "文書の言語が設定されていません。",
+      "figureNoAlt": "代替テキストのない {{role}}",
+      "pageNotTagged": "このページにはタグ付きコンテンツがありません (テキスト項目 {{count}} 件)",
+      "untaggedContent": "タグ外のテキスト項目 {{count}} 件",
+      "annotationNoText": "説明のない注釈 ({{type}})"
     }
   }
 }

@@ -706,7 +706,7 @@
   flex-shrink: 0;
 }
 
-.main-view > #pdf-container.visible,
+.main-view #pdf-container.visible,
 .main-view > #placeholder {
   flex: 1;
   min-height: 0;
@@ -722,7 +722,7 @@
   padding: 20px;
 }
 
-.main-view > #pdf-container.visible {
+.main-view #pdf-container.visible {
   /* Free-pan UX: NO auto-centering. Canvas always top-left of the container.
      Previously used `safe center` which centered the canvas when it fit the
      viewport and fell back to start when it overflowed — the transition
@@ -741,6 +741,116 @@
      browser gekozen ankerknooppunt van maat verandert — dubbele correctie =
      verspringen bij snel zoomen. */
   overflow-anchor: none;
+}
+
+/* Achtergrondkleur rond en tussen de pagina's (#859): zonder eigen kleur
+   doorzichtig (het thema van .content, zoals altijd); het canvas van de
+   enkele-paginaweergave vult zelf met dezelfde kleur. */
+.main-view #pdf-container.visible {
+  background: var(--page-area-bg, transparent);
+}
+
+/* Gesplitste weergave (#715). #pdf-container staat in #split-host. Zonder
+   splitsing is die `display: contents`: voor de lay-out staat #pdf-container
+   dan gewoon in .main-view, zoals altijd. Met splitsing is #split-host een
+   flexrij (Split Vertical) of -kolom (Split Horizontal) met de echte viewer,
+   de scheidingslijn en het tweede paneel; de volgorde (CSS order) en de
+   verhouding zet split-view.js. */
+.split-host {
+  display: contents;
+}
+
+.split-host > .split-divider,
+.split-host > .split-pane,
+.split-host > .split-active-frame {
+  display: none;
+}
+
+.split-host.split-aan {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.split-host.split-aan.split-horizontaal {
+  flex-direction: column;
+}
+
+.split-host.split-aan > #pdf-container.visible {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.split-host.split-aan > .split-pane {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  /* Achtergrondkleur rond de pagina (#859); het canvas vult hem ook. */
+  background: var(--page-area-bg, #e0e0e0);
+  user-select: none;
+  touch-action: none;
+}
+
+.split-pane > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+/* De scheidingslijn (#858): een dunne zichtbare lijn met een onzichtbaar
+   grijpvlak van 4 px aan elke kant (samen 10 px), dat over de randen van de
+   panelen ligt. Licht op bij aanwijzen en tijdens het slepen. Geen eigen
+   cursor: de standaardcursor, zoals overal buiten het PDF-vlak. */
+.split-host.split-aan > .split-divider {
+  display: block;
+  flex: 0 0 2px;
+  position: relative;
+  z-index: 36;
+  background: #b4b4b4;
+  box-sizing: border-box;
+  touch-action: none;
+  cursor: default;
+}
+
+.split-host.split-aan > .split-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+.split-host.split-aan.split-horizontaal > .split-divider::before {
+  top: -4px;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+}
+
+.split-host.split-aan > .split-divider:hover,
+.split-host.split-aan > .split-divider.split-divider-slepen {
+  background: var(--theme-accent, #0078d4);
+}
+
+/* Het actieve paneel: een kader eroverheen (niet erin, dan zou de viewer
+   kleiner worden). Klikken gaan erdoorheen. */
+.split-host.split-aan > .split-active-frame {
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--theme-accent, #0078d4);
+  pointer-events: none;
+  z-index: 35;
 }
 
 /* Optional canvas scrollbars (toggled via preference `showScrollbars`).
@@ -1066,3 +1176,15 @@ body.pdf-cursor-override #canvas-container * {
   border-color: #e81123;
   color: #ffffff;
 }
+
+/* Bestandsnamen in een splitsing met twee documenten (#893). */
+.split-document-name {
+  position: absolute; top: 2px; left: 4px; z-index: 3;
+  max-width: calc(100% * var(--split-ratio, .5) - 16px);
+  padding: 3px 6px; font-size: 12px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; pointer-events: none;
+  color: var(--theme-text); background: var(--theme-bg); border: 1px solid var(--theme-border);
+}
+.split-document-name[data-pane="1"] { left: calc(100% * var(--split-ratio, .5) + 8px); max-width: calc(100% * (1 - var(--split-ratio, .5)) - 16px); }
+.split-horizontaal .split-document-name { max-width: calc(100% - 16px); }
+.split-horizontaal .split-document-name[data-pane="1"] { left: 4px; top: calc(100% * var(--split-ratio, .5) + 8px); }

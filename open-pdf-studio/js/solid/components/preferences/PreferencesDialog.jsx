@@ -1,4 +1,4 @@
-import { createSignal, Switch, Match, For } from 'solid-js';
+import { createSignal, createEffect, onCleanup, Switch, Match, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { DEFAULT_PREFERENCES } from '../../../core/constants.js';
@@ -6,6 +6,7 @@ import { state, getActiveDocument } from '../../../core/state.js';
 import { savePreferences, applyTheme } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { isMobile, isTauri, getUsername } from '../../../core/platform.js';
+import { zetPaginaAchtergrond } from '../../../pdf/pagina-achtergrond.js';
 
 import GeneralTab from './GeneralTab.jsx';
 import AnnotationsTab from './AnnotationsTab.jsx';
@@ -13,14 +14,16 @@ import BehaviorTab from './BehaviorTab.jsx';
 import PageDisplayTab from './PageDisplayTab.jsx';
 import FileAssocTab from './FileAssocTab.jsx';
 import VirtualPrinterTab from './VirtualPrinterTab.jsx';
+import KeyboardShortcutsTab from './KeyboardShortcutsTab.jsx';
 
-const DESKTOP_ONLY_TABS = ['fileassoc', 'vprinter'];
+const DESKTOP_ONLY_TABS = ['fileassoc', 'vprinter', 'shortcuts'];
 
 const TAB_IDS = [
   { id: 'general', key: 'tabs.general' },
   { id: 'annotations', key: 'tabs.annotations' },
   { id: 'behavior', key: 'tabs.behavior' },
   { id: 'pageDisplay', key: 'tabs.pageDisplay' },
+  { id: 'shortcuts', key: 'tabs.keyboardShortcuts' },
   { id: 'fileassoc', key: 'tabs.fileAssociation' },
   { id: 'vprinter', key: 'tabs.virtualPrinter' },
 ];
@@ -51,6 +54,11 @@ const TAB_ICONS = {
       <rect x="3" y="3" width="18" height="18" rx="1"/><path d="M7 8h10M7 12h10M7 16h10"/>
     </svg>
   ),
+  shortcuts: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="12" rx="1"/><path d="M6 10h0m4 0h0m4 0h0m4 0h0M7 14h10"/>
+    </svg>
+  ),
   vprinter: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
@@ -74,6 +82,12 @@ export default function PreferencesDialog(props) {
   const [activeTab, setActiveTab] = createSignal(initialTab);
 
   const prefs = createPrefSignals(state.preferences);
+
+  // Background color around the pages (#859): shown at once while choosing;
+  // closing without saving puts the saved color back (after Save that is the
+  // new one).
+  createEffect(() => zetPaginaAchtergrond(prefs.pageBackgroundColor[0]()));
+  onCleanup(() => zetPaginaAchtergrond(state.preferences.pageBackgroundColor));
 
   function close() {
     closeDialog('preferences');
@@ -187,6 +201,9 @@ export default function PreferencesDialog(props) {
             </Match>
             <Match when={activeTab() === 'pageDisplay'}>
               <PageDisplayTab prefs={prefs} />
+            </Match>
+            <Match when={activeTab() === 'shortcuts'}>
+              <KeyboardShortcutsTab prefs={prefs} />
             </Match>
             <Match when={activeTab() === 'fileassoc'}>
               <FileAssocTab />

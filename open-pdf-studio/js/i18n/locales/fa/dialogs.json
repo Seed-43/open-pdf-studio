@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "قطع بزرگ",
+      "detailblad": "برگه جزئیات",
+      "voorblad": "برگه جلد"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودی",
+      "landscape": "افقی"
+    },
     "title": "سند جدید",
     "paperSize": "اندازه کاغذ:",
     "widthMm": "عرض (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "چاپ کادر صفحه",
     "perSheetNote": "هر صفحه به اندازه خانه خود مقیاس می‌شود، بنابراین مقیاس صفحه در بالا اعمال نمی‌شود.",
     "poster": "پوستر (کاشی)",
+    "posterOverview": "نمای کلی پوستر",
+    "posterOverlapLegend": "ناحیه‌های سایه‌دار در برگه‌های مجاور تکرار می‌شوند",
     "posterScale": "مقیاس کاشی‌ها",
     "posterOverlap": "هم‌پوشانی",
     "posterCutMarks": "علامت‌های برش",
     "posterLabels": "برچسب‌ها (فایل، صفحه، کاشی)",
     "posterOnlyLarge": "فقط صفحه‌های بزرگ کاشی شوند",
+    "posterEdgeCrop": "برش جزئی لبه‌های بیرونی",
+    "posterEdgeCropHint": "حداکثر {{max}} میلی‌متر از هر لبه بیرونی، فقط برای این چاپ. خاموش: حفظ تمام محتوا.",
     "posterTileInfo": "صفحه {{page}}: کاشی {{row}},{{col}} (ردیف، ستون) از {{rows}} × {{cols}}",
     "posterNotTiled": "صفحه {{page}} در یک برگه جا می‌شود و کاشی نمی‌شود.",
     "posterAssumedPaper": "اندازه کاغذ نامشخص است: کاشی‌ها روی {{paper}} چیده می‌شوند.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "سند و نشانه‌گذاری‌ها",
     "document": "سند",
     "printAsImage": "چاپ به صورت تصویر",
+    "colorMode": "حالت رنگ:",
+    "colorModeColor": "رنگی",
+    "colorModeGrayscale": "طیف خاکستری",
+    "colorModeBlackWhite": "سیاه و سفید",
     "pagesToPrint": "صفحه برای چاپ",
     "noPrinterSelected": "هیچ چاپگری انتخاب نشده است.",
     "noPagesToPrint": "هیچ صفحه‌ای برای چاپ وجود ندارد.",
@@ -346,7 +364,13 @@
     "chooseImage": "انتخاب تصویر...",
     "scale": "مقیاس:",
     "selectImageFirst": "لطفاً ابتدا یک تصویر انتخاب کنید.",
-    "defaultText": "پیش‌نویس"
+    "defaultText": "پیش‌نویس",
+    "autoFit": "تطبیق خودکار با صفحه",
+    "autoFitHint": "متن را با هر صفحه تطبیق می‌دهد. اندازهٔ نمایش‌داده‌شده مربوط به صفحهٔ فعلی است.",
+    "increaseFontSize": "افزایش اندازهٔ قلم",
+    "decreaseFontSize": "کاهش اندازهٔ قلم",
+    "textHistory": "متن‌های استفاده‌شدهٔ قبلی",
+    "removeFromHistory": "حذف از تاریخچه"
   },
   "headerFooter": {
     "addTitle": "افزودن سرصفحه/پاصفحه",
@@ -430,7 +454,8 @@
     "styleLabel": "سبک:",
     "nestTitle": "قرار دادن زیر نشانک جدید",
     "deleteTitle": "حذف نشانک‌ها",
-    "deleteConfirm": "{{count}} نشانک انتخاب‌شده و هر آنچه زیر آن‌هاست حذف شود؟"
+    "deleteConfirm": "{{count}} نشانک انتخاب‌شده و هر آنچه زیر آن‌هاست حذف شود؟",
+    "replaceAll": "جایگزینی همهٔ نشانک‌ها"
   },
   "formValidation": {
     "title": "خطای اعتبارسنجی"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "ذخیره به‌صورت گزارش IFC",
     "failed": "ذخیره گزارش IFC ناموفق بود: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "صدور به IFCX (آزمایشی)",
+    "betaNote": "آزمایشی: قالب IFCX (IFC5) هنوز در حال توسعه است. پیش از اتکا به نتیجه، آن را بررسی کنید.",
+    "pages": "صفحه‌ها:",
+    "allPages": "همه صفحه‌ها",
+    "currentPage": "صفحه فعلی",
+    "customPages": "بازه صفحه‌ها",
+    "rangePlaceholder": "مثلاً 1-3، 5",
+    "includeRaster": "شامل تصاویر",
+    "includeText": "شامل متن",
+    "includeAnnotations": "یادداشت‌ها در لایه‌ای جداگانه",
+    "export": "صدور",
+    "progress": "در حال صدور صفحه {{done}} از {{total}}…",
+    "done": "نوشته شد: {{file}} (برگه‌ها: {{sheets}}، مسیرها: {{paths}}، متن‌ها: {{texts}}، تصاویر: {{images}}، یادداشت‌ها: {{annotations}}).",
+    "capPaths": "صفحه {{page}}: {{kept}} از {{total}} مسیر صادر شد؛ بقیه از حد مجاز بیشتر است.",
+    "capTexts": "صفحه {{page}}: {{kept}} از {{total}} سطر متن صادر شد؛ بقیه از حد مجاز بیشتر است.",
+    "capImages": "صفحه {{page}}: {{kept}} از {{total}} تصویر صادر شد؛ بقیه از حد مجاز بیشتر است.",
+    "imagesOmitted": "تصاویر بدون داده پیکسلی (پشتیبانی‌نشده یا بیش از حد بزرگ): {{count}}. موقعیت آن‌ها حفظ می‌شود.",
+    "sizeLimit": "صفحه {{page}} و صفحه‌های بعدی صادر نشدند: فایل به حد مجاز اندازه رسید.",
+    "noPages": "هیچ صفحه‌ای انتخاب نشده است.",
+    "noBytes": "داده‌های PDF این سند در دسترس نیست. سند را ذخیره کنید و دوباره تلاش کنید.",
+    "failed": "صدور IFCX ناموفق بود: {{error}}",
+    "unsavedNote": "تغییرات ذخیره‌نشده در محتوای صفحه‌ها گنجانده نمی‌شوند؛ یادداشت‌ها گنجانده می‌شوند."
   },
   "styleType": {
     "lineTypes": "انواع خط",
@@ -1598,6 +1647,57 @@
       "cancel": "لغو شد",
       "supersede": "جایگزین شد",
       "expire": "منقضی شد"
+    }
+  },
+  "pageOrganizer": {
+    "title": "ویرایش صفحات",
+    "hint": "صفحات را برای جابه‌جایی بکشید؛ یک فایل PDF را رها کنید تا صفحاتش درج شود. Ctrl+کلیک، Shift+کلیک یا کادرهای انتخاب چند صفحه را انتخاب می‌کنند. تا اعمال چیزی تغییر نمی‌کند.",
+    "moveLeft": "انتقال به چپ",
+    "moveRight": "انتقال به راست",
+    "moveToStart": "انتقال به ابتدا",
+    "moveToEnd": "انتقال به انتها",
+    "selection": "{{selected}} از {{total}} صفحه انتخاب شده",
+    "rotateLeft": "چرخش به چپ",
+    "rotateRight": "چرخش به راست",
+    "split": "تقسیم",
+    "splitTitle": "گذاشتن نشانه‌های تقسیم دور صفحات انتخاب‌شده: هر دنباله یک فایل جداگانه می‌شود",
+    "splitHere": "تقسیم در اینجا (گذاشتن یا برداشتن نشانه تقسیم)",
+    "extractTitle": "استخراج صفحات انتخاب‌شده به یک فایل جدید",
+    "blankPage": "صفحه خالی",
+    "pagesFromFile": "صفحات از فایل…",
+    "insertHere": "درج صفحات در اینجا",
+    "select": "انتخاب صفحه",
+    "zoom": "بزرگ‌نمایی",
+    "parts": "هنگام اعمال به {{count}} فایل تقسیم می‌شود",
+    "chooseFolder": "پوشه فایل‌های تقسیم‌شده را انتخاب کنید",
+    "fileFailed": "خواندن {{name}} ممکن نشد: {{error}}",
+    "applyFailed": "اعمال ویرایش‌های صفحه ناموفق بود: {{error}}",
+    "extractFailed": "استخراج صفحات ناموفق بود: {{error}}",
+    "blankSetup": "تنظیم صفحه خالی",
+    "sameAsAdjacent": "مانند صفحه مجاور",
+    "width": "عرض:",
+    "height": "ارتفاع:",
+    "unit": "واحد:"
+  },
+  "accessibilityReport": {
+    "title": "بررسی دسترس‌پذیری",
+    "starting": "در حال بررسی...",
+    "checking": "در حال بررسی صفحهٔ {{done}} از {{total}}...",
+    "noIssues": "هیچ مشکلی پیدا نشد.",
+    "summary": "{{count}} مشکل پیدا شد. برای رفتن به صفحهٔ هر مورد روی آن دوبار کلیک کنید.",
+    "failed": "بررسی روی این سند انجام نشد.",
+    "recheck": "بررسی دوباره",
+    "close": "بستن",
+    "goTo": "برای رفتن به صفحه دوبار کلیک کنید",
+    "page": "صفحهٔ {{page}}",
+    "kind": {
+      "notTagged": "سند برچسب ندارد: درخت ساختار وجود ندارد، بنابراین فناوری‌های کمکی نمی‌توانند ترتیب خواندن را دنبال کنند.",
+      "notMarked": "سند به‌عنوان برچسب‌دار علامت‌گذاری نشده است (/MarkInfo /Marked).",
+      "noLanguage": "زبان سند تنظیم نشده است.",
+      "figureNoAlt": "{{role}} بدون متن جایگزین",
+      "pageNotTagged": "در این صفحه محتوای برچسب‌دار وجود ندارد ({{count}} مورد متنی)",
+      "untaggedContent": "{{count}} مورد متنی خارج از برچسب‌ها",
+      "annotationNoText": "حاشیه‌نویسی ({{type}}) بدون توضیح"
     }
   }
 }

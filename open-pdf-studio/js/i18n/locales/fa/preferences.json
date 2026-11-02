@@ -9,7 +9,8 @@
     "behavior": "رفتار",
     "fileAssociation": "اقتران فایل",
     "virtualPrinter": "چاپگر مجازی",
-    "pageDisplay": "نمایش صفحه"
+    "pageDisplay": "نمایش صفحه",
+    "keyboardShortcuts": "میانبرهای صفحه‌کلید"
   },
   "resetToDefaults": "بازنشانی به پیش‌فرض",
   "resetConfirm": "آیا تمام ترجیحات به مقادیر پیش‌فرض بازنشانی شوند؟",
@@ -31,7 +32,8 @@
     "aiLinkActive": "فعال روی {{adres}}",
     "aiLinkViaFlag": "فعال از طریق پارامتر اجرا ({{adres}})",
     "aiLinkOff": "خاموش",
-    "aiLinkError": "راه‌اندازی نشد: {{fout}}"
+    "aiLinkError": "راه‌اندازی نشد: {{fout}}",
+    "interfaceScale": "اندازهٔ رابط کاربری"
   },
   "annotations": {
     "generalDefaults": "پیش‌فرض‌های عمومی",
@@ -105,7 +107,13 @@
     "headOpenReversed": "فلش باز (معکوس)",
     "headClosedReversed": "فلش بسته (معکوس)",
     "headSlash": "خط مورب",
-    "polylineDefaults": "پیش‌فرض‌های چندخطی"
+    "polylineDefaults": "پیش‌فرض‌های چندخطی",
+    "smoothing": "هموارسازی",
+    "pressure": "فشار قلم",
+    "pressureHint": "فشار قلم پهنای خط را تغییر می‌دهد (خط‌های موس پهنای ثابت دارند)",
+    "pressureMinWidth": "کمترین پهنا (%)",
+    "penOnly": "فقط قلم (نادیده گرفتن لمس)",
+    "penOnlyHint": "لمس با ابزار دست‌آزاد نقاشی نمی‌کند؛ برای جلوگیری از تماس کف دست هنگام نوشتن با قلم مفید است"
   },
   "shapes": {
     "rectangleDefaults": "پیش‌فرض‌های مستطیل",
@@ -161,12 +169,19 @@
     "snapToNearest": "چسبندگی به نزدیک‌ترین",
     "objectSnapRadius": "شعاع چسبندگی (پیکسل)",
     "snapToPdfContent": "چسبندگی به محتوای نقشه PDF",
+    "moveInference": "خطوط راهنما هنگام جابه‌جایی (G / mv)",
+    "moveInferenceTracking": "خطوط ردیابی (هم‌ترازی با نقاط هندسه‌های دیگر)",
+    "moveInferenceExtension": "امتداد خطوط و وجه‌های دیوار",
+    "moveInferenceParallel": "موازی / عمود بر خطوط نزدیک",
+    "moveInferenceHint": "برای گرفتن یک نقطه، نشانگر را لحظه‌ای روی آن نگه دارید، برای قفل کردن یک راهنما Shift را نگه دارید، Tab بین فاصله و زاویه جابه‌جا می‌شود. راهنماهای قطبی از تنظیمات ردیابی قطبی پیروی می‌کنند.",
     "creation": "ایجاد",
     "autoSelectAfterCreation": "انتخاب خودکار حاشیه‌نویسی پس از ایجاد",
     "deletion": "حذف",
     "confirmBeforeDeleting": "تایید قبل از حذف حاشیه‌نویسی‌ها",
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
+    "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
+    "ribbonWheelSwitchesTabs": "جابه‌جایی بین زبانه‌های نوار ابزار با چرخ ماوس",
     "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "برای تنظیم Open PDF Studio به عنوان نمایشگر PDF پیش‌فرض در macOS:\n\n1. روی هر فایل PDF در Finder راست‌کلیک کنید\n2. \"دریافت اطلاعات\" را انتخاب کنید\n3. در بخش \"باز کردن با\"، Open PDF Studio را انتخاب کنید\n4. روی \"تغییر همه...\" کلیک کنید",
     "linuxInstructions": "برای تنظیم Open PDF Studio به عنوان نمایشگر PDF پیش‌فرض در Linux:\n\nدر ترمینال اجرا کنید:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "بررسی Finder > دریافت اطلاعات",
-    "notSet": "تنظیم نشده"
+    "notSet": "تنظیم نشده",
+    "chosenInSystemSettings": "در تنظیمات سیستم انتخاب شده است",
+    "sandboxInstructions": "Open PDF Studio به‌صورت بسته {{package}} اجرا می‌شود و نمی‌تواند خودش برنامه پیش‌فرض PDF را تغییر دهد.\n\nOpen PDF Studio را در تنظیمات سیستم در بخش برنامه‌های پیش‌فرض انتخاب کنید، یا روی یک فایل PDF راست‌کلیک کرده و از «باز کردن با» استفاده کنید.",
+    "xdgMimeMissing": "xdg-mime (بسته xdg-utils) نصب نیست، بنابراین برنامه پیش‌فرض PDF را نمی‌توان از اینجا تنظیم کرد.\n\nxdg-utils را نصب کنید، یا Open PDF Studio را در تنظیمات سیستم در بخش برنامه‌های پیش‌فرض انتخاب کنید.",
+    "linuxDone": "Open PDF Studio اکنون برنامه پیش‌فرض برای فایل‌های PDF است.",
+    "linuxFailed": "تنظیم Open PDF Studio به‌عنوان برنامه پیش‌فرض PDF ممکن نشد.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "کاوشگر فایل",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "قوی",
     "pageSharpenLevel4": "حداکثر",
     "showScrollbars": "نمایش نوارهای پیمایش بوم",
+    "backgroundColor": "رنگ پس‌زمینه",
+    "backgroundColorDefault": "پیش‌فرض",
+    "backgroundColorHint": "رنگ ناحیهٔ اطراف و میان صفحه‌ها. خود صفحه، چاپ و خروجی تغییر نمی‌کنند.",
     "panels": "پانل‌ها",
     "showPropertiesPanel": "نمایش پنل ویژگی‌ها به‌طور پیش‌فرض",
     "showToolPalette": "نمایش پالت ابزار به‌طور پیش‌فرض",
@@ -291,5 +314,58 @@
     "openArrowReversed": "فلش باز (معکوس)",
     "closedArrowReversed": "فلش بسته (معکوس)",
     "slash": "خط مورب"
+  },
+  "keyboardShortcuts": {
+    "title": "میانبرهای صفحه‌کلید",
+    "search": "جستجو بر اساس فرمان یا کلید",
+    "command": "فرمان",
+    "shortcuts": "میانبرها",
+    "none": "هیچ",
+    "noMatches": "هیچ فرمانی با جستجو مطابقت ندارد.",
+    "selectHint": "یک فرمان را برای تغییر میانبرهایش انتخاب کنید.",
+    "addShortcut": "افزودن میانبر",
+    "remove": "حذف میانبر",
+    "resetCommand": "بازنشانی به پیش‌فرض",
+    "resetAll": "بازنشانی همه",
+    "resetAllConfirm": "همه میانبرهای صفحه‌کلید به پیش‌فرض بازنشانی شوند؟",
+    "loadPreset": "بارگذاری پیش‌تنظیم…",
+    "replaceConfirm": "این کار میان‌برهای صفحه‌کلید سفارشی شما را جایگزین می‌کند. ادامه می‌دهید؟",
+    "presets": {
+      "markupStyle": "میان‌برهای سبک نشانه‌گذاری"
+    },
+    "import": "وارد کردن…",
+    "export": "صادر کردن…",
+    "fileType": "میانبرهای صفحه‌کلید",
+    "imported": "میانبرها وارد شدند. برای اعمال آن‌ها روی ذخیره کلیک کنید.",
+    "importFailed": "این یک فایل معتبر میانبرهای صفحه‌کلید نیست.",
+    "exported": "میانبرها صادر شدند.",
+    "exportFailed": "صادر کردن میانبرها ناموفق بود:",
+    "recording": "ترکیب کلید جدید را فشار دهید… (Esc برای لغو)",
+    "conflict": "{{keys}} از قبل توسط «{{command}}» استفاده می‌شود.",
+    "reassign": "تخصیص دوباره",
+    "reserved": "{{keys}} معنای ثابتی دارد و قابل تخصیص نیست.",
+    "defaultLabel": "پیش‌فرض: {{keys}}",
+    "customize": "سفارشی‌سازی…",
+    "fixedGroup": "کلیدهای ثابت",
+    "applyHint": "تغییرات با کلیک روی ذخیره اعمال می‌شوند.",
+    "categories": {
+      "file": "پرونده",
+      "edit": "ویرایش",
+      "view": "نما",
+      "search": "جستجو",
+      "tools": "ابزارها",
+      "drafting": "کمک‌های ترسیم",
+      "panels": "پنل‌ها",
+      "review": "بازبینی",
+      "help": "راهنما",
+      "extensions": "افزونه‌ها",
+      "ribbon": "نوار: {{tab}}",
+      "other": "سایر"
+    },
+    "commands": {
+      "findNext": "یافتن بعدی",
+      "splitPaneLarger": "بزرگ‌تر کردن پنل فعال",
+      "splitPaneSmaller": "کوچک‌تر کردن پنل فعال"
+    }
   }
 }

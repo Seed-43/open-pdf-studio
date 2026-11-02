@@ -1,6 +1,6 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
-import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
-import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
+import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype, lijnstijlUitStreep } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
@@ -12,6 +12,34 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { leesInktSleutels } from '../saver/inkt-sleutels.js';
+import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
+import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
+
+// Bijlage-annotaties (#376) die al gelezen zijn, op hun /FS-object: een pagina
+// kan meer dan eens geëxtraheerd worden, de inhoud hoeft maar één keer in de
+// store.
+const _bijlagenGelezen = new WeakMap();
+
+function bijlageUitAnnotatie(context, annotDict) {
+  const fsRaw = annotDict.get(PDFName.of('FS'));
+  const fsObj = context.lookup(fsRaw);
+  const eerder = fsObj && typeof fsObj === 'object' ? _bijlagenGelezen.get(fsObj) : null;
+  // Een sleutel waarvan de inhoud al is vrijgegeven (het document was dicht,
+  // bijlage-store.js) telt niet: dan opnieuw lezen.
+  if (eerder && (!eerder.bestand.key || bijlageItem(eerder.bestand.key))) return { ...eerder };
+  const gelezen = leesBijlageAnnotatie(context, annotDict);
+  if (!gelezen) return null;
+  const { bytes, ruw, ...meta } = gelezen.bestand;
+  const key = (bytes || ruw) ? bewaarBijlageInhoud(bytes ? { bytes } : { ruw }) : null;
+  // Het /FS-object (pdf.js-vorm, `12R`): de saver vindt er het ingesloten
+  // bestand mee terug als de inhoud later niet te lezen is.
+  const fsRef = fsRaw instanceof PDFRef
+    ? `${fsRaw.objectNumber}R${fsRaw.generationNumber ? fsRaw.generationNumber : ''}` : null;
+  const uit = { icoon: gelezen.icoon, bestand: { ...meta, key, fsRef } };
+  if (fsObj && typeof fsObj === 'object') _bijlagenGelezen.set(fsObj, uit);
+  return { ...uit };
+}
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -322,6 +350,16 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
+      // Bijlage-annotatie (#376): het bestand achter het pictogram.
+      if (subtypeName === '/FileAttachment') {
+        try {
+          const bijlage = bijlageUitAnnotatie(context, annotDict);
+          if (bijlage) colors.bijlage = bijlage;
+        } catch (e) {
+          console.warn('[loader] file attachment could not be read:', e?.message || e);
+        }
+      }
+
       // Read stamp-specific entries (PDF.js doesn't expose /Name for stamps)
       if (subtypeName === '/Stamp') {
         const nameRaw = annotDict.get(PDFName.of('Name'));
@@ -409,6 +447,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (zoneText && zoneText.length < 2000) { try { colors.spatialZone = JSON.parse(zoneText); } catch {} }
       const locationOverride = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_LocationOverride')));
       if (typeof locationOverride === 'string') colors.locationOverride = locationOverride.slice(0, 1000);
+
+      // Drukgevoelige inkt (#385): druk per punt, minimale breedte, gladheid.
+      if (subtypeName === '/Ink') Object.assign(colors, leesInktSleutels(annotDict, context));
 
       // Boog: middelpunt, straal en hoeken in de app-ruimte van de ongedraaide
       // pagina (zie de 'arc'-tak van saver.js). /Vertices is de benadering
@@ -673,6 +714,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (srLd) colors.srLegDir = srLd;
         const srLs = srStr('OPS_SRLabelSide');
         if (srLs) colors.srLabelSide = srLs;
+        const srBm = srStr('OPS_SRBarMark');
+        if (srBm) colors.srBarMark = srBm;
+        const srSg = srStr('OPS_SRSteelGrade');
+        if (srSg) colors.srSteelGrade = srSg;
         const srGeom = srArr('OPS_SRGeom');
         if (srGeom && srGeom.length === 4) colors.srGeom = srGeom;
         const srRect = srArr('OPS_SRRect');
@@ -1080,14 +1125,13 @@ const result = {};
           if (dRaw) {
             const dArr = context.lookup(dRaw) || dRaw;
             if (dArr && typeof dArr.size === 'function' && dArr.size() >= 2) {
-              const d0 = pdfNum(dArr.get(0));
-              const d1 = pdfNum(dArr.get(1));
-              // Short dash segments (<=3) indicate dotted; longer ones are dashed
-              if (d0 !== null && d0 <= 3 && d1 !== null && d1 <= 3) {
-                colors.borderStyle = 'dotted';
-              } else {
-                colors.borderStyle = 'dashed';
-              }
+              // The app's own patterns (saver/utils.js buildBorderStyle) give
+              // their own style, also dash-dot and long-dash; otherwise short
+              // dashes and gaps (<= 3, older [2 2]) are dotted and the rest is
+              // dashed (older [8 4]).
+              const d = [];
+              for (let i = 0; i < dArr.size(); i++) d.push(pdfNum(dArr.get(i)));
+              colors.borderStyle = lijnstijlUitStreep(d);
             }
           }
         }
@@ -1273,6 +1317,10 @@ const result = {};
             const rcObj = context.lookup(rcRaw) || rcRaw;
             const rcStr = rcObj instanceof PDFHexString ? rcObj.decodeText() : (rcRaw.toString?.() || '');
             if (rcStr) {
+              // Lettertype uit /RC: telt als /DR en /DS er geen geven (#765).
+              const rcFont = rcLettertype(rcObj instanceof PDFHexString ? rcStr
+                : (typeof rcRaw.decodeText === 'function' ? rcRaw.decodeText() : rcStr));
+              if (rcFont) colors.rcFontFamily = rcFont;
               // Check for text-decoration in style attributes
               const decoMatch = rcStr.match(/text-decoration\s*:\s*([^;"']+)/i);
               if (decoMatch) {
@@ -1420,6 +1468,7 @@ const result = {};
             }
           } catch (e) { /* ignore DS parsing errors */ }
         }
+        if (!colors.fontFamily && colors.rcFontFamily) colors.fontFamily = colors.rcFontFamily;
 
         // /Q: uitlijning van de tekst (0 links, 1 midden, 2 rechts) (#619).
         const qRaw = annotDict.get(PDFName.of('Q'));
@@ -1436,6 +1485,22 @@ const result = {};
           if (rv !== null) colors.rotation = rv;
           // De app schrijft deze sleutel bij elke FreeText: een eigen bestand.
           colors.opsRotationKey = true;
+        }
+
+        // De vorm van het vak (afgerond of ovaal), zie rendering/textbox-vorm.js.
+        const opsVormRaw = annotDict.get(PDFName.of('OPS_BoxShape'));
+        if (opsVormRaw) {
+          const vv = context.lookup(opsVormRaw) || opsVormRaw;
+          const naam = typeof vv?.asString === 'function' ? vv.asString().replace(/^\//, '') : '';
+          if (naam === 'rounded' || naam === 'ellipse') colors.boxShape = naam;
+        }
+
+        // Verticale uitlijning van de tekst (midden of onder; boven is de standaard).
+        const opsVUitRaw = annotDict.get(PDFName.of('OPS_TextVAlign'));
+        if (opsVUitRaw) {
+          const vu = context.lookup(opsVUitRaw) || opsVUitRaw;
+          const vnaam = typeof vu?.asString === 'function' ? vu.asString().replace(/^\//, '') : '';
+          if (vnaam === 'middle' || vnaam === 'bottom') colors.textVAlign = vnaam;
         }
 
         // /LE van een callout (#612): volgens de specificatie één naam, sommige

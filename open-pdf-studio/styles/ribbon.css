@@ -330,6 +330,15 @@
   height: 14px;
 }
 
+/* Rotate arrows read poorly at 14px; use the full icon slot */
+#rotate-left .ribbon-btn-icon svg,
+#rotate-right .ribbon-btn-icon svg,
+#view-rotate-left .ribbon-btn-icon svg,
+#view-rotate-right .ribbon-btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
 .ribbon-btn.small .ribbon-btn-label {
   font-size: 11px;
   text-align: left;
@@ -631,12 +640,26 @@
   min-width: 60px;
 }
 
+/* De laagkeuze op Opmaak (#865) toont namen van de gebruiker en van de
+   tekening: een lange naam mag het lint niet breder maken. */
+#fmt-layer {
+  max-width: 140px;
+}
+
 /* Themed dropdown list: WebView2/Chromium render the popup with the OS
    default unless the option colours are set explicitly, which looked wrong
-   (light popup) on dark themes. */
-.ribbon-form-select option {
-  background: var(--theme-ribbon-input-bg);
+   (light popup) on dark themes. De optie-achtergrond moet dekkend zijn: in
+   het standaardthema is --theme-ribbon-input-bg bijna doorzichtig, en dan
+   kwam de lichte tekst op de witte ondergrond van de lijst (#825). */
+.ribbon-form-select option,
+.ribbon-form-select optgroup {
+  background-color: var(--theme-ribbon-content-bg);
   color: var(--theme-ribbon-input-text);
+}
+
+/* Donkere thema's: ook de lijst zelf (schuifbalk, rand) donker. */
+[data-theme]:not([data-theme="light"]) .ribbon-form-select {
+  color-scheme: dark;
 }
 
 .ribbon-form-select-sm {
@@ -840,6 +863,21 @@
 .ribbon-split-btn-menu-item svg {
   stroke: var(--theme-ribbon-icon-stroke);
   flex-shrink: 0;
+}
+
+/* Gekozen keuze in een splitknopmenu (bv. View > Split, #715). */
+.ribbon-split-btn-menu-item.active {
+  background: var(--theme-ribbon-btn-active-bg, var(--theme-ribbon-btn-hover));
+  font-weight: 600;
+}
+
+.ribbon-split-btn-menu-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ribbon-split-btn-menu-item:disabled:hover {
+  background: none;
 }
 
 /* Ribbon dropdown */
@@ -1617,4 +1655,24 @@
 .ribbon-ext-content .ribbon-form-select:focus-visible {
   outline: 1px solid var(--theme-ribbon-tab-active-border);
   outline-offset: -1px;
+}
+
+/* Object-snap-modi in de lintgroep 'Snap': meesterschakelaar boven,
+   daaronder twee kolommen met de vinkjes — compact genoeg voor één groep. */
+.ribbon-snap-options {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 10px;
+  align-content: center;
+  align-self: center;
+  height: 100%;
+  padding: 2px 0;
+}
+.ribbon-snap-options .snap-master {
+  grid-column: 1 / -1;
+  font-weight: 600;
+}
+.ribbon-checkbox-option input[type="checkbox"]:disabled {
+  opacity: 0.45;
+  cursor: default;
 }

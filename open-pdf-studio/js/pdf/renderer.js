@@ -1,3 +1,4 @@
+import { meld as meldSplit } from './split-view/split-haken.js';
 import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
 import { isTauri, isMobile, heeftRustRenderer, invoke } from '../core/platform.js';
@@ -19,7 +20,6 @@ import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, c
 import { clearPdfVectorCache, prefetchPdfVectorGeometry } from '../tools/pdf-snap-extractor.js';
 import { clearDetectionCache } from '../tools/pdf-element-detector.js';
 import { onPageRendered, clearHighlights } from '../search/find-bar.js';
-import { showPagePlaceholder, hidePagePlaceholderWhenReady } from './page-transition.js';
 import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
 import { createRerenderGate } from './continuous-rerender-gate.js';
 import { continuousRenderScale } from './continuous-render-scale.js';
@@ -31,6 +31,9 @@ import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { isRenderCancelled } from './render-queue.js';
+import { voerZoomAllesUit, centreerCorrectie } from './zoom-alles.js';
+import { annotatieUitsnede, naScrollen } from './annotatie-uitsnede.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -124,32 +127,14 @@ const CONT_MAX_AXIS_PX = 4096;
 // alle tekenroutes geven hem als renderOffset door en alle
 // coordinaatberekeningen meten tegen de paginacontainer
 // (.canvas-container-cont), niet tegen dit canvas.
-const CONT_ANN_MARGE_PX = 256;
-
 function setupContinuousAnnotationCanvas(canvas, width, height) {
   const dpr = getCanvasDPR();
   const container = document.getElementById('pdf-container');
   const cc = canvas.parentElement;
-  let clipX = 0, clipY = 0, clipW = width, clipH = height;
-  if (container && cc) {
-    const cr = container.getBoundingClientRect();
-    const ccr = cc.getBoundingClientRect();
-    if (ccr.width > 1 && ccr.height > 1) {
-      // Verhouding huidige rect <-> doelmaat (de cc kan net geresized zijn).
-      const fx = width / ccr.width;
-      const fy = height / ccr.height;
-      const zichtL = Math.max(0, (cr.left - ccr.left) * fx - CONT_ANN_MARGE_PX);
-      const zichtT = Math.max(0, (cr.top - ccr.top) * fy - CONT_ANN_MARGE_PX);
-      const zichtR = Math.min(width, (cr.right - ccr.left) * fx + CONT_ANN_MARGE_PX);
-      const zichtB = Math.min(height, (cr.bottom - ccr.top) * fy + CONT_ANN_MARGE_PX);
-      if (zichtR > zichtL && zichtB > zichtT) {
-        clipX = zichtL; clipY = zichtT; clipW = zichtR - zichtL; clipH = zichtB - zichtT;
-      } else {
-        // Pagina (nog) niet in beeld: minimaal canvas linksboven.
-        clipW = Math.min(width, 2); clipH = Math.min(height, 2);
-      }
-    }
-  }
+  const u = (container && cc)
+    ? annotatieUitsnede(container.getBoundingClientRect(), cc.getBoundingClientRect(), width, height)
+    : { x: 0, y: 0, breedte: width, hoogte: height };
+  const clipX = u.x, clipY = u.y, clipW = u.breedte, clipH = u.hoogte;
   canvas.width = Math.max(1, Math.floor(clipW * dpr));
   canvas.height = Math.max(1, Math.floor(clipH * dpr));
   canvas.style.width = clipW + 'px';
@@ -260,6 +245,9 @@ export async function renderPage(pageNum) {
     if (typeof window !== 'undefined') {
       window.__pdfRenderInFlight = Math.max(0, (window.__pdfRenderInFlight || 1) - 1);
     }
+    // Gesplitste weergave (#715): paginarotatie, -bewerking of weergavewissel
+    // in de live viewer; het andere paneel tekent zich bij.
+    meldSplit('weergaveGerenderd');
   }
 }
 
@@ -859,6 +847,8 @@ export async function renderPageOffscreen(pageNum) {
       redrawAnnotations();
       state.renderEngine = 'Raster (PDFium)';
     } catch (e) {
+      // Dropped because the user moved to another document (#506): not an error.
+      if (isRenderCancelled(e)) return;
       state.renderEngine = 'ERROR';
       console.error('[render-offscreen] HARD ERROR: Rust render threw. NO FALLBACK.', e);
       return;
@@ -1397,6 +1387,12 @@ async function renderContinuousPage(pageNum) {
       console.timeEnd(label + ' cache-store');
       console.timeEnd(label);
     } catch (e) {
+      if (isRenderCancelled(e)) {
+        // Dropped because the user moved to another document (#506); showing
+        // that document again rebuilds the continuous view.
+        try { console.timeEnd(label); } catch {}
+        return;
+      }
       state.renderEngine = 'ERROR';
       console.error(`[render-continuous] HARD ERROR: page ${pageNum} Rust threw. NO FALLBACK.`, e);
       try { console.timeEnd(label); } catch {}
@@ -1681,17 +1677,18 @@ function _bindContinuousScrollSync() {
   _contScrollSyncBound = true;
   let pending = null;
   container.addEventListener('scroll', () => {
-    const doc = getActiveDocument();
     // Facing toont één spread zonder scroll-navigatie; scroll mag currentPage
     // (het spread-anker) niet naar de rechterpagina verschuiven, anders breekt
-    // vorige/volgende. Daarom hier overslaan.
-    if (!doc || doc.viewMode !== 'continuous' || doc.facingSpread) return;
+    // vorige/volgende. De annotatie-uitsnedes moeten wél mee, ook in facing:
+    // anders valt een klik buiten de oude uitsnede op de tekstlaag (#506).
+    if (!naScrollen(getActiveDocument()).uitsnedesBijwerken) return;
     if (pending) return;
     pending = setTimeout(() => {
       pending = null;
-      _syncCurrentPageFromScroll(container);
+      const acties = naScrollen(getActiveDocument());
+      if (acties.paginaVolgen) _syncCurrentPageFromScroll(container);
       // Annotatie-uitsnedes op de nieuwe scrollpositie zetten.
-      reclipAllContinuousAnnotationCanvases();
+      if (acties.uitsnedesBijwerken) reclipAllContinuousAnnotationCanvases();
     }, 120);
   }, { passive: true });
 }
@@ -1902,6 +1899,7 @@ export async function renderContinuous(forceRebuild) {
       }
     })();
   }
+  meldSplit('weergaveGerenderd');
 }
 
 // Setup pointer events for continuous mode pages
@@ -2011,7 +2009,7 @@ export async function setViewMode(mode) {
     // (scrollTop/scrollIntoView/_continuousRezoom). Zonder deze reset blijft
     // de inline `hidden` staan na één single-render en kan de gebruiker niet
     // meer scrollen — alleen de eerste pagina('s) zijn zichtbaar. Terug naar
-    // '' laat de CSS-regel (.main-view > #pdf-container.visible { overflow:auto })
+    // '' laat de CSS-regel (.main-view #pdf-container.visible { overflow:auto })
     // het weer overnemen.
     if (pdfContainer) pdfContainer.style.overflow = '';
     await renderContinuous();
@@ -2135,19 +2133,9 @@ export async function goToPage(pageNum, options = {}) {
   hideProperties();
 
   if (doc?.viewMode === 'single') {
-    // Instant feedback: blit the page's cached thumbnail as a placeholder over
-    // the canvas so the switch feels immediate even while the (possibly cold)
-    // render runs. Hidden one frame after renderPage() resolves, so the crisp
-    // page has painted underneath. No-op if the thumbnail isn't cached yet.
-    const _phGen = showPagePlaceholder(pageNum);
-    try {
-      await renderPage(pageNum);
-    } finally {
-      // Keep the placeholder up until the real page content has painted (raster
-      // bitmaps fill asynchronously after renderPage resolves) — avoids a blank
-      // flash between hiding the thumbnail and the bitmap landing.
-      hidePagePlaceholderWhenReady(_phGen);
-    }
+    // Render at the document's zoom and pan. A sidebar-sized thumbnail over
+    // the fixed viewport canvas would flash a fit-to-window page here (#854).
+    await renderPage(pageNum);
     const pdfContainer = document.getElementById('pdf-container');
     if (pdfContainer && !options.skipScroll) {
       pdfContainer.scrollTop = 0;
@@ -2397,6 +2385,47 @@ export async function fitPage() {
   await _applyZoom(fit, newZoom);
 }
 
+// "Zoom alles" (issue #767, dubbelklik met de middelste muisknop): enkele
+// pagina = fitPage(); doorlopend = de pagina in het midden van het venster
+// passend maken en gecentreerd houden. Volgorde in zoom-alles.js.
+export async function zoomAlles() {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return;
+  const container = document.getElementById('pdf-container');
+  const wrapperVan = (p) => document.querySelector(`#continuous-container .page-wrapper[data-page="${p}"]`);
+  await voerZoomAllesUit({
+    weergaveModus: () => doc.viewMode,
+    boekweergave: () => !!doc.facingSpread,
+    referentiePagina: () => {
+      const els = container ? [...document.querySelectorAll('#continuous-container .page-wrapper')] : [];
+      if (!els.length) return doc.currentPage || null;
+      const box = container.getBoundingClientRect();
+      const idx = pickAnchorPageIndex(els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+      }), box.top + box.height / 2, box.left + box.width / 2);
+      const p = idx >= 0 ? parseInt(els[idx].dataset.page, 10) : NaN;
+      return Number.isFinite(p) ? p : (doc.currentPage || null);
+    },
+    zetHuidigePagina: (p) => {
+      if (doc.currentPage === p) return;
+      doc.currentPage = p;
+      updateActiveThumbnail();
+      updateAllStatus();
+    },
+    passendOpPagina: () => fitPage(),
+    centreerPagina: (p) => {
+      const el = wrapperVan(p);
+      const pagina = el?.querySelector('.canvas-container-cont') || el;
+      if (!container || !pagina) return;
+      stopAlleWielScrollers();
+      const { dx, dy } = centreerCorrectie(pagina.getBoundingClientRect(), container.getBoundingClientRect());
+      container.scrollLeft += dx;
+      container.scrollTop += dy;
+    },
+  });
+}
+
 export async function actualSize() {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
@@ -2472,7 +2501,7 @@ function recalcBoundsFromPoints(ann, pts) {
   ann.width = maxX - minX; ann.height = maxY - minY;
 }
 
-function rotateAnnotation(ann, normDelta, oldW, oldH) {
+export function rotateAnnotation(ann, normDelta, oldW, oldH) {
   if (normDelta === 0) return;
   let boundsHandled = false;
 
@@ -2670,6 +2699,8 @@ export function clearPdfView() {
   // Deactivate vector viewport so its RAF loop stops redrawing the last
   // viewed document on the now-empty canvas.
   if (window.__pdfViewport) window.__pdfViewport.active = false;
+  // De caches hieronder sluiten ook de getoonde bitmap.
+  import('./pdf-viewport.js').then(m => m.laatBitmapsLos()).catch(() => {});
 
   // Clear single page mode canvases
   const pdfCtx = pdfCanvas.getContext('2d');

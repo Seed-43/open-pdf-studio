@@ -34,6 +34,10 @@
   "draw": "Rajzolás",
   "saved": "Mentve",
   "documentChangedDuringSave": "A dokumentum megváltozott mentés közben. Mentse újra.",
+  "savingPdf": "PDF mentése…",
+  "saveCancelling": "Mentés megszakítása…",
+  "saveCancelled": "Mentés megszakítva. A fájl nem változott.",
+  "saveCancelTooLate": "A fájl már mentve volt; a megszakításhoz túl késő volt.",
   "documentChangedDuringExport": "A dokumentum megváltozott az exportálás közben. Kezdje újra.",
   "rasterExportProgress": "Oldalak raszterizálása: {{done}} / {{total}}",
   "search": "Keresés",
@@ -120,7 +124,79 @@
         "label": "Alaprajz",
         "hint": "Építészeti alaprajz rajzolása: falak, nyílászárók, helyiségek, méretezés és berendezés (szaniter, konyha)",
         "prompt": "Rajzolj építészeti alaprajzot. Mit kell rajzolni: "
+      },
+      "find-on-sheet": {
+        "label": "Keresés a lapon",
+        "hint": "Kifejezés (helyiségnév, metszetjel, szimbólum) keresése, ugrás az oldalára és a találatok kiemelése",
+        "prompt": "Keresd meg ezen a lapon: "
+      },
+      "explain-selection": {
+        "label": "Kijelölés magyarázata",
+        "hint": "A kijelölt terület, szöveg vagy jelölés közérthető leírása, méretekkel, ha be van állítva mérési lépték",
+        "prompt": "Magyarázd el a kijelölést."
+      },
+      "compare-sheets": {
+        "label": "Lapok összehasonlítása",
+        "hint": "Annak megnevezése és megjelölése, mi került hozzáadásra, törlésre vagy áthelyezésre egy másik oldalhoz képest",
+        "prompt": "Hasonlítsd össze ezt az oldalt ezzel az oldallal: "
+      },
+      "measure": {
+        "label": "Elem mérése",
+        "hint": "A kijelölt alakzat vagy egy leírt elem megmérése, és az eredmény megadása a rajz léptékében",
+        "prompt": "Mérd meg: "
+      },
+      "take-off": {
+        "label": "Mennyiségkimutatás",
+        "hint": "Egyféle elemek megszámlálása vagy megmérése, és az eredmény elhelyezése kimutatásként a lapon",
+        "prompt": "Készíts mennyiségkimutatást erről: "
+      },
+      "check-scale": {
+        "label": "Lépték ellenőrzése",
+        "hint": "A lépték meghatározása a szövegmezőből vagy egy ismert méretből, és beállítása",
+        "prompt": "Ellenőrizd ennek a rajznak a léptékét."
+      },
+      "review-sheet": {
+        "label": "Lap ellenőrzése",
+        "hint": "Felhők hozzáadása számozott megjegyzésekkel azokhoz a pontokhoz, amelyeket egy ellenőr kifogásolna",
+        "prompt": "Ellenőrizd ezt a lapot a következő szempontból: "
+      },
+      "stamp-date": {
+        "label": "Bélyegző és dátum",
+        "hint": "Bélyegző elhelyezése, a szövegmező egy mezőjének kitöltése vagy revíziós megjegyzés hozzáadása a mai dátummal",
+        "prompt": "Bélyegző és dátum elhelyezése: "
+      },
+      "clean-up": {
+        "label": "Jelölések rendezése",
+        "hint": "A meglévő jelölések egységes igazítása, újraszámozása vagy átszínezése",
+        "prompt": "Rendezd a jelöléseimet: "
+      },
+      "import-cad": {
+        "label": "Rajz behozása",
+        "hint": "DWG- vagy DXF-rajz importálása alátétként a megfelelő léptékben",
+        "prompt": "Hozd be a rajzot (a DWG- vagy DXF-fájl elérési útja): "
+      },
+      "export-cad": {
+        "label": "Exportálás CAD-be",
+        "hint": "Ennek az oldalnak vagy a kijelölt területnek a kiírása DXF- vagy DWG-fájlba",
+        "prompt": "Exportáld ezt az oldalt ide (a DXF- vagy DWG-fájl elérési útja): "
       }
+    },
+    "groups": {
+      "document": "Fordítás és összefoglalás",
+      "reading": "A rajz olvasása",
+      "measuring": "Mérés és mennyiségek",
+      "markup": "Jelölés",
+      "structure": "Szerkezet és alaprajz",
+      "cad": "CAD-rajzok"
+    },
+    "need": {
+      "document": "Először nyisson meg egy PDF-et: ez a képesség a megnyitott dokumentummal dolgozik.",
+      "selection": "Először jelöljön ki egy jelölést vagy szöveget a rajzon, majd kattintson újra a képességre.",
+      "scale": "Ennek a rajznak még nincs mérési léptéke. Először állítson be egyet (például a „Lépték ellenőrzése” képességgel), majd próbálja újra.",
+      "input": "Egészítse ki a beviteli mező szövegét a kettőspont után, majd küldje el.",
+      "selectionOrInput": "Jelöljön ki egy alakzatot a rajzon, vagy írja le a kettőspont után, mit kell megmérni.",
+      "page": "Adja meg a másik oldal számát (1 és {{max}} között), ne az aktuális oldalét.",
+      "twoPages": "Ez a dokumentum csak egy oldalból áll. Ha egy másik fájllal szeretné összehasonlítani, cserélje le a beviteli mező szövegét a saját kérdésére."
     }
   },
   "onlineSymbolLibrary": "Online szimbólumkönyvtár",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Ez a fájl egy régebbi verziója, csak olvasásra megnyitva, ezért nem menthető. Másolat letöltéséhez használja a Mentés másként parancsot.",
   "hostVersionReadOnlyRefused": "A webhely nem mentette a fájlt: egy régebbi verziója csak olvasásra van megnyitva. A mentéshez nyissa meg újra az aktuális verziót, vagy töltsön le egy másolatot a Mentés másként paranccsal.",
   "hostVersionInvalid": "A fájl ezen verziója nem nyitható meg: a verziószám érvénytelen.",
+  "hostSaveAs": {
+    "title": "Mentés a dokumentumokba",
+    "location": "Mappa:",
+    "currentFolder": "Aktuális mappa",
+    "up": "Fel",
+    "loading": "Betöltés…",
+    "listError": "A mappák listáját nem sikerült betölteni. Az aktuális mappába így is menthet.",
+    "empty": "Ez a mappa üres.",
+    "readOnly": "csak olvasható",
+    "fileName": "Fájlnév:",
+    "save": "Mentés",
+    "download": "Inkább letöltés",
+    "nameEmpty": "Adjon meg egy fájlnevet.",
+    "nameInvalid": "A fájlnév nem engedélyezett karaktereket tartalmaz.",
+    "copyName": "{{name}} (másolat)",
+    "saved": "Mentve „{{name}}” néven a dokumentumai közé.",
+    "renamed": "Már létezik ilyen nevű fájl, ezért a másolat „{{name}}” néven lett mentve. Semmi sem lett felülírva.",
+    "openNew": "Az új fájl megnyitása",
+    "keepOriginal": "Az eredeti szerkesztése tovább",
+    "notSavedTitle": "Nincs mentve",
+    "errorReadOnly": "Nincs jogosultsága ebbe a mappába menteni. Válasszon másik mappát, vagy töltse le a fájlt.",
+    "errorInvalidName": "A webhely nem fogadja el ezt a fájlnevet. Válasszon másik nevet, vagy töltse le a fájlt.",
+    "errorTooLarge": "A fájl túl nagy ahhoz, hogy a webhelyre mentse. Töltse le inkább.",
+    "errorQuota": "Nincs elég szabad tárhely. Szabadítson fel helyet, vagy töltse le a fájlt.",
+    "errorNetwork": "A webhely nem érhető el, ezért a fájl nem lett mentve. Próbálja újra, vagy töltse le a fájlt.",
+    "errorUnsupported": "Ez a webhely nem tud új fájlokat menteni. Töltse le inkább a fájlt.",
+    "errorFailed": "A webhely nem mentette a fájlt: {{error}}"
+  },
   "textEditMissingGlyphs": "A szöveg nem változott: egyik elérhető betűtípus sem tartalmazza ezeket a karaktereket, ezért nem menthetők: {{chars}}",
   "textEditMissingGlyphsLater": "Egyik elérhető betűtípus sem tartalmazza ezeket a karaktereket, ezért nem menthetők: {{chars}}. Módosítsa ezt a szöveget; addig a PDF nem menthető.",
   "textEditMissingGlyphsSave": "A PDF nem lett mentve: a szerkesztett szöveg olyan karaktereket tartalmaz, amelyek egyik elérhető betűtípusban sincsenek meg: {{chars}}. Módosítsa a szöveget, és mentsen újra.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Ugrás az oldalra",
     "openExternalFile": "Megnyitás: {{filename}}",
     "destination": "Célpont: {{name}}",
-    "internalLink": "Belső hivatkozás"
+    "internalLink": "Belső hivatkozás",
+    "attachmentOnPage": "{{page}}. oldal",
+    "attachmentCreated": "Létrehozva: {{date}}",
+    "attachmentModified": "Módosítva: {{date}}",
+    "openAttachmentRiskTitle": "Melléklet megnyitása",
+    "openAttachmentRiskMessage": "A(z) „{{name}}” programokat futtathat ezen a számítógépen. Csak akkor nyissa meg, ha megbízik a forrásban. Megnyitja mégis?"
   },
   "failedToInsertPagesFromFile": "Az oldalak beszúrása fájlból sikertelen: {{error}}",
   "previewPdfRefused": "Ez a PDF a rajzimportálás előnézete, és hiányos lehet. Nem szúrható be és nem menthető; importálja újra a rajzot.",
@@ -245,10 +354,15 @@
     "detachFailed": "Az ablak leválasztása sikertelen: {{error}}",
     "dragFileGone": "Ez a fájl már nem létezik a lemezen — a lap nem helyezhető át.",
     "dragNotStarted": "A lapot nem sikerült másik ablakba húzni. Próbálja újra, vagy használja a jobb gombot → megnyitás új ablakban.",
+    "openInSplitView": "Megnyitás osztott nézetben",
     "openInNewWindow": "Megnyitás új ablakban",
     "closeTab": "Lap bezárása",
     "nextTab": "Következő lap",
     "previousTab": "Előző lap"
+  },
+  "pageNav": {
+    "nextPage": "Következő oldal",
+    "previousPage": "Előző oldal"
   },
   "quickAccess": {
     "exportRaster": "Exportálás raszteres PDF-ként (új lapon nyílik meg)"
@@ -290,5 +404,50 @@
     "readFailed": "A 3D modell nem olvasható be.",
     "partial": "A 3D modell egyes részei nem olvashatók be ({{n}} kihagyva).",
     "viewerFailed": "A 3D nézet nem indítható el."
+  },
+  "readAloud": {
+    "title": "Felolvasás",
+    "play": "Olvasás",
+    "pause": "Szünet",
+    "resume": "Folytatás",
+    "stop": "Leállítás",
+    "close": "Bezárás",
+    "voice": "Hang",
+    "defaultVoice": "Alapértelmezett hang",
+    "rate": "Sebesség",
+    "loading": "Előkészítés...",
+    "reading": "Felolvasás folyamatban",
+    "paused": "Szüneteltetve",
+    "page": "{{page}}. oldal",
+    "tagOrder": "címkesorrend",
+    "contentOrder": "oldalsorrend",
+    "noEngine": "Ezen a rendszeren nem érhető el beszédmotor.",
+    "noEngineLinux": "Nem található beszédmotor. Telepítse a speech-dispatcher (spd-say) vagy az espeak-ng csomagot, majd próbálja újra.",
+    "speechFailed": "A felolvasás hiba miatt leállt.",
+    "nothingToRead": "Nincs felolvasható szöveg.",
+    "online": "(online)",
+    "allowOnline": "Online hangok",
+    "allowOnlineHint": "Online hangok felajánlása is. Online hang használatakor a felolvasott szöveg egy online beszédszolgáltatáshoz kerül.",
+    "onlyOnlineVoices": "Csak online hangok érhetők el. Kapcsolja be az Online hangok lehetőséget, ha használni szeretne egyet; a felolvasott szöveg ekkor egy online beszédszolgáltatáshoz kerül.",
+    "noLocalVoice": "Ehhez a nyelvhez nincs helyi hang telepítve; az alapértelmezett helyi hang szól."
+  },
+  "moveInference": {
+    "onAxisX": "Az X tengelyen",
+    "onAxisY": "Az Y tengelyen",
+    "fromPoint": "Pontból",
+    "extension": "Meghosszabbításon",
+    "parallel": "Párhuzamos",
+    "perpendicular": "Merőleges",
+    "intersection": "Metszéspont",
+    "polar": "Poláris",
+    "locked": "Rögzítve"
+  },
+  "portable": {
+    "updateTitle": "Frissítés érhető el",
+    "updateAvailable": "Elérhető a(z) {{version}} verzió.\n\nEz a hordozható példány nem frissíti magát. Töltse le a(z) {{file}} fájlt, és csomagolja ki ebbe a mappába; a beállításait tartalmazó data mappa megmarad.\n\nMegnyitja a letöltési oldalt?",
+    "fileAssoc": "Ez a hordozható példány nincs regisztrálva a Windowsban. Ha PDF-fájlokat szeretne megnyitni vele, kattintson jobb gombbal egy PDF-re, válassza a Társítás > Másik alkalmazás választása lehetőséget, és jelölje ki az open-pdf-studio.exe fájlt ebben a mappában.",
+    "explorerThumbnails": "A PDF-bélyegképek a Fájlkezelőben csak a telepített verzióban érhetők el.",
+    "virtualPrinter": "A virtuális nyomtató csak a telepített verzióban érhető el: rendszergazdai jogokkal adható hozzá a Windowshoz.",
+    "notWritable": "Az Open PDF Studio nem tud írni a(z) {{dir}} mappába, ezért a beállításai most a felhasználói profiljában tárolódnak. Helyezze át a hordozható mappát írható helyre, például USB-meghajtóra vagy a Dokumentumok mappába."
   }
 }

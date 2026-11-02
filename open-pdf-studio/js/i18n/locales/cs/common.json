@@ -34,6 +34,10 @@
   "draw": "Kreslit",
   "saved": "Uloženo",
   "documentChangedDuringSave": "Dokument se během ukládání změnil. Uložte jej znovu.",
+  "savingPdf": "Ukládání PDF…",
+  "saveCancelling": "Rušení ukládání…",
+  "saveCancelled": "Ukládání zrušeno. Soubor nebyl změněn.",
+  "saveCancelTooLate": "Soubor už byl uložen; na zrušení bylo pozdě.",
   "documentChangedDuringExport": "Dokument se během exportu změnil. Začněte znovu.",
   "rasterExportProgress": "Rastrování stránek: {{done}} z {{total}}",
   "search": "Hledat",
@@ -120,7 +124,79 @@
         "label": "Půdorys",
         "hint": "Nakreslit stavební půdorys: stěny, výplně otvorů, místnosti, kóty a vybavení (sanita, kuchyně)",
         "prompt": "Nakresli stavební půdorys. Co nakreslit: "
+      },
+      "find-on-sheet": {
+        "label": "Najít na listu",
+        "hint": "Najít výraz (název místnosti, značku řezu, symbol), přejít na jeho stránku a zvýraznit nálezy",
+        "prompt": "Najdi na tomto listu: "
+      },
+      "explain-selection": {
+        "label": "Vysvětlit výběr",
+        "hint": "Srozumitelně popsat vybranou oblast, text nebo značku, s rozměry, je-li nastaveno měřítko",
+        "prompt": "Vysvětli výběr."
+      },
+      "compare-sheets": {
+        "label": "Porovnat listy",
+        "hint": "Pojmenovat a označit, co bylo oproti jiné stránce přidáno, odstraněno nebo přesunuto",
+        "prompt": "Porovnej tuto stránku se stránkou: "
+      },
+      "measure": {
+        "label": "Změřit toto",
+        "hint": "Změřit vybraný tvar nebo popsaný prvek a uvést výsledek v měřítku výkresu",
+        "prompt": "Změř: "
+      },
+      "take-off": {
+        "label": "Vykázat výměry",
+        "hint": "Spočítat nebo změřit prvky jednoho druhu a umístit výsledek jako výkaz na list",
+        "prompt": "Vykaž výměry: "
+      },
+      "check-scale": {
+        "label": "Zkontrolovat měřítko",
+        "hint": "Zjistit měřítko z rohového razítka nebo známého rozměru a nastavit ho",
+        "prompt": "Zkontroluj měřítko tohoto výkresu."
+      },
+      "review-sheet": {
+        "label": "Revidovat list",
+        "hint": "Přidat obláčky s číslovanými komentáři k bodům, které by vznesl kontrolor",
+        "prompt": "Zkontroluj tento list z hlediska: "
+      },
+      "stamp-date": {
+        "label": "Razítko a datum",
+        "hint": "Umístit razítko, vyplnit pole rohového razítka nebo přidat poznámku o revizi s dnešním datem",
+        "prompt": "Orazítkuj a datuj: "
+      },
+      "clean-up": {
+        "label": "Uklidit značky",
+        "hint": "Jednotně zarovnat, přečíslovat nebo přebarvit stávající značky",
+        "prompt": "Ukliď moje značky: "
+      },
+      "import-cad": {
+        "label": "Vložit výkres",
+        "hint": "Importovat výkres DWG nebo DXF jako podklad ve správném měřítku",
+        "prompt": "Vlož výkres (cesta k souboru DWG nebo DXF): "
+      },
+      "export-cad": {
+        "label": "Export do CAD",
+        "hint": "Zapsat tuto stránku nebo vybranou oblast do souboru DXF nebo DWG",
+        "prompt": "Exportuj tuto stránku do (cesta k souboru DXF nebo DWG): "
       }
+    },
+    "groups": {
+      "document": "Překlad a shrnutí",
+      "reading": "Čtení výkresu",
+      "measuring": "Měření a výměry",
+      "markup": "Značkování",
+      "structure": "Konstrukce a půdorys",
+      "cad": "Výkresy CAD"
+    },
+    "need": {
+      "document": "Nejprve otevřete PDF: tato dovednost pracuje s otevřeným dokumentem.",
+      "selection": "Nejprve vyberte značku nebo část textu ve výkresu a pak znovu klikněte na dovednost.",
+      "scale": "Tento výkres zatím nemá měřítko pro měření. Nejprve ho nastavte (například pomocí „Zkontrolovat měřítko“) a zkuste to znovu.",
+      "input": "Doplňte text ve vstupním poli za dvojtečku a poté ho odešlete.",
+      "selectionOrInput": "Vyberte tvar ve výkresu, nebo za dvojtečkou popište, co se má změřit.",
+      "page": "Zadejte číslo jiné stránky (1 až {{max}}), ne aktuální stránky.",
+      "twoPages": "Tento dokument má jen jednu stránku. Chcete-li ho porovnat s jiným souborem, nahraďte text ve vstupním poli vlastní otázkou."
     }
   },
   "onlineSymbolLibrary": "Online knihovna symbolů",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Toto je starší verze souboru otevřená jen pro čtení, takže ji nelze uložit. Kopii stáhnete pomocí příkazu Uložit jako.",
   "hostVersionReadOnlyRefused": "Web soubor neuložil: je otevřena jeho starší verze jen pro čtení. Pro uložení znovu otevřete aktuální verzi, nebo stáhněte kopii pomocí příkazu Uložit jako.",
   "hostVersionInvalid": "Tuto verzi souboru nelze otevřít: číslo verze není platné.",
+  "hostSaveAs": {
+    "title": "Uložit do dokumentů",
+    "location": "Složka:",
+    "currentFolder": "Aktuální složka",
+    "up": "Nahoru",
+    "loading": "Načítání…",
+    "listError": "Seznam složek se nepodařilo načíst. Stále můžete uložit do aktuální složky.",
+    "empty": "Tato složka je prázdná.",
+    "readOnly": "jen pro čtení",
+    "fileName": "Název souboru:",
+    "save": "Uložit",
+    "download": "Raději stáhnout",
+    "nameEmpty": "Zadejte název souboru.",
+    "nameInvalid": "Název souboru obsahuje nepovolené znaky.",
+    "copyName": "{{name}} (kopie)",
+    "saved": "Uloženo jako „{{name}}“ ve vašich dokumentech.",
+    "renamed": "Soubor s tímto názvem už existuje, proto byla kopie uložena jako „{{name}}“. Nic nebylo přepsáno.",
+    "openNew": "Otevřít nový soubor",
+    "keepOriginal": "Pokračovat v úpravách originálu",
+    "notSavedTitle": "Neuloženo",
+    "errorReadOnly": "Nemáte oprávnění ukládat do této složky. Zvolte jinou složku nebo soubor stáhněte.",
+    "errorInvalidName": "Web tento název souboru nepřijímá. Zvolte jiný název nebo soubor stáhněte.",
+    "errorTooLarge": "Soubor je příliš velký na uložení na webu. Stáhněte si ho.",
+    "errorQuota": "Nezbývá dost úložného prostoru. Uvolněte místo nebo soubor stáhněte.",
+    "errorNetwork": "Web není dostupný, proto se soubor neuložil. Zkuste to znovu nebo soubor stáhněte.",
+    "errorUnsupported": "Tento web neumí ukládat nové soubory. Soubor si raději stáhněte.",
+    "errorFailed": "Web soubor neuložil: {{error}}"
+  },
   "textEditMissingGlyphs": "Text nebyl změněn: žádné dostupné písmo tyto znaky neobsahuje, takže je nelze uložit: {{chars}}",
   "textEditMissingGlyphsLater": "Žádné dostupné písmo tyto znaky neobsahuje, takže je nelze uložit: {{chars}}. Upravte tento text; do té doby nelze PDF uložit.",
   "textEditMissingGlyphsSave": "PDF nebylo uloženo: upravený text obsahuje znaky, které žádné dostupné písmo neobsahuje: {{chars}}. Upravte tento text a uložte znovu.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Přejít na stránku",
     "openExternalFile": "Otevřít: {{filename}}",
     "destination": "Cíl: {{name}}",
-    "internalLink": "Interní odkaz"
+    "internalLink": "Interní odkaz",
+    "attachmentOnPage": "Strana {{page}}",
+    "attachmentCreated": "Vytvořeno: {{date}}",
+    "attachmentModified": "Změněno: {{date}}",
+    "openAttachmentRiskTitle": "Otevřít přílohu",
+    "openAttachmentRiskMessage": "„{{name}}“ může na tomto počítači spouštět programy. Otevřete ji, jen pokud zdroji důvěřujete. Přesto otevřít?"
   },
   "failedToInsertPagesFromFile": "Vložení stránek ze souboru se nezdařilo: {{error}}",
   "previewPdfRefused": "Toto PDF je náhled z importu výkresu a může být neúplné. Nelze je vložit ani uložit; importujte výkres znovu.",
@@ -245,10 +354,15 @@
     "detachFailed": "Okno se nepodařilo oddělit: {{error}}",
     "dragFileGone": "Tento soubor již na disku neexistuje — kartu nelze přesunout.",
     "dragNotStarted": "Kartu se nepodařilo přetáhnout do jiného okna. Zkuste to znovu nebo použijte pravé tlačítko → otevřít v novém okně.",
+    "openInSplitView": "Otevřít v rozděleném zobrazení",
     "openInNewWindow": "Otevřít v novém okně",
     "closeTab": "Zavřít kartu",
     "nextTab": "Další karta",
     "previousTab": "Předchozí karta"
+  },
+  "pageNav": {
+    "nextPage": "Další stránka",
+    "previousPage": "Předchozí stránka"
   },
   "quickAccess": {
     "exportRaster": "Exportovat jako rastrové PDF (otevře se na nové kartě)"
@@ -290,5 +404,50 @@
     "readFailed": "3D model se nepodařilo načíst.",
     "partial": "Některé části 3D modelu se nepodařilo načíst (vynecháno: {{n}}).",
     "viewerFailed": "3D zobrazení se nepodařilo spustit."
+  },
+  "readAloud": {
+    "title": "Číst nahlas",
+    "play": "Číst",
+    "pause": "Pozastavit",
+    "resume": "Pokračovat",
+    "stop": "Zastavit",
+    "close": "Zavřít",
+    "voice": "Hlas",
+    "defaultVoice": "Výchozí hlas",
+    "rate": "Rychlost",
+    "loading": "Příprava...",
+    "reading": "Čte se",
+    "paused": "Pozastaveno",
+    "page": "stránka {{page}}",
+    "tagOrder": "pořadí značek",
+    "contentOrder": "pořadí stránek",
+    "noEngine": "V tomto systému není k dispozici žádný hlasový modul.",
+    "noEngineLinux": "Nebyl nalezen žádný hlasový modul. Nainstalujte speech-dispatcher (spd-say) nebo espeak-ng a zkuste to znovu.",
+    "speechFailed": "Čtení se zastavilo kvůli chybě.",
+    "nothingToRead": "Není co číst.",
+    "online": "(online)",
+    "allowOnline": "Online hlasy",
+    "allowOnlineHint": "Nabízet i online hlasy. S online hlasem se předčítaný text odesílá do online řečové služby.",
+    "onlyOnlineVoices": "K dispozici jsou jen online hlasy. Zapněte Online hlasy, chcete-li některý použít; předčítaný text se pak odesílá do online řečové služby.",
+    "noLocalVoice": "Pro tento jazyk není nainstalován žádný místní hlas; použije se výchozí místní hlas."
+  },
+  "moveInference": {
+    "onAxisX": "Na ose X",
+    "onAxisY": "Na ose Y",
+    "fromPoint": "Od bodu",
+    "extension": "Na prodloužení",
+    "parallel": "Rovnoběžně",
+    "perpendicular": "Kolmo",
+    "intersection": "Průsečík",
+    "polar": "Polární",
+    "locked": "Uzamčeno"
+  },
+  "portable": {
+    "updateTitle": "Je k dispozici aktualizace",
+    "updateAvailable": "Je k dispozici verze {{version}}.\n\nTato přenosná kopie se sama neaktualizuje. Stáhněte {{file}} a rozbalte jej přes tuto složku; složka data s vaším nastavením zůstane zachována.\n\nOtevřít stránku ke stažení?",
+    "fileAssoc": "Tato přenosná kopie není registrována ve Windows. Chcete-li s ní otevírat soubory PDF, klikněte pravým tlačítkem na PDF, zvolte Otevřít v programu > Zvolit jinou aplikaci a vyberte open-pdf-studio.exe v této složce.",
+    "explorerThumbnails": "Miniatury PDF v Průzkumníku souborů jsou k dispozici jen v nainstalované verzi.",
+    "virtualPrinter": "Virtuální tiskárna je k dispozici jen v nainstalované verzi: přidává se do Windows s právy správce.",
+    "notWritable": "Open PDF Studio nemůže zapisovat do složky {{dir}}, proto se vaše nastavení tentokrát ukládá do vašeho uživatelského profilu. Přesuňte přenosnou složku do umístění s možností zápisu, například na USB disk nebo do složky Dokumenty."
   }
 }

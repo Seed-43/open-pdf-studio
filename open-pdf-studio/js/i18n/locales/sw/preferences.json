@@ -9,7 +9,8 @@
     "behavior": "Tabia",
     "fileAssociation": "Ushirikiano wa Faili",
     "virtualPrinter": "Printa Pepe",
-    "pageDisplay": "Onyesho la Ukurasa"
+    "pageDisplay": "Onyesho la Ukurasa",
+    "keyboardShortcuts": "Njia za mkato za kibodi"
   },
   "resetToDefaults": "Weka Upya Chaguo-msingi",
   "resetConfirm": "Weka upya mapendeleo yote kuwa chaguo-msingi?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Inatumika kwenye {{adres}}",
     "aiLinkViaFlag": "Inatumika kupitia kigezo cha kuanza ({{adres}})",
     "aiLinkOff": "Imezimwa",
-    "aiLinkError": "Haijaanzishwa: {{fout}}"
+    "aiLinkError": "Haijaanzishwa: {{fout}}",
+    "interfaceScale": "Ukubwa wa kiolesura"
   },
   "annotations": {
     "generalDefaults": "Chaguo-msingi za Jumla",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Mshale Wazi (kinyume)",
     "headClosedReversed": "Mshale Uliofungwa (kinyume)",
     "headSlash": "Mstari wa Mkato",
-    "polylineDefaults": "Chaguo-msingi za Mistari Mingi"
+    "polylineDefaults": "Chaguo-msingi za Mistari Mingi",
+    "smoothing": "Ulainishaji",
+    "pressure": "Shinikizo la kalamu",
+    "pressureHint": "Shinikizo la kalamu hubadilisha upana wa mstari (mistari ya kipanya hubaki na upana usiobadilika)",
+    "pressureMinWidth": "Upana wa chini (%)",
+    "penOnly": "Kalamu tu (puuza mguso)",
+    "penOnlyHint": "Mguso hauchori kwa zana ya mkono huru; husaidia kuzuia kiganja kugusa skrini unapoandika kwa kalamu"
   },
   "shapes": {
     "rectangleDefaults": "Chaguo-msingi za Mstatili",
@@ -165,8 +173,15 @@
     "deletion": "Ufutaji",
     "confirmBeforeDeleting": "Thibitisha kabla ya kufuta maoni",
     "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF",
+    "moveInference": "Mistari ya makisio wakati wa kusogeza (G / mv)",
+    "moveInferenceTracking": "Mistari ya ufuatiliaji (panga na pointi za jiometri nyingine)",
+    "moveInferenceExtension": "Miendelezo ya mistari na nyuso za kuta",
+    "moveInferenceParallel": "Sambamba / pembemraba na mistari iliyo karibu",
+    "moveInferenceHint": "Weka kiteuzi kwa muda mfupi juu ya pointi ili kuinasa, shikilia Shift ili kufunga mstari mwongozo, Tab hubadilisha kati ya umbali na pembe. Miongozo ya kipolari hufuata mipangilio ya ufuatiliaji wa kipolari.",
     "navigation": "Urambazaji",
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
+    "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
+    "ribbonWheelSwitchesTabs": "Badilisha vichupo vya utepe kwa gurudumu la kipanya",
     "dynamicScaling": "Badilisha ukubwa wa alama kiotomatiki"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Ili kuweka Open PDF Studio kama kitazamaji chaguo-msingi cha PDF kwenye macOS:\n\n1. Bofya-kulia faili yoyote ya PDF kwenye Finder\n2. Chagua \"Pata Taarifa\"\n3. Chini ya \"Fungua na\", chagua Open PDF Studio\n4. Bofya \"Badilisha Zote...\"",
     "linuxInstructions": "Ili kuweka Open PDF Studio kama kitazamaji chaguo-msingi cha PDF kwenye Linux:\n\nEndesha kwenye terminali:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Angalia Finder > Pata Taarifa",
-    "notSet": "Haijawekwa"
+    "notSet": "Haijawekwa",
+    "chosenInSystemSettings": "Imechaguliwa katika mipangilio ya mfumo",
+    "sandboxInstructions": "Open PDF Studio inaendeshwa kama kifurushi cha {{package}} na haiwezi kubadilisha programu chaguo-msingi ya PDF yenyewe.\n\nChagua Open PDF Studio katika mipangilio ya mfumo chini ya Programu Chaguo-msingi, au bofya kulia faili ya PDF na utumie Fungua Kwa.",
+    "xdgMimeMissing": "xdg-mime (kifurushi xdg-utils) haijasakinishwa, kwa hivyo programu chaguo-msingi ya PDF haiwezi kuwekwa kutoka hapa.\n\nSakinisha xdg-utils, au chagua Open PDF Studio katika mipangilio ya mfumo chini ya Programu Chaguo-msingi.",
+    "linuxDone": "Open PDF Studio sasa ni programu chaguo-msingi ya faili za PDF.",
+    "linuxFailed": "Imeshindwa kuweka Open PDF Studio kama programu chaguo-msingi ya PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Kichunguzi Faili",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Kali",
     "pageSharpenLevel4": "Upeo",
     "showScrollbars": "Onyesha upau wa kusogeza wa turubai",
+    "backgroundColor": "Rangi ya mandharinyuma",
+    "backgroundColorDefault": "Chaguo-msingi",
+    "backgroundColorHint": "Rangi ya eneo linalozunguka na lililo kati ya kurasa. Ukurasa wenyewe, uchapishaji na uhamishaji havibadiliki.",
     "panels": "Paneli",
     "showPropertiesPanel": "Onyesha Paneli ya Sifa kwa chaguo-msingi",
     "showToolPalette": "Onyesha Paleti ya Zana kwa chaguo-msingi",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Mshale Wazi (kinyume)",
     "closedArrowReversed": "Mshale Uliofungwa (kinyume)",
     "slash": "Mstari wa Mkato"
+  },
+  "keyboardShortcuts": {
+    "title": "Njia za mkato za kibodi",
+    "search": "Tafuta kwa amri au kitufe",
+    "command": "Amri",
+    "shortcuts": "Njia za mkato",
+    "none": "Hakuna",
+    "noMatches": "Hakuna amri inayolingana na utafutaji.",
+    "selectHint": "Chagua amri ili kubadilisha njia zake za mkato.",
+    "addShortcut": "Ongeza njia ya mkato",
+    "remove": "Ondoa njia ya mkato",
+    "resetCommand": "Rejesha chaguo-msingi",
+    "resetAll": "Rejesha zote",
+    "resetAllConfirm": "Rejesha njia zote za mkato za kibodi kwenye chaguo-msingi?",
+    "loadPreset": "Pakia mpangilio ulioandaliwa…",
+    "replaceConfirm": "Hii itabadilisha njia zako za mkato za kibodi ulizoweka. Endelea?",
+    "presets": {
+      "markupStyle": "Njia za mkato za mtindo wa alama"
+    },
+    "import": "Leta…",
+    "export": "Hamisha…",
+    "fileType": "Njia za mkato za kibodi",
+    "imported": "Njia za mkato zimeletwa. Bofya Hifadhi ili kuzitumia.",
+    "importFailed": "Hii si faili halali ya njia za mkato za kibodi.",
+    "exported": "Njia za mkato zimehamishwa.",
+    "exportFailed": "Kuhamisha njia za mkato kumeshindikana:",
+    "recording": "Bonyeza mchanganyiko mpya wa vitufe… (Esc inaghairi)",
+    "conflict": "{{keys}} tayari inatumiwa na “{{command}}”.",
+    "reassign": "Kabidhi upya",
+    "reserved": "{{keys}} ina maana isiyobadilika na haiwezi kukabidhiwa.",
+    "defaultLabel": "Chaguo-msingi: {{keys}}",
+    "customize": "Badilisha…",
+    "fixedGroup": "Vitufe visivyobadilika",
+    "applyHint": "Mabadiliko yanaanza kutumika unapobofya Hifadhi.",
+    "categories": {
+      "file": "Faili",
+      "edit": "Hariri",
+      "view": "Mwonekano",
+      "search": "Tafuta",
+      "tools": "Zana",
+      "drafting": "Visaidizi vya kuchora",
+      "panels": "Paneli",
+      "review": "Kagua",
+      "help": "Msaada",
+      "extensions": "Viendelezi",
+      "ribbon": "Utepe: {{tab}}",
+      "other": "Nyingine"
+    },
+    "commands": {
+      "findNext": "Tafuta inayofuata",
+      "splitPaneLarger": "Panua kidirisha kinachotumika",
+      "splitPaneSmaller": "Punguza kidirisha kinachotumika"
+    }
   }
 }

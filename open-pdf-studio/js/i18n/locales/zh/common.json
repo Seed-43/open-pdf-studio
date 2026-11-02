@@ -34,6 +34,10 @@
   "draw": "绘制",
   "saved": "已保存",
   "documentChangedDuringSave": "保存期间文档已更改。请再次保存。",
+  "savingPdf": "正在保存 PDF…",
+  "saveCancelling": "正在取消保存…",
+  "saveCancelled": "已取消保存。文件未被更改。",
+  "saveCancelTooLate": "文件已保存，无法再取消。",
   "documentChangedDuringExport": "导出期间文档已更改。请重新开始。",
   "rasterExportProgress": "正在栅格化页面：{{done}} / {{total}}",
   "search": "搜索",
@@ -120,7 +124,79 @@
         "label": "平面图",
         "hint": "绘制建筑平面图：墙体、门窗、房间、尺寸标注和设施（卫浴、厨房）",
         "prompt": "绘制建筑平面图。要绘制的内容："
+      },
+      "find-on-sheet": {
+        "label": "在图纸中查找",
+        "hint": "查找术语（房间名称、剖切符号、图例符号），跳转到所在页面并高亮匹配项",
+        "prompt": "在此图纸中查找："
+      },
+      "explain-selection": {
+        "label": "解释所选内容",
+        "hint": "用通俗的语言描述所选区域、文本或标注；若已设置测量比例，则附带尺寸",
+        "prompt": "解释所选内容。"
+      },
+      "compare-sheets": {
+        "label": "比较图纸",
+        "hint": "与另一页相比，指出并标记新增、删除或移动的内容",
+        "prompt": "将此页与以下页码比较："
+      },
+      "measure": {
+        "label": "测量此项",
+        "hint": "测量所选形状或所描述的构件，并按图纸比例报告结果",
+        "prompt": "测量："
+      },
+      "take-off": {
+        "label": "工程量统计",
+        "hint": "统计或测量同一类构件，并将结果以明细表形式放置在图纸上",
+        "prompt": "统计工程量："
+      },
+      "check-scale": {
+        "label": "检查比例",
+        "hint": "从图签或已知尺寸确定比例并进行设置",
+        "prompt": "检查此图纸的比例。"
+      },
+      "review-sheet": {
+        "label": "审查图纸",
+        "hint": "为审图人员会提出的问题添加带编号批注的云线",
+        "prompt": "审查此图纸，重点："
+      },
+      "stamp-date": {
+        "label": "盖章并注明日期",
+        "hint": "放置印章、填写图签字段或添加带今天日期的修订说明",
+        "prompt": "盖章并注明日期："
+      },
+      "clean-up": {
+        "label": "整理标注",
+        "hint": "统一对齐、重新编号或重新着色现有标注",
+        "prompt": "整理我的标注："
+      },
+      "import-cad": {
+        "label": "导入图纸",
+        "hint": "以正确比例将 DWG 或 DXF 图纸导入为底图",
+        "prompt": "导入图纸（DWG 或 DXF 文件路径）："
+      },
+      "export-cad": {
+        "label": "导出为 CAD",
+        "hint": "将此页或所选区域写入 DXF 或 DWG 文件",
+        "prompt": "将此页导出到（DXF 或 DWG 文件路径）："
       }
+    },
+    "groups": {
+      "document": "翻译与总结",
+      "reading": "识读图纸",
+      "measuring": "测量与工程量",
+      "markup": "标注",
+      "structure": "结构与平面图",
+      "cad": "CAD 图纸"
+    },
+    "need": {
+      "document": "请先打开一个 PDF：此技能作用于已打开的文档。",
+      "selection": "请先在图纸上选择一个标注或一些文本，然后再次点击该技能。",
+      "scale": "此图纸尚未设置测量比例。请先设置（例如使用“检查比例”），然后重试。",
+      "input": "请在输入框中冒号后补全文本，然后发送。",
+      "selectionOrInput": "请在图纸上选择一个形状，或在冒号后描述要测量的内容。",
+      "page": "请输入另一页的页码（1 到 {{max}}），而不是当前页。",
+      "twoPages": "此文档只有一页。如需与其他文件比较，请将输入框中的文本替换为你自己的问题。"
     }
   },
   "onlineSymbolLibrary": "在线符号库",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "这是此文件的较早版本，以只读方式打开，无法保存。请使用“另存为”下载一个副本。",
   "hostVersionReadOnlyRefused": "网站未保存此文件：此文件的一个较早版本正以只读方式打开。请重新打开当前版本后再保存，或使用“另存为”下载一个副本。",
   "hostVersionInvalid": "无法打开此版本的文件：版本号无效。",
+  "hostSaveAs": {
+    "title": "保存到文档",
+    "location": "文件夹:",
+    "currentFolder": "当前文件夹",
+    "up": "向上",
+    "loading": "正在加载…",
+    "listError": "无法加载文件夹列表。你仍然可以保存到当前文件夹。",
+    "empty": "此文件夹为空。",
+    "readOnly": "只读",
+    "fileName": "文件名:",
+    "save": "保存",
+    "download": "改为下载",
+    "nameEmpty": "请输入文件名。",
+    "nameInvalid": "文件名包含不允许的字符。",
+    "copyName": "{{name}}(副本)",
+    "saved": "已在你的文档中保存为“{{name}}”。",
+    "renamed": "已存在同名文件，因此副本已保存为“{{name}}”。没有覆盖任何内容。",
+    "openNew": "打开新文件",
+    "keepOriginal": "继续编辑原文件",
+    "notSavedTitle": "未保存",
+    "errorReadOnly": "你没有在此文件夹中保存的权限。请选择其他文件夹或下载文件。",
+    "errorInvalidName": "网站不接受此文件名。请选择其他名称或下载文件。",
+    "errorTooLarge": "文件太大，无法保存到网站。请改为下载。",
+    "errorQuota": "存储空间不足。请释放空间或下载文件。",
+    "errorNetwork": "无法连接到网站，因此文件未保存。请重试或下载文件。",
+    "errorUnsupported": "此网站无法保存新文件。请改为下载文件。",
+    "errorFailed": "网站未保存文件:{{error}}"
+  },
   "textEditMissingGlyphs": "文本未更改：没有可用字体包含这些字符，因此无法保存：{{chars}}",
   "textEditMissingGlyphsLater": "没有可用字体包含这些字符，因此无法保存：{{chars}}。请修改此文本；在此之前无法保存 PDF。",
   "textEditMissingGlyphsSave": "PDF 未保存：编辑后的文本包含没有任何可用字体支持的字符：{{chars}}。请修改该文本后重新保存。",
@@ -224,7 +328,12 @@
     "goToPageLink": "跳转到页面",
     "openExternalFile": "打开：{{filename}}",
     "destination": "目标：{{name}}",
-    "internalLink": "内部链接"
+    "internalLink": "内部链接",
+    "attachmentOnPage": "第 {{page}} 页",
+    "attachmentCreated": "创建时间: {{date}}",
+    "attachmentModified": "修改时间: {{date}}",
+    "openAttachmentRiskTitle": "打开附件",
+    "openAttachmentRiskMessage": "“{{name}}”可能会在此计算机上运行程序。只有在信任其来源时才打开。仍要打开吗?"
   },
   "failedToInsertPagesFromFile": "从文件插入页面失败：{{error}}",
   "previewPdfRefused": "此 PDF 是图纸导入的预览，内容可能不完整。不能插入或保存；请重新导入图纸。",
@@ -245,10 +354,15 @@
     "detachFailed": "无法分离窗口：{{error}}",
     "dragFileGone": "此文件已不在磁盘上，无法移动该标签页。",
     "dragNotStarted": "无法将标签页拖到另一个窗口。请重试，或使用右键 → 在新窗口中打开。",
+    "openInSplitView": "在拆分视图中打开",
     "openInNewWindow": "在新窗口中打开",
     "closeTab": "关闭标签页",
     "nextTab": "下一个标签页",
     "previousTab": "上一个标签页"
+  },
+  "pageNav": {
+    "nextPage": "下一页",
+    "previousPage": "上一页"
   },
   "quickAccess": {
     "exportRaster": "导出为栅格 PDF（在新标签页中打开）"
@@ -290,5 +404,50 @@
     "readFailed": "无法读取 3D 模型。",
     "partial": "3D 模型的部分内容无法读取（已跳过 {{n}} 个）。",
     "viewerFailed": "无法启动 3D 视图。"
+  },
+  "readAloud": {
+    "title": "朗读",
+    "play": "朗读",
+    "pause": "暂停",
+    "resume": "继续",
+    "stop": "停止",
+    "close": "关闭",
+    "voice": "语音",
+    "defaultVoice": "默认语音",
+    "rate": "语速",
+    "loading": "正在准备...",
+    "reading": "正在朗读",
+    "paused": "已暂停",
+    "page": "第 {{page}} 页",
+    "tagOrder": "标签顺序",
+    "contentOrder": "页面顺序",
+    "noEngine": "此系统上没有可用的语音引擎。",
+    "noEngineLinux": "未找到语音引擎。请安装 speech-dispatcher (spd-say) 或 espeak-ng 后重试。",
+    "speechFailed": "朗读因出错而停止。",
+    "nothingToRead": "没有可朗读的文本。",
+    "online": "（在线）",
+    "allowOnline": "在线语音",
+    "allowOnlineHint": "同时提供在线语音。使用在线语音时，朗读的文本会发送到在线语音服务。",
+    "onlyOnlineVoices": "只有在线语音可用。请打开“在线语音”以使用其中之一；朗读的文本随后会发送到在线语音服务。",
+    "noLocalVoice": "未安装此语言的本地语音；将使用默认的本地语音。"
+  },
+  "moveInference": {
+    "onAxisX": "在 X 轴上",
+    "onAxisY": "在 Y 轴上",
+    "fromPoint": "自点",
+    "extension": "在延长线上",
+    "parallel": "平行",
+    "perpendicular": "垂直",
+    "intersection": "交点",
+    "polar": "极轴",
+    "locked": "已锁定"
+  },
+  "portable": {
+    "updateTitle": "有可用更新",
+    "updateAvailable": "版本 {{version}} 已发布。\n\n此便携版不会自动更新。请下载 {{file}} 并解压覆盖到此文件夹；保存设置的 data 文件夹会被保留。\n\n是否打开下载页面？",
+    "fileAssoc": "此便携版未在 Windows 中注册。若要用它打开 PDF 文件，请右键单击 PDF，选择“打开方式”>“选择其他应用”，然后选择此文件夹中的 open-pdf-studio.exe。",
+    "explorerThumbnails": "文件资源管理器中的 PDF 缩略图仅在安装版中可用。",
+    "virtualPrinter": "虚拟打印机仅在安装版中可用：它需要以管理员权限添加到 Windows。",
+    "notWritable": "Open PDF Studio 无法写入文件夹 {{dir}}，因此这次你的设置保存在用户配置文件中。请将便携版文件夹移到可写入的位置，例如 U 盘或“文档”文件夹。"
   }
 }

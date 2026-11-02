@@ -9,7 +9,8 @@
     "behavior": "พฤติกรรม",
     "fileAssociation": "การเชื่อมโยงไฟล์",
     "virtualPrinter": "เครื่องพิมพ์เสมือน",
-    "pageDisplay": "การแสดงหน้า"
+    "pageDisplay": "การแสดงหน้า",
+    "keyboardShortcuts": "แป้นพิมพ์ลัด"
   },
   "resetToDefaults": "รีเซ็ตเป็นค่าเริ่มต้น",
   "resetConfirm": "รีเซ็ตการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "ใช้งานที่ {{adres}}",
     "aiLinkViaFlag": "ใช้งานผ่านพารามิเตอร์ตอนเริ่ม ({{adres}})",
     "aiLinkOff": "ปิด",
-    "aiLinkError": "ไม่ได้เริ่ม: {{fout}}"
+    "aiLinkError": "ไม่ได้เริ่ม: {{fout}}",
+    "interfaceScale": "ขนาดส่วนติดต่อ"
   },
   "annotations": {
     "generalDefaults": "ค่าเริ่มต้นทั่วไป",
@@ -105,7 +107,13 @@
     "headOpenReversed": "ลูกศรเปิด (กลับด้าน)",
     "headClosedReversed": "ลูกศรปิด (กลับด้าน)",
     "headSlash": "เส้นทแยง",
-    "polylineDefaults": "ค่าเริ่มต้นเส้นหลายจุด"
+    "polylineDefaults": "ค่าเริ่มต้นเส้นหลายจุด",
+    "smoothing": "การทำให้เรียบ",
+    "pressure": "แรงกดปากกา",
+    "pressureHint": "แรงกดปากกาเปลี่ยนความกว้างของเส้น (เส้นจากเมาส์มีความกว้างคงที่)",
+    "pressureMinWidth": "ความกว้างต่ำสุด (%)",
+    "penOnly": "ปากกาเท่านั้น (ไม่สนใจการสัมผัส)",
+    "penOnlyHint": "การสัมผัสจะไม่วาดด้วยเครื่องมือวาดอิสระ ช่วยป้องกันฝ่ามือแตะหน้าจอขณะเขียนด้วยปากกา"
   },
   "shapes": {
     "rectangleDefaults": "ค่าเริ่มต้นสี่เหลี่ยม",
@@ -165,8 +173,15 @@
     "deletion": "การลบ",
     "confirmBeforeDeleting": "ยืนยันก่อนลบคำอธิบายประกอบ",
     "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
+    "moveInference": "เส้นช่วยอนุมานขณะย้าย (G / mv)",
+    "moveInferenceTracking": "เส้นติดตาม (จัดแนวกับจุดของรูปทรงอื่น)",
+    "moveInferenceExtension": "ส่วนต่อขยายของเส้นและผิวผนัง",
+    "moveInferenceParallel": "ขนาน / ตั้งฉากกับเส้นที่อยู่ใกล้",
+    "moveInferenceHint": "วางเคอร์เซอร์บนจุดสักครู่เพื่อจับจุดนั้น กด Shift ค้างไว้เพื่อล็อกเส้นช่วย และ Tab สลับระหว่างระยะทางกับมุม เส้นช่วยเชิงขั้วเป็นไปตามการตั้งค่าการติดตามเชิงขั้ว",
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
+    "middleDoubleClickFit": "ดับเบิลคลิกปุ่มกลางของเมาส์เพื่อปรับให้พอดีหน้า",
+    "ribbonWheelSwitchesTabs": "สลับแท็บริบบอนด้วยล้อเมาส์",
     "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "เพื่อตั้ง Open PDF Studio เป็นตัวอ่าน PDF เริ่มต้นบน macOS:\n\n1. คลิกขวาที่ไฟล์ PDF ใดก็ได้ใน Finder\n2. เลือก \"ดูข้อมูล\"\n3. ภายใต้ \"เปิดด้วย\" เลือก Open PDF Studio\n4. คลิก \"เปลี่ยนทั้งหมด...\"",
     "linuxInstructions": "เพื่อตั้ง Open PDF Studio เป็นตัวอ่าน PDF เริ่มต้นบน Linux:\n\nรันในเทอร์มินัล:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "ตรวจสอบ Finder > ดูข้อมูล",
-    "notSet": "ยังไม่ได้ตั้งค่า"
+    "notSet": "ยังไม่ได้ตั้งค่า",
+    "chosenInSystemSettings": "เลือกไว้ในการตั้งค่าระบบ",
+    "sandboxInstructions": "Open PDF Studio ทำงานเป็นแพ็กเกจ {{package}} และไม่สามารถเปลี่ยนแอป PDF เริ่มต้นได้เอง\n\nเลือก Open PDF Studio ในการตั้งค่าระบบที่หัวข้อแอปพลิเคชันเริ่มต้น หรือคลิกขวาที่ไฟล์ PDF แล้วใช้ เปิดด้วย",
+    "xdgMimeMissing": "ไม่ได้ติดตั้ง xdg-mime (แพ็กเกจ xdg-utils) จึงไม่สามารถตั้งค่าแอป PDF เริ่มต้นจากที่นี่ได้\n\nติดตั้ง xdg-utils หรือเลือก Open PDF Studio ในการตั้งค่าระบบที่หัวข้อแอปพลิเคชันเริ่มต้น",
+    "linuxDone": "ตอนนี้ Open PDF Studio เป็นแอปเริ่มต้นสำหรับไฟล์ PDF แล้ว",
+    "linuxFailed": "ไม่สามารถตั้ง Open PDF Studio เป็นแอป PDF เริ่มต้นได้\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "ตัวสำรวจไฟล์",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "แรง",
     "pageSharpenLevel4": "สูงสุด",
     "showScrollbars": "แสดงแถบเลื่อนของพื้นที่วาด",
+    "backgroundColor": "สีพื้นหลัง",
+    "backgroundColorDefault": "ค่าเริ่มต้น",
+    "backgroundColorHint": "สีของพื้นที่รอบและระหว่างหน้า ตัวหน้า การพิมพ์ และการส่งออกจะไม่เปลี่ยน",
     "panels": "แผง",
     "showPropertiesPanel": "แสดงแผงคุณสมบัติตามค่าเริ่มต้น",
     "showToolPalette": "แสดงจานเครื่องมือตามค่าเริ่มต้น",
@@ -291,5 +314,58 @@
     "openArrowReversed": "ลูกศรเปิด (กลับด้าน)",
     "closedArrowReversed": "ลูกศรปิด (กลับด้าน)",
     "slash": "เส้นทแยง"
+  },
+  "keyboardShortcuts": {
+    "title": "แป้นพิมพ์ลัด",
+    "search": "ค้นหาตามคำสั่งหรือแป้น",
+    "command": "คำสั่ง",
+    "shortcuts": "แป้นพิมพ์ลัด",
+    "none": "ไม่มี",
+    "noMatches": "ไม่มีคำสั่งที่ตรงกับการค้นหา",
+    "selectHint": "เลือกคำสั่งเพื่อเปลี่ยนแป้นพิมพ์ลัด",
+    "addShortcut": "เพิ่มแป้นพิมพ์ลัด",
+    "remove": "ลบแป้นพิมพ์ลัด",
+    "resetCommand": "คืนค่าเริ่มต้น",
+    "resetAll": "คืนค่าทั้งหมด",
+    "resetAllConfirm": "คืนค่าแป้นพิมพ์ลัดทั้งหมดเป็นค่าเริ่มต้นหรือไม่?",
+    "loadPreset": "โหลดค่าที่ตั้งไว้…",
+    "replaceConfirm": "การดำเนินการนี้จะแทนที่แป้นพิมพ์ลัดที่คุณกำหนดเอง ดำเนินการต่อหรือไม่",
+    "presets": {
+      "markupStyle": "แป้นพิมพ์ลัดแบบมาร์กอัป"
+    },
+    "import": "นำเข้า…",
+    "export": "ส่งออก…",
+    "fileType": "แป้นพิมพ์ลัด",
+    "imported": "นำเข้าแป้นพิมพ์ลัดแล้ว คลิกบันทึกเพื่อใช้งาน",
+    "importFailed": "ไฟล์นี้ไม่ใช่ไฟล์แป้นพิมพ์ลัดที่ถูกต้อง",
+    "exported": "ส่งออกแป้นพิมพ์ลัดแล้ว",
+    "exportFailed": "ส่งออกแป้นพิมพ์ลัดไม่สำเร็จ:",
+    "recording": "กดชุดแป้นใหม่… (Esc เพื่อยกเลิก)",
+    "conflict": "{{keys}} ถูกใช้โดย “{{command}}” แล้ว",
+    "reassign": "กำหนดใหม่",
+    "reserved": "{{keys}} มีความหมายตายตัวและกำหนดไม่ได้",
+    "defaultLabel": "ค่าเริ่มต้น: {{keys}}",
+    "customize": "ปรับแต่ง…",
+    "fixedGroup": "แป้นตายตัว",
+    "applyHint": "การเปลี่ยนแปลงจะมีผลเมื่อคลิกบันทึก",
+    "categories": {
+      "file": "ไฟล์",
+      "edit": "แก้ไข",
+      "view": "มุมมอง",
+      "search": "ค้นหา",
+      "tools": "เครื่องมือ",
+      "drafting": "ตัวช่วยวาด",
+      "panels": "แผง",
+      "review": "ตรวจทาน",
+      "help": "วิธีใช้",
+      "extensions": "ส่วนขยาย",
+      "ribbon": "ริบบอน: {{tab}}",
+      "other": "อื่น ๆ"
+    },
+    "commands": {
+      "findNext": "ค้นหาถัดไป",
+      "splitPaneLarger": "ขยายบานหน้าต่างที่ใช้งานอยู่",
+      "splitPaneSmaller": "ย่อบานหน้าต่างที่ใช้งานอยู่"
+    }
   }
 }

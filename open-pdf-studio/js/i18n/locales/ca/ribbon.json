@@ -169,7 +169,9 @@
     "flattenAll": "Aplana-ho tot",
     "flattenAllTooltip": "Aplana totes les marques en el contingut de la pàgina",
     "unflattenAll": "Desfés l'aplanat",
-    "unflattenAllTooltip": "Restaura les marques aplanades amb la restauració permesa"
+    "unflattenAllTooltip": "Restaura les marques aplanades amb la restauració permesa",
+    "fileAttachment": "Adjunta un fitxer",
+    "fileAttachmentTitle": "Fitxer adjunt: feu clic a la pàgina i trieu un fitxer"
   },
   "view": {
     "pageDisplay": "Visualització de pàgina",
@@ -198,6 +200,7 @@
     "thinLines": "Línies fines",
     "compareGroup": "Compara",
     "fullscreen": "Pantalla completa",
+    "fullscreenUnavailable": "La pantalla completa no està disponible aquí: el navegador o la pàgina que mostra l'aplicació l'ha rebutjada. Feu servir l'opció de pantalla completa del menú del navegador.",
     "window": "Finestra",
     "display": "Visualització",
     "keystrokes": "Tecles",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Gira la vista a l'esquerra",
     "rotateViewRight": "Gira la vista a la dreta",
     "rotateViewLeftTitle": "Gira la vista 90° en sentit antihorari. El document no canvia.",
-    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia."
+    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia.",
+    "splitGroup": "Divideix",
+    "split": "Divideix",
+    "splitTitle": "Divideix la vista en dues subfinestres del mateix document",
+    "splitOptions": "Opcions de divisió",
+    "splitVertical": "Divisió vertical",
+    "splitHorizontal": "Divisió horitzontal",
+    "unsplit": "Desfés la divisió",
+    "splitSync": "Sincronitza",
+    "splitSyncTitle": "Desplaça i amplia les dues subfinestres alhora",
+    "splitDividerTitle": "Arrossegueu per canviar la mida de les subfinestres. Feu doble clic per tornar al 50/50.",
+    "accessibilityGroup": "Accessibilitat",
+    "readAloud": "Llegeix en veu alta",
+    "readAloudPause": "Pausa",
+    "readAloudTitle": "Llegeix en veu alta la selecció, o el document des de la pàgina actual",
+    "tagsPanel": "Etiquetes",
+    "tagsPanelTitle": "Mostra les etiquetes d'estructura del document",
+    "accessibilityCheck": "Comprova",
+    "accessibilityCheckTitle": "Cerca text alternatiu que falta i contingut sense etiquetar"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilitat d'elements — mostra/amaga i atenua els tipus d'anotació",
@@ -328,7 +349,9 @@
     "scanText": "Edita el text escanejat",
     "scanTextHint": "Feu clic en una paraula reconeguda per substituir-la. La paraula antiga de l'escaneig queda coberta.",
     "scanTextNone": "No hi ha text reconegut en aquesta pàgina. Executeu primer Reconeixement de text (OCR).",
-    "shiftPage": "Desplaça la pàgina"
+    "shiftPage": "Desplaça la pàgina",
+    "editPages": "Edita les pàgines",
+    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
   },
   "help": {
     "settings": "Configuració",
@@ -348,6 +371,7 @@
     "updates": "Actualitzacions",
     "checkForUpdates": "Comprova si hi ha actualitzacions",
     "updatesLabel": "Actualitzacions",
+    "updatesManaged": "Les actualitzacions d'aquesta instal·lació es gestionen de manera centralitzada.",
     "startupDiagnosticsTitle": "Mostra el fitxer de diagnòstic d'inici (respectuós amb la privadesa)",
     "startupDiagnostics": "Diagnòstic",
     "fileAssociation": "Associació de fitxers",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Enganxa aquí l'àrea retallada, conservant les dades vectorials",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Mida amb què es col·loca un símbol nou",
-    "symbolScaleCustom": "Escala personalitzada"
+    "symbolScaleCustom": "Escala personalitzada",
+    "count": "Comptar",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Revisió",
@@ -678,6 +704,7 @@
     "saveNote": "Les notes i altres marques sense aparença a la pàgina continuen sent marques. El fitxer només canvia en desar; fins aleshores, Desfés reverteix aquest pas.",
     "ok": "Aplana",
     "busy": "S'estan aplanant les marques...",
+    "cancelled": "Aplanament cancel·lat. El document no s’ha modificat.",
     "nothing": "Aquest document no té marques per aplanar.",
     "nothingBaked": "Cap de les marques té aparença a la pàgina, així que no s'ha aplanat res.",
     "notLoaded": "Les marques d'aquest document encara s'estan carregant. Torneu-ho a provar d'aquí a un moment.",
@@ -691,5 +718,60 @@
     "noRecovery": "Les marques d'aquest document es van aplanar sense permetre restaurar-les. Formen part del contingut de la pàgina i no es poden restaurar.",
     "done": "Marques restaurades: {{count}}.",
     "failed": "No s'ha pogut restaurar: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Icones petites",
+    "largeIcons": "Icones grans",
+    "settings": "Configuració"
+  },
+  "symbolPalette": {
+    "search": "Cerca símbols...",
+    "noResults": "No s'han trobat símbols",
+    "drawingSettings": "Configuració del dibuix",
+    "manageSystemTypes": "Gestiona els tipus de sistema",
+    "settingsTitle": "Configuració de la biblioteca de símbols",
+    "industry": "Sector",
+    "country": "País",
+    "libraryLoading": "Carregant la biblioteca en línia…",
+    "libraryOffline": "Biblioteca en línia no accessible — llista de països limitada",
+    "downloading": "Baixant {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Col·leccions disponibles en línia: {{n}} ({{symbols}} símbols)",
+    "activateDownloaded": "Col·leccions baixades per activar en aquest país: {{n}}",
+    "download": "Baixa",
+    "downloadFailed": "Ha fallat la baixada: {{error}}",
+    "builtIn": "Integrat",
+    "online": "En línia",
+    "addSymbol": "+ Afegeix un símbol",
+    "export": "Exporta",
+    "remove": "Elimina",
+    "noSymbolsYet": "Encara no hi ha símbols",
+    "newGroupName": "Nom del grup nou...",
+    "addGroup": "Afegeix un grup",
+    "importGroup": "Importa un grup",
+    "catalogLoaded": "Catàleg '{{id}}' carregat: {{families}} famílies, {{sizes}} mides",
+    "catalogNoPreview": "{{n}} sense previsualització al fitxer",
+    "fileNotRecognized": "Fitxer no reconegut: no és un grup de símbols ni un catàleg",
+    "importFailed": "Ha fallat la importació: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcció",
+      "nl-elektra": "NL Electricitat",
+      "nl-bouwplaats": "NL Obra",
+      "nl-sanitair": "NL Sanitaris",
+      "nl-keuken": "NL Cuina",
+      "nen1414-tb": "NL NEN 1414 — Protecció contra incendis",
+      "nen1414-tbk": "NL NEN 1414 — Sistemes d'extinció",
+      "nen1414-td": "NL NEN 1414 — Portes",
+      "nen1414-tn": "NL NEN 1414 — Enllumenat d'emergència",
+      "nen1414-tr": "NL NEN 1414 — Extracció de fum/calor",
+      "nen1414-tv": "NL NEN 1414 — Ventilació",
+      "nen1414-tw": "NL NEN 1414 — Aigua/Ruixadors"
+    },
+    "sectors": {
+      "aec": "AEC (Construcció)",
+      "electrical": "Electrotècnia",
+      "process": "Processos / P&ID",
+      "mep": "Instal·lacions (MEP)",
+      "infra": "Infraestructura"
+    }
   }
 }

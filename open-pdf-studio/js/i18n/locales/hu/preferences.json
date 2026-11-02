@@ -9,7 +9,8 @@
     "behavior": "Viselkedés",
     "fileAssociation": "Fájltársítás",
     "virtualPrinter": "Virtuális nyomtató",
-    "pageDisplay": "Oldal megjelenítése"
+    "pageDisplay": "Oldal megjelenítése",
+    "keyboardShortcuts": "Billentyűparancsok"
   },
   "resetToDefaults": "Alapértelmezések visszaállítása",
   "resetConfirm": "Visszaállítja az összes beállítást az alapértelmezett értékekre?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktív: {{adres}}",
     "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
     "aiLinkOff": "Ki",
-    "aiLinkError": "Nem indult el: {{fout}}"
+    "aiLinkError": "Nem indult el: {{fout}}",
+    "interfaceScale": "Felület mérete"
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Nyitott nyíl (fordított)",
     "headClosedReversed": "Zárt nyíl (fordított)",
     "headSlash": "Perjel",
-    "polylineDefaults": "Töröttvonal alapértelmezések"
+    "polylineDefaults": "Töröttvonal alapértelmezések",
+    "smoothing": "Simítás",
+    "pressure": "Tollnyomás",
+    "pressureHint": "A tollnyomás változtatja a vonal szélességét (az egérrel húzott vonal szélessége állandó)",
+    "pressureMinWidth": "Minimális szélesség (%)",
+    "penOnly": "Csak toll (érintés figyelmen kívül hagyása)",
+    "penOnlyHint": "Az érintés nem rajzol a szabadkézi eszközzel; hasznos a tenyér érintése ellen tollal való írás közben"
   },
   "shapes": {
     "rectangleDefaults": "Téglalap alapértelmezések",
@@ -165,8 +173,15 @@
     "deletion": "Törlés",
     "confirmBeforeDeleting": "Megerősítés annotációk törlése előtt",
     "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
+    "moveInference": "Segédvonalak mozgatáskor (G / mv)",
+    "moveInferenceTracking": "Követővonalak (igazítás más geometria pontjaihoz)",
+    "moveInferenceExtension": "Vonalak és falsíkok meghosszabbítása",
+    "moveInferenceParallel": "Párhuzamos / merőleges a közeli vonalakra",
+    "moveInferenceHint": "Tartsa a kurzort röviden egy ponton a felvételéhez, tartsa lenyomva a Shift billentyűt egy segédvonal rögzítéséhez, a Tab vált a távolság és a szög között. A poláris segédvonalak a poláris követés beállításait követik.",
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
+    "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
+    "ribbonWheelSwitchesTabs": "Menüszalag lapjainak váltása egérgörgővel",
     "dynamicScaling": "Jelölések automatikus méretezése"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "A Open PDF Studio beállítása alapértelmezett PDF megjelenítőként macOS rendszeren:\n\n1. Kattintson jobb gombbal bármely PDF fájlra a Finderben\n2. Válassza az \"Információ\" menüpontot\n3. A \"Megnyitás ezzel\" alatt válassza a Open PDF Studio alkalmazást\n4. Kattintson a \"Mindent megváltoztat...\" gombra",
     "linuxInstructions": "A Open PDF Studio beállítása alapértelmezett PDF megjelenítőként Linux rendszeren:\n\nFuttassa a terminálban:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Ellenőrizze a Finder > Információ részben",
-    "notSet": "Nincs beállítva"
+    "notSet": "Nincs beállítva",
+    "chosenInSystemSettings": "A rendszerbeállításokban kiválasztva",
+    "sandboxInstructions": "Az Open PDF Studio {{package}}-csomagként fut, és nem tudja maga módosítani az alapértelmezett PDF-alkalmazást.\n\nVálassza az Open PDF Studiót a rendszerbeállítások Alapértelmezett alkalmazások részében, vagy kattintson jobb gombbal egy PDF-fájlra, és használja a Megnyitás ezzel lehetőséget.",
+    "xdgMimeMissing": "Az xdg-mime (xdg-utils csomag) nincs telepítve, ezért az alapértelmezett PDF-alkalmazás innen nem állítható be.\n\nTelepítse az xdg-utils csomagot, vagy válassza az Open PDF Studiót a rendszerbeállítások Alapértelmezett alkalmazások részében.",
+    "linuxDone": "Az Open PDF Studio most már a PDF-fájlok alapértelmezett alkalmazása.",
+    "linuxFailed": "Nem sikerült az Open PDF Studiót alapértelmezett PDF-alkalmazásként beállítani.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Fájlkezelő",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Erős",
     "pageSharpenLevel4": "Maximális",
     "showScrollbars": "Rajzterület görgetősávjainak megjelenítése",
+    "backgroundColor": "Háttérszín",
+    "backgroundColorDefault": "Alapértelmezett",
+    "backgroundColorHint": "Az oldalak körüli és közötti terület színe. Maga az oldal, a nyomtatás és az exportálás nem változik.",
     "panels": "Panelek",
     "showPropertiesPanel": "Tulajdonságok panel megjelenítése alapértelmezésként",
     "showToolPalette": "Eszközpaletta megjelenítése alapértelmezésként",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Nyitott nyíl (fordított)",
     "closedArrowReversed": "Zárt nyíl (fordított)",
     "slash": "Perjel"
+  },
+  "keyboardShortcuts": {
+    "title": "Billentyűparancsok",
+    "search": "Keresés parancs vagy billentyű szerint",
+    "command": "Parancs",
+    "shortcuts": "Billentyűparancsok",
+    "none": "Nincs",
+    "noMatches": "Egy parancs sem felel meg a keresésnek.",
+    "selectHint": "Válasszon egy parancsot a billentyűparancsai módosításához.",
+    "addShortcut": "Billentyűparancs hozzáadása",
+    "remove": "Billentyűparancs eltávolítása",
+    "resetCommand": "Alapértelmezés visszaállítása",
+    "resetAll": "Összes visszaállítása",
+    "resetAllConfirm": "Visszaállítja az összes billentyűparancsot az alapértelmezésre?",
+    "loadPreset": "Előbeállítás betöltése…",
+    "replaceConfirm": "Ez lecseréli a saját billentyűparancsait. Folytatja?",
+    "presets": {
+      "markupStyle": "Jelölő stílusú billentyűparancsok"
+    },
+    "import": "Importálás…",
+    "export": "Exportálás…",
+    "fileType": "Billentyűparancsok",
+    "imported": "Billentyűparancsok importálva. Az alkalmazáshoz kattintson a Mentés gombra.",
+    "importFailed": "Ez nem érvényes billentyűparancs-fájl.",
+    "exported": "Billentyűparancsok exportálva.",
+    "exportFailed": "A billentyűparancsok exportálása nem sikerült:",
+    "recording": "Nyomja le az új billentyűkombinációt… (Esc: mégse)",
+    "conflict": "A(z) {{keys}} billentyűt már a(z) „{{command}}” használja.",
+    "reassign": "Átrendelés",
+    "reserved": "A(z) {{keys}} rögzített jelentésű, nem rendelhető hozzá.",
+    "defaultLabel": "Alapértelmezés: {{keys}}",
+    "customize": "Testreszabás…",
+    "fixedGroup": "Rögzített billentyűk",
+    "applyHint": "A módosítások a Mentés gombra kattintva lépnek életbe.",
+    "categories": {
+      "file": "Fájl",
+      "edit": "Szerkesztés",
+      "view": "Nézet",
+      "search": "Keresés",
+      "tools": "Eszközök",
+      "drafting": "Rajzsegédek",
+      "panels": "Panelek",
+      "review": "Ellenőrzés",
+      "help": "Súgó",
+      "extensions": "Bővítmények",
+      "ribbon": "Menüszalag: {{tab}}",
+      "other": "Egyéb"
+    },
+    "commands": {
+      "findNext": "Következő keresése",
+      "splitPaneLarger": "Aktív panel nagyítása",
+      "splitPaneSmaller": "Aktív panel kicsinyítése"
+    }
   }
 }

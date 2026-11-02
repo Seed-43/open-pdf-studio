@@ -14,12 +14,22 @@
 //
 // De stand hoort bij één PDF.js-document en één pad. Vervangt een
 // paginabewerking de bytes (nieuw pdfDoc, nieuw werkbestand), dan geldt weer
-// de beginstand van het document.
+// de beginstand van het document. Opslaan als verhuist hem naar het nieuwe
+// pad (verhuisLaagstand).
+//
+// Bewaren als standaard (#377): "Als standaard instellen" in het paneel zet de
+// huidige stand klaar; de volgende keer opslaan schrijft hem als /D /ON /OFF
+// (pdf/lagen-boom.js, schrijfStandaardLaagstand). Daarna is die stand de
+// beginstand van het bestand (`stand.begin`).
+//
+// Afdrukken en exporteren volgen de stand ook: de PDF.js-paden via
+// pdfjsLaagOpties, de vectorafdruk via bytesMetLaagstand (dezelfde
+// incrementele update als de weergavekopie).
 
 import { getActiveDocument } from '../core/state.js';
-import { isBeginstand, laagstandBasis, laagstandUpdate, uitgezet, weergaveBytes } from './laagstand.js';
+import { laagstandBasis, laagstandUpdate, uitgezet, weergaveBytes } from './laagstand.js';
 
-/** doc.id → { pdfDoc, pad, config, kopie, basis, bytes, rij } */
+/** doc.id → { pdfDoc, pad, config, begin, kopie, basis, bytes, rij } */
 const standen = new Map();
 /** Paden waarvoor Rust nu uit een weergavekopie tekent. */
 const omgeleid = new Set();
@@ -46,6 +56,151 @@ export function eigenLaagConfig(doc = getActiveDocument()) {
 export function pdfjsLaagOpties(doc = getActiveDocument()) {
   const config = eigenLaagConfig(doc);
   return config ? { optionalContentConfigPromise: Promise.resolve(config) } : {};
+}
+
+/** Wijkt de stand af van de beginstand van het bestand (`begin`: uit-id's)? */
+function wijktAf(stand) {
+  const uit = new Set(uitgezet(stand.config));
+  return uit.size !== stand.begin.size || [...uit].some((id) => !stand.begin.has(id));
+}
+
+/** Is er een eigen stand die afwijkt van de beginstand van het bestand? */
+export function heeftAfwijkendeStand(doc = getActiveDocument()) {
+  const stand = doc ? standen.get(doc.id) : null;
+  return geldig(doc, stand) && wijktAf(stand);
+}
+
+/** De bytes waaruit het document nu getoond wordt (zoals saver.js ze zoekt). */
+async function bronBytes(doc) {
+  const { getCachedPdfBytes } = await import('./loader.js');
+  let bytes = doc.filePath ? getCachedPdfBytes(doc.filePath) : undefined;
+  if (!bytes) bytes = getCachedPdfBytes(`__memory__${doc.id}`);
+  if (!bytes && doc.filePath) {
+    const { readBinaryFile } = await platform();
+    bytes = new Uint8Array(await readBinaryFile(doc.filePath));
+  }
+  return bytes || null;
+}
+
+/** pdfDoc → Promise<boom|null> (pdf/lagen-boom.js), één keer per document. */
+const bomen = new WeakMap();
+
+/**
+ * De lagenboom van het document uit het bestand: de structuur van /Order,
+ * /Locked en /RBGroups die pdf.js niet (volledig) geeft. null als het bestand
+ * niet te lezen is; het paneel valt dan terug op de volgorde van pdf.js.
+ */
+export function lagenBoom(doc = getActiveDocument()) {
+  const pdfDoc = doc?.pdfDoc;
+  if (!pdfDoc) return Promise.resolve(null);
+  if (!bomen.has(pdfDoc)) {
+    bomen.set(pdfDoc, (async () => {
+      try {
+        const bytes = await bronBytes(doc);
+        if (!bytes) return null;
+        const [{ PDFDocument }, { leesLagenBoom }] = await Promise.all([import('pdf-lib'), import('./lagen-boom.js')]);
+        const pdf = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false });
+        return leesLagenBoom(pdf);
+      } catch (e) {
+        console.warn('[lagen] boom niet gelezen:', e);
+        return null;
+      }
+    })());
+  }
+  return bomen.get(pdfDoc);
+}
+
+/**
+ * Zet de huidige stand klaar om als standaardconfiguratie mee te gaan bij de
+ * volgende keer opslaan. @returns {boolean} of er iets klaarstaat
+ */
+export function markeerStandAlsStandaard(doc = getActiveDocument()) {
+  if (!heeftAfwijkendeStand(doc)) return false;
+  doc._laagStandBewaren = true;
+  return true;
+}
+
+/**
+ * Voor de saver: de stand die als standaard bewaard moet worden (pdf.js-id →
+ * zichtbaar, alle lagen), of null.
+ */
+export function standaardOmTeBewaren(doc) {
+  if (!doc?._laagStandBewaren) return null;
+  const stand = standen.get(doc.id);
+  if (!geldig(doc, stand)) return null;
+  return new Map([...stand.config].map(([id, groep]) => [id, groep?.visible !== false]));
+}
+
+/**
+ * Na een geslaagde save: de bytes zijn nieuw. Was de stand bewaard, dan is
+ * hij nu de beginstand van het bestand. Een weergavekopie wordt opnieuw
+ * gemaakt uit de nieuwe bytes (of vervalt als de stand nu de beginstand is).
+ */
+export async function naOpslaan(doc, { standBewaard = false } = {}) {
+  if (!doc) return;
+  if (standBewaard) doc._laagStandBewaren = false;
+  const stand = standen.get(doc.id);
+  if (!geldig(doc, stand)) return;
+  if (standBewaard) {
+    stand.begin = new Set(uitgezet(stand.config));
+    // Het paneel: "Als standaard instellen" is weer niet nodig.
+    if (doc === getActiveDocument()) {
+      import('../ui/panels/layers.js').then((m) => m.updateLayersList()).catch(() => {});
+    }
+  }
+  stand.bytes = null;
+  stand.basis = undefined;
+  if (!stand.kopie && !wijktAf(stand)) return;
+  const klaar = stand.rij.then(() => pasStandToe(doc, stand));
+  stand.rij = klaar.catch(() => {});
+  try {
+    await klaar;
+  } catch (e) {
+    console.warn('[lagen] weergavekopie na opslaan niet bijgewerkt:', e);
+  }
+}
+
+/**
+ * Opslaan als: het document heeft een nieuw pad, met dezelfde inhoud en
+ * hetzelfde pdf.js-document. De stand verhuist mee, zoals de viewport
+ * (pdf-viewport.js wisselBestandspad), in plaats van als verouderd te
+ * vervallen: het paneel blijft tonen wat de gebruiker had, en "Als standaard
+ * instellen" blijft kunnen. Op de desktop leidt Rust het oude pad niet meer om
+ * en het nieuwe pad naar een kopie van het nieuwe bestand.
+ * Moet direct na het wisselen van doc.filePath, vóór het paneel de stand leest.
+ * @returns {boolean} of er een stand verhuisd is
+ */
+export function verhuisLaagstand(doc, oudPad, nieuwPad) {
+  const stand = doc ? standen.get(doc.id) : null;
+  if (!stand || !nieuwPad || oudPad === nieuwPad) return false;
+  if (stand.pdfDoc !== doc.pdfDoc || stand.pad !== (oudPad || null)) return false;
+  stand.pad = nieuwPad;
+  // De kopie komt voortaan uit de bytes van het nieuwe bestand.
+  stand.bytes = null;
+  stand.basis = undefined;
+  const klaar = stand.rij.then(async () => {
+    if (oudPad && omgeleid.has(oudPad)) await meldKopie(oudPad, null);
+    if (stand.kopie || wijktAf(stand)) await pasStandToe(doc, stand);
+  });
+  stand.rij = klaar.catch((e) => console.warn('[lagen] stand niet verhuisd naar het nieuwe pad:', e));
+  return true;
+}
+
+/**
+ * De bytes voor een afdruk of export die de PDF zelf meeneemt (de
+ * vectorafdruk): met de geschakelde stand als /D, anders de bytes zelf.
+ */
+export async function bytesMetLaagstand(doc, bytes) {
+  const stand = doc ? standen.get(doc.id) : null;
+  if (!geldig(doc, stand) || !wijktAf(stand)) return bytes;
+  try {
+    const basis = await laagstandBasis(bytes);
+    if (!basis) return bytes;
+    return weergaveBytes(bytes, laagstandUpdate(basis, uitgezet(stand.config)));
+  } catch (e) {
+    console.warn('[lagen] afdruk zonder laagstand:', e);
+    return bytes;
+  }
 }
 
 async function platform() {
@@ -98,8 +253,8 @@ async function meldKopie(pad, kopie) {
 }
 
 /** Schrijft de weergavekopie voor deze stand; null als de beginstand geldt. */
-async function schrijfKopie(doc, stand, begin) {
-  if (isBeginstand(stand.config, begin)) return null;
+async function schrijfKopie(doc, stand) {
+  if (!wijktAf(stand)) return null;
   const { readBinaryFile, writeBinaryFile, invoke } = await platform();
   if (!stand.bytes) {
     const { getCachedPdfBytes } = await import('./loader.js');
@@ -131,12 +286,15 @@ async function standVoor(doc) {
   standen.delete(doc.id);
   if (oud) await laatOudeStandLos(doc, oud);
   const config = await doc.pdfDoc.getOptionalContentConfig();
-  const stand = { pdfDoc: doc.pdfDoc, pad: doc.filePath || null, config, kopie: null, basis: undefined, bytes: null, rij: Promise.resolve() };
+  // pdf.js geeft bij elke aanroep een verse config in de beginstand.
+  const begin = new Set(uitgezet(await doc.pdfDoc.getOptionalContentConfig()));
+  const stand = { pdfDoc: doc.pdfDoc, pad: doc.filePath || null, config, begin, kopie: null, basis: undefined, bytes: null, rij: Promise.resolve() };
   standen.set(doc.id, stand);
   return stand;
 }
 
 async function laatOudeStandLos(doc, oud) {
+  doc._laagStandBewaren = false;
   try {
     if (oud.pad && oud.kopie && omgeleid.has(oud.pad)) await meldKopie(oud.pad, null);
     await ruimKopieOp(doc, oud.kopie);
@@ -176,9 +334,8 @@ async function pasStandToe(doc, stand) {
   if (!geldig(doc, stand)) return;
   const { isTauri } = await platform();
   if (isTauri() && stand.pad) {
-    const begin = await doc.pdfDoc.getOptionalContentConfig();
     const vorige = stand.kopie;
-    const kopie = await schrijfKopie(doc, stand, begin);
+    const kopie = await schrijfKopie(doc, stand);
     await meldKopie(stand.pad, kopie);
     stand.kopie = kopie;
     console.log('[lagen] uit:', uitgezet(stand.config).join(',') || '-', kopie ? `kopie ${kopie}` : 'beginstand');

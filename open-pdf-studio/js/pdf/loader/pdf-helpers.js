@@ -62,6 +62,62 @@ export function mapPdfFontName(pdfName) {
   return spaced ? { family: spaced, bold, italic } : null;
 }
 
+/**
+ * Het lettertype uit /RC (rich text, XHTML) van een FreeText: de eerste
+ * familie uit `font-family:` of uit de `font:`-verkorting ("12pt Georgia").
+ * Een generieke familie (sans-serif, serif, ...) telt niet. Zonder /DS was
+ * dit de enige plek waar het lettertype stond, en de lader las het niet: het
+ * vak kwam terug in de letter van /DA, meestal Helvetica (#765).
+ * @param {string} rc
+ * @returns {string|null}
+ */
+export function rcLettertype(rc) {
+  if (!rc) return null;
+  const tekst = String(rc).replace(/&quot;|&#34;/g, '"').replace(/&apos;|&#39;/g, "'");
+  const lijsten = [];
+  for (const m of tekst.matchAll(/font-family\s*:\s*([^;"]+|"[^"]*"[^;"]*)/gi)) lijsten.push(m[1]);
+  for (const m of tekst.matchAll(/(?:^|[;\s"'])font\s*:\s*([^;"]*)/gi)) {
+    const na = m[1].match(/[\d.]+(?:pt|px|em|%)(?:\s*\/\s*[\d.]+\w*)?\s+(.+)$/i);
+    if (na) lijsten.push(na[1]);
+  }
+  for (const lijst of lijsten) {
+    for (const deel of lijst.split(',')) {
+      const naam = deel.trim().replace(/^['"]|['"]$/g, '').trim();
+      if (naam && !/^(sans-serif|serif|monospace|cursive|fantasy|system-ui|inherit|initial)$/i.test(naam)) return naam;
+    }
+  }
+  return null;
+}
+
+// Streeppatronen die de app zelf schrijft (saver/appearance-vectors.js
+// dashArrayForStyle; lijnstijl-rondgang.test.mjs houdt ze gelijk).
+const EIGEN_STREEPPATRONEN = Object.freeze({
+  dashed: [3, 4],
+  dotted: [2, 4],
+  'dash-dot': [10, 8, 2, 8],
+  'dash-dot-dot': [10, 8, 2, 8, 2, 8],
+  'long-dash': [20, 10],
+  'long-dash-dot': [20, 10, 2, 10],
+  'long-dash-dot-dot': [20, 10, 2, 10, 2, 10],
+});
+export { EIGEN_STREEPPATRONEN };
+
+/**
+ * De lijnstijl bij een streeppatroon (/BS /D, als getallen), of null zonder
+ * bruikbaar patroon. Een eigen patroon van de app geeft zijn eigen stijl;
+ * anders zijn korte streepjes en gaten (beide <= 3, zoals het oude [2 2])
+ * gestippeld en de rest gestreept (ook het oude [8 4]).
+ */
+export function lijnstijlUitStreep(d) {
+  if (!Array.isArray(d) || d.length < 2) return null;
+  for (const [stijl, p] of Object.entries(EIGEN_STREEPPATRONEN)) {
+    if (p.length === d.length && p.every((v, i) => v === d[i])) return stijl;
+  }
+  const [d0, d1] = d;
+  const getal = (v) => typeof v === 'number' && Number.isFinite(v);
+  return getal(d0) && getal(d1) && d0 <= 3 && d1 <= 3 ? 'dotted' : 'dashed';
+}
+
 // Helper to map PDF.js borderStyle.style to our border style string
 // PDF.js values: 1=SOLID, 2=DASHED, 3=BEVELED, 4=INSET, 5=UNDERLINE
 export function mapBorderStyle(annot, extraColors) {

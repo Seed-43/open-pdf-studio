@@ -9,7 +9,8 @@
     "behavior": "Oppførsel",
     "fileAssociation": "Filtilknytning",
     "virtualPrinter": "Virtuell skriver",
-    "pageDisplay": "Sidevisning"
+    "pageDisplay": "Sidevisning",
+    "keyboardShortcuts": "Hurtigtaster"
   },
   "resetToDefaults": "Tilbakestill til standardverdier",
   "resetConfirm": "Tilbakestille alle innstillinger til standardverdier?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via oppstartsparameter ({{adres}})",
     "aiLinkOff": "Av",
-    "aiLinkError": "Ikke startet: {{fout}}"
+    "aiLinkError": "Ikke startet: {{fout}}",
+    "interfaceScale": "Grensesnittstørrelse"
   },
   "annotations": {
     "generalDefaults": "Generelle standardverdier",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Åpen pil (omvendt)",
     "headClosedReversed": "Lukket pil (omvendt)",
     "headSlash": "Skråstrek",
-    "polylineDefaults": "Polylinjestandarder"
+    "polylineDefaults": "Polylinjestandarder",
+    "smoothing": "Utjevning",
+    "pressure": "Pennetrykk",
+    "pressureHint": "Pennetrykket endrer strekbredden (musestreker beholder fast bredde)",
+    "pressureMinWidth": "Minste bredde (%)",
+    "penOnly": "Bare penn (ignorer berøring)",
+    "penOnlyHint": "Berøring tegner ikke med frihåndsverktøyet; nyttig mot håndflaten når du skriver med penn"
   },
   "shapes": {
     "rectangleDefaults": "Rektangelstandarder",
@@ -165,8 +173,15 @@
     "deletion": "Sletting",
     "confirmBeforeDeleting": "Bekreft før sletting av merknader",
     "snapToPdfContent": "Fest til PDF-tegningsinnhold",
+    "moveInference": "Hjelpelinjer ved flytting (G / mv)",
+    "moveInferenceTracking": "Sporingslinjer (juster etter punkter i annen geometri)",
+    "moveInferenceExtension": "Forlengelser av linjer og veggflater",
+    "moveInferenceParallel": "Parallell / vinkelrett på linjer i nærheten",
+    "moveInferenceHint": "Hold pekeren et øyeblikk over et punkt for å fange det, hold Shift nede for å låse en hjelpelinje, Tab bytter mellom avstand og vinkel. Polare hjelpelinjer følger innstillingene for polarsporing.",
     "navigation": "Navigasjon",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uten å holde inne Ctrl)",
+    "middleDoubleClickFit": "Dobbeltklikk med den midterste museknappen for å tilpasse siden",
+    "ribbonWheelSwitchesTabs": "Bytt fane i båndet med musehjulet",
     "dynamicScaling": "Skaler markeringer automatisk"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "For å angi Open PDF Studio som standard PDF-leser på macOS:\n\n1. Høyreklikk en PDF-fil i Finder\n2. Velg \"Vis info\"\n3. Under \"Åpne med\", velg Open PDF Studio\n4. Klikk \"Endre alle...\"",
     "linuxInstructions": "For å angi Open PDF Studio som standard PDF-leser på Linux:\n\nKjør i terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Sjekk Finder > Vis info",
-    "notSet": "Ikke angitt"
+    "notSet": "Ikke angitt",
+    "chosenInSystemSettings": "Valgt i systeminnstillingene",
+    "sandboxInstructions": "Open PDF Studio kjører som en {{package}}-pakke og kan ikke selv endre standard-PDF-appen.\n\nVelg Open PDF Studio i systeminnstillingene under Standardprogrammer, eller høyreklikk på en PDF-fil og bruk Åpne med.",
+    "xdgMimeMissing": "xdg-mime (pakken xdg-utils) er ikke installert, så standard-PDF-appen kan ikke angis herfra.\n\nInstaller xdg-utils, eller velg Open PDF Studio i systeminnstillingene under Standardprogrammer.",
+    "linuxDone": "Open PDF Studio er nå standardappen for PDF-filer.",
+    "linuxFailed": "Kunne ikke angi Open PDF Studio som standard-PDF-app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Filutforsker",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Sterk",
     "pageSharpenLevel4": "Maksimal",
     "showScrollbars": "Vis rullefeltene for lerretet",
+    "backgroundColor": "Bakgrunnsfarge",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Fargen på området rundt og mellom sidene. Selve siden, utskrift og eksport endres ikke.",
     "panels": "Paneler",
     "showPropertiesPanel": "Vis egenskapspanelet som standard",
     "showToolPalette": "Vis verktøypaletten som standard",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Åpen pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
     "slash": "Skråstrek"
+  },
+  "keyboardShortcuts": {
+    "title": "Hurtigtaster",
+    "search": "Søk etter kommando eller tast",
+    "command": "Kommando",
+    "shortcuts": "Hurtigtaster",
+    "none": "Ingen",
+    "noMatches": "Ingen kommandoer samsvarer med søket.",
+    "selectHint": "Velg en kommando for å endre hurtigtastene.",
+    "addShortcut": "Legg til hurtigtast",
+    "remove": "Fjern hurtigtast",
+    "resetCommand": "Tilbakestill til standard",
+    "resetAll": "Tilbakestill alle",
+    "resetAllConfirm": "Vil du tilbakestille alle hurtigtaster til standard?",
+    "loadPreset": "Last inn forhåndsinnstilling…",
+    "replaceConfirm": "Dette erstatter dine egne hurtigtaster. Vil du fortsette?",
+    "presets": {
+      "markupStyle": "Hurtigtaster i markeringsstil"
+    },
+    "import": "Importer…",
+    "export": "Eksporter…",
+    "fileType": "Hurtigtaster",
+    "imported": "Hurtigtaster importert. Klikk Lagre for å ta dem i bruk.",
+    "importFailed": "Dette er ikke en gyldig fil med hurtigtaster.",
+    "exported": "Hurtigtaster eksportert.",
+    "exportFailed": "Eksport av hurtigtastene mislyktes:",
+    "recording": "Trykk den nye tastekombinasjonen… (Esc avbryter)",
+    "conflict": "{{keys}} brukes allerede av «{{command}}».",
+    "reassign": "Tilordne på nytt",
+    "reserved": "{{keys}} har en fast betydning og kan ikke tilordnes.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Tilpass…",
+    "fixedGroup": "Faste taster",
+    "applyHint": "Endringene gjelder når du klikker Lagre.",
+    "categories": {
+      "file": "Fil",
+      "edit": "Rediger",
+      "view": "Vis",
+      "search": "Søk",
+      "tools": "Verktøy",
+      "drafting": "Tegnehjelp",
+      "panels": "Paneler",
+      "review": "Gjennomgang",
+      "help": "Hjelp",
+      "extensions": "Utvidelser",
+      "ribbon": "Bånd: {{tab}}",
+      "other": "Annet"
+    },
+    "commands": {
+      "findNext": "Finn neste",
+      "splitPaneLarger": "Gjør aktiv rute større",
+      "splitPaneSmaller": "Gjør aktiv rute mindre"
+    }
   }
 }

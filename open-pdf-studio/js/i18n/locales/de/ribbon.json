@@ -169,7 +169,9 @@
     "flattenAll": "Alle reduzieren",
     "flattenAllTooltip": "Alle Markierungen auf den Seiteninhalt reduzieren",
     "unflattenAll": "Reduzieren aufheben",
-    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden"
+    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden",
+    "fileAttachment": "Datei anhängen",
+    "fileAttachmentTitle": "Dateianhang: auf die Seite klicken und eine Datei wählen"
   },
   "view": {
     "pageDisplay": "Seitenanzeige",
@@ -198,6 +200,7 @@
     "thinLines": "Dünne Linien",
     "compareGroup": "Vergleichen",
     "fullscreen": "Vollbild",
+    "fullscreenUnavailable": "Vollbild ist hier nicht verfügbar: Der Browser oder die Seite, die die App anzeigt, hat es abgelehnt. Verwenden Sie stattdessen die Vollbildoption im Menü des Browsers.",
     "window": "Fenster",
     "display": "Anzeige",
     "keystrokes": "Tastenanschläge",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Ansicht links drehen",
     "rotateViewRight": "Ansicht rechts drehen",
     "rotateViewLeftTitle": "Dreht die Ansicht um 90° gegen den Uhrzeigersinn. Das Dokument selbst ändert sich nicht.",
-    "rotateViewRightTitle": "Dreht die Ansicht um 90° im Uhrzeigersinn. Das Dokument selbst ändert sich nicht."
+    "rotateViewRightTitle": "Dreht die Ansicht um 90° im Uhrzeigersinn. Das Dokument selbst ändert sich nicht.",
+    "splitGroup": "Teilen",
+    "split": "Teilen",
+    "splitTitle": "Ansicht in zwei Bereiche mit demselben Dokument teilen",
+    "splitOptions": "Teilungsoptionen",
+    "splitVertical": "Vertikal teilen",
+    "splitHorizontal": "Horizontal teilen",
+    "unsplit": "Teilung aufheben",
+    "splitSync": "Synchronisieren",
+    "splitSyncTitle": "Beide Bereiche gemeinsam scrollen und zoomen",
+    "splitDividerTitle": "Ziehen, um die Bereichsgröße zu ändern. Doppelklick setzt auf 50/50 zurück.",
+    "accessibilityGroup": "Barrierefreiheit",
+    "readAloud": "Vorlesen",
+    "readAloudPause": "Anhalten",
+    "readAloudTitle": "Die Auswahl oder das Dokument ab der aktuellen Seite vorlesen",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "Die Struktur-Tags des Dokuments anzeigen",
+    "accessibilityCheck": "Prüfen",
+    "accessibilityCheckTitle": "Auf fehlenden Alternativtext und Inhalt ohne Tags prüfen"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsichtbarkeit — Anmerkungstypen ein-/ausblenden und dimmen",
@@ -328,7 +349,9 @@
     "scanText": "Gescannten Text bearbeiten",
     "scanTextHint": "Klicken Sie auf ein erkanntes Wort, um es zu ersetzen. Das alte Wort im Scan wird abgedeckt.",
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
-    "shiftPage": "Seite verschieben"
+    "shiftPage": "Seite verschieben",
+    "editPages": "Seiten bearbeiten",
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
   },
   "help": {
     "settings": "Einstellungen",
@@ -348,6 +371,7 @@
     "updates": "Updates",
     "checkForUpdates": "Nach Updates suchen",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates für diese Installation werden zentral verwaltet.",
     "startupDiagnosticsTitle": "Die datenschutzfreundliche Startdiagnose-Datei anzeigen",
     "startupDiagnostics": "Diagnose",
     "fileAssociation": "Dateizuordnung",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Den ausgeschnittenen Bereich hier einfügen, Vektordaten bleiben erhalten",
     "symbolScale": "Maßstab",
     "symbolScaleTitle": "Größe, in der ein neues Symbol platziert wird",
-    "symbolScaleCustom": "Eigener Maßstab"
+    "symbolScaleCustom": "Eigener Maßstab",
+    "count": "Zählen",
+    "arc": "Bogen"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +704,7 @@
     "saveNote": "Notizen und andere Markierungen ohne Darstellung auf der Seite bleiben Markierungen. Die Datei ändert sich erst beim Speichern; bis dahin macht Rückgängig diesen Schritt rückgängig.",
     "ok": "Reduzieren",
     "busy": "Markierungen werden reduziert...",
+    "cancelled": "Reduzieren abgebrochen. Das Dokument wurde nicht geändert.",
     "nothing": "Dieses Dokument enthält keine Markierungen zum Reduzieren.",
     "nothingBaked": "Keine der Markierungen hat eine Darstellung auf der Seite; es wurde nichts reduziert.",
     "notLoaded": "Die Markierungen dieses Dokuments werden noch geladen. Versuchen Sie es gleich noch einmal.",
@@ -691,5 +718,60 @@
     "noRecovery": "Die Markierungen in diesem Dokument wurden ohne erlaubte Wiederherstellung reduziert. Sie sind Teil des Seiteninhalts und können nicht wiederhergestellt werden.",
     "done": "Markierungen wiederhergestellt: {{count}}.",
     "failed": "Wiederherstellen fehlgeschlagen: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Kleine Symbole",
+    "largeIcons": "Große Symbole",
+    "settings": "Einstellungen"
+  },
+  "symbolPalette": {
+    "search": "Symbole suchen...",
+    "noResults": "Keine Symbole gefunden",
+    "drawingSettings": "Zeichnungseinstellungen",
+    "manageSystemTypes": "Systemtypen verwalten",
+    "settingsTitle": "Einstellungen der Symbolbibliothek",
+    "industry": "Branche",
+    "country": "Land",
+    "libraryLoading": "Online-Bibliothek wird geladen…",
+    "libraryOffline": "Online-Bibliothek nicht erreichbar — eingeschränkte Länderliste",
+    "downloading": "Herunterladen {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Online verfügbare Sammlungen: {{n}} ({{symbols}} Symbole)",
+    "activateDownloaded": "Heruntergeladene Sammlungen für dieses Land aktivieren: {{n}}",
+    "download": "Herunterladen",
+    "downloadFailed": "Download fehlgeschlagen: {{error}}",
+    "builtIn": "Integriert",
+    "online": "Online",
+    "addSymbol": "+ Symbol hinzufügen",
+    "export": "Exportieren",
+    "remove": "Entfernen",
+    "noSymbolsYet": "Noch keine Symbole",
+    "newGroupName": "Name der neuen Gruppe...",
+    "addGroup": "Gruppe hinzufügen",
+    "importGroup": "Gruppe importieren",
+    "catalogLoaded": "Katalog '{{id}}' geladen: {{families}} Familien, {{sizes}} Größen",
+    "catalogNoPreview": "{{n}} ohne Vorschau in der Datei",
+    "fileNotRecognized": "Datei nicht erkannt: weder Symbolgruppe noch Katalog",
+    "importFailed": "Import fehlgeschlagen: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bau",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Baustelle",
+      "nl-sanitair": "NL Sanitär",
+      "nl-keuken": "NL Küche",
+      "nen1414-tb": "NL NEN 1414 — Brandschutz",
+      "nen1414-tbk": "NL NEN 1414 — Löschanlagen",
+      "nen1414-td": "NL NEN 1414 — Türen",
+      "nen1414-tn": "NL NEN 1414 — Notbeleuchtung",
+      "nen1414-tr": "NL NEN 1414 — Rauch-/Wärmeabzug",
+      "nen1414-tv": "NL NEN 1414 — Lüftung",
+      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bauwesen)",
+      "electrical": "Elektrotechnik",
+      "process": "Prozess / P&ID",
+      "mep": "Gebäudetechnik (TGA)",
+      "infra": "Infrastruktur"
+    }
   }
 }

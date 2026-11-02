@@ -9,7 +9,8 @@
     "behavior": "Comportamento",
     "fileAssociation": "Associazione file",
     "virtualPrinter": "Stampante virtuale",
-    "pageDisplay": "Visualizzazione pagina"
+    "pageDisplay": "Visualizzazione pagina",
+    "keyboardShortcuts": "Scorciatoie da tastiera"
   },
   "resetToDefaults": "Ripristina predefiniti",
   "resetConfirm": "Ripristinare tutte le preferenze ai valori predefiniti?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Attivo su {{adres}}",
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",
-    "aiLinkError": "Non avviato: {{fout}}"
+    "aiLinkError": "Non avviato: {{fout}}",
+    "interfaceScale": "Dimensione interfaccia"
   },
   "annotations": {
     "generalDefaults": "Predefiniti generali",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Freccia aperta (invertita)",
     "headClosedReversed": "Freccia chiusa (invertita)",
     "headSlash": "Barra",
-    "polylineDefaults": "Predefiniti polilinea"
+    "polylineDefaults": "Predefiniti polilinea",
+    "smoothing": "Smussatura",
+    "pressure": "Pressione della penna",
+    "pressureHint": "La pressione della penna varia lo spessore del tratto (i tratti col mouse mantengono uno spessore costante)",
+    "pressureMinWidth": "Larghezza minima (%)",
+    "penOnly": "Solo penna (ignora il tocco)",
+    "penOnlyHint": "Il tocco non disegna con lo strumento a mano libera; utile contro il contatto del palmo mentre si scrive con la penna"
   },
   "shapes": {
     "rectangleDefaults": "Predefiniti rettangolo",
@@ -161,12 +169,19 @@
     "snapToNearest": "Aggancia al più vicino",
     "objectSnapRadius": "Raggio di aggancio (pixel)",
     "snapToPdfContent": "Aggancia al contenuto del disegno PDF",
+    "moveInference": "Inferenza durante lo spostamento (G / mv)",
+    "moveInferenceTracking": "Linee di puntamento (allinea ai punti di altre geometrie)",
+    "moveInferenceExtension": "Estensioni di linee e facce di muri",
+    "moveInferenceParallel": "Parallelo / perpendicolare a linee vicine",
+    "moveInferenceHint": "Soffermati su un punto per acquisirlo, tieni premuto Maiusc per bloccare una guida, Tab passa tra distanza e angolo. Le guide polari seguono le impostazioni del puntamento polare.",
     "creation": "Creazione",
     "autoSelectAfterCreation": "Seleziona automaticamente l'annotazione dopo la creazione",
     "deletion": "Eliminazione",
     "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni",
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
+    "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
+    "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
     "dynamicScaling": "Scala automatica delle annotazioni"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Per impostare Open PDF Studio come visualizzatore PDF predefinito su macOS:\n\n1. Fare clic destro su qualsiasi file PDF nel Finder\n2. Selezionare \"Ottieni informazioni\"\n3. In \"Apri con\", selezionare Open PDF Studio\n4. Fare clic su \"Modifica tutto...\"",
     "linuxInstructions": "Per impostare Open PDF Studio come visualizzatore PDF predefinito su Linux:\n\nEseguire nel terminale:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Controllare Finder > Ottieni informazioni",
-    "notSet": "Non impostato"
+    "notSet": "Non impostato",
+    "chosenInSystemSettings": "Scelto nelle impostazioni di sistema",
+    "sandboxInstructions": "Open PDF Studio è in esecuzione come pacchetto {{package}} e non può modificare da solo l'app PDF predefinita.\n\nScegli Open PDF Studio nelle impostazioni di sistema in Applicazioni predefinite, oppure fai clic con il tasto destro su un file PDF e usa Apri con.",
+    "xdgMimeMissing": "xdg-mime (pacchetto xdg-utils) non è installato, quindi l'app PDF predefinita non può essere impostata da qui.\n\nInstalla xdg-utils oppure scegli Open PDF Studio nelle impostazioni di sistema in Applicazioni predefinite.",
+    "linuxDone": "Open PDF Studio è ora l'app predefinita per i file PDF.",
+    "linuxFailed": "Impossibile impostare Open PDF Studio come app PDF predefinita.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Esplora file",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Forte",
     "pageSharpenLevel4": "Massima",
     "showScrollbars": "Mostra le barre di scorrimento dell'area di disegno",
+    "backgroundColor": "Colore di sfondo",
+    "backgroundColorDefault": "Predefinito",
+    "backgroundColorHint": "Colore dell'area intorno e tra le pagine. La pagina stessa, la stampa e l'esportazione non cambiano.",
     "panels": "Pannelli",
     "showPropertiesPanel": "Mostra il pannello Proprietà per impostazione predefinita",
     "showToolPalette": "Mostra la tavolozza strumenti per impostazione predefinita",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Freccia aperta (invertita)",
     "closedArrowReversed": "Freccia chiusa (invertita)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "search": "Cerca per comando o tasto",
+    "command": "Comando",
+    "shortcuts": "Scorciatoie",
+    "none": "Nessuna",
+    "noMatches": "Nessun comando corrisponde alla ricerca.",
+    "selectHint": "Seleziona un comando per modificarne le scorciatoie.",
+    "addShortcut": "Aggiungi scorciatoia",
+    "remove": "Rimuovi scorciatoia",
+    "resetCommand": "Ripristina predefinito",
+    "resetAll": "Ripristina tutto",
+    "resetAllConfirm": "Ripristinare tutte le scorciatoie da tastiera ai valori predefiniti?",
+    "loadPreset": "Carica preimpostazione…",
+    "replaceConfirm": "Questo sostituirà le scorciatoie da tastiera personalizzate. Continuare?",
+    "presets": {
+      "markupStyle": "Scorciatoie in stile markup"
+    },
+    "import": "Importa…",
+    "export": "Esporta…",
+    "fileType": "Scorciatoie da tastiera",
+    "imported": "Scorciatoie importate. Fai clic su Salva per applicarle.",
+    "importFailed": "Questo non è un file di scorciatoie da tastiera valido.",
+    "exported": "Scorciatoie esportate.",
+    "exportFailed": "Esportazione delle scorciatoie non riuscita:",
+    "recording": "Premi la nuova combinazione di tasti… (Esc annulla)",
+    "conflict": "{{keys}} è già usato da «{{command}}».",
+    "reassign": "Riassegna",
+    "reserved": "{{keys}} ha un significato fisso e non può essere assegnato.",
+    "defaultLabel": "Predefinito: {{keys}}",
+    "customize": "Personalizza…",
+    "fixedGroup": "Tasti fissi",
+    "applyHint": "Le modifiche hanno effetto quando fai clic su Salva.",
+    "categories": {
+      "file": "File",
+      "edit": "Modifica",
+      "view": "Visualizza",
+      "search": "Trova",
+      "tools": "Strumenti",
+      "drafting": "Aiuti al disegno",
+      "panels": "Pannelli",
+      "review": "Revisione",
+      "help": "Guida",
+      "extensions": "Estensioni",
+      "ribbon": "Barra multifunzione: {{tab}}",
+      "other": "Altro"
+    },
+    "commands": {
+      "findNext": "Trova successivo",
+      "splitPaneLarger": "Ingrandisci il riquadro attivo",
+      "splitPaneSmaller": "Riduci il riquadro attivo"
+    }
   }
 }

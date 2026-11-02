@@ -9,7 +9,8 @@
     "behavior": "Comportement",
     "fileAssociation": "Association de fichiers",
     "virtualPrinter": "Imprimante virtuelle",
-    "pageDisplay": "Affichage de page"
+    "pageDisplay": "Affichage de page",
+    "keyboardShortcuts": "Raccourcis clavier"
   },
   "resetToDefaults": "Rétablir les valeurs par défaut",
   "resetConfirm": "Réinitialiser toutes les préférences aux valeurs par défaut ?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Active sur {{adres}}",
     "aiLinkViaFlag": "Active via l'option de démarrage ({{adres}})",
     "aiLinkOff": "Désactivée",
-    "aiLinkError": "Non démarrée : {{fout}}"
+    "aiLinkError": "Non démarrée : {{fout}}",
+    "interfaceScale": "Taille de l’interface"
   },
   "annotations": {
     "generalDefaults": "Valeurs par défaut générales",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Flèche ouverte (inversée)",
     "headClosedReversed": "Flèche fermée (inversée)",
     "headSlash": "Barre oblique",
-    "polylineDefaults": "Valeurs par défaut de la polyligne"
+    "polylineDefaults": "Valeurs par défaut de la polyligne",
+    "smoothing": "Lissage",
+    "pressure": "Pression du stylet",
+    "pressureHint": "La pression du stylet fait varier l'épaisseur du trait (un trait à la souris garde une épaisseur constante)",
+    "pressureMinWidth": "Largeur minimale (%)",
+    "penOnly": "Stylet uniquement (ignorer le toucher)",
+    "penOnlyHint": "Le toucher ne dessine pas avec l'outil main levée ; utile contre le contact de la paume en écrivant au stylet"
   },
   "shapes": {
     "rectangleDefaults": "Valeurs par défaut du rectangle",
@@ -161,12 +169,19 @@
     "snapToNearest": "Accrocher au point le plus proche",
     "objectSnapRadius": "Rayon d'accrochage (pixels)",
     "snapToPdfContent": "Accrocher au contenu du dessin PDF",
+    "moveInference": "Inférence au déplacement (G / mv)",
+    "moveInferenceTracking": "Lignes de repérage (alignement sur les points d’autres géométries)",
+    "moveInferenceExtension": "Prolongements des lignes et des faces de murs",
+    "moveInferenceParallel": "Parallèle / perpendiculaire aux lignes voisines",
+    "moveInferenceHint": "Survolez brièvement un point pour l’acquérir, maintenez Maj pour verrouiller un guide, Tab bascule entre distance et angle. Les guides polaires suivent les réglages du repérage polaire.",
     "creation": "Création",
     "autoSelectAfterCreation": "Sélectionner automatiquement l'annotation après création",
     "deletion": "Suppression",
     "confirmBeforeDeleting": "Confirmer avant de supprimer les annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoomer avec la molette de la souris (sans maintenir Ctrl)",
+    "middleDoubleClickFit": "Double-cliquer avec le bouton central de la souris pour ajuster la page",
+    "ribbonWheelSwitchesTabs": "Changer d’onglet du ruban avec la molette de la souris",
     "dynamicScaling": "Mise à l'échelle automatique des annotations"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Pour définir Open PDF Studio comme visionneuse PDF par défaut sur macOS :\n\n1. Cliquez avec le bouton droit sur un fichier PDF dans le Finder\n2. Sélectionnez « Lire les informations »\n3. Sous « Ouvrir avec », sélectionnez Open PDF Studio\n4. Cliquez sur « Tout modifier... »",
     "linuxInstructions": "Pour définir Open PDF Studio comme visionneuse PDF par défaut sur Linux :\n\nExécutez dans le terminal :\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Vérifiez Finder > Lire les informations",
-    "notSet": "Non défini"
+    "notSet": "Non défini",
+    "chosenInSystemSettings": "Choisi dans les paramètres du système",
+    "sandboxInstructions": "Open PDF Studio s'exécute en tant que paquet {{package}} et ne peut pas modifier lui-même l'application PDF par défaut.\n\nChoisissez Open PDF Studio dans les paramètres du système sous Applications par défaut, ou faites un clic droit sur un fichier PDF et utilisez Ouvrir avec.",
+    "xdgMimeMissing": "xdg-mime (paquet xdg-utils) n'est pas installé, l'application PDF par défaut ne peut donc pas être définie ici.\n\nInstallez xdg-utils, ou choisissez Open PDF Studio dans les paramètres du système sous Applications par défaut.",
+    "linuxDone": "Open PDF Studio est maintenant l'application par défaut pour les fichiers PDF.",
+    "linuxFailed": "Impossible de définir Open PDF Studio comme application PDF par défaut.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorateur de fichiers",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Forte",
     "pageSharpenLevel4": "Maximale",
     "showScrollbars": "Afficher les barres de défilement du canevas",
+    "backgroundColor": "Couleur d'arrière-plan",
+    "backgroundColorDefault": "Par défaut",
+    "backgroundColorHint": "Couleur de la zone autour et entre les pages. La page elle-même, l'impression et l'exportation ne changent pas.",
     "panels": "Panneaux",
     "showPropertiesPanel": "Afficher le panneau Propriétés par défaut",
     "showToolPalette": "Afficher la palette d'outils par défaut",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Flèche ouverte (inversée)",
     "closedArrowReversed": "Flèche fermée (inversée)",
     "slash": "Barre oblique"
+  },
+  "keyboardShortcuts": {
+    "title": "Raccourcis clavier",
+    "search": "Rechercher par commande ou touche",
+    "command": "Commande",
+    "shortcuts": "Raccourcis",
+    "none": "Aucun",
+    "noMatches": "Aucune commande ne correspond à la recherche.",
+    "selectHint": "Sélectionnez une commande pour modifier ses raccourcis.",
+    "addShortcut": "Ajouter un raccourci",
+    "remove": "Supprimer le raccourci",
+    "resetCommand": "Rétablir la valeur par défaut",
+    "resetAll": "Tout rétablir",
+    "resetAllConfirm": "Rétablir tous les raccourcis clavier par défaut ?",
+    "loadPreset": "Charger un préréglage…",
+    "replaceConfirm": "Cela remplacera vos raccourcis clavier personnalisés. Continuer ?",
+    "presets": {
+      "markupStyle": "Raccourcis de style annotation"
+    },
+    "import": "Importer…",
+    "export": "Exporter…",
+    "fileType": "Raccourcis clavier",
+    "imported": "Raccourcis importés. Cliquez sur Enregistrer pour les appliquer.",
+    "importFailed": "Ce fichier n’est pas un fichier de raccourcis clavier valide.",
+    "exported": "Raccourcis exportés.",
+    "exportFailed": "L’exportation des raccourcis a échoué :",
+    "recording": "Appuyez sur la nouvelle combinaison de touches… (Échap pour annuler)",
+    "conflict": "{{keys}} est déjà utilisé par « {{command}} ».",
+    "reassign": "Réattribuer",
+    "reserved": "{{keys}} a une fonction fixe et ne peut pas être attribué.",
+    "defaultLabel": "Par défaut : {{keys}}",
+    "customize": "Personnaliser…",
+    "fixedGroup": "Touches fixes",
+    "applyHint": "Les modifications s’appliquent quand vous cliquez sur Enregistrer.",
+    "categories": {
+      "file": "Fichier",
+      "edit": "Édition",
+      "view": "Affichage",
+      "search": "Rechercher",
+      "tools": "Outils",
+      "drafting": "Aides au dessin",
+      "panels": "Panneaux",
+      "review": "Révision",
+      "help": "Aide",
+      "extensions": "Extensions",
+      "ribbon": "Ruban : {{tab}}",
+      "other": "Autres"
+    },
+    "commands": {
+      "findNext": "Rechercher le suivant",
+      "splitPaneLarger": "Agrandir le volet actif",
+      "splitPaneSmaller": "Réduire le volet actif"
+    }
   }
 }

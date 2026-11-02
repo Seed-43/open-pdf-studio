@@ -169,7 +169,9 @@
     "flattenAll": "Aplanar todo",
     "flattenAllTooltip": "Aplanar todas las marcas en el contenido de la página",
     "unflattenAll": "Deshacer aplanado",
-    "unflattenAllTooltip": "Restaurar las marcas aplanadas con la restauración permitida"
+    "unflattenAllTooltip": "Restaurar las marcas aplanadas con la restauración permitida",
+    "fileAttachment": "Adjuntar archivo",
+    "fileAttachmentTitle": "Archivo adjunto: haga clic en la página y elija un archivo"
   },
   "view": {
     "pageDisplay": "Visualización de página",
@@ -198,6 +200,7 @@
     "thinLines": "Líneas finas",
     "compareGroup": "Comparar",
     "fullscreen": "Pantalla completa",
+    "fullscreenUnavailable": "La pantalla completa no está disponible aquí: el navegador o la página que muestra la aplicación la ha rechazado. Use en su lugar la opción de pantalla completa del menú del navegador.",
     "window": "Ventana",
     "display": "Visualización",
     "keystrokes": "Pulsaciones",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Girar vista a la izquierda",
     "rotateViewRight": "Girar vista a la derecha",
     "rotateViewLeftTitle": "Gira la vista 90° en sentido antihorario. El documento en sí no cambia.",
-    "rotateViewRightTitle": "Gira la vista 90° en sentido horario. El documento en sí no cambia."
+    "rotateViewRightTitle": "Gira la vista 90° en sentido horario. El documento en sí no cambia.",
+    "splitGroup": "Dividir",
+    "split": "Dividir",
+    "splitTitle": "Divide la vista en dos paneles del mismo documento",
+    "splitOptions": "Opciones de división",
+    "splitVertical": "Dividir verticalmente",
+    "splitHorizontal": "Dividir horizontalmente",
+    "unsplit": "Quitar división",
+    "splitSync": "Sincronizar",
+    "splitSyncTitle": "Desplaza y amplía ambos paneles a la vez",
+    "splitDividerTitle": "Arrastre para cambiar el tamaño de los paneles. Doble clic para volver a 50/50.",
+    "accessibilityGroup": "Accesibilidad",
+    "readAloud": "Leer en voz alta",
+    "readAloudPause": "Pausa",
+    "readAloudTitle": "Leer en voz alta la selección, o el documento desde la página actual",
+    "tagsPanel": "Etiquetas",
+    "tagsPanelTitle": "Mostrar las etiquetas de estructura del documento",
+    "accessibilityCheck": "Comprobar",
+    "accessibilityCheckTitle": "Buscar texto alternativo que falta y contenido sin etiquetar"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilidad de elementos — mostrar/ocultar y atenuar tipos de anotación",
@@ -328,7 +349,9 @@
     "scanText": "Editar texto escaneado",
     "scanTextHint": "Haga clic en una palabra reconocida para reemplazarla. La palabra antigua del escaneo queda cubierta.",
     "scanTextNone": "No hay texto reconocido en esta página. Ejecute primero Reconocimiento de texto (OCR).",
-    "shiftPage": "Desplazar página"
+    "shiftPage": "Desplazar página",
+    "editPages": "Editar páginas",
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir"
   },
   "help": {
     "settings": "Configuración",
@@ -348,6 +371,7 @@
     "updates": "Actualizaciones",
     "checkForUpdates": "Buscar actualizaciones",
     "updatesLabel": "Actualizaciones",
+    "updatesManaged": "Las actualizaciones de esta instalación se gestionan de forma centralizada.",
     "startupDiagnosticsTitle": "Mostrar el archivo de diagnóstico de inicio (respetuoso con la privacidad)",
     "startupDiagnostics": "Diagnóstico",
     "fileAssociation": "Asociación de archivos",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Pega aquí el área recortada, conservando los datos vectoriales",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Tamaño con el que se coloca un símbolo nuevo",
-    "symbolScaleCustom": "Escala personalizada"
+    "symbolScaleCustom": "Escala personalizada",
+    "count": "Contar",
+    "arc": "Arco"
   },
   "proofread": {
     "group": "Revisión",
@@ -678,6 +704,7 @@
     "saveNote": "Las notas y otras marcas sin apariencia en la página siguen siendo marcas. El archivo solo cambia al guardar; hasta entonces, Deshacer revierte este paso.",
     "ok": "Aplanar",
     "busy": "Aplanando marcas...",
+    "cancelled": "Acoplamiento cancelado. El documento no se ha modificado.",
     "nothing": "Este documento no tiene marcas que aplanar.",
     "nothingBaked": "Ninguna de las marcas tiene apariencia en la página, así que no se aplanó nada.",
     "notLoaded": "Las marcas de este documento aún se están cargando. Inténtelo de nuevo en un momento.",
@@ -691,5 +718,60 @@
     "noRecovery": "Las marcas de este documento se aplanaron sin permitir restaurarlas. Forman parte del contenido de la página y no se pueden restaurar.",
     "done": "Marcas restauradas: {{count}}.",
     "failed": "Error al restaurar: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Iconos pequeños",
+    "largeIcons": "Iconos grandes",
+    "settings": "Configuración"
+  },
+  "symbolPalette": {
+    "search": "Buscar símbolos...",
+    "noResults": "No se encontraron símbolos",
+    "drawingSettings": "Configuración del dibujo",
+    "manageSystemTypes": "Gestionar tipos de sistema",
+    "settingsTitle": "Configuración de la biblioteca de símbolos",
+    "industry": "Sector",
+    "country": "País",
+    "libraryLoading": "Cargando la biblioteca en línea…",
+    "libraryOffline": "Biblioteca en línea no disponible — lista de países limitada",
+    "downloading": "Descargando {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Colecciones disponibles en línea: {{n}} ({{symbols}} símbolos)",
+    "activateDownloaded": "Colecciones descargadas para activar en este país: {{n}}",
+    "download": "Descargar",
+    "downloadFailed": "Error en la descarga: {{error}}",
+    "builtIn": "Integrado",
+    "online": "En línea",
+    "addSymbol": "+ Añadir símbolo",
+    "export": "Exportar",
+    "remove": "Quitar",
+    "noSymbolsYet": "Aún no hay símbolos",
+    "newGroupName": "Nombre del nuevo grupo...",
+    "addGroup": "Añadir grupo",
+    "importGroup": "Importar grupo",
+    "catalogLoaded": "Catálogo '{{id}}' cargado: {{families}} familias, {{sizes}} tamaños",
+    "catalogNoPreview": "{{n}} sin vista previa en el archivo",
+    "fileNotRecognized": "Archivo no reconocido: no es un grupo de símbolos ni un catálogo",
+    "importFailed": "Error en la importación: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcción",
+      "nl-elektra": "NL Electricidad",
+      "nl-bouwplaats": "NL Obra",
+      "nl-sanitair": "NL Sanitarios",
+      "nl-keuken": "NL Cocina",
+      "nen1414-tb": "NL NEN 1414 — Protección contra incendios",
+      "nen1414-tbk": "NL NEN 1414 — Sistemas de extinción",
+      "nen1414-td": "NL NEN 1414 — Puertas",
+      "nen1414-tn": "NL NEN 1414 — Iluminación de emergencia",
+      "nen1414-tr": "NL NEN 1414 — Extracción de humo/calor",
+      "nen1414-tv": "NL NEN 1414 — Ventilación",
+      "nen1414-tw": "NL NEN 1414 — Agua/Rociadores"
+    },
+    "sectors": {
+      "aec": "AEC (Construcción)",
+      "electrical": "Electrotecnia",
+      "process": "Procesos / P&ID",
+      "mep": "Instalaciones (MEP)",
+      "infra": "Infraestructura"
+    }
   }
 }

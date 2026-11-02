@@ -169,7 +169,9 @@
     "flattenAll": "Alles afvlakken",
     "flattenAllTooltip": "Alle markeringen afvlakken tot pagina-inhoud",
     "unflattenAll": "Afvlakken ongedaan",
-    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan"
+    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan",
+    "fileAttachment": "Bestand bijvoegen",
+    "fileAttachmentTitle": "Bestandsbijlage: klik op de pagina en kies een bestand"
   },
   "view": {
     "pageDisplay": "Paginaweergave",
@@ -203,12 +205,31 @@
     "thinLinesTitle": "Dunne lijnen (Ctrl+5)",
     "thinLines": "Dunne lijnen",
     "fullscreen": "Volledig scherm",
+    "fullscreenUnavailable": "Volledig scherm is hier niet beschikbaar: de browser of de pagina die de app toont, weigerde het. Gebruik in plaats daarvan de optie Volledig scherm in het menu van de browser.",
     "display": "Weergave",
     "keystrokes": "Toetsaanslagen",
     "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)",
     "readerMode": "Leesmodus",
     "readerModeTip": "Onthoud de pagina, scrollpositie en het zoomniveau van deze PDF, ook nadat je hem sluit en weer opent. Zolang dit aan staat, staat er een klein bestand naast deze PDF; dat verschijnt dus ook in mappen die met de cloud synchroniseren (OneDrive, Dropbox, enz.). Uitzetten verwijdert dat bestand.",
-    "readerModeSaveFailed": "Leesmodus kon de instelling voor deze PDF niet opslaan. De map is mogelijk alleen-lezen."
+    "readerModeSaveFailed": "Leesmodus kon de instelling voor deze PDF niet opslaan. De map is mogelijk alleen-lezen.",
+    "splitGroup": "Splitsen",
+    "split": "Splitsen",
+    "splitTitle": "De weergave splitsen in twee panelen met hetzelfde document",
+    "splitOptions": "Opties voor splitsen",
+    "splitVertical": "Verticaal splitsen",
+    "splitHorizontal": "Horizontaal splitsen",
+    "unsplit": "Splitsing opheffen",
+    "splitSync": "Synchroon",
+    "splitSyncTitle": "Beide panelen samen scrollen en zoomen",
+    "splitDividerTitle": "Sleep om de panelen te vergroten of te verkleinen. Dubbelklik om terug te gaan naar 50/50.",
+    "accessibilityGroup": "Toegankelijkheid",
+    "readAloud": "Voorlezen",
+    "readAloudPause": "Pauzeren",
+    "readAloudTitle": "De selectie, of het document vanaf de huidige pagina, voorlezen",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "De structuurtags van het document tonen",
+    "accessibilityCheck": "Controleren",
+    "accessibilityCheckTitle": "Controleren op ontbrekende alternatieve tekst en content zonder tags"
   },
   "elementVisibility": {
     "buttonTitle": "Zichtbaarheid Elementen — toon/verberg en dim annotatie-soorten",
@@ -328,7 +349,9 @@
     "scanText": "Gescande tekst bewerken",
     "scanTextHint": "Klik op een herkend woord om het te vervangen. Het oude woord in de scan wordt afgedekt.",
     "scanTextNone": "Geen herkende tekst op deze pagina. Voer eerst Tekst herkennen (OCR) uit.",
-    "shiftPage": "Pagina verschuiven"
+    "shiftPage": "Pagina verschuiven",
+    "editPages": "Pagina's bewerken",
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
   },
   "help": {
     "information": "Informatie",
@@ -342,6 +365,7 @@
     "updates": "Updates",
     "checkForUpdates": "Controleren op updates",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates voor deze installatie worden centraal beheerd.",
     "startupDiagnosticsTitle": "Het privacyveilige opstart-diagnosebestand tonen",
     "startupDiagnostics": "Diagnose",
     "fileAssociation": "Bestandskoppeling",
@@ -514,6 +538,15 @@
     "noEmbeddedImages": "Geen ingebedde afbeeldingen op deze pagina gevonden.",
     "lineContinue": "Doorlopend",
     "lineContinueTip": "Elke klik verbindt het volgende lijnsegment met het vorige. Escape, rechtsklik of dubbelklik beëindigt de reeks.",
+    "snapGroup": "Snap",
+    "snapObjectSnap": "Objectsnap",
+    "snapObjectSnapTip": "Hoofdschakelaar voor objectsnap (Shift+F3). De snapmodi hieronder werken alleen als deze aan staat.",
+    "snapEndpoint": "Eindpunt",
+    "snapMidpoint": "Middelpunt",
+    "snapVertex": "Hoekpunt",
+    "snapStartPoint": "Beginpunt",
+    "snapCenter": "Centrum",
+    "moveBasePoint": "Verplaatsen — klik op het basispunt en daarna op de bestemming (beide punten snappen op objecten)",
     "aligned": "Uitgelijnd",
     "linear": "Lineair",
     "dimension": "Maatlijn",
@@ -612,7 +645,9 @@
     "vectorSnippetPasteTitle": "Plak het geknipte gebied hier, met behoud van vectordata",
     "symbolScale": "Schaal",
     "symbolScaleTitle": "Maat waarop een nieuw symbool geplaatst wordt",
-    "symbolScaleCustom": "Eigen schaal"
+    "symbolScaleCustom": "Eigen schaal",
+    "count": "Tellen",
+    "arc": "Boog"
   },
   "theme": {
     "system": "Systeem (Automatisch)",
@@ -678,6 +713,7 @@
     "saveNote": "Notities en andere markeringen zonder uiterlijk op de pagina blijven markering. Het bestand verandert pas bij opslaan; tot dan maakt Ongedaan maken deze stap ongedaan.",
     "ok": "Afvlakken",
     "busy": "Markeringen afvlakken...",
+    "cancelled": "Vlakken geannuleerd. Het document is niet gewijzigd.",
     "nothing": "Dit document heeft geen markeringen om af te vlakken.",
     "nothingBaked": "Geen van de markeringen heeft een uiterlijk op de pagina; er is niets afgevlakt.",
     "notLoaded": "De markeringen van dit document worden nog geladen. Probeer het zo opnieuw.",
@@ -691,5 +727,60 @@
     "noRecovery": "De markeringen in dit document zijn afgevlakt zonder terughalen toe te staan. Ze zijn deel van de pagina-inhoud en kunnen niet worden teruggehaald.",
     "done": "Markeringen teruggehaald: {{count}}.",
     "failed": "Terughalen mislukt: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Kleine pictogrammen",
+    "largeIcons": "Grote pictogrammen",
+    "settings": "Instellingen"
+  },
+  "symbolPalette": {
+    "search": "Symbolen zoeken...",
+    "noResults": "Geen symbolen gevonden",
+    "drawingSettings": "Tekeninstellingen",
+    "manageSystemTypes": "Systeemtypen beheren",
+    "settingsTitle": "Instellingen symboolbibliotheek",
+    "industry": "Industrie",
+    "country": "Land",
+    "libraryLoading": "Online bibliotheek laden…",
+    "libraryOffline": "Online bibliotheek niet bereikbaar — beperkte landenlijst",
+    "downloading": "Downloaden {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Collecties online beschikbaar: {{n}} ({{symbols}} symbolen)",
+    "activateDownloaded": "Gedownloade collecties te activeren voor dit land: {{n}}",
+    "download": "Downloaden",
+    "downloadFailed": "Download mislukt: {{error}}",
+    "builtIn": "Ingebouwd",
+    "online": "Online",
+    "addSymbol": "+ Symbool toevoegen",
+    "export": "Exporteren",
+    "remove": "Verwijderen",
+    "noSymbolsYet": "Nog geen symbolen",
+    "newGroupName": "Naam nieuwe groep...",
+    "addGroup": "Groep toevoegen",
+    "importGroup": "Groep importeren",
+    "catalogLoaded": "Catalogus '{{id}}' geladen: {{families}} families, {{sizes}} maten",
+    "catalogNoPreview": "{{n}} zonder preview in het bestand",
+    "fileNotRecognized": "Bestand niet herkend: geen symboolgroep en geen catalogus",
+    "importFailed": "Import mislukt: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bouw",
+      "nl-elektra": "NL Elektra",
+      "nl-bouwplaats": "NL Bouwplaats",
+      "nl-sanitair": "NL Sanitair",
+      "nl-keuken": "NL Keuken",
+      "nen1414-tb": "NL NEN 1414 — Brandbeveiliging",
+      "nen1414-tbk": "NL NEN 1414 — Blussystemen",
+      "nen1414-td": "NL NEN 1414 — Deuren",
+      "nen1414-tn": "NL NEN 1414 — Noodverlichting",
+      "nen1414-tr": "NL NEN 1414 — Rook/Warmteafvoer",
+      "nen1414-tv": "NL NEN 1414 — Ventilatie",
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bouw)",
+      "electrical": "Elektrotechniek",
+      "process": "Proces / P&ID",
+      "mep": "Installatietechniek (MEP)",
+      "infra": "Infra"
+    }
   }
 }

@@ -28,7 +28,7 @@ import { alignLeft } from '../../../annotations/alignment.js';
 import { explodeSelection, joinSelection, createCollection, explodeCollection } from '../../../annotations/segment-ops.js';
 import {
   handIcon, selectCommentsIcon, findIcon,
-  lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon,
+  lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon, countIcon,
   calloutIcon, cloudIcon,
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
@@ -42,6 +42,7 @@ import { openDialog } from '../../../bridge.js';
 
 // Generic placeholder icons for buttons without a dedicated icon
 const placeholderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="0" stroke-dasharray="3 2"/><path d="M9 9 L15 15 M15 9 L9 15" stroke-width="1"/></svg>`;
+const wallIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h18v8H3zM3 14l6-6M7 16l8-8M13 16l8-8M19 16l2-2"/></svg>`;
 const arcIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 Q 12 4 20 20"/></svg>`;
 const splineIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 C 7 2, 13 2, 12 12 S 17 22 21 7"/></svg>`;
 const splineArrowIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 C 8 9, 14 7, 19 9"/><path d="M14 6 L 20 9 L 16 13.5"/></svg>`;
@@ -145,10 +146,28 @@ function rotateSelected() {
   recordBulkModify(anns, originals);
 }
 
+// Eén snap-vinkje in de lintgroep 'Snap'. Schakelt de bijbehorende
+// voorkeur en bewaart ze meteen (net als de voorkeuren-dialog).
+function SnapOption(props) {
+  const on = () => state.preferences[props.prefKey] !== false && state.preferences.enableObjectSnap === true;
+  const set = (checked) => { state.preferences[props.prefKey] = checked; savePreferences(); };
+  return (
+    <label class="ribbon-checkbox-option" title={props.label}>
+      <input
+        type="checkbox"
+        checked={on()}
+        disabled={state.preferences.enableObjectSnap !== true}
+        onChange={(e) => set(e.currentTarget.checked)}
+      />
+      <span>{props.label}</span>
+    </label>
+  );
+}
+
 function moveSelected() {
   // CAD-stijl verplaatsen met basispunt (de 'mv'-flow uit g-move-mode):
   // klik 1 kiest het basispunt, slepen óf een getypte verplaatsing (50,0)
-  // plaatst de selectie.
+  // plaatst de selectie. Beide klikken object-snappen naar bestaande punten.
   if (tryStartGMove({ basePoint: true })) {
     updateStatusMessage(
       i18next.t('drawing.moveBase', {
@@ -173,6 +192,7 @@ function moveSelected() {
 // comment groups inside a single AdaptiveGroups container.
 export function DrawingGroups() {
   const { t } = useTranslation('ribbon');
+  const { t: tProperties } = useTranslation('properties');
   const ro = () => noPdf() || isPdfAReadOnly();
   const cs = t('common.comingSoon') || 'Coming soon';
 
@@ -208,11 +228,19 @@ export function DrawingGroups() {
 
         {/* DRAW — uniform grid of small icon-only buttons (CAD toolbar style).
             All buttons are 26×26 size=small; the compact group's flex-wrap CSS
-            arranges them into 2 rows × 7 cols. */}
+            wraps them into rows. */}
         <RibbonGroup label={t('drawing.draw')} compact>
           {/* Row 1 */}
           <RibbonButton size="small" id="dr-line" title={t('comment.line')} icon={lineIcon}
             disabled={ro()} active={state.currentTool === 'line'} onClick={() => setTool('line')} />
+          <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
+            disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
+          <RibbonButton size="small" id="dr-wall" title={tProperties('quantities.type.wall')} icon={wallIcon}
+            disabled={ro()} active={state.currentTool === 'wall'} onClick={() => {
+              // Palette walls keep their overrides; the ribbon starts with the standard wall.
+              state.toolOverrides = null;
+              setTool('wall');
+            }} />
           <RibbonButton size="small" id="dr-arrow" title={t('comment.arrow')} icon={arrowIcon}
             disabled={ro()} active={state.currentTool === 'arrow'} onClick={() => setTool('arrow')} />
           <RibbonButton size="small" id="dr-spline-arrow" title={t('comment.splineArrowTitle')} icon={splineArrowIcon}
@@ -223,10 +251,8 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'eraser'} onClick={() => setTool('eraser')} />
           <RibbonButton size="small" id="dr-rect" title={`${t('comment.rectangle')} — ${t('drawing.dimHint')}`} icon={rectIcon}
             disabled={ro()} active={state.currentTool === 'box'} onClick={() => setTool('box')} />
-          <RibbonButton size="small" id="dr-arc" title="Arc" icon={arcIcon}
+          <RibbonButton size="small" id="dr-arc" title={t('drawing.arc')} icon={arcIcon}
             disabled={ro()} active={state.currentTool === 'arc'} onClick={() => setTool('arc')} />
-          <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
-            disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
           <RibbonButton size="small" id="dr-hatch" title={t('comment.filledArea')} icon={hatchIcon}
             disabled={ro()} active={state.currentTool === 'filledArea'} onClick={() => setTool('filledArea')} />
           <RibbonButton size="small" id="dr-text" title={t('comment.textBox')} icon={textboxIcon}
@@ -240,14 +266,36 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'circle'} onClick={() => setTool('circle')} />
           <RibbonButton size="small" id="dr-ellipse" title={`${t('comment.ellipse') || 'Ellipse'} — ${t('drawing.dimHint')}`} icon={ellipseIcon}
             disabled={ro()} active={state.currentTool === 'ellipse'} onClick={() => setTool('ellipse')} />
-          <RibbonButton size="small" id="dr-count" title="Tellen" icon={circleIcon}
+          <RibbonButton size="small" id="dr-count" title={t('drawing.count')} icon={countIcon}
             disabled={ro()} active={state.currentTool === 'count'} onClick={() => setTool('count')} />
           <RibbonButton size="small" id="dr-l-shape" title={`${t('drawing.lShape')} — ${t('drawing.dimHint')}`} icon={lShapeIcon}
             disabled={ro()} active={state.currentTool === 'lshape'} onClick={() => setTool('lshape')} />
           <RibbonButton size="small" id="dr-image" title={t('drawing.image')} icon={imageIcon}
-            disabled={ro()} active={state.currentTool === 'image'} onClick={() => setTool('image')} />
+            disabled={ro()}
+            onClick={() => import('../../../annotations/image-drop.js').then((m) => m.kiesEnPlaatsAfbeelding())} />
           <RibbonButton size="small" id="dr-remove-image" title={t('drawing.removeImage')} icon={removeImageIcon}
             disabled={ro()} active={state.currentTool === 'removeImage'} onClick={() => startRemoveImageTool()} />
+        </RibbonGroup>
+
+        {/* SNAP — object-snap-modi direct naast de tekeninstrumenten.
+            Zelfde voorkeuren als het Voorkeuren-dialog, zodat het engine-
+            gedeelte (snap-engine.js) ze bij elke muisbeweging leest. */}
+        <RibbonGroup label={t('drawing.snapGroup')}>
+          <div class="ribbon-snap-options">
+            <label class="ribbon-checkbox-option snap-master" title={t('drawing.snapObjectSnapTip')}>
+              <input
+                type="checkbox"
+                checked={state.preferences.enableObjectSnap === true}
+                onChange={(e) => { state.preferences.enableObjectSnap = e.currentTarget.checked; savePreferences(); }}
+              />
+              <span>{t('drawing.snapObjectSnap')}</span>
+            </label>
+            <SnapOption prefKey="snapToEndpoints" label={t('drawing.snapEndpoint')} />
+            <SnapOption prefKey="snapToMidpoints" label={t('drawing.snapMidpoint')} />
+            <SnapOption prefKey="snapToVertices" label={t('drawing.snapVertex')} />
+            <SnapOption prefKey="snapToStartPoints" label={t('drawing.snapStartPoint')} />
+            <SnapOption prefKey="snapToCenters" label={t('drawing.snapCenter')} />
+          </div>
         </RibbonGroup>
 
         {/* LIJN-OPTIES — alleen zichtbaar bij het lijn-gereedschap. Bevat het
@@ -378,7 +426,7 @@ export function DrawingGroups() {
               net, gelijkmatig blok vormt i.p.v. een mix van grote losse
               knoppen en een kleine stapel. */}
           <RibbonButtonStack>
-            <RibbonButton size="small" id="dr-move" title={t('drawing.move')} icon={moveIcon} label={t('drawing.move')}
+            <RibbonButton size="small" id="dr-move" title={t('drawing.moveBasePoint')} icon={moveIcon} label={t('drawing.move')}
               disabled={ro()} onClick={moveSelected} />
             <RibbonButton size="small" id="dr-copy" title={t('drawing.copy')} icon={copyAnnIcon} label={t('drawing.copy')}
               disabled={ro()} onClick={() => duplicateAnnotation()} />
@@ -451,7 +499,7 @@ export function DrawingGroups() {
         <RibbonGroup label={t('drawing.clipboard')}>
           <RibbonButton id="dr-paste" title={t('drawing.paste')} icon={pasteIcon} label={t('drawing.paste')}
             disabled={ro()} onClick={pasteFromClipboard} />
-          <RibbonButton id="dr-paste-in-place" title={`${t('drawing.pasteInPlace')} (Ctrl+Shift+V)`} icon={pasteInPlaceIcon} label={t('drawing.pasteInPlace')}
+          <RibbonButton id="dr-paste-in-place" title={t('drawing.pasteInPlace')} icon={pasteInPlaceIcon} label={t('drawing.pasteInPlace')}
             disabled={ro()} onClick={() => pasteAnnotationsInPlace()} />
           {/* Knippen / Kopiëren / Verwijderen — icon-only (issue #278);
               de naam blijft als tooltip beschikbaar. */}

@@ -9,7 +9,8 @@
     "behavior": "Adfærd",
     "fileAssociation": "Filtilknytning",
     "virtualPrinter": "Virtuel printer",
-    "pageDisplay": "Sidevisning"
+    "pageDisplay": "Sidevisning",
+    "keyboardShortcuts": "Tastaturgenveje"
   },
   "resetToDefaults": "Nulstil til standarder",
   "resetConfirm": "Nulstil alle indstillinger til standardværdier?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Fra",
-    "aiLinkError": "Ikke startet: {{fout}}"
+    "aiLinkError": "Ikke startet: {{fout}}",
+    "interfaceScale": "Grænsefladestørrelse"
   },
   "annotations": {
     "generalDefaults": "Generelle standarder",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Åben pil (omvendt)",
     "headClosedReversed": "Lukket pil (omvendt)",
     "headSlash": "Skråstreg",
-    "polylineDefaults": "Polylinjestandarder"
+    "polylineDefaults": "Polylinjestandarder",
+    "smoothing": "Udglatning",
+    "pressure": "Pentryk",
+    "pressureHint": "Pentrykket ændrer stregbredden (musestreger beholder en fast bredde)",
+    "pressureMinWidth": "Mindste bredde (%)",
+    "penOnly": "Kun pen (ignorer berøring)",
+    "penOnlyHint": "Berøring tegner ikke med frihåndsværktøjet; nyttigt mod håndfladekontakt, når du skriver med pen"
   },
   "shapes": {
     "rectangleDefaults": "Rektangelstandarder",
@@ -165,8 +173,15 @@
     "deletion": "Sletning",
     "confirmBeforeDeleting": "Bekræft før sletning af annotationer",
     "snapToPdfContent": "Snap til PDF-tegningsindhold",
+    "moveInference": "Hjælpelinjer ved flytning (G / mv)",
+    "moveInferenceTracking": "Sporingslinjer (juster efter punkter i anden geometri)",
+    "moveInferenceExtension": "Forlængelser af linjer og vægflader",
+    "moveInferenceParallel": "Parallel / vinkelret på nærliggende linjer",
+    "moveInferenceHint": "Hold kort markøren over et punkt for at fange det, hold Shift nede for at låse en hjælpelinje, Tab skifter mellem afstand og vinkel. Polære hjælpelinjer følger indstillingerne for polær sporing.",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uden at holde Ctrl nede)",
+    "middleDoubleClickFit": "Dobbeltklik med den midterste museknap for at tilpasse siden",
+    "ribbonWheelSwitchesTabs": "Skift fane i båndet med musehjulet",
     "dynamicScaling": "Skalér markeringer automatisk"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "For at angive Open PDF Studio som standard PDF-fremviser på macOS:\n\n1. Højreklik på en vilkårlig PDF-fil i Finder\n2. Vælg \"Vis info\"\n3. Under \"Åbn med\" vælg Open PDF Studio\n4. Klik \"Skift alle...\"",
     "linuxInstructions": "For at angive Open PDF Studio som standard PDF-fremviser på Linux:\n\nKør i terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Tjek Finder > Vis info",
-    "notSet": "Ikke angivet"
+    "notSet": "Ikke angivet",
+    "chosenInSystemSettings": "Valgt i systemindstillingerne",
+    "sandboxInstructions": "Open PDF Studio kører som en {{package}}-pakke og kan ikke selv ændre standard-PDF-appen.\n\nVælg Open PDF Studio i systemindstillingerne under Standardprogrammer, eller højreklik på en PDF-fil og brug Åbn med.",
+    "xdgMimeMissing": "xdg-mime (pakken xdg-utils) er ikke installeret, så standard-PDF-appen kan ikke indstilles herfra.\n\nInstaller xdg-utils, eller vælg Open PDF Studio i systemindstillingerne under Standardprogrammer.",
+    "linuxDone": "Open PDF Studio er nu standardappen til PDF-filer.",
+    "linuxFailed": "Open PDF Studio kunne ikke indstilles som standard-PDF-app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Stifinder",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Kraftig",
     "pageSharpenLevel4": "Maksimal",
     "showScrollbars": "Vis lærredets rullepaneler",
+    "backgroundColor": "Baggrundsfarve",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Farven på området omkring og mellem siderne. Selve siden, udskrivning og eksport ændres ikke.",
     "panels": "Paneler",
     "showPropertiesPanel": "Vis egenskabspanelet som standard",
     "showToolPalette": "Vis værktøjspaletten som standard",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Åben pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
     "slash": "Skråstreg"
+  },
+  "keyboardShortcuts": {
+    "title": "Tastaturgenveje",
+    "search": "Søg efter kommando eller tast",
+    "command": "Kommando",
+    "shortcuts": "Genveje",
+    "none": "Ingen",
+    "noMatches": "Ingen kommandoer matcher søgningen.",
+    "selectHint": "Vælg en kommando for at ændre dens genveje.",
+    "addShortcut": "Tilføj genvej",
+    "remove": "Fjern genvej",
+    "resetCommand": "Nulstil til standard",
+    "resetAll": "Nulstil alle",
+    "resetAllConfirm": "Nulstil alle tastaturgenveje til standard?",
+    "loadPreset": "Indlæs forudindstilling…",
+    "replaceConfirm": "Dette erstatter dine egne tastaturgenveje. Vil du fortsætte?",
+    "presets": {
+      "markupStyle": "Genveje i markeringsstil"
+    },
+    "import": "Importér…",
+    "export": "Eksportér…",
+    "fileType": "Tastaturgenveje",
+    "imported": "Genveje importeret. Klik på Gem for at anvende dem.",
+    "importFailed": "Dette er ikke en gyldig fil med tastaturgenveje.",
+    "exported": "Genveje eksporteret.",
+    "exportFailed": "Eksport af genvejene mislykkedes:",
+    "recording": "Tryk på den nye tastekombination… (Esc annullerer)",
+    "conflict": "{{keys}} bruges allerede af “{{command}}”.",
+    "reassign": "Tildel igen",
+    "reserved": "{{keys}} har en fast betydning og kan ikke tildeles.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Tilpas…",
+    "fixedGroup": "Faste taster",
+    "applyHint": "Ændringer træder i kraft, når du klikker på Gem.",
+    "categories": {
+      "file": "Filer",
+      "edit": "Rediger",
+      "view": "Vis",
+      "search": "Søg",
+      "tools": "Værktøjer",
+      "drafting": "Tegnehjælp",
+      "panels": "Paneler",
+      "review": "Gennemsyn",
+      "help": "Hjælp",
+      "extensions": "Udvidelser",
+      "ribbon": "Bånd: {{tab}}",
+      "other": "Andet"
+    },
+    "commands": {
+      "findNext": "Find næste",
+      "splitPaneLarger": "Gør den aktive rude større",
+      "splitPaneSmaller": "Gør den aktive rude mindre"
+    }
   }
 }

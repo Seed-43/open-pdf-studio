@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "ຮູບແບບຂະໜາດໃຫຍ່",
+      "detailblad": "ແຜ່ນລາຍລະອຽດ",
+      "voorblad": "ແຜ່ນປົກ"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "ລວງຕັ້ງ",
+      "landscape": "ລວງນອນ"
+    },
     "title": "ເອກະສານໃໝ່",
     "paperSize": "ຂະໜາດເຈ້ຍ:",
     "widthMm": "ລວງກວ້າງ (ມມ):",
@@ -128,11 +138,15 @@
     "pageBorder": "ພິມຂອບໜ້າ",
     "perSheetNote": "ແຕ່ລະໜ້າຈະຖືກປັບຂະໜາດໃຫ້ພໍດີກັບຊ່ອງຂອງມັນ, ສະນັ້ນການປັບຂະໜາດໜ້າຂ້າງເທິງຈະບໍ່ມີຜົນ.",
     "poster": "ໂປສເຕີ (ແຜ່ນຍ່ອຍ)",
+    "posterOverview": "ພາບລວມໂປສເຕີ",
+    "posterOverlapLegend": "ພື້ນທີ່ມີສີຈະຊ້ຳກັນໃນແຜ່ນເຈ້ຍທີ່ຕິດກັນ",
     "posterScale": "ມາດຕາສ່ວນແຜ່ນຍ່ອຍ",
     "posterOverlap": "ການຊ້ອນກັນ",
     "posterCutMarks": "ເຄື່ອງໝາຍຕັດ",
     "posterLabels": "ປ້າຍ (ໄຟລ໌, ໜ້າ, ແຜ່ນຍ່ອຍ)",
     "posterOnlyLarge": "ແບ່ງສະເພາະໜ້າໃຫຍ່",
+    "posterEdgeCrop": "ຕັດຂອບນອກອອກເລັກນ້ອຍ",
+    "posterEdgeCropHint": "ສູງສຸດ {{max}} ມມ ຕໍ່ຂອບນອກ, ສຳລັບການພິມນີ້ເທົ່ານັ້ນ. ປິດ: ເກັບເນື້ອຫາທັງໝົດ.",
     "posterTileInfo": "ໜ້າ {{page}}: ແຜ່ນຍ່ອຍ {{row}},{{col}} (ແຖວ, ຖັນ) ຈາກ {{rows}} × {{cols}}",
     "posterNotTiled": "ໜ້າ {{page}} ພໍດີກັບເຈ້ຍແຜ່ນດຽວ ແລະ ບໍ່ຖືກແບ່ງ.",
     "posterAssumedPaper": "ບໍ່ຮູ້ຂະໜາດເຈ້ຍ: ແຜ່ນຍ່ອຍຖືກຈັດວາງໃສ່ {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "ເອກະສານ ແລະ ຮອຍໝາຍ",
     "document": "ເອກະສານ",
     "printAsImage": "ພິມເປັນຮູບພາບ",
+    "colorMode": "ໂໝດສີ:",
+    "colorModeColor": "ສີ",
+    "colorModeGrayscale": "ລະດັບສີເທົາ",
+    "colorModeBlackWhite": "ດຳຂາວ",
     "pagesToPrint": "ໜ້າທີ່ຈະພິມ",
     "noPrinterSelected": "ຍັງບໍ່ໄດ້ເລືອກເຄື່ອງພິມ.",
     "noPagesToPrint": "ບໍ່ມີໜ້າທີ່ຈະພິມ.",
@@ -346,7 +364,13 @@
     "chooseImage": "ເລືອກຮູບພາບ...",
     "scale": "ມາດຕາສ່ວນ:",
     "selectImageFirst": "ກະລຸນາເລືອກຮູບພາບກ່ອນ.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "ປັບໃຫ້ພໍດີກັບໜ້າອັດຕະໂນມັດ",
+    "autoFitHint": "ປັບຂໍ້ຄວາມໃຫ້ພໍດີກັບແຕ່ລະໜ້າ. ຂະໜາດທີ່ສະແດງແມ່ນສຳລັບໜ້າປັດຈຸບັນ.",
+    "increaseFontSize": "ເພີ່ມຂະໜາດຟອນຕ໌",
+    "decreaseFontSize": "ຫຼຸດຂະໜາດຟອນຕ໌",
+    "textHistory": "ຂໍ້ຄວາມທີ່ເຄີຍໃຊ້",
+    "removeFromHistory": "ລຶບອອກຈາກປະຫວັດ"
   },
   "headerFooter": {
     "addTitle": "ເພີ່ມຫົວ/ທ້າຍໜ້າ",
@@ -430,7 +454,8 @@
     "styleLabel": "ຮູບແບບ:",
     "nestTitle": "ຈັດໄວ້ພາຍໃຕ້ບຸກມາກໃໝ່",
     "deleteTitle": "ລຶບບຸກມາກ",
-    "deleteConfirm": "ລຶບ {{count}} ບຸກມາກທີ່ເລືອກ ແລະ ທຸກຢ່າງທີ່ຢູ່ພາຍໃຕ້ບໍ?"
+    "deleteConfirm": "ລຶບ {{count}} ບຸກມາກທີ່ເລືອກ ແລະ ທຸກຢ່າງທີ່ຢູ່ພາຍໃຕ້ບໍ?",
+    "replaceAll": "ແທນທີ່ບຸກມາກທັງໝົດ"
   },
   "formValidation": {
     "title": "ຂໍ້ຜິດພາດໃນການກວດສອບ"
@@ -610,6 +635,30 @@
   "ifcExport": {
     "saveTitle": "ບັນທຶກເປັນລາຍງານ IFC",
     "failed": "ການບັນທຶກລາຍງານ IFC ຫຼົ້ມເຫຼວ: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "ສົ່ງອອກເປັນ IFCX (ເບຕ້າ)",
+    "betaNote": "ເບຕ້າ: IFCX (IFC5) ຍັງຢູ່ໃນລະຫວ່າງການພັດທະນາ. ກະລຸນາກວດສອບຜົນລັບກ່ອນນຳໃຊ້.",
+    "pages": "ໜ້າ:",
+    "allPages": "ທຸກໜ້າ",
+    "currentPage": "ໜ້າປັດຈຸບັນ",
+    "customPages": "ຊ່ວງໜ້າ",
+    "rangePlaceholder": "ເຊັ່ນ 1-3, 5",
+    "includeRaster": "ລວມຮູບພາບ",
+    "includeText": "ລວມຂໍ້ຄວາມ",
+    "includeAnnotations": "ໝາຍເຫດຢູ່ໃນຊັ້ນແຍກຕ່າງຫາກ",
+    "export": "ສົ່ງອອກ",
+    "progress": "ກຳລັງສົ່ງອອກໜ້າ {{done}} ຈາກ {{total}}…",
+    "done": "ຂຽນແລ້ວ: {{file}} (ແຜ່ນ: {{sheets}}, ເສັ້ນທາງ: {{paths}}, ຂໍ້ຄວາມ: {{texts}}, ຮູບພາບ: {{images}}, ໝາຍເຫດ: {{annotations}}).",
+    "capPaths": "ໜ້າ {{page}}: ສົ່ງອອກເສັ້ນທາງ {{kept}} ຈາກ {{total}}; ສ່ວນທີ່ເຫຼືອເກີນຂີດຈຳກັດ.",
+    "capTexts": "ໜ້າ {{page}}: ສົ່ງອອກແຖວຂໍ້ຄວາມ {{kept}} ຈາກ {{total}}; ສ່ວນທີ່ເຫຼືອເກີນຂີດຈຳກັດ.",
+    "capImages": "ໜ້າ {{page}}: ສົ່ງອອກຮູບພາບ {{kept}} ຈາກ {{total}}; ສ່ວນທີ່ເຫຼືອເກີນຂີດຈຳກັດ.",
+    "imagesOmitted": "ຮູບພາບທີ່ບໍ່ມີຂໍ້ມູນພິກເຊວ (ບໍ່ຮອງຮັບ ຫຼື ໃຫຍ່ເກີນໄປ): {{count}}. ຕຳແໜ່ງຂອງພວກມັນຍັງຄົງຢູ່.",
+    "sizeLimit": "ໜ້າ {{page}} ແລະ ໜ້າຕໍ່ໄປບໍ່ໄດ້ຖືກສົ່ງອອກ: ໄຟລ໌ຮອດຂີດຈຳກັດຂະໜາດແລ້ວ.",
+    "noPages": "ບໍ່ໄດ້ເລືອກໜ້າໃດ.",
+    "noBytes": "ບໍ່ມີຂໍ້ມູນ PDF ຂອງເອກະສານນີ້. ກະລຸນາບັນທຶກເອກະສານແລ້ວລອງໃໝ່.",
+    "failed": "ການສົ່ງອອກ IFCX ລົ້ມເຫຼວ: {{error}}",
+    "unsavedNote": "ການປ່ຽນແປງເນື້ອໃນໜ້າທີ່ຍັງບໍ່ໄດ້ບັນທຶກຈະບໍ່ຖືກລວມ; ໝາຍເຫດຈະຖືກລວມ."
   },
   "styleType": {
     "lineTypes": "ປະເພດເສັ້ນ",
@@ -1597,6 +1646,57 @@
       "cancel": "ຍົກເລີກແລ້ວ",
       "supersede": "ຖືກແທນທີ່",
       "expire": "ໝົດອາຍຸ"
+    }
+  },
+  "pageOrganizer": {
+    "title": "ແກ້ໄຂໜ້າ",
+    "hint": "ລາກໜ້າເພື່ອຍ້າຍ; ວາງໄຟລ໌ PDF ເພື່ອແຊກໜ້າຂອງມັນ. Ctrl+ຄລິກ, Shift+ຄລິກ ຫຼື ກ່ອງໝາຍເລືອກຫຼາຍໜ້າ. ບໍ່ມີຫຍັງປ່ຽນຈົນກວ່າຈະກົດນຳໃຊ້.",
+    "moveLeft": "ຍ້າຍໄປຊ້າຍ",
+    "moveRight": "ຍ້າຍໄປຂວາ",
+    "moveToStart": "ຍ້າຍໄປຈຸດເລີ່ມຕົ້ນ",
+    "moveToEnd": "ຍ້າຍໄປທ້າຍສຸດ",
+    "selection": "ເລືອກແລ້ວ {{selected}} ຈາກ {{total}} ໜ້າ",
+    "rotateLeft": "ໝູນໄປຊ້າຍ",
+    "rotateRight": "ໝູນໄປຂວາ",
+    "split": "ແບ່ງ",
+    "splitTitle": "ວາງເຄື່ອງໝາຍແບ່ງອ້ອມໜ້າທີ່ເລືອກ: ແຕ່ລະຊຸດຈະເປັນໄຟລ໌ແຍກ",
+    "splitHere": "ແບ່ງຢູ່ນີ້ (ວາງ ຫຼື ລຶບເຄື່ອງໝາຍແບ່ງ)",
+    "extractTitle": "ແຍກໜ້າທີ່ເລືອກອອກເປັນໄຟລ໌ໃໝ່",
+    "blankPage": "ໜ້າເປົ່າ",
+    "pagesFromFile": "ໜ້າຈາກໄຟລ໌…",
+    "insertHere": "ແຊກໜ້າຢູ່ນີ້",
+    "select": "ເລືອກໜ້າ",
+    "zoom": "ຊູມ",
+    "parts": "ແບ່ງເປັນ {{count}} ໄຟລ໌ເມື່ອນຳໃຊ້",
+    "chooseFolder": "ເລືອກໂຟລເດີສຳລັບໄຟລ໌ທີ່ແບ່ງ",
+    "fileFailed": "ບໍ່ສາມາດອ່ານ {{name}}: {{error}}",
+    "applyFailed": "ນຳໃຊ້ການແກ້ໄຂໜ້າບໍ່ສຳເລັດ: {{error}}",
+    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}",
+    "blankSetup": "ຕັ້ງຄ່າໜ້າເປົ່າ",
+    "sameAsAdjacent": "ຄືກັບໜ້າທີ່ຢູ່ຕິດກັນ",
+    "width": "ລວງກວ້າງ:",
+    "height": "ລວງສູງ:",
+    "unit": "ຫົວໜ່ວຍ:"
+  },
+  "accessibilityReport": {
+    "title": "ການກວດສອບການເຂົ້າເຖິງ",
+    "starting": "ກຳລັງກວດສອບ...",
+    "checking": "ກຳລັງກວດສອບໜ້າ {{done}} ຈາກ {{total}}...",
+    "noIssues": "ບໍ່ພົບບັນຫາ.",
+    "summary": "ພົບ {{count}} ບັນຫາ. ກົດສອງເທື່ອໃສ່ລາຍການເພື່ອໄປທີ່ໜ້າຂອງມັນ.",
+    "failed": "ບໍ່ສາມາດກວດສອບເອກະສານນີ້ໄດ້.",
+    "recheck": "ກວດສອບອີກຄັ້ງ",
+    "close": "ປິດ",
+    "goTo": "ກົດສອງເທື່ອເພື່ອໄປທີ່ໜ້າ",
+    "page": "ໜ້າ {{page}}",
+    "kind": {
+      "notTagged": "ເອກະສານບໍ່ມີແທັກ: ບໍ່ມີຕົ້ນໄມ້ໂຄງສ້າງ, ສະນັ້ນເຕັກໂນໂລຢີຊ່ວຍເຫຼືອບໍ່ສາມາດຕິດຕາມລຳດັບການອ່ານໄດ້.",
+      "notMarked": "ເອກະສານບໍ່ໄດ້ໝາຍວ່າມີແທັກ (/MarkInfo /Marked).",
+      "noLanguage": "ບໍ່ໄດ້ຕັ້ງພາສາຂອງເອກະສານ.",
+      "figureNoAlt": "{{role}} ທີ່ບໍ່ມີຂໍ້ຄວາມອະທິບາຍ",
+      "pageNotTagged": "ບໍ່ມີເນື້ອຫາທີ່ມີແທັກໃນໜ້ານີ້ ({{count}} ລາຍການຂໍ້ຄວາມ)",
+      "untaggedContent": "{{count}} ລາຍການຂໍ້ຄວາມຢູ່ນອກແທັກ",
+      "annotationNoText": "ຄຳອະທິບາຍປະກອບ ({{type}}) ທີ່ບໍ່ມີລາຍລະອຽດ"
     }
   }
 }

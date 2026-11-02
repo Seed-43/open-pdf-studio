@@ -168,6 +168,18 @@ export default function AnnotationsTab(props) {
               </div>
               <div class="pref-row pref-checkbox-row">
                 <label class="pref-checkbox-label">
+                  <input type="checkbox" checked={p.snapToVertices[0]()} onChange={e => p.snapToVertices[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+                  <span>{t('annotations.snapToVertices')}</span>
+                </label>
+              </div>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label">
+                  <input type="checkbox" checked={p.snapToStartPoints[0]()} onChange={e => p.snapToStartPoints[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+                  <span>{t('annotations.snapToStartPoints')}</span>
+                </label>
+              </div>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label">
                   <input type="checkbox" checked={p.snapToEdges[0]()} onChange={e => p.snapToEdges[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
                   <span>{t('annotations.snapToEdges')}</span>
                 </label>
@@ -287,6 +299,26 @@ export default function AnnotationsTab(props) {
               <div class="pref-row">
                 <label>{t('drawing.opacity')}</label>
                 <PrefComboBox value={p.drawOpacity[0]} setValue={p.drawOpacity[1]} min={10} max={100} fallback={100} />
+              </div>
+              <div class="pref-row">
+                <label>{t('drawing.smoothing')}</label>
+                <PrefComboBox value={p.drawSmoothing[0]} setValue={p.drawSmoothing[1]} options={[0,25,50,75,100]} min={0} max={100} fallback={50} suffix="" />
+              </div>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label" title={t('drawing.pressureHint')}>
+                  <input type="checkbox" checked={p.drawPressure[0]()} onChange={e => p.drawPressure[1](e.target.checked)} />
+                  <span>{t('drawing.pressure')}</span>
+                </label>
+              </div>
+              <div class="pref-row">
+                <label>{t('drawing.pressureMinWidth')}</label>
+                <PrefComboBox value={p.drawPressureMinWidth[0]} setValue={p.drawPressureMinWidth[1]} options={[10,20,30,40,50,75,100]} min={5} max={100} fallback={30} disabled={() => !p.drawPressure[0]()} />
+              </div>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label" title={t('drawing.penOnlyHint')}>
+                  <input type="checkbox" checked={p.drawPenOnly[0]()} onChange={e => p.drawPenOnly[1](e.target.checked)} />
+                  <span>{t('drawing.penOnly')}</span>
+                </label>
               </div>
             </fieldset>
 

@@ -34,6 +34,10 @@
   "draw": "Dibuixa",
   "saved": "Desat",
   "documentChangedDuringSave": "El document ha canviat mentre es desava. Torneu a desar-lo.",
+  "savingPdf": "S’està desant el PDF…",
+  "saveCancelling": "S’està cancel·lant el desament…",
+  "saveCancelled": "Desament cancel·lat. El fitxer no s’ha modificat.",
+  "saveCancelTooLate": "El fitxer ja s’havia desat; era massa tard per cancel·lar.",
   "documentChangedDuringExport": "El document ha canviat durant l'exportació. Torneu a començar.",
   "rasterExportProgress": "Rasteritzant pàgines: {{done}} de {{total}}",
   "search": "Cerca",
@@ -120,7 +124,79 @@
         "label": "Planta",
         "hint": "Dibuixa una planta arquitectònica: murs, fusteries, estances, cotes i equipament (sanitaris, cuina)",
         "prompt": "Dibuixa una planta arquitectònica. Què cal dibuixar: "
+      },
+      "find-on-sheet": {
+        "label": "Cerca al full",
+        "hint": "Cerca un terme (un nom d'estança, una marca de secció, un símbol), ves a la seva pàgina i ressalta les coincidències",
+        "prompt": "Cerca en aquest full: "
+      },
+      "explain-selection": {
+        "label": "Explica la selecció",
+        "hint": "Descriu en llenguatge planer l'àrea, el text o la marca seleccionats, amb dimensions si hi ha una escala de mesura",
+        "prompt": "Explica'm la selecció."
+      },
+      "compare-sheets": {
+        "label": "Compara fulls",
+        "hint": "Indica i marca què s'ha afegit, eliminat o desplaçat respecte a una altra pàgina",
+        "prompt": "Compara aquesta pàgina amb la pàgina: "
+      },
+      "measure": {
+        "label": "Mesura això",
+        "hint": "Mesura la forma seleccionada o un element descrit i indica-ho a l'escala del plànol",
+        "prompt": "Mesura: "
+      },
+      "take-off": {
+        "label": "Treu amidaments",
+        "hint": "Compta o mesura elements d'un tipus i col·loca el resultat com a taula al full",
+        "prompt": "Treu els amidaments de: "
+      },
+      "check-scale": {
+        "label": "Comprova l'escala",
+        "hint": "Obté l'escala del caixetí o d'una cota coneguda i defineix-la",
+        "prompt": "Comprova l'escala d'aquest plànol."
+      },
+      "review-sheet": {
+        "label": "Revisa el full",
+        "hint": "Afegeix núvols amb comentaris numerats per als punts que assenyalaria un revisor",
+        "prompt": "Revisa aquest full pel que fa a: "
+      },
+      "stamp-date": {
+        "label": "Segella i data",
+        "hint": "Col·loca un segell, omple un camp del caixetí o afegeix una nota de revisió amb la data d'avui",
+        "prompt": "Segella i data: "
+      },
+      "clean-up": {
+        "label": "Endreça les marques",
+        "hint": "Alinea, renumera o canvia el color de les marques existents de manera coherent",
+        "prompt": "Endreça les meves marques: "
+      },
+      "import-cad": {
+        "label": "Porta un plànol",
+        "hint": "Importa un plànol DWG o DXF com a fons de referència a l'escala correcta",
+        "prompt": "Porta el plànol (camí del fitxer DWG o DXF): "
+      },
+      "export-cad": {
+        "label": "Exporta a CAD",
+        "hint": "Escriu aquesta pàgina o l'àrea seleccionada en un fitxer DXF o DWG",
+        "prompt": "Exporta aquesta pàgina a (camí del fitxer DXF o DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduir i resumir",
+      "reading": "Llegir el plànol",
+      "measuring": "Mesuraments i quantitats",
+      "markup": "Marcatge",
+      "structure": "Estructura i planta",
+      "cad": "Plànols CAD"
+    },
+    "need": {
+      "document": "Obre primer un PDF: aquesta habilitat treballa sobre el document obert.",
+      "selection": "Selecciona primer una marca o una mica de text al plànol i torna a fer clic a l'habilitat.",
+      "scale": "Aquest plànol encara no té escala de mesura. Defineix-ne una primer (per exemple amb «Comprova l'escala») i torna-ho a provar.",
+      "input": "Completa el text del quadre d'entrada després dels dos punts i envia'l.",
+      "selectionOrInput": "Selecciona una forma al plànol, o descriu després dels dos punts què cal mesurar.",
+      "page": "Introdueix el número de l'altra pàgina (de l'1 al {{max}}), no el de la pàgina actual.",
+      "twoPages": "Aquest document només té una pàgina. Per comparar-lo amb un altre fitxer, substitueix el text del quadre d'entrada per la teva pròpia pregunta."
     }
   },
   "onlineSymbolLibrary": "Biblioteca de símbols en línia",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Aquesta és una versió anterior del fitxer, oberta només per a lectura, així que no es pot desar. Feu servir Desa com a per baixar-ne una còpia.",
   "hostVersionReadOnlyRefused": "El lloc no ha desat el fitxer: n'hi ha una versió anterior oberta només per a lectura. Torneu a obrir la versió actual per desar, o feu servir Desa com a per baixar-ne una còpia.",
   "hostVersionInvalid": "Aquesta versió del fitxer no es pot obrir: el número de versió no és vàlid.",
+  "hostSaveAs": {
+    "title": "Desa als documents",
+    "location": "Carpeta:",
+    "currentFolder": "Carpeta actual",
+    "up": "Amunt",
+    "loading": "S'està carregant…",
+    "listError": "No s'ha pogut carregar la llista de carpetes. Encara podeu desar a la carpeta actual.",
+    "empty": "Aquesta carpeta és buida.",
+    "readOnly": "només lectura",
+    "fileName": "Nom del fitxer:",
+    "save": "Desa",
+    "download": "Baixa'l en lloc d'això",
+    "nameEmpty": "Escriviu un nom de fitxer.",
+    "nameInvalid": "El nom del fitxer conté caràcters no permesos.",
+    "copyName": "{{name}} (còpia)",
+    "saved": "S'ha desat com a «{{name}}» als vostres documents.",
+    "renamed": "Ja existeix un fitxer amb aquest nom, així que la còpia s'ha desat com a «{{name}}». No s'ha sobreescrit res.",
+    "openNew": "Obre el fitxer nou",
+    "keepOriginal": "Continua editant l'original",
+    "notSavedTitle": "No desat",
+    "errorReadOnly": "No teniu permís per desar en aquesta carpeta. Trieu una altra carpeta o baixeu el fitxer.",
+    "errorInvalidName": "El lloc no accepta aquest nom de fitxer. Trieu un altre nom o baixeu el fitxer.",
+    "errorTooLarge": "El fitxer és massa gran per desar-lo al lloc. Baixeu-lo en lloc d'això.",
+    "errorQuota": "No queda prou espai d'emmagatzematge. Allibereu espai o baixeu el fitxer.",
+    "errorNetwork": "No s'ha pogut contactar amb el lloc, així que el fitxer no s'ha desat. Torneu-ho a provar o baixeu el fitxer.",
+    "errorUnsupported": "Aquest lloc no pot desar fitxers nous. Baixeu el fitxer en lloc d'això.",
+    "errorFailed": "El lloc no ha desat el fitxer: {{error}}"
+  },
   "textEditMissingGlyphs": "El text no s'ha canviat: cap tipus de lletra disponible té aquests caràcters, així que no es poden desar: {{chars}}",
   "textEditMissingGlyphsLater": "Cap tipus de lletra disponible té aquests caràcters, així que no es poden desar: {{chars}}. Canvieu aquest text; fins aleshores no es pot desar el PDF.",
   "textEditMissingGlyphsSave": "El PDF no s'ha desat: un text editat conté caràcters que no té cap tipus de lletra disponible: {{chars}}. Canvieu aquest text i torneu a desar.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Vés a la pàgina",
     "openExternalFile": "Obre: {{filename}}",
     "destination": "Destinació: {{name}}",
-    "internalLink": "Enllaç intern"
+    "internalLink": "Enllaç intern",
+    "attachmentOnPage": "Pàgina {{page}}",
+    "attachmentCreated": "Creat: {{date}}",
+    "attachmentModified": "Modificat: {{date}}",
+    "openAttachmentRiskTitle": "Obre l'adjunt",
+    "openAttachmentRiskMessage": "«{{name}}» pot executar programes en aquest ordinador. Obriu-lo només si confieu en l'origen. Voleu obrir-lo igualment?"
   },
   "failedToInsertPagesFromFile": "No s'han pogut inserir pàgines des del fitxer: {{error}}",
   "previewPdfRefused": "Aquest PDF és una previsualització de la importació del dibuix i pot estar incomplet. No es pot inserir ni desar; torneu a importar el dibuix.",
@@ -245,10 +354,15 @@
     "detachFailed": "No s'ha pogut separar la finestra: {{error}}",
     "dragFileGone": "Aquest fitxer ja no existeix al disc — la pestanya no es pot moure.",
     "dragNotStarted": "No s'ha pogut arrossegar la pestanya a una altra finestra. Torneu-ho a provar o feu servir clic dret → Obre en una finestra nova.",
+    "openInSplitView": "Obre en vista dividida",
     "openInNewWindow": "Obre en una finestra nova",
     "closeTab": "Tanca la pestanya",
     "nextTab": "Pestanya següent",
     "previousTab": "Pestanya anterior"
+  },
+  "pageNav": {
+    "nextPage": "Pàgina següent",
+    "previousPage": "Pàgina anterior"
   },
   "quickAccess": {
     "exportRaster": "Exporta com a PDF ràster (s'obre en una pestanya nova)"
@@ -290,5 +404,50 @@
     "readFailed": "No s'ha pogut llegir el model 3D.",
     "partial": "No s'han pogut llegir algunes parts del model 3D ({{n}} omeses).",
     "viewerFailed": "No s'ha pogut iniciar la visualització 3D."
+  },
+  "readAloud": {
+    "title": "Llegeix en veu alta",
+    "play": "Llegeix",
+    "pause": "Pausa",
+    "resume": "Reprèn",
+    "stop": "Atura",
+    "close": "Tanca",
+    "voice": "Veu",
+    "defaultVoice": "Veu per defecte",
+    "rate": "Velocitat",
+    "loading": "S'està preparant...",
+    "reading": "S'està llegint",
+    "paused": "En pausa",
+    "page": "pàgina {{page}}",
+    "tagOrder": "ordre de les etiquetes",
+    "contentOrder": "ordre de les pàgines",
+    "noEngine": "No hi ha cap motor de veu disponible en aquest sistema.",
+    "noEngineLinux": "No s'ha trobat cap motor de veu. Instal·leu speech-dispatcher (spd-say) o espeak-ng i torneu-ho a provar.",
+    "speechFailed": "La lectura s'ha aturat per un error.",
+    "nothingToRead": "No hi ha text per llegir.",
+    "online": "(en línia)",
+    "allowOnline": "Veus en línia",
+    "allowOnlineHint": "Oferir també veus en línia. Amb una veu en línia, el text llegit s'envia a un servei de veu en línia.",
+    "onlyOnlineVoices": "Només hi ha veus en línia disponibles. Activeu Veus en línia per fer-ne servir una; aleshores el text llegit s'envia a un servei de veu en línia.",
+    "noLocalVoice": "No hi ha cap veu local instal·lada per a aquesta llengua; s'utilitza la veu local per defecte."
+  },
+  "moveInference": {
+    "onAxisX": "A l’eix X",
+    "onAxisY": "A l’eix Y",
+    "fromPoint": "Des del punt",
+    "extension": "A la prolongació",
+    "parallel": "Paral·lel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersecció",
+    "polar": "Polar",
+    "locked": "Bloquejat"
+  },
+  "portable": {
+    "updateTitle": "Actualització disponible",
+    "updateAvailable": "La versió {{version}} està disponible.\n\nAquesta còpia portàtil no s'actualitza sola. Baixeu {{file}} i extraieu-lo sobre aquesta carpeta; la carpeta data amb la vostra configuració es conserva.\n\nVoleu obrir la pàgina de baixada?",
+    "fileAssoc": "Aquesta còpia portàtil no està registrada al Windows. Per obrir fitxers PDF amb ella, feu clic amb el botó dret en un PDF, trieu Obre amb > Tria una altra aplicació i seleccioneu open-pdf-studio.exe en aquesta carpeta.",
+    "explorerThumbnails": "Les miniatures de PDF a l'Explorador de fitxers només estan disponibles a la versió instal·lada.",
+    "virtualPrinter": "La impressora virtual només està disponible a la versió instal·lada: s'afegeix al Windows amb drets d'administrador.",
+    "notWritable": "L'Open PDF Studio no pot escriure a la carpeta {{dir}}, així que aquesta vegada la configuració es desa al vostre perfil d'usuari. Moveu la carpeta portàtil a una ubicació on es pugui escriure, com una memòria USB o la carpeta Documents."
   }
 }

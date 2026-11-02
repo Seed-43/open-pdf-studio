@@ -34,6 +34,10 @@
   "draw": "Disegna",
   "saved": "Salvato",
   "documentChangedDuringSave": "Il documento è cambiato durante il salvataggio. Salva di nuovo.",
+  "savingPdf": "Salvataggio del PDF…",
+  "saveCancelling": "Annullamento del salvataggio…",
+  "saveCancelled": "Salvataggio annullato. Il file non è stato modificato.",
+  "saveCancelTooLate": "Il file era già stato salvato; era troppo tardi per annullare.",
   "documentChangedDuringExport": "Il documento è cambiato durante l'esportazione. Ricomincia.",
   "rasterExportProgress": "Rasterizzazione delle pagine: {{done}} di {{total}}",
   "search": "Cerca",
@@ -120,7 +124,79 @@
         "label": "Pianta",
         "hint": "Disegna una pianta architettonica: muri, serramenti, locali, quote e arredi (sanitari, cucina)",
         "prompt": "Disegna una pianta architettonica. Cosa disegnare: "
+      },
+      "find-on-sheet": {
+        "label": "Cerca nel foglio",
+        "hint": "Cerca un termine (nome di un locale, indicatore di sezione, simbolo), vai alla sua pagina ed evidenzia i risultati",
+        "prompt": "Cerca in questo foglio: "
+      },
+      "explain-selection": {
+        "label": "Spiega la selezione",
+        "hint": "Descrivi l'area, il testo o l'annotazione selezionati in linguaggio semplice, con le dimensioni se è impostata una scala di misura",
+        "prompt": "Spiega la selezione."
+      },
+      "compare-sheets": {
+        "label": "Confronta fogli",
+        "hint": "Indica e contrassegna cosa è stato aggiunto, rimosso o spostato rispetto a un'altra pagina",
+        "prompt": "Confronta questa pagina con la pagina: "
+      },
+      "measure": {
+        "label": "Misura questo",
+        "hint": "Misura la forma selezionata o un elemento descritto e riporta il risultato nella scala del disegno",
+        "prompt": "Misura: "
+      },
+      "take-off": {
+        "label": "Computo quantità",
+        "hint": "Conta o misura gli elementi di un tipo e inserisci il risultato come tabella sul foglio",
+        "prompt": "Computa le quantità di: "
+      },
+      "check-scale": {
+        "label": "Verifica la scala",
+        "hint": "Ricava la scala dal cartiglio o da una quota nota e impostala",
+        "prompt": "Verifica la scala di questo disegno."
+      },
+      "review-sheet": {
+        "label": "Revisiona foglio",
+        "hint": "Aggiungi nuvole con commenti numerati sui punti che un verificatore solleverebbe",
+        "prompt": "Revisiona questo foglio per: "
+      },
+      "stamp-date": {
+        "label": "Timbro e data",
+        "hint": "Inserisci un timbro, compila un campo del cartiglio o aggiungi una nota di revisione con la data di oggi",
+        "prompt": "Applica timbro e data: "
+      },
+      "clean-up": {
+        "label": "Riordina annotazioni",
+        "hint": "Allinea, rinumera o ricolora in modo coerente le annotazioni esistenti",
+        "prompt": "Riordina le mie annotazioni: "
+      },
+      "import-cad": {
+        "label": "Importa un disegno",
+        "hint": "Importa un disegno DWG o DXF come base di riferimento alla scala corretta",
+        "prompt": "Importa il disegno (percorso del file DWG o DXF): "
+      },
+      "export-cad": {
+        "label": "Esporta in CAD",
+        "hint": "Scrivi questa pagina o l'area selezionata in un file DXF o DWG",
+        "prompt": "Esporta questa pagina in (percorso del file DXF o DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduci e riassumi",
+      "reading": "Lettura del disegno",
+      "measuring": "Misure e quantità",
+      "markup": "Annotazioni",
+      "structure": "Struttura e pianta",
+      "cad": "Disegni CAD"
+    },
+    "need": {
+      "document": "Apri prima un PDF: questa abilità lavora sul documento aperto.",
+      "selection": "Seleziona prima un'annotazione o del testo sul disegno, poi fai di nuovo clic sull'abilità.",
+      "scale": "Questo disegno non ha ancora una scala di misura. Impostane prima una (ad esempio con «Verifica la scala») e riprova.",
+      "input": "Completa il testo nella casella di input dopo i due punti, poi invia.",
+      "selectionOrInput": "Seleziona una forma sul disegno, oppure descrivi dopo i due punti cosa misurare.",
+      "page": "Inserisci il numero dell'altra pagina (da 1 a {{max}}), non quello della pagina corrente.",
+      "twoPages": "Questo documento ha una sola pagina. Per confrontarlo con un altro file, sostituisci il testo nella casella di input con la tua domanda."
     }
   },
   "onlineSymbolLibrary": "Libreria di simboli online",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Questa è una versione precedente del file, aperta in sola lettura, quindi non può essere salvata. Usa Salva con nome per scaricare una copia.",
   "hostVersionReadOnlyRefused": "Il sito non ha salvato il file: una sua versione precedente è aperta in sola lettura. Riapri la versione attuale per salvare, oppure usa Salva con nome per scaricare una copia.",
   "hostVersionInvalid": "Questa versione del file non può essere aperta: il numero di versione non è valido.",
+  "hostSaveAs": {
+    "title": "Salva nei documenti",
+    "location": "Cartella:",
+    "currentFolder": "Cartella corrente",
+    "up": "Su",
+    "loading": "Caricamento…",
+    "listError": "Impossibile caricare l'elenco delle cartelle. Puoi comunque salvare nella cartella corrente.",
+    "empty": "Questa cartella è vuota.",
+    "readOnly": "sola lettura",
+    "fileName": "Nome file:",
+    "save": "Salva",
+    "download": "Scarica invece",
+    "nameEmpty": "Inserisci un nome file.",
+    "nameInvalid": "Il nome file contiene caratteri non consentiti.",
+    "copyName": "{{name}} (copia)",
+    "saved": "Salvato come «{{name}}» nei tuoi documenti.",
+    "renamed": "Esiste già un file con questo nome, quindi la copia è stata salvata come «{{name}}». Non è stato sovrascritto nulla.",
+    "openNew": "Apri il nuovo file",
+    "keepOriginal": "Continua a modificare l'originale",
+    "notSavedTitle": "Non salvato",
+    "errorReadOnly": "Non hai l'autorizzazione per salvare in questa cartella. Scegli un'altra cartella o scarica il file.",
+    "errorInvalidName": "Il sito non accetta questo nome file. Scegli un altro nome o scarica il file.",
+    "errorTooLarge": "Il file è troppo grande per essere salvato sul sito. Scaricalo invece.",
+    "errorQuota": "Lo spazio di archiviazione rimasto non è sufficiente. Libera spazio o scarica il file.",
+    "errorNetwork": "Il sito non è raggiungibile, quindi il file non è stato salvato. Riprova o scarica il file.",
+    "errorUnsupported": "Questo sito non può salvare nuovi file. Scarica invece il file.",
+    "errorFailed": "Il sito non ha salvato il file: {{error}}"
+  },
   "textEditMissingGlyphs": "Il testo non è stato modificato: nessun carattere tipografico disponibile contiene questi caratteri, quindi non possono essere salvati: {{chars}}",
   "textEditMissingGlyphsLater": "Nessun carattere tipografico disponibile contiene questi caratteri, quindi non possono essere salvati: {{chars}}. Modifica questo testo; fino ad allora il PDF non può essere salvato.",
   "textEditMissingGlyphsSave": "Il PDF non è stato salvato: un testo modificato contiene caratteri non presenti in nessun carattere tipografico disponibile: {{chars}}. Modifica quel testo e salva di nuovo.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Vai alla pagina",
     "openExternalFile": "Apri: {{filename}}",
     "destination": "Destinazione: {{name}}",
-    "internalLink": "Collegamento interno"
+    "internalLink": "Collegamento interno",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creato: {{date}}",
+    "attachmentModified": "Modificato: {{date}}",
+    "openAttachmentRiskTitle": "Apri allegato",
+    "openAttachmentRiskMessage": "\"{{name}}\" può eseguire programmi su questo computer. Aprilo solo se ti fidi della fonte. Aprire comunque?"
   },
   "failedToInsertPagesFromFile": "Impossibile inserire pagine dal file: {{error}}",
   "previewPdfRefused": "Questo PDF è un’anteprima dell’importazione del disegno e può essere incompleto. Non può essere inserito né salvato; importare di nuovo il disegno.",
@@ -245,10 +354,15 @@
     "detachFailed": "Impossibile staccare la finestra: {{error}}",
     "dragFileGone": "Questo file non esiste più sul disco — la scheda non può essere spostata.",
     "dragNotStarted": "Impossibile trascinare la scheda in un'altra finestra. Riprova oppure usa clic destro → Apri in una nuova finestra.",
+    "openInSplitView": "Apri in vista divisa",
     "openInNewWindow": "Apri in una nuova finestra",
     "closeTab": "Chiudi scheda",
     "nextTab": "Scheda successiva",
     "previousTab": "Scheda precedente"
+  },
+  "pageNav": {
+    "nextPage": "Pagina successiva",
+    "previousPage": "Pagina precedente"
   },
   "quickAccess": {
     "exportRaster": "Esporta come PDF raster (si apre in una nuova scheda)"
@@ -290,5 +404,50 @@
     "readFailed": "Impossibile leggere il modello 3D.",
     "partial": "Impossibile leggere alcune parti del modello 3D ({{n}} saltate).",
     "viewerFailed": "Impossibile avviare la vista 3D."
+  },
+  "readAloud": {
+    "title": "Leggi ad alta voce",
+    "play": "Leggi",
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "stop": "Interrompi",
+    "close": "Chiudi",
+    "voice": "Voce",
+    "defaultVoice": "Voce predefinita",
+    "rate": "Velocità",
+    "loading": "Preparazione...",
+    "reading": "Lettura in corso",
+    "paused": "In pausa",
+    "page": "pagina {{page}}",
+    "tagOrder": "ordine dei tag",
+    "contentOrder": "ordine delle pagine",
+    "noEngine": "Nessun motore vocale disponibile su questo sistema.",
+    "noEngineLinux": "Nessun motore vocale trovato. Installa speech-dispatcher (spd-say) o espeak-ng e riprova.",
+    "speechFailed": "La lettura si è interrotta a causa di un errore.",
+    "nothingToRead": "Non c'è testo da leggere.",
+    "online": "(online)",
+    "allowOnline": "Voci online",
+    "allowOnlineHint": "Offri anche le voci online. Con una voce online il testo letto viene inviato a un servizio vocale online.",
+    "onlyOnlineVoices": "Sono disponibili solo voci online. Attiva Voci online per usarne una; il testo letto viene allora inviato a un servizio vocale online.",
+    "noLocalVoice": "Nessuna voce locale installata per questa lingua; viene usata la voce locale predefinita."
+  },
+  "moveInference": {
+    "onAxisX": "Sull’asse X",
+    "onAxisY": "Sull’asse Y",
+    "fromPoint": "Dal punto",
+    "extension": "Sull’estensione",
+    "parallel": "Parallelo",
+    "perpendicular": "Perpendicolare",
+    "intersection": "Intersezione",
+    "polar": "Polare",
+    "locked": "Bloccato"
+  },
+  "portable": {
+    "updateTitle": "Aggiornamento disponibile",
+    "updateAvailable": "La versione {{version}} è disponibile.\n\nQuesta copia portatile non si aggiorna da sola. Scarica {{file}} ed estrailo sopra questa cartella; la cartella data con le tue impostazioni viene mantenuta.\n\nAprire la pagina di download?",
+    "fileAssoc": "Questa copia portatile non è registrata in Windows. Per aprire i file PDF con essa, fai clic con il pulsante destro su un PDF, scegli Apri con > Scegli un'altra app e seleziona open-pdf-studio.exe in questa cartella.",
+    "explorerThumbnails": "Le miniature PDF in Esplora file sono disponibili solo nella versione installata.",
+    "virtualPrinter": "La stampante virtuale è disponibile solo nella versione installata: viene aggiunta a Windows con diritti di amministratore.",
+    "notWritable": "Open PDF Studio non può scrivere nella cartella {{dir}}, quindi questa volta le impostazioni vengono salvate nel tuo profilo utente. Sposta la cartella portatile in una posizione scrivibile, ad esempio una chiavetta USB o la cartella Documenti."
   }
 }

@@ -232,6 +232,22 @@ function updateVisiblePriorities() {
   }
 }
 
+// The Edit Pages organizer (#764) shows only the tiles in view; the pages it
+// shows go first, the same way the visible thumbnails of the panel do.
+export function prioritizeThumbnails(pageNums) {
+  const activeDoc = getActiveDocument();
+  if (!activeDoc) return;
+  const docCache = thumbnailCache.get(activeDoc.id);
+  if (!docCache) return;
+  let added = false;
+  for (const p of pageNums || []) {
+    if (!Number.isInteger(p) || docCache.has(p)) continue;
+    priorityPages.add(p);
+    added = true;
+  }
+  if (added) startProcessor();
+}
+
 // Switch between tabs
 export function switchLeftPanelTab(panelId) {
   switchToLeftPanelTab(panelId);
@@ -750,7 +766,11 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
           const renderW = doel * 2;
           const thumbScale = Math.max(0.008, Math.min(2, renderW / widthPt));
           const { renderPdfPage } = await import('../../pdf/engine-router.js');
-          const raw = await renderPdfPage({ path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation });
+          const { RENDER_PRIORITY } = await import('../../pdf/render-queue.js');
+          const raw = await renderPdfPage(
+            { path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation },
+            { priority: RENDER_PRIORITY.PREFETCH },
+          );
           const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
           if (bytes && bytes.length > 8) {
             const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);

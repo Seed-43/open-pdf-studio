@@ -169,7 +169,9 @@
     "flattenAll": "Flat ut alle",
     "flattenAllTooltip": "Flat ut alle markeringer til sideinnhold",
     "unflattenAll": "Angre utflating",
-    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt"
+    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt",
+    "fileAttachment": "Legg ved fil",
+    "fileAttachmentTitle": "Filvedlegg: klikk på siden og velg en fil"
   },
   "view": {
     "pageDisplay": "Sidevisning",
@@ -198,6 +200,7 @@
     "thinLines": "Tynne linjer",
     "compareGroup": "Sammenlign",
     "fullscreen": "Fullskjerm",
+    "fullscreenUnavailable": "Fullskjerm er ikke tilgjengelig her: nettleseren eller siden som viser appen, avviste det. Bruk heller fullskjermvalget i nettleserens meny.",
     "window": "Vindu",
     "display": "Visning",
     "keystrokes": "Tastetrykk",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Roter visning mot venstre",
     "rotateViewRight": "Roter visning mot høyre",
     "rotateViewLeftTitle": "Roterer visningen 90° mot klokken. Selve dokumentet endres ikke.",
-    "rotateViewRightTitle": "Roterer visningen 90° med klokken. Selve dokumentet endres ikke."
+    "rotateViewRightTitle": "Roterer visningen 90° med klokken. Selve dokumentet endres ikke.",
+    "splitGroup": "Del",
+    "split": "Del",
+    "splitTitle": "Del visningen i to ruter med det samme dokumentet",
+    "splitOptions": "Delingsalternativer",
+    "splitVertical": "Del loddrett",
+    "splitHorizontal": "Del vannrett",
+    "unsplit": "Opphev deling",
+    "splitSync": "Synkroniser",
+    "splitSyncTitle": "Rull og zoom begge rutene sammen",
+    "splitDividerTitle": "Dra for å endre størrelsen på rutene. Dobbeltklikk for å tilbakestille til 50/50.",
+    "accessibilityGroup": "Tilgjengelighet",
+    "readAloud": "Les høyt",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Les markeringen, eller dokumentet fra gjeldende side, høyt",
+    "tagsPanel": "Tagger",
+    "tagsPanelTitle": "Vis strukturtaggene i dokumentet",
+    "accessibilityCheck": "Kontroller",
+    "accessibilityCheckTitle": "Se etter manglende alternativ tekst og innhold uten tagger"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighet — vis/skjul og demp merknadstyper",
@@ -328,7 +349,9 @@
     "scanText": "Rediger skannet tekst",
     "scanTextHint": "Klikk på et gjenkjent ord for å erstatte det. Det gamle ordet i skanningen dekkes over.",
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
-    "shiftPage": "Forskyv side"
+    "shiftPage": "Forskyv side",
+    "editPages": "Rediger sider",
+    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
   },
   "help": {
     "settings": "Innstillinger",
@@ -348,6 +371,7 @@
     "updates": "Oppdateringer",
     "checkForUpdates": "Se etter oppdateringer",
     "updatesLabel": "Oppdateringer",
+    "updatesManaged": "Oppdateringer for denne installasjonen styres sentralt.",
     "startupDiagnosticsTitle": "Vis den personvernvennlige oppstartsdiagnosefilen",
     "startupDiagnostics": "Diagnostikk",
     "fileAssociation": "Filtilknytning",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Lim inn det utklippede området her, med vektordataene bevart",
     "symbolScale": "Målestokk",
     "symbolScaleTitle": "Størrelsen et nytt symbol plasseres i",
-    "symbolScaleCustom": "Egendefinert målestokk"
+    "symbolScaleCustom": "Egendefinert målestokk",
+    "count": "Telling",
+    "arc": "Bue"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +704,7 @@
     "saveNote": "Notater og andre markeringer uten utseende på siden forblir markeringer. Filen endres først når du lagrer; inntil da angrer Angre dette trinnet.",
     "ok": "Flat ut",
     "busy": "Flater ut markeringer...",
+    "cancelled": "Utflatingen ble avbrutt. Dokumentet ble ikke endret.",
     "nothing": "Dette dokumentet har ingen markeringer å flate ut.",
     "nothingBaked": "Ingen av markeringene har et utseende på siden, så ingenting ble flatet ut.",
     "notLoaded": "Markeringene i dette dokumentet lastes fortsatt inn. Prøv igjen om et øyeblikk.",
@@ -691,5 +718,60 @@
     "noRecovery": "Markeringene i dette dokumentet ble flatet ut uten at gjenoppretting var tillatt. De er en del av sideinnholdet og kan ikke gjenopprettes.",
     "done": "Markeringer gjenopprettet: {{count}}.",
     "failed": "Gjenoppretting mislyktes: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Små ikoner",
+    "largeIcons": "Store ikoner",
+    "settings": "Innstillinger"
+  },
+  "symbolPalette": {
+    "search": "Søk etter symboler...",
+    "noResults": "Fant ingen symboler",
+    "drawingSettings": "Tegningsinnstillinger",
+    "manageSystemTypes": "Administrer systemtyper",
+    "settingsTitle": "Innstillinger for symbolbibliotek",
+    "industry": "Bransje",
+    "country": "Land",
+    "libraryLoading": "Laster inn nettbibliotek…",
+    "libraryOffline": "Nettbiblioteket er utilgjengelig — begrenset landliste",
+    "downloading": "Laster ned {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Samlinger tilgjengelig på nett: {{n}} ({{symbols}} symboler)",
+    "activateDownloaded": "Nedlastede samlinger som skal aktiveres for dette landet: {{n}}",
+    "download": "Last ned",
+    "downloadFailed": "Nedlasting mislyktes: {{error}}",
+    "builtIn": "Innebygd",
+    "online": "På nett",
+    "addSymbol": "+ Legg til symbol",
+    "export": "Eksporter",
+    "remove": "Fjern",
+    "noSymbolsYet": "Ingen symboler ennå",
+    "newGroupName": "Navn på ny gruppe...",
+    "addGroup": "Legg til gruppe",
+    "importGroup": "Importer gruppe",
+    "catalogLoaded": "Katalogen '{{id}}' er lastet inn: {{families}} familier, {{sizes}} størrelser",
+    "catalogNoPreview": "{{n}} uten forhåndsvisning i filen",
+    "fileNotRecognized": "Filen ble ikke gjenkjent: verken en symbolgruppe eller en katalog",
+    "importFailed": "Import mislyktes: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bygg",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Byggeplass",
+      "nl-sanitair": "NL Sanitær",
+      "nl-keuken": "NL Kjøkken",
+      "nen1414-tb": "NL NEN 1414 — Brannsikring",
+      "nen1414-tbk": "NL NEN 1414 — Slokkeanlegg",
+      "nen1414-td": "NL NEN 1414 — Dører",
+      "nen1414-tn": "NL NEN 1414 — Nødlys",
+      "nen1414-tr": "NL NEN 1414 — Røyk-/varmeventilasjon",
+      "nen1414-tv": "NL NEN 1414 — Ventilasjon",
+      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bygg)",
+      "electrical": "Elektroteknikk",
+      "process": "Prosess / P&ID",
+      "mep": "Byggtekniske installasjoner (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

@@ -9,7 +9,8 @@
     "behavior": "Ponašanje",
     "fileAssociation": "Asocijacija datoteka",
     "virtualPrinter": "Virtualni pisač",
-    "pageDisplay": "Prikaz stranice"
+    "pageDisplay": "Prikaz stranice",
+    "keyboardShortcuts": "Tipkovnički prečaci"
   },
   "resetToDefaults": "Vrati na zadano",
   "resetConfirm": "Vratiti sve postavke na zadane vrijednosti?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktivno na {{adres}}",
     "aiLinkViaFlag": "Aktivno putem parametra pokretanja ({{adres}})",
     "aiLinkOff": "Isključeno",
-    "aiLinkError": "Nije pokrenuto: {{fout}}"
+    "aiLinkError": "Nije pokrenuto: {{fout}}",
+    "interfaceScale": "Veličina sučelja"
   },
   "annotations": {
     "generalDefaults": "Opće zadane postavke",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Otvorena strelica (obrnuta)",
     "headClosedReversed": "Zatvorena strelica (obrnuta)",
     "headSlash": "Kosa crta",
-    "polylineDefaults": "Zadane postavke polilinije"
+    "polylineDefaults": "Zadane postavke polilinije",
+    "smoothing": "Zaglađivanje",
+    "pressure": "Pritisak olovke",
+    "pressureHint": "Pritisak olovke mijenja debljinu poteza (potezi mišem zadržavaju stalnu debljinu)",
+    "pressureMinWidth": "Najmanja širina (%)",
+    "penOnly": "Samo olovka (zanemari dodir)",
+    "penOnlyHint": "Dodir ne crta alatom slobodne ruke; korisno protiv dodira dlana pri pisanju olovkom"
   },
   "shapes": {
     "rectangleDefaults": "Zadane postavke pravokutnika",
@@ -165,8 +173,15 @@
     "deletion": "Brisanje",
     "confirmBeforeDeleting": "Potvrdi prije brisanja oznaka",
     "snapToPdfContent": "Privlačenje na sadržaj PDF crteža",
+    "moveInference": "Pomoćne linije pri pomicanju (G / mv)",
+    "moveInferenceTracking": "Linije praćenja (poravnanje s točkama druge geometrije)",
+    "moveInferenceExtension": "Produžeci linija i lica zidova",
+    "moveInferenceParallel": "Paralelno / okomito na obližnje linije",
+    "moveInferenceHint": "Zadržite pokazivač kratko iznad točke da je uhvatite, držite Shift da zaključate pomoćnu liniju, Tab prebacuje između udaljenosti i kuta. Polarne pomoćne linije slijede postavke polarnog praćenja.",
     "navigation": "Navigacija",
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
+    "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
+    "ribbonWheelSwitchesTabs": "Mijenjaj kartice vrpce kotačićem miša",
     "dynamicScaling": "Automatski skaliraj oznake"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Za postavljanje Open PDF Studio kao zadanog PDF preglednika na macOS:\n\n1. Desnom tipkom kliknite na bilo koji PDF u Finderu\n2. Odaberite \"Get Info\"\n3. Pod \"Open with\" odaberite Open PDF Studio\n4. Kliknite \"Change All...\"",
     "linuxInstructions": "Za postavljanje Open PDF Studio kao zadanog PDF preglednika na Linuxu:\n\nPokrenite u terminalu:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Provjerite Finder > Get Info",
-    "notSet": "Nije postavljeno"
+    "notSet": "Nije postavljeno",
+    "chosenInSystemSettings": "Odabrano u postavkama sustava",
+    "sandboxInstructions": "Open PDF Studio radi kao {{package}} paket i ne može sam promijeniti zadanu PDF aplikaciju.\n\nOdaberite Open PDF Studio u postavkama sustava pod Zadane aplikacije ili desnom tipkom kliknite PDF datoteku i upotrijebite Otvori pomoću.",
+    "xdgMimeMissing": "xdg-mime (paket xdg-utils) nije instaliran, pa se zadana PDF aplikacija ne može postaviti odavde.\n\nInstalirajte xdg-utils ili odaberite Open PDF Studio u postavkama sustava pod Zadane aplikacije.",
+    "linuxDone": "Open PDF Studio sada je zadana aplikacija za PDF datoteke.",
+    "linuxFailed": "Nije moguće postaviti Open PDF Studio kao zadanu PDF aplikaciju.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Eksplorer za datoteke",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Jako",
     "pageSharpenLevel4": "Maksimalno",
     "showScrollbars": "Prikaži trake za pomicanje platna",
+    "backgroundColor": "Boja pozadine",
+    "backgroundColorDefault": "Zadano",
+    "backgroundColorHint": "Boja područja oko stranica i između njih. Sama stranica, ispis i izvoz se ne mijenjaju.",
     "panels": "Ploče",
     "showPropertiesPanel": "Prema zadanom prikaži ploču svojstava",
     "showToolPalette": "Prema zadanom prikaži paletu alata",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Otvorena strelica (obrnuta)",
     "closedArrowReversed": "Zatvorena strelica (obrnuta)",
     "slash": "Kosa crta"
+  },
+  "keyboardShortcuts": {
+    "title": "Tipkovnički prečaci",
+    "search": "Traži po naredbi ili tipki",
+    "command": "Naredba",
+    "shortcuts": "Prečaci",
+    "none": "Nema",
+    "noMatches": "Nijedna naredba ne odgovara pretraživanju.",
+    "selectHint": "Odaberite naredbu da biste promijenili njezine prečace.",
+    "addShortcut": "Dodaj prečac",
+    "remove": "Ukloni prečac",
+    "resetCommand": "Vrati zadano",
+    "resetAll": "Vrati sve",
+    "resetAllConfirm": "Vratiti sve tipkovničke prečace na zadane vrijednosti?",
+    "loadPreset": "Učitaj predložak…",
+    "replaceConfirm": "Ovo će zamijeniti vaše prilagođene tipkovničke prečace. Nastaviti?",
+    "presets": {
+      "markupStyle": "Prečaci u stilu označavanja"
+    },
+    "import": "Uvezi…",
+    "export": "Izvezi…",
+    "fileType": "Tipkovnički prečaci",
+    "imported": "Prečaci su uvezeni. Kliknite Spremi da biste ih primijenili.",
+    "importFailed": "Ovo nije valjana datoteka tipkovničkih prečaca.",
+    "exported": "Prečaci su izvezeni.",
+    "exportFailed": "Izvoz prečaca nije uspio:",
+    "recording": "Pritisnite novu kombinaciju tipki… (Esc odustaje)",
+    "conflict": "{{keys}} već koristi „{{command}}”.",
+    "reassign": "Ponovno dodijeli",
+    "reserved": "{{keys}} ima fiksno značenje i ne može se dodijeliti.",
+    "defaultLabel": "Zadano: {{keys}}",
+    "customize": "Prilagodi…",
+    "fixedGroup": "Fiksne tipke",
+    "applyHint": "Promjene stupaju na snagu kada kliknete Spremi.",
+    "categories": {
+      "file": "Datoteka",
+      "edit": "Uređivanje",
+      "view": "Prikaz",
+      "search": "Traži",
+      "tools": "Alati",
+      "drafting": "Pomagala za crtanje",
+      "panels": "Ploče",
+      "review": "Pregled",
+      "help": "Pomoć",
+      "extensions": "Proširenja",
+      "ribbon": "Vrpca: {{tab}}",
+      "other": "Ostalo"
+    },
+    "commands": {
+      "findNext": "Traži sljedeće",
+      "splitPaneLarger": "Povećaj aktivno okno",
+      "splitPaneSmaller": "Smanji aktivno okno"
+    }
   }
 }

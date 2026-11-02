@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Gran formato",
+      "detailblad": "Hoja de detalles",
+      "voorblad": "Hoja de portada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "vertical",
+      "landscape": "horizontal"
+    },
     "title": "Nuevo documento",
     "paperSize": "Tamaño de papel:",
     "widthMm": "Ancho (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Imprimir borde de página",
     "perSheetNote": "Cada página se escala para ajustarse a su celda, por lo que no se aplica el escalado de página anterior.",
     "poster": "Póster (mosaico)",
+    "posterOverview": "Vista general del póster",
+    "posterOverlapLegend": "Las zonas sombreadas se repiten en las hojas adyacentes",
     "posterScale": "Escala del mosaico",
     "posterOverlap": "Superposición",
     "posterCutMarks": "Marcas de corte",
     "posterLabels": "Etiquetas (archivo, página, pieza)",
     "posterOnlyLarge": "Dividir solo páginas grandes",
+    "posterEdgeCrop": "Recortar ligeramente los bordes exteriores",
+    "posterEdgeCropHint": "Hasta {{max}} mm por borde exterior, solo para esta impresión. Desactivado: conservar todo el contenido.",
     "posterTileInfo": "Página {{page}}: pieza {{row}},{{col}} (fila, columna) de {{rows}} × {{cols}}",
     "posterNotTiled": "La página {{page}} cabe en una hoja y no se divide.",
     "posterAssumedPaper": "Tamaño de papel desconocido: las piezas se distribuyen en {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Documento y marcas",
     "document": "Documento",
     "printAsImage": "Imprimir como imagen",
+    "colorMode": "Modo de color:",
+    "colorModeColor": "En color",
+    "colorModeGrayscale": "Escala de grises",
+    "colorModeBlackWhite": "Blanco y negro",
     "pagesToPrint": "página(s) a imprimir",
     "noPrinterSelected": "No se seleccionó ninguna impresora.",
     "noPagesToPrint": "No hay páginas para imprimir.",
@@ -346,7 +364,13 @@
     "chooseImage": "Elegir imagen...",
     "scale": "Escala:",
     "selectImageFirst": "Seleccione una imagen primero.",
-    "defaultText": "BORRADOR"
+    "defaultText": "BORRADOR",
+    "autoFit": "Ajustar automáticamente a la página",
+    "autoFitHint": "Ajusta el texto a cada página. El tamaño mostrado corresponde a la página actual.",
+    "increaseFontSize": "Aumentar tamaño de fuente",
+    "decreaseFontSize": "Reducir tamaño de fuente",
+    "textHistory": "Textos usados anteriormente",
+    "removeFromHistory": "Quitar del historial"
   },
   "headerFooter": {
     "addTitle": "Agregar encabezado/pie de página",
@@ -430,7 +454,8 @@
     "styleLabel": "Estilo:",
     "nestTitle": "Anidar bajo un marcador nuevo",
     "deleteTitle": "Eliminar marcadores",
-    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?"
+    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?",
+    "replaceAll": "Reemplazar todos los marcadores"
   },
   "formValidation": {
     "title": "Error de validación"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Guardar como informe IFC",
     "failed": "Error al guardar el informe IFC: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportar a IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) aún está en desarrollo. Compruebe el resultado antes de confiar en él.",
+    "pages": "Páginas:",
+    "allPages": "Todas las páginas",
+    "currentPage": "Página actual",
+    "customPages": "Intervalo de páginas",
+    "rangePlaceholder": "p. ej. 1-3, 5",
+    "includeRaster": "Incluir imágenes",
+    "includeText": "Incluir texto",
+    "includeAnnotations": "Anotaciones en una capa aparte",
+    "export": "Exportar",
+    "progress": "Exportando página {{done}} de {{total}}…",
+    "done": "Escrito: {{file}} ({{sheets}} hojas, {{paths}} trazados, {{texts}} textos, {{images}} imágenes, {{annotations}} anotaciones).",
+    "capPaths": "Página {{page}}: se exportaron {{kept}} de {{total}} trazados; el resto supera el límite.",
+    "capTexts": "Página {{page}}: se exportaron {{kept}} de {{total}} líneas de texto; el resto supera el límite.",
+    "capImages": "Página {{page}}: se exportaron {{kept}} de {{total}} imágenes; el resto supera el límite.",
+    "imagesOmitted": "Imágenes sin datos de píxeles (no compatibles o demasiado grandes): {{count}}. Se conserva su posición.",
+    "sizeLimit": "La página {{page}} y las siguientes no se exportaron: el archivo alcanzó su límite de tamaño.",
+    "noPages": "No hay páginas seleccionadas.",
+    "noBytes": "Los datos PDF de este documento no están disponibles. Guarde el documento e inténtelo de nuevo.",
+    "failed": "Error al exportar a IFCX: {{error}}",
+    "unsavedNote": "Los cambios no guardados en el contenido de las páginas no se incluyen; las anotaciones sí."
   },
   "styleType": {
     "lineTypes": "Tipos de línea",
@@ -1598,6 +1647,57 @@
       "cancel": "Cancelada",
       "supersede": "Sustituida",
       "expire": "Caducada"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Editar páginas",
+    "hint": "Arrastre las páginas para moverlas; suelte un archivo PDF para insertar sus páginas. Ctrl+clic, Mayús+clic o las casillas seleccionan varias páginas. Nada cambia hasta Aplicar.",
+    "moveLeft": "Mover a la izquierda",
+    "moveRight": "Mover a la derecha",
+    "moveToStart": "Mover al principio",
+    "moveToEnd": "Mover al final",
+    "selection": "{{selected}} de {{total}} páginas seleccionadas",
+    "rotateLeft": "Girar a la izquierda",
+    "rotateRight": "Girar a la derecha",
+    "split": "Dividir",
+    "splitTitle": "Colocar marcas de división alrededor de las páginas seleccionadas: cada serie se convierte en un archivo aparte",
+    "splitHere": "Dividir aquí (colocar o quitar una marca de división)",
+    "extractTitle": "Extraer las páginas seleccionadas a un archivo nuevo",
+    "blankPage": "Página en blanco",
+    "pagesFromFile": "Páginas de un archivo…",
+    "insertHere": "Insertar páginas aquí",
+    "select": "Seleccionar página",
+    "zoom": "Zoom",
+    "parts": "Se dividirá en {{count}} archivos al aplicar",
+    "chooseFolder": "Elija la carpeta para los archivos divididos",
+    "fileFailed": "No se pudo leer {{name}}: {{error}}",
+    "applyFailed": "No se pudieron aplicar los cambios de páginas: {{error}}",
+    "extractFailed": "No se pudieron extraer las páginas: {{error}}",
+    "blankSetup": "Configuración de página en blanco",
+    "sameAsAdjacent": "Igual que la página adyacente",
+    "width": "Ancho:",
+    "height": "Alto:",
+    "unit": "Unidad:"
+  },
+  "accessibilityReport": {
+    "title": "Comprobación de accesibilidad",
+    "starting": "Comprobando...",
+    "checking": "Comprobando la página {{done}} de {{total}}...",
+    "noIssues": "No se encontraron problemas.",
+    "summary": "Se encontraron {{count}} problema(s). Haga doble clic en un elemento para ir a su página.",
+    "failed": "No se pudo realizar la comprobación en este documento.",
+    "recheck": "Comprobar de nuevo",
+    "close": "Cerrar",
+    "goTo": "Haga doble clic para ir a la página",
+    "page": "Página {{page}}",
+    "kind": {
+      "notTagged": "El documento no está etiquetado: no tiene árbol de estructura, por lo que la tecnología de asistencia no puede seguir su orden de lectura.",
+      "notMarked": "El documento no está marcado como etiquetado (/MarkInfo /Marked).",
+      "noLanguage": "No se ha definido el idioma del documento.",
+      "figureNoAlt": "{{role}} sin texto alternativo",
+      "pageNotTagged": "No hay contenido etiquetado en esta página ({{count}} elementos de texto)",
+      "untaggedContent": "{{count}} elemento(s) de texto fuera de las etiquetas",
+      "annotationNoText": "Anotación ({{type}}) sin descripción"
     }
   }
 }

@@ -169,7 +169,9 @@
     "flattenAll": "Sloučit vše",
     "flattenAllTooltip": "Sloučit všechny značky do obsahu stránky",
     "unflattenAll": "Zrušit sloučení",
-    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením"
+    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením",
+    "fileAttachment": "Připojit soubor",
+    "fileAttachmentTitle": "Příloha souboru: klikněte na stránku a vyberte soubor"
   },
   "view": {
     "pageDisplay": "Zobrazení stránky",
@@ -198,6 +200,7 @@
     "thinLines": "Tenké čáry",
     "compareGroup": "Porovnání",
     "fullscreen": "Celá obrazovka",
+    "fullscreenUnavailable": "Celá obrazovka zde není k dispozici: prohlížeč nebo stránka, která aplikaci zobrazuje, ji odmítla. Použijte místo toho volbu celé obrazovky v nabídce prohlížeče.",
     "window": "Okno",
     "display": "Zobrazení",
     "keystrokes": "Stisky kláves",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Otočit zobrazení doleva",
     "rotateViewRight": "Otočit zobrazení doprava",
     "rotateViewLeftTitle": "Otočí zobrazení o 90° proti směru hodinových ručiček. Samotný dokument se nemění.",
-    "rotateViewRightTitle": "Otočí zobrazení o 90° ve směru hodinových ručiček. Samotný dokument se nemění."
+    "rotateViewRightTitle": "Otočí zobrazení o 90° ve směru hodinových ručiček. Samotný dokument se nemění.",
+    "splitGroup": "Rozdělit",
+    "split": "Rozdělit",
+    "splitTitle": "Rozdělit zobrazení na dva panely se stejným dokumentem",
+    "splitOptions": "Možnosti rozdělení",
+    "splitVertical": "Rozdělit svisle",
+    "splitHorizontal": "Rozdělit vodorovně",
+    "unsplit": "Zrušit rozdělení",
+    "splitSync": "Synchronizovat",
+    "splitSyncTitle": "Posouvat a zvětšovat oba panely společně",
+    "splitDividerTitle": "Tažením změníte velikost panelů. Dvojklikem obnovíte 50/50.",
+    "accessibilityGroup": "Přístupnost",
+    "readAloud": "Číst nahlas",
+    "readAloudPause": "Pozastavit",
+    "readAloudTitle": "Přečíst nahlas výběr, nebo dokument od aktuální stránky",
+    "tagsPanel": "Značky",
+    "tagsPanelTitle": "Zobrazit strukturní značky dokumentu",
+    "accessibilityCheck": "Zkontrolovat",
+    "accessibilityCheckTitle": "Vyhledat chybějící alternativní text a obsah bez značek"
   },
   "elementVisibility": {
     "buttonTitle": "Viditelnost prvků — zobrazit/skrýt a ztlumit typy anotací",
@@ -328,7 +349,9 @@
     "scanText": "Upravit naskenovaný text",
     "scanTextHint": "Kliknutím na rozpoznané slovo jej nahradíte. Původní slovo ve skenu se zakryje.",
     "scanTextNone": "Na této stránce není žádný rozpoznaný text. Nejprve spusťte Rozpoznávání textu (OCR).",
-    "shiftPage": "Posunout stránku"
+    "shiftPage": "Posunout stránku",
+    "editPages": "Upravit stránky",
+    "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit"
   },
   "help": {
     "settings": "Nastavení",
@@ -348,6 +371,7 @@
     "updates": "Aktualizace",
     "checkForUpdates": "Zkontrolovat aktualizace",
     "updatesLabel": "Aktualizace",
+    "updatesManaged": "Aktualizace této instalace jsou spravovány centrálně.",
     "startupDiagnosticsTitle": "Zobrazit soubor diagnostiky spuštění (bez osobních údajů)",
     "startupDiagnostics": "Diagnostika",
     "fileAssociation": "Přiřazení souborů",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Vložte sem vyříznutou oblast se zachováním vektorových dat",
     "symbolScale": "Měřítko",
     "symbolScaleTitle": "Velikost, ve které se umístí nový symbol",
-    "symbolScaleCustom": "Vlastní měřítko"
+    "symbolScaleCustom": "Vlastní měřítko",
+    "count": "Počítání",
+    "arc": "Oblouk"
   },
   "proofread": {
     "group": "Korektura",
@@ -678,6 +704,7 @@
     "saveNote": "Poznámky a další značky bez vzhledu na stránce zůstanou značkami. Soubor se změní až při uložení; do té doby tento krok vrátí Zpět.",
     "ok": "Sloučit",
     "busy": "Slučování značek...",
+    "cancelled": "Sloučení zrušeno. Dokument nebyl změněn.",
     "nothing": "Tento dokument nemá žádné značky ke sloučení.",
     "nothingBaked": "Žádná ze značek nemá vzhled na stránce, nic tedy nebylo sloučeno.",
     "notLoaded": "Značky tohoto dokumentu se stále načítají. Zkuste to za chvíli znovu.",
@@ -691,5 +718,60 @@
     "noRecovery": "Značky v tomto dokumentu byly sloučeny bez povolení obnovení. Jsou součástí obsahu stránky a nelze je obnovit.",
     "done": "Obnovené značky: {{count}}.",
     "failed": "Obnovení se nezdařilo: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Malé ikony",
+    "largeIcons": "Velké ikony",
+    "settings": "Nastavení"
+  },
+  "symbolPalette": {
+    "search": "Hledat symboly...",
+    "noResults": "Nenalezeny žádné symboly",
+    "drawingSettings": "Nastavení výkresu",
+    "manageSystemTypes": "Spravovat typy systémů",
+    "settingsTitle": "Nastavení knihovny symbolů",
+    "industry": "Obor",
+    "country": "Země",
+    "libraryLoading": "Načítání online knihovny…",
+    "libraryOffline": "Online knihovna není dostupná — omezený seznam zemí",
+    "downloading": "Stahování {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Kolekce dostupné online: {{n}} (symbolů: {{symbols}})",
+    "activateDownloaded": "Stažené kolekce k aktivaci pro tuto zemi: {{n}}",
+    "download": "Stáhnout",
+    "downloadFailed": "Stahování se nezdařilo: {{error}}",
+    "builtIn": "Vestavěná",
+    "online": "Online",
+    "addSymbol": "+ Přidat symbol",
+    "export": "Exportovat",
+    "remove": "Odebrat",
+    "noSymbolsYet": "Zatím žádné symboly",
+    "newGroupName": "Název nové skupiny...",
+    "addGroup": "Přidat skupinu",
+    "importGroup": "Importovat skupinu",
+    "catalogLoaded": "Katalog '{{id}}' načten: rodin {{families}}, velikostí {{sizes}}",
+    "catalogNoPreview": "Bez náhledu v souboru: {{n}}",
+    "fileNotRecognized": "Soubor nebyl rozpoznán: není to skupina symbolů ani katalog",
+    "importFailed": "Import se nezdařil: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Stavba",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Staveniště",
+      "nl-sanitair": "NL Sanita",
+      "nl-keuken": "NL Kuchyně",
+      "nen1414-tb": "NL NEN 1414 — Požární ochrana",
+      "nen1414-tbk": "NL NEN 1414 — Hasicí systémy",
+      "nen1414-td": "NL NEN 1414 — Dveře",
+      "nen1414-tn": "NL NEN 1414 — Nouzové osvětlení",
+      "nen1414-tr": "NL NEN 1414 — Odvod kouře a tepla",
+      "nen1414-tv": "NL NEN 1414 — Větrání",
+      "nen1414-tw": "NL NEN 1414 — Voda/Sprinklery"
+    },
+    "sectors": {
+      "aec": "AEC (Stavebnictví)",
+      "electrical": "Elektrotechnika",
+      "process": "Procesy / P&ID",
+      "mep": "Technická zařízení budov (MEP)",
+      "infra": "Infrastruktura"
+    }
   }
 }

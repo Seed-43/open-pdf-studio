@@ -2,7 +2,8 @@ import { For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
-import { recordRemoveWatermark, recordModifyWatermark } from '../../../core/undo-manager.js';
+import { recordModifyWatermark } from '../../../core/undo-manager.js';
+import { verwijderWatermerk } from '../../../watermark/watermerk-bewerken.js';
 import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -20,14 +21,14 @@ function refresh() {
 // eerst uit vóór hij verandert of verdwijnt (kopvoet-weergave.js).
 async function voorWijziging(wm) {
   const doc = getActiveDocument();
-  if (wm?.type === 'headerFooter' && kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
+  if (kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
   return getActiveDocument() === doc;
 }
 
-function getWmDescription(wm) {
+function getWmDescription(wm, t) {
   switch (wm.type) {
     case 'textWatermark':
-      return `"${wm.text}" - ${wm.fontSize}px, ${wm.rotation}\u00B0`;
+      return `"${wm.text}" - ${wm.autoFit ? t('watermark.autoFit') : `${wm.fontSize} pt`}, ${wm.rotation}\u00B0`;
     case 'imageWatermark':
       return `Image - ${Math.round((wm.scale || 1) * 100)}% scale`;
     case 'headerFooter': {
@@ -83,18 +84,11 @@ export default function ManageWatermarksDialog() {
     }
   }
 
+  // Zelfde stap als app_watermarks remove (watermerk-bewerken.js): een
+  // kop-/voettekst eerst uit de weergave, dan undo, gewijzigd, opnieuw tekenen.
   async function handleDelete(wm) {
-    if (!(await voorWijziging(wm))) return;
     const doc = getActiveDocument();
-    const watermarks = doc?.watermarks;
-    if (!watermarks) return;
-    const idx = watermarks.indexOf(wm);
-    if (idx !== -1) {
-      watermarks.splice(idx, 1);
-      recordRemoveWatermark(wm, idx);
-      markDocumentModified();
-      refresh();
-    }
+    if (doc) await verwijderWatermerk(doc, wm.id);
   }
 
   const footer = (
@@ -127,7 +121,7 @@ export default function ManageWatermarksDialog() {
               <div class="manage-wm-item">
                 <span class="manage-wm-item-icon">{getWmIcon(wm)}</span>
                 <span class="manage-wm-item-desc">
-                  {getWmDescription(wm)}
+                  {getWmDescription(wm, t)}
                   <span class="manage-wm-item-type">{getWmTypeLabel(wm)}</span>
                 </span>
                 <div class="manage-wm-item-actions">

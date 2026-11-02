@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大幅面",
+      "detailblad": "详图页",
+      "voorblad": "封面页"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "纵向",
+      "landscape": "横向"
+    },
     "title": "新建文档",
     "paperSize": "纸张大小：",
     "widthMm": "宽度 (mm)：",
@@ -128,11 +138,15 @@
     "pageBorder": "打印页面边框",
     "perSheetNote": "每页都会缩放以适合其单元格，因此上方的页面缩放设置不适用。",
     "poster": "海报（拼贴）",
+    "posterOverview": "海报总览",
+    "posterOverlapLegend": "阴影区域会在相邻纸张上重复",
     "posterScale": "拼贴比例",
     "posterOverlap": "重叠",
     "posterCutMarks": "裁切标记",
     "posterLabels": "标签（文件、页码、拼块）",
     "posterOnlyLarge": "仅拼贴大页面",
+    "posterEdgeCrop": "少量裁切外边缘",
+    "posterEdgeCropHint": "仅本次打印，每条外边缘最多裁切 {{max}} 毫米。关闭时保留全部内容。",
     "posterTileInfo": "第 {{page}} 页：拼块 {{row}},{{col}}（行，列），共 {{rows}} × {{cols}}",
     "posterNotTiled": "第 {{page}} 页可容纳在一张纸上，不进行拼贴。",
     "posterAssumedPaper": "纸张尺寸未知：拼块按 {{paper}} 排布。",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "文档和标注",
     "document": "文档",
     "printAsImage": "作为图像打印",
+    "colorMode": "颜色模式：",
+    "colorModeColor": "彩色",
+    "colorModeGrayscale": "灰度",
+    "colorModeBlackWhite": "黑白",
     "pagesToPrint": "页待打印",
     "noPrinterSelected": "未选择打印机。",
     "noPagesToPrint": "没有可打印的页面。",
@@ -346,7 +364,13 @@
     "chooseImage": "选择图像...",
     "scale": "缩放：",
     "selectImageFirst": "请先选择一张图像。",
-    "defaultText": "草稿"
+    "defaultText": "草稿",
+    "autoFit": "自动适应页面",
+    "autoFitHint": "使文字适应每一页。显示的大小为当前页的大小。",
+    "increaseFontSize": "增大字号",
+    "decreaseFontSize": "减小字号",
+    "textHistory": "以前使用过的文本",
+    "removeFromHistory": "从历史记录中删除"
   },
   "headerFooter": {
     "addTitle": "添加页眉/页脚",
@@ -430,7 +454,8 @@
     "styleLabel": "样式：",
     "nestTitle": "嵌套到新书签下",
     "deleteTitle": "删除书签",
-    "deleteConfirm": "删除所选的 {{count}} 个书签及其下的所有内容？"
+    "deleteConfirm": "删除所选的 {{count}} 个书签及其下的所有内容？",
+    "replaceAll": "替换所有书签"
   },
   "formValidation": {
     "title": "验证错误"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "另存为 IFC 报告",
     "failed": "保存 IFC 报告失败：{{error}}"
+  },
+  "ifcxExport": {
+    "title": "导出为 IFCX（测试版）",
+    "betaNote": "测试版：IFCX（IFC5）仍在开发中。依赖结果之前请先检查。",
+    "pages": "页面：",
+    "allPages": "所有页面",
+    "currentPage": "当前页面",
+    "customPages": "页面范围",
+    "rangePlaceholder": "例如 1-3, 5",
+    "includeRaster": "包含图像",
+    "includeText": "包含文本",
+    "includeAnnotations": "注释放在单独的图层",
+    "export": "导出",
+    "progress": "正在导出第 {{done}} 页，共 {{total}} 页…",
+    "done": "已写入：{{file}}（图纸 {{sheets}}，路径 {{paths}}，文本 {{texts}}，图像 {{images}}，注释 {{annotations}}）。",
+    "capPaths": "第 {{page}} 页：已导出 {{total}} 条路径中的 {{kept}} 条；其余超出限制。",
+    "capTexts": "第 {{page}} 页：已导出 {{total}} 行文本中的 {{kept}} 行；其余超出限制。",
+    "capImages": "第 {{page}} 页：已导出 {{total}} 张图像中的 {{kept}} 张；其余超出限制。",
+    "imagesOmitted": "没有像素数据的图像（不受支持或过大）：{{count}}。其位置会保留。",
+    "sizeLimit": "第 {{page}} 页及之后的页面未导出：文件已达到大小上限。",
+    "noPages": "未选择页面。",
+    "noBytes": "此文档的 PDF 数据不可用。请保存文档后重试。",
+    "failed": "IFCX 导出失败：{{error}}",
+    "unsavedNote": "页面内容中未保存的更改不包括在内；注释会包括在内。"
   },
   "styleType": {
     "lineTypes": "线型",
@@ -1598,6 +1647,57 @@
       "cancel": "已取消",
       "supersede": "已取代",
       "expire": "已过期"
+    }
+  },
+  "pageOrganizer": {
+    "title": "编辑页面",
+    "hint": "拖动页面即可移动；拖放 PDF 文件可插入其页面。Ctrl+单击、Shift+单击或复选框可选择多个页面。在“应用”之前不会有任何更改。",
+    "moveLeft": "左移",
+    "moveRight": "右移",
+    "moveToStart": "移到开头",
+    "moveToEnd": "移到末尾",
+    "selection": "已选择 {{selected}} / {{total}} 页",
+    "rotateLeft": "向左旋转",
+    "rotateRight": "向右旋转",
+    "split": "拆分",
+    "splitTitle": "在所选页面周围放置拆分标记：每一段成为一个单独的文件",
+    "splitHere": "在此拆分（放置或移除拆分标记）",
+    "extractTitle": "将所选页面提取到新文件",
+    "blankPage": "空白页",
+    "pagesFromFile": "来自文件的页面…",
+    "insertHere": "在此插入页面",
+    "select": "选择页面",
+    "zoom": "缩放",
+    "parts": "应用时拆分为 {{count}} 个文件",
+    "chooseFolder": "选择拆分文件的文件夹",
+    "fileFailed": "无法读取 {{name}}：{{error}}",
+    "applyFailed": "应用页面编辑失败：{{error}}",
+    "extractFailed": "提取页面失败：{{error}}",
+    "blankSetup": "空白页设置",
+    "sameAsAdjacent": "与相邻页面相同",
+    "width": "宽度：",
+    "height": "高度：",
+    "unit": "单位："
+  },
+  "accessibilityReport": {
+    "title": "辅助功能检查",
+    "starting": "正在检查...",
+    "checking": "正在检查第 {{done}} 页，共 {{total}} 页...",
+    "noIssues": "未发现问题。",
+    "summary": "发现 {{count}} 个问题。双击某项可转到其所在页面。",
+    "failed": "无法对此文档运行检查。",
+    "recheck": "重新检查",
+    "close": "关闭",
+    "goTo": "双击转到该页面",
+    "page": "第 {{page}} 页",
+    "kind": {
+      "notTagged": "文档没有标签：没有结构树，因此辅助技术无法按阅读顺序朗读。",
+      "notMarked": "文档未标记为已加标签 (/MarkInfo /Marked)。",
+      "noLanguage": "未设置文档语言。",
+      "figureNoAlt": "没有替代文本的 {{role}}",
+      "pageNotTagged": "此页面没有加标签的内容（{{count}} 个文本项）",
+      "untaggedContent": "标签之外的文本项：{{count}} 个",
+      "annotationNoText": "没有说明的注释（{{type}}）"
     }
   }
 }

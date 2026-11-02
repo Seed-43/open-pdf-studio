@@ -34,6 +34,10 @@
   "draw": "Rysuj",
   "saved": "Zapisano",
   "documentChangedDuringSave": "Dokument zmienił się podczas zapisywania. Zapisz ponownie.",
+  "savingPdf": "Zapisywanie PDF…",
+  "saveCancelling": "Anulowanie zapisu…",
+  "saveCancelled": "Zapis anulowany. Plik nie został zmieniony.",
+  "saveCancelTooLate": "Plik był już zapisany; było za późno na anulowanie.",
   "documentChangedDuringExport": "Dokument zmienił się podczas eksportu. Zacznij od nowa.",
   "rasterExportProgress": "Rasteryzowanie stron: {{done}} z {{total}}",
   "search": "Szukaj",
@@ -120,7 +124,79 @@
         "label": "Rzut",
         "hint": "Narysuj rzut architektoniczny: ściany, stolarka, pomieszczenia, wymiary i wyposażenie (sanitariaty, kuchnia)",
         "prompt": "Narysuj rzut architektoniczny. Co narysować: "
+      },
+      "find-on-sheet": {
+        "label": "Znajdź na arkuszu",
+        "hint": "Znajdź termin (nazwę pomieszczenia, oznaczenie przekroju, symbol), przejdź do jego strony i podświetl wyniki",
+        "prompt": "Znajdź na tym arkuszu: "
+      },
+      "explain-selection": {
+        "label": "Objaśnij zaznaczenie",
+        "hint": "Opisz zaznaczony obszar, tekst lub adnotację prostym językiem, z wymiarami, gdy ustawiono skalę pomiarową",
+        "prompt": "Objaśnij zaznaczenie."
+      },
+      "compare-sheets": {
+        "label": "Porównaj arkusze",
+        "hint": "Nazwij i oznacz, co dodano, usunięto lub przesunięto w porównaniu z inną stroną",
+        "prompt": "Porównaj tę stronę ze stroną: "
+      },
+      "measure": {
+        "label": "Zmierz to",
+        "hint": "Zmierz zaznaczony kształt lub opisany element i podaj wynik w skali rysunku",
+        "prompt": "Zmierz: "
+      },
+      "take-off": {
+        "label": "Przedmiar",
+        "hint": "Policz lub zmierz elementy jednego rodzaju i umieść wynik jako zestawienie na arkuszu",
+        "prompt": "Wykonaj przedmiar: "
+      },
+      "check-scale": {
+        "label": "Sprawdź skalę",
+        "hint": "Ustal skalę z tabelki rysunkowej lub znanego wymiaru i ją ustaw",
+        "prompt": "Sprawdź skalę tego rysunku."
+      },
+      "review-sheet": {
+        "label": "Sprawdź arkusz",
+        "hint": "Dodaj chmurki z numerowanymi uwagami w miejscach, które wskazałby sprawdzający",
+        "prompt": "Sprawdź ten arkusz pod kątem: "
+      },
+      "stamp-date": {
+        "label": "Pieczątka i data",
+        "hint": "Umieść pieczątkę, wypełnij pole tabelki rysunkowej lub dodaj notatkę o rewizji z dzisiejszą datą",
+        "prompt": "Pieczątka i data: "
+      },
+      "clean-up": {
+        "label": "Uporządkuj adnotacje",
+        "hint": "Wyrównaj, ponumeruj od nowa lub ujednolić kolory istniejących adnotacji",
+        "prompt": "Uporządkuj moje adnotacje: "
+      },
+      "import-cad": {
+        "label": "Wczytaj rysunek",
+        "hint": "Zaimportuj rysunek DWG lub DXF jako podkład we właściwej skali",
+        "prompt": "Wczytaj rysunek (ścieżka pliku DWG lub DXF): "
+      },
+      "export-cad": {
+        "label": "Eksportuj do CAD",
+        "hint": "Zapisz tę stronę lub zaznaczony obszar do pliku DXF lub DWG",
+        "prompt": "Eksportuj tę stronę do (ścieżka pliku DXF lub DWG): "
       }
+    },
+    "groups": {
+      "document": "Tłumaczenie i streszczenie",
+      "reading": "Czytanie rysunku",
+      "measuring": "Pomiary i ilości",
+      "markup": "Oznaczanie",
+      "structure": "Konstrukcja i rzut",
+      "cad": "Rysunki CAD"
+    },
+    "need": {
+      "document": "Najpierw otwórz PDF: ta umiejętność działa na otwartym dokumencie.",
+      "selection": "Najpierw zaznacz adnotację lub fragment tekstu na rysunku, a potem ponownie kliknij umiejętność.",
+      "scale": "Ten rysunek nie ma jeszcze skali pomiarowej. Najpierw ją ustaw (na przykład za pomocą „Sprawdź skalę”) i spróbuj ponownie.",
+      "input": "Uzupełnij tekst w polu wprowadzania po dwukropku, a potem wyślij.",
+      "selectionOrInput": "Zaznacz kształt na rysunku lub opisz po dwukropku, co zmierzyć.",
+      "page": "Podaj numer innej strony (od 1 do {{max}}), nie bieżącej.",
+      "twoPages": "Ten dokument ma tylko jedną stronę. Aby porównać go z innym plikiem, zastąp tekst w polu wprowadzania własnym pytaniem."
     }
   },
   "onlineSymbolLibrary": "Biblioteka symboli online",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "To jest starsza wersja pliku, otwarta tylko do odczytu, więc nie można jej zapisać. Użyj polecenia Zapisz jako, aby pobrać kopię.",
   "hostVersionReadOnlyRefused": "Witryna nie zapisała pliku: jego starsza wersja jest otwarta tylko do odczytu. Otwórz ponownie bieżącą wersję, aby zapisać, lub użyj polecenia Zapisz jako, aby pobrać kopię.",
   "hostVersionInvalid": "Nie można otworzyć tej wersji pliku: numer wersji jest nieprawidłowy.",
+  "hostSaveAs": {
+    "title": "Zapisz w dokumentach",
+    "location": "Folder:",
+    "currentFolder": "Bieżący folder",
+    "up": "W górę",
+    "loading": "Wczytywanie…",
+    "listError": "Nie udało się wczytać listy folderów. Nadal możesz zapisać w bieżącym folderze.",
+    "empty": "Ten folder jest pusty.",
+    "readOnly": "tylko do odczytu",
+    "fileName": "Nazwa pliku:",
+    "save": "Zapisz",
+    "download": "Pobierz zamiast tego",
+    "nameEmpty": "Wpisz nazwę pliku.",
+    "nameInvalid": "Nazwa pliku zawiera niedozwolone znaki.",
+    "copyName": "{{name}} (kopia)",
+    "saved": "Zapisano jako „{{name}}” w Twoich dokumentach.",
+    "renamed": "Plik o tej nazwie już istnieje, więc kopię zapisano jako „{{name}}”. Nic nie zostało nadpisane.",
+    "openNew": "Otwórz nowy plik",
+    "keepOriginal": "Edytuj dalej oryginał",
+    "notSavedTitle": "Nie zapisano",
+    "errorReadOnly": "Nie masz uprawnień do zapisu w tym folderze. Wybierz inny folder lub pobierz plik.",
+    "errorInvalidName": "Witryna nie akceptuje tej nazwy pliku. Wybierz inną nazwę lub pobierz plik.",
+    "errorTooLarge": "Plik jest za duży, aby zapisać go w witrynie. Pobierz go zamiast tego.",
+    "errorQuota": "Brakuje miejsca w magazynie. Zwolnij miejsce lub pobierz plik.",
+    "errorNetwork": "Nie można połączyć się z witryną, więc plik nie został zapisany. Spróbuj ponownie lub pobierz plik.",
+    "errorUnsupported": "Ta witryna nie może zapisywać nowych plików. Pobierz plik zamiast tego.",
+    "errorFailed": "Witryna nie zapisała pliku: {{error}}"
+  },
   "textEditMissingGlyphs": "Tekst nie został zmieniony: żadna dostępna czcionka nie zawiera tych znaków, więc nie można ich zapisać: {{chars}}",
   "textEditMissingGlyphsLater": "Żadna dostępna czcionka nie zawiera tych znaków, więc nie można ich zapisać: {{chars}}. Zmień ten tekst; do tego czasu nie można zapisać pliku PDF.",
   "textEditMissingGlyphsSave": "Plik PDF nie został zapisany: edytowany tekst zawiera znaki, których nie ma żadna dostępna czcionka: {{chars}}. Zmień ten tekst i zapisz ponownie.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Przejdź do strony",
     "openExternalFile": "Otwórz: {{filename}}",
     "destination": "Miejsce docelowe: {{name}}",
-    "internalLink": "Łącze wewnętrzne"
+    "internalLink": "Łącze wewnętrzne",
+    "attachmentOnPage": "Strona {{page}}",
+    "attachmentCreated": "Utworzono: {{date}}",
+    "attachmentModified": "Zmodyfikowano: {{date}}",
+    "openAttachmentRiskTitle": "Otwórz załącznik",
+    "openAttachmentRiskMessage": "„{{name}}” może uruchamiać programy na tym komputerze. Otwieraj go tylko, jeśli ufasz źródłu. Otworzyć mimo to?"
   },
   "failedToInsertPagesFromFile": "Nie udało się wstawić stron z pliku: {{error}}",
   "previewPdfRefused": "Ten PDF jest podglądem z importu rysunku i może być niekompletny. Nie można go wstawić ani zapisać; zaimportuj rysunek ponownie.",
@@ -245,10 +354,15 @@
     "detachFailed": "Nie udało się odłączyć okna: {{error}}",
     "dragFileGone": "Ten plik nie istnieje już na dysku — nie można przenieść karty.",
     "dragNotStarted": "Nie udało się przeciągnąć karty do innego okna. Spróbuj ponownie lub użyj prawego przycisku myszy → otwórz w nowym oknie.",
+    "openInSplitView": "Otwórz w widoku podzielonym",
     "openInNewWindow": "Otwórz w nowym oknie",
     "closeTab": "Zamknij kartę",
     "nextTab": "Następna karta",
     "previousTab": "Poprzednia karta"
+  },
+  "pageNav": {
+    "nextPage": "Następna strona",
+    "previousPage": "Poprzednia strona"
   },
   "quickAccess": {
     "exportRaster": "Eksportuj jako rastrowy PDF (otwiera się w nowej karcie)"
@@ -290,5 +404,50 @@
     "readFailed": "Nie można odczytać modelu 3D.",
     "partial": "Nie można odczytać niektórych części modelu 3D (pominięto: {{n}}).",
     "viewerFailed": "Nie można uruchomić widoku 3D."
+  },
+  "readAloud": {
+    "title": "Czytaj na głos",
+    "play": "Czytaj",
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "stop": "Zatrzymaj",
+    "close": "Zamknij",
+    "voice": "Głos",
+    "defaultVoice": "Głos domyślny",
+    "rate": "Szybkość",
+    "loading": "Przygotowywanie...",
+    "reading": "Czytanie",
+    "paused": "Wstrzymano",
+    "page": "strona {{page}}",
+    "tagOrder": "kolejność znaczników",
+    "contentOrder": "kolejność stron",
+    "noEngine": "W tym systemie nie ma dostępnego syntezatora mowy.",
+    "noEngineLinux": "Nie znaleziono syntezatora mowy. Zainstaluj speech-dispatcher (spd-say) lub espeak-ng i spróbuj ponownie.",
+    "speechFailed": "Czytanie zostało przerwane z powodu błędu.",
+    "nothingToRead": "Brak tekstu do przeczytania.",
+    "online": "(online)",
+    "allowOnline": "Głosy online",
+    "allowOnlineHint": "Oferuj także głosy online. Przy głosie online czytany tekst jest wysyłany do internetowej usługi mowy.",
+    "onlyOnlineVoices": "Dostępne są tylko głosy online. Włącz Głosy online, aby użyć jednego z nich; czytany tekst zostanie wtedy wysłany do internetowej usługi mowy.",
+    "noLocalVoice": "Dla tego języka nie zainstalowano lokalnego głosu; używany jest domyślny głos lokalny."
+  },
+  "moveInference": {
+    "onAxisX": "Na osi X",
+    "onAxisY": "Na osi Y",
+    "fromPoint": "Od punktu",
+    "extension": "Na przedłużeniu",
+    "parallel": "Równolegle",
+    "perpendicular": "Prostopadle",
+    "intersection": "Przecięcie",
+    "polar": "Biegunowe",
+    "locked": "Zablokowane"
+  },
+  "portable": {
+    "updateTitle": "Dostępna aktualizacja",
+    "updateAvailable": "Dostępna jest wersja {{version}}.\n\nTa przenośna kopia nie aktualizuje się sama. Pobierz {{file}} i rozpakuj go do tego folderu; folder data z Twoimi ustawieniami zostanie zachowany.\n\nOtworzyć stronę pobierania?",
+    "fileAssoc": "Ta przenośna kopia nie jest zarejestrowana w systemie Windows. Aby otwierać nią pliki PDF, kliknij plik PDF prawym przyciskiem myszy, wybierz Otwórz za pomocą > Wybierz inną aplikację i wskaż open-pdf-studio.exe w tym folderze.",
+    "explorerThumbnails": "Miniatury PDF w Eksploratorze plików są dostępne tylko w wersji zainstalowanej.",
+    "virtualPrinter": "Drukarka wirtualna jest dostępna tylko w wersji zainstalowanej: jest dodawana do systemu Windows z uprawnieniami administratora.",
+    "notWritable": "Open PDF Studio nie może zapisywać w folderze {{dir}}, więc tym razem ustawienia są zapisywane w Twoim profilu użytkownika. Przenieś folder przenośny w miejsce z prawem zapisu, na przykład na pendrive lub do folderu Dokumenty."
   }
 }

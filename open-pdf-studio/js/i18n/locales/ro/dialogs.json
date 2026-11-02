@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format mare",
+      "detailblad": "Foaie de detalii",
+      "voorblad": "Foaie de copertă"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portret",
+      "landscape": "peisaj"
+    },
     "title": "Document nou",
     "paperSize": "Dimensiune hartie:",
     "widthMm": "Latime (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Tipărire chenar pagină",
     "perSheetNote": "Fiecare pagină este scalată pentru a încăpea în celula sa, deci scalarea paginii de mai sus nu se aplică.",
     "poster": "Afiș (plăci)",
+    "posterOverview": "Prezentare generală a posterului",
+    "posterOverlapLegend": "Zonele umbrite se repetă pe foile alăturate",
     "posterScale": "Scara plăcilor",
     "posterOverlap": "Suprapunere",
     "posterCutMarks": "Semne de tăiere",
     "posterLabels": "Etichete (fișier, pagină, placă)",
     "posterOnlyLarge": "Împarte doar paginile mari",
+    "posterEdgeCrop": "Decupează puțin marginile exterioare",
+    "posterEdgeCropHint": "Până la {{max}} mm pe fiecare margine exterioară, doar pentru această imprimare. Dezactivat: păstrează tot conținutul.",
     "posterTileInfo": "Pagina {{page}}: placa {{row}},{{col}} (rând, coloană) din {{rows}} × {{cols}}",
     "posterNotTiled": "Pagina {{page}} încape pe o foaie și nu este împărțită.",
     "posterAssumedPaper": "Dimensiune de hârtie necunoscută: plăcile sunt așezate pe {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Document si marcaje",
     "document": "Document",
     "printAsImage": "Tiparire ca imagine",
+    "colorMode": "Mod culoare:",
+    "colorModeColor": "Culoare",
+    "colorModeGrayscale": "Tonuri de gri",
+    "colorModeBlackWhite": "Alb-negru",
     "pagesToPrint": "pagini de tiparit",
     "noPrinterSelected": "Nicio imprimanta selectata.",
     "noPagesToPrint": "Nicio pagina de tiparit.",
@@ -346,7 +364,13 @@
     "chooseImage": "Alegere imagine...",
     "scale": "Scara:",
     "selectImageFirst": "Selectati mai intai o imagine.",
-    "defaultText": "CIORNA"
+    "defaultText": "CIORNA",
+    "autoFit": "Potrivire automată la pagină",
+    "autoFitHint": "Potrivește textul pe fiecare pagină. Dimensiunea afișată este pentru pagina curentă.",
+    "increaseFontSize": "Mărește dimensiunea fontului",
+    "decreaseFontSize": "Micșorează dimensiunea fontului",
+    "textHistory": "Texte folosite anterior",
+    "removeFromHistory": "Elimină din istoric"
   },
   "headerFooter": {
     "addTitle": "Adaugare antet/subsol",
@@ -430,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Imbricare sub un marcaj nou",
     "deleteTitle": "Ștergere marcaje",
-    "deleteConfirm": "Ștergeți {{count}} marcaje selectate și tot ce se află sub ele?"
+    "deleteConfirm": "Ștergeți {{count}} marcaje selectate și tot ce se află sub ele?",
+    "replaceAll": "Înlocuiește toate marcajele"
   },
   "formValidation": {
     "title": "Eroare de validare"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Salvare ca raport IFC",
     "failed": "Salvarea raportului IFC a eșuat: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportă în IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) este încă în dezvoltare. Verificați rezultatul înainte de a vă baza pe el.",
+    "pages": "Pagini:",
+    "allPages": "Toate paginile",
+    "currentPage": "Pagina curentă",
+    "customPages": "Interval de pagini",
+    "rangePlaceholder": "ex. 1-3, 5",
+    "includeRaster": "Include imaginile",
+    "includeText": "Include textul",
+    "includeAnnotations": "Adnotări pe un strat separat",
+    "export": "Exportă",
+    "progress": "Se exportă pagina {{done}} din {{total}}…",
+    "done": "Scris: {{file}} ({{sheets}} planșe, {{paths}} trasee, {{texts}} texte, {{images}} imagini, {{annotations}} adnotări).",
+    "capPaths": "Pagina {{page}}: {{kept}} din {{total}} trasee exportate; restul depășește limita.",
+    "capTexts": "Pagina {{page}}: {{kept}} din {{total}} rânduri de text exportate; restul depășește limita.",
+    "capImages": "Pagina {{page}}: {{kept}} din {{total}} imagini exportate; restul depășește limita.",
+    "imagesOmitted": "Imagini fără date de pixeli (neacceptate sau prea mari): {{count}}. Poziția lor se păstrează.",
+    "sizeLimit": "Pagina {{page}} și paginile următoare nu au fost exportate: fișierul a atins limita de dimensiune.",
+    "noPages": "Nicio pagină selectată.",
+    "noBytes": "Datele PDF ale acestui document nu sunt disponibile. Salvați documentul și încercați din nou.",
+    "failed": "Exportul IFCX a eșuat: {{error}}",
+    "unsavedNote": "Modificările nesalvate ale conținutului paginilor nu sunt incluse; adnotările da."
   },
   "styleType": {
     "lineTypes": "Tipuri de linii",
@@ -1598,6 +1647,57 @@
       "cancel": "Anulat",
       "supersede": "Înlocuit",
       "expire": "Expirat"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Editare pagini",
+    "hint": "Trageți paginile pentru a le muta; plasați un fișier PDF pentru a-i insera paginile. Ctrl+clic, Shift+clic sau casetele de selectare aleg mai multe pagini. Nimic nu se schimbă până la Aplicare.",
+    "moveLeft": "Mută la stânga",
+    "moveRight": "Mută la dreapta",
+    "moveToStart": "Mută la început",
+    "moveToEnd": "Mută la sfârșit",
+    "selection": "{{selected}} din {{total}} pagini selectate",
+    "rotateLeft": "Rotire la stanga",
+    "rotateRight": "Rotire la dreapta",
+    "split": "Împărțire",
+    "splitTitle": "Plasați marcaje de împărțire în jurul paginilor selectate: fiecare serie devine un fișier separat",
+    "splitHere": "Împărțire aici (plasați sau eliminați un marcaj)",
+    "extractTitle": "Extrageți paginile selectate într-un fișier nou",
+    "blankPage": "Pagină goală",
+    "pagesFromFile": "Pagini din fișier…",
+    "insertHere": "Inserare pagini aici",
+    "select": "Selectare pagină",
+    "zoom": "Zoom",
+    "parts": "Împărțit în {{count}} fișiere la aplicare",
+    "chooseFolder": "Alegeți dosarul pentru fișierele împărțite",
+    "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
+    "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
+    "extractFailed": "Extragerea paginilor a eșuat: {{error}}",
+    "blankSetup": "Configurare pagină goală",
+    "sameAsAdjacent": "La fel ca pagina alăturată",
+    "width": "Latime:",
+    "height": "Inaltime:",
+    "unit": "Unitate:"
+  },
+  "accessibilityReport": {
+    "title": "Verificare accesibilitate",
+    "starting": "Se verifică...",
+    "checking": "Se verifică pagina {{done}} din {{total}}...",
+    "noIssues": "Nu s-au găsit probleme.",
+    "summary": "S-au găsit {{count}} probleme. Faceți dublu clic pe un element pentru a merge la pagina lui.",
+    "failed": "Verificarea nu a putut fi efectuată pentru acest document.",
+    "recheck": "Verifică din nou",
+    "close": "Închide",
+    "goTo": "Dublu clic pentru a merge la pagină",
+    "page": "Pagina {{page}}",
+    "kind": {
+      "notTagged": "Documentul nu are etichete: nu există un arbore de structură, deci tehnologiile de asistare nu pot urmări ordinea de citire.",
+      "notMarked": "Documentul nu este marcat ca etichetat (/MarkInfo /Marked).",
+      "noLanguage": "Limba documentului nu este setată.",
+      "figureNoAlt": "{{role}} fără text alternativ",
+      "pageNotTagged": "Niciun conținut etichetat pe această pagină ({{count}} elemente de text)",
+      "untaggedContent": "{{count}} element(e) de text în afara etichetelor",
+      "annotationNoText": "Adnotare ({{type}}) fără descriere"
     }
   }
 }

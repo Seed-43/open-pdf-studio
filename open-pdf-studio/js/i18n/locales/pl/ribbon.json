@@ -169,7 +169,9 @@
     "flattenAll": "Spłaszcz wszystko",
     "flattenAllTooltip": "Spłaszcz wszystkie adnotacje do zawartości strony",
     "unflattenAll": "Cofnij spłaszczenie",
-    "unflattenAllTooltip": "Przywróć adnotacje spłaszczone z dozwolonym przywracaniem"
+    "unflattenAllTooltip": "Przywróć adnotacje spłaszczone z dozwolonym przywracaniem",
+    "fileAttachment": "Dołącz plik",
+    "fileAttachmentTitle": "Załącznik pliku: kliknij stronę i wybierz plik"
   },
   "view": {
     "pageDisplay": "Wyświetlanie strony",
@@ -198,6 +200,7 @@
     "thinLines": "Cienkie linie",
     "compareGroup": "Porównaj",
     "fullscreen": "Pełny ekran",
+    "fullscreenUnavailable": "Pełny ekran nie jest tu dostępny: przeglądarka lub strona wyświetlająca aplikację odrzuciła żądanie. Zamiast tego użyj opcji pełnego ekranu w menu przeglądarki.",
     "window": "Okno",
     "display": "Wyświetlanie",
     "keystrokes": "Naciśnięcia klawiszy",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Obróć widok w lewo",
     "rotateViewRight": "Obróć widok w prawo",
     "rotateViewLeftTitle": "Obraca widok o 90° przeciwnie do ruchu wskazówek zegara. Sam dokument się nie zmienia.",
-    "rotateViewRightTitle": "Obraca widok o 90° zgodnie z ruchem wskazówek zegara. Sam dokument się nie zmienia."
+    "rotateViewRightTitle": "Obraca widok o 90° zgodnie z ruchem wskazówek zegara. Sam dokument się nie zmienia.",
+    "splitGroup": "Podziel",
+    "split": "Podziel",
+    "splitTitle": "Podziel widok na dwa panele z tym samym dokumentem",
+    "splitOptions": "Opcje podziału",
+    "splitVertical": "Podziel w pionie",
+    "splitHorizontal": "Podziel w poziomie",
+    "unsplit": "Usuń podział",
+    "splitSync": "Synchronizuj",
+    "splitSyncTitle": "Przewijaj i powiększaj oba panele razem",
+    "splitDividerTitle": "Przeciągnij, aby zmienić rozmiar paneli. Kliknij dwukrotnie, aby wrócić do 50/50.",
+    "accessibilityGroup": "Dostępność",
+    "readAloud": "Czytaj na głos",
+    "readAloudPause": "Wstrzymaj",
+    "readAloudTitle": "Czytaj na głos zaznaczenie lub dokument od bieżącej strony",
+    "tagsPanel": "Znaczniki",
+    "tagsPanelTitle": "Pokaż znaczniki struktury dokumentu",
+    "accessibilityCheck": "Sprawdź",
+    "accessibilityCheckTitle": "Szukaj brakującego tekstu alternatywnego i treści bez znaczników"
   },
   "elementVisibility": {
     "buttonTitle": "Widoczność elementów — pokaż/ukryj i przyciemnij typy adnotacji",
@@ -328,7 +349,9 @@
     "scanText": "Edytuj zeskanowany tekst",
     "scanTextHint": "Kliknij rozpoznane słowo, aby je zastąpić. Stare słowo na skanie zostanie zakryte.",
     "scanTextNone": "Brak rozpoznanego tekstu na tej stronie. Najpierw uruchom Rozpoznawanie tekstu (OCR).",
-    "shiftPage": "Przesuń stronę"
+    "shiftPage": "Przesuń stronę",
+    "editPages": "Edytuj strony",
+    "editPagesTitle": "Edytuj strony wizualnie: zmieniaj kolejność, obracaj, wstawiaj, usuwaj, wyodrębniaj i dziel"
   },
   "help": {
     "settings": "Ustawienia",
@@ -348,6 +371,7 @@
     "updates": "Aktualizacje",
     "checkForUpdates": "Sprawdź aktualizacje",
     "updatesLabel": "Aktualizacje",
+    "updatesManaged": "Aktualizacje tej instalacji są zarządzane centralnie.",
     "startupDiagnosticsTitle": "Pokaż plik diagnostyki uruchamiania (bez danych prywatnych)",
     "startupDiagnostics": "Diagnostyka",
     "fileAssociation": "Skojarzenie plików",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Wklej tutaj wycięty obszar, zachowując dane wektorowe",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Rozmiar, w jakim umieszczany jest nowy symbol",
-    "symbolScaleCustom": "Skala niestandardowa"
+    "symbolScaleCustom": "Skala niestandardowa",
+    "count": "Liczenie",
+    "arc": "Łuk"
   },
   "proofread": {
     "group": "Korekta",
@@ -678,6 +704,7 @@
     "saveNote": "Notatki i inne adnotacje bez wyglądu na stronie pozostają adnotacjami. Plik zmienia się dopiero po zapisaniu; do tego czasu Cofnij odwraca ten krok.",
     "ok": "Spłaszcz",
     "busy": "Spłaszczanie adnotacji...",
+    "cancelled": "Spłaszczanie anulowane. Dokument nie został zmieniony.",
     "nothing": "Ten dokument nie zawiera adnotacji do spłaszczenia.",
     "nothingBaked": "Żadna z adnotacji nie ma wyglądu na stronie, więc nic nie zostało spłaszczone.",
     "notLoaded": "Adnotacje tego dokumentu wciąż się wczytują. Spróbuj ponownie za chwilę.",
@@ -691,5 +718,60 @@
     "noRecovery": "Adnotacje w tym dokumencie zostały spłaszczone bez zezwolenia na przywrócenie. Są częścią zawartości strony i nie można ich przywrócić.",
     "done": "Przywrócone adnotacje: {{count}}.",
     "failed": "Przywracanie nie powiodło się: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Małe ikony",
+    "largeIcons": "Duże ikony",
+    "settings": "Ustawienia"
+  },
+  "symbolPalette": {
+    "search": "Szukaj symboli...",
+    "noResults": "Nie znaleziono symboli",
+    "drawingSettings": "Ustawienia rysunku",
+    "manageSystemTypes": "Zarządzaj typami systemów",
+    "settingsTitle": "Ustawienia biblioteki symboli",
+    "industry": "Branża",
+    "country": "Kraj",
+    "libraryLoading": "Wczytywanie biblioteki online…",
+    "libraryOffline": "Biblioteka online niedostępna — ograniczona lista krajów",
+    "downloading": "Pobieranie {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Kolekcje dostępne online: {{n}} (symbole: {{symbols}})",
+    "activateDownloaded": "Pobrane kolekcje do aktywacji dla tego kraju: {{n}}",
+    "download": "Pobierz",
+    "downloadFailed": "Pobieranie nie powiodło się: {{error}}",
+    "builtIn": "Wbudowana",
+    "online": "Online",
+    "addSymbol": "+ Dodaj symbol",
+    "export": "Eksportuj",
+    "remove": "Usuń",
+    "noSymbolsYet": "Brak symboli",
+    "newGroupName": "Nazwa nowej grupy...",
+    "addGroup": "Dodaj grupę",
+    "importGroup": "Importuj grupę",
+    "catalogLoaded": "Wczytano katalog '{{id}}': rodziny: {{families}}, rozmiary: {{sizes}}",
+    "catalogNoPreview": "Bez podglądu w pliku: {{n}}",
+    "fileNotRecognized": "Nie rozpoznano pliku: nie jest to ani grupa symboli, ani katalog",
+    "importFailed": "Import nie powiódł się: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Budownictwo",
+      "nl-elektra": "NL Elektryka",
+      "nl-bouwplaats": "NL Plac budowy",
+      "nl-sanitair": "NL Instalacje sanitarne",
+      "nl-keuken": "NL Kuchnia",
+      "nen1414-tb": "NL NEN 1414 — Ochrona przeciwpożarowa",
+      "nen1414-tbk": "NL NEN 1414 — Systemy gaśnicze",
+      "nen1414-td": "NL NEN 1414 — Drzwi",
+      "nen1414-tn": "NL NEN 1414 — Oświetlenie awaryjne",
+      "nen1414-tr": "NL NEN 1414 — Oddymianie",
+      "nen1414-tv": "NL NEN 1414 — Wentylacja",
+      "nen1414-tw": "NL NEN 1414 — Woda/Tryskacze"
+    },
+    "sectors": {
+      "aec": "AEC (Budownictwo)",
+      "electrical": "Elektrotechnika",
+      "process": "Procesy / P&ID",
+      "mep": "Instalacje budowlane (MEP)",
+      "infra": "Infrastruktura"
+    }
   }
 }

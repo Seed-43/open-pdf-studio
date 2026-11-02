@@ -9,7 +9,8 @@
     "behavior": "Beteende",
     "fileAssociation": "Filassociation",
     "virtualPrinter": "Virtuell skrivare",
-    "pageDisplay": "Sidvisning"
+    "pageDisplay": "Sidvisning",
+    "keyboardShortcuts": "Kortkommandon"
   },
   "resetToDefaults": "Återställ till standard",
   "resetConfirm": "Återställ alla inställningar till standardvärden?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Av",
-    "aiLinkError": "Inte startad: {{fout}}"
+    "aiLinkError": "Inte startad: {{fout}}",
+    "interfaceScale": "Gränssnittsstorlek"
   },
   "annotations": {
     "generalDefaults": "Allmänna standardvärden",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Öppen pil (omvänd)",
     "headClosedReversed": "Stängd pil (omvänd)",
     "headSlash": "Snedstreck",
-    "polylineDefaults": "Standardvärden för polylinje"
+    "polylineDefaults": "Standardvärden för polylinje",
+    "smoothing": "Utjämning",
+    "pressure": "Penntryck",
+    "pressureHint": "Penntrycket ändrar linjebredden (musdrag behåller en fast bredd)",
+    "pressureMinWidth": "Minsta bredd (%)",
+    "penOnly": "Endast penna (ignorera beröring)",
+    "penOnlyHint": "Beröring ritar inte med frihandsverktyget; användbart mot handflatan när du skriver med penna"
   },
   "shapes": {
     "rectangleDefaults": "Standardvärden för rektangel",
@@ -165,8 +173,15 @@
     "deletion": "Borttagning",
     "confirmBeforeDeleting": "Bekräfta innan anteckningar raderas",
     "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll",
+    "moveInference": "Hjälplinjer vid flytt (G / mv)",
+    "moveInferenceTracking": "Spårningslinjer (justera mot punkter i annan geometri)",
+    "moveInferenceExtension": "Förlängningar av linjer och väggytor",
+    "moveInferenceParallel": "Parallell / vinkelrät mot närliggande linjer",
+    "moveInferenceHint": "Håll pekaren kort över en punkt för att fånga den, håll ned Shift för att låsa en hjälplinje, Tab växlar mellan avstånd och vinkel. Polära hjälplinjer följer inställningarna för polärspårning.",
     "navigation": "Navigering",
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
+    "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
+    "ribbonWheelSwitchesTabs": "Byt flik i menyfliksområdet med mushjulet",
     "dynamicScaling": "Skala markeringar automatiskt"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "För att ange Open PDF Studio som standard-PDF-visare på macOS:\n\n1. Högerklicka på valfri PDF-fil i Finder\n2. Välj \"Visa info\"\n3. Under \"Öppna med\", välj Open PDF Studio\n4. Klicka på \"Ändra alla...\"",
     "linuxInstructions": "För att ange Open PDF Studio som standard-PDF-visare på Linux:\n\nKör i terminalen:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Kontrollera Finder > Visa info",
-    "notSet": "Inte angiven"
+    "notSet": "Inte angiven",
+    "chosenInSystemSettings": "Valt i systeminställningarna",
+    "sandboxInstructions": "Open PDF Studio körs som ett {{package}}-paket och kan inte själv ändra standardappen för PDF.\n\nVälj Open PDF Studio i systeminställningarna under Standardprogram, eller högerklicka på en PDF-fil och använd Öppna med.",
+    "xdgMimeMissing": "xdg-mime (paketet xdg-utils) är inte installerat, så standardappen för PDF kan inte anges härifrån.\n\nInstallera xdg-utils, eller välj Open PDF Studio i systeminställningarna under Standardprogram.",
+    "linuxDone": "Open PDF Studio är nu standardappen för PDF-filer.",
+    "linuxFailed": "Det gick inte att ange Open PDF Studio som standardapp för PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Utforskaren",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Stark",
     "pageSharpenLevel4": "Maximal",
     "showScrollbars": "Visa rullningslister på ritytan",
+    "backgroundColor": "Bakgrundsfärg",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Färgen på ytan runt och mellan sidorna. Själva sidan, utskrift och export ändras inte.",
     "panels": "Paneler",
     "showPropertiesPanel": "Visa egenskapspanelen som standard",
     "showToolPalette": "Visa verktygspaletten som standard",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Öppen pil (omvänd)",
     "closedArrowReversed": "Stängd pil (omvänd)",
     "slash": "Snedstreck"
+  },
+  "keyboardShortcuts": {
+    "title": "Kortkommandon",
+    "search": "Sök efter kommando eller tangent",
+    "command": "Kommando",
+    "shortcuts": "Kortkommandon",
+    "none": "Inga",
+    "noMatches": "Inga kommandon matchar sökningen.",
+    "selectHint": "Välj ett kommando för att ändra dess kortkommandon.",
+    "addShortcut": "Lägg till kortkommando",
+    "remove": "Ta bort kortkommando",
+    "resetCommand": "Återställ standard",
+    "resetAll": "Återställ alla",
+    "resetAllConfirm": "Återställa alla kortkommandon till standard?",
+    "loadPreset": "Läs in förinställning…",
+    "replaceConfirm": "Detta ersätter dina egna kortkommandon. Vill du fortsätta?",
+    "presets": {
+      "markupStyle": "Kortkommandon i markeringsstil"
+    },
+    "import": "Importera…",
+    "export": "Exportera…",
+    "fileType": "Kortkommandon",
+    "imported": "Kortkommandon importerade. Klicka på Spara för att använda dem.",
+    "importFailed": "Detta är ingen giltig fil med kortkommandon.",
+    "exported": "Kortkommandon exporterade.",
+    "exportFailed": "Det gick inte att exportera kortkommandona:",
+    "recording": "Tryck på den nya tangentkombinationen… (Esc avbryter)",
+    "conflict": "{{keys}} används redan av ”{{command}}”.",
+    "reassign": "Tilldela om",
+    "reserved": "{{keys}} har en fast betydelse och kan inte tilldelas.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Anpassa…",
+    "fixedGroup": "Fasta tangenter",
+    "applyHint": "Ändringarna gäller när du klickar på Spara.",
+    "categories": {
+      "file": "Arkiv",
+      "edit": "Redigera",
+      "view": "Visa",
+      "search": "Sök",
+      "tools": "Verktyg",
+      "drafting": "Rithjälpmedel",
+      "panels": "Paneler",
+      "review": "Granska",
+      "help": "Hjälp",
+      "extensions": "Tillägg",
+      "ribbon": "Menyfliksområde: {{tab}}",
+      "other": "Övrigt"
+    },
+    "commands": {
+      "findNext": "Sök nästa",
+      "splitPaneLarger": "Gör aktiv ruta större",
+      "splitPaneSmaller": "Gör aktiv ruta mindre"
+    }
   }
 }

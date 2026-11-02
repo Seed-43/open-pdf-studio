@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "פורמט גדול",
+      "detailblad": "גיליון פרטים",
+      "voorblad": "גיליון שער"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "לאורך",
+      "landscape": "לרוחב"
+    },
     "title": "מסמך חדש",
     "paperSize": "גודל נייר:",
     "widthMm": "רוחב (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "הדפסת גבול עמוד",
     "perSheetNote": "כל עמוד מותאם לגודל התא שלו, ולכן שינוי קנה המידה של העמוד שלמעלה אינו חל.",
     "poster": "פוסטר (אריחים)",
+    "posterOverview": "תצוגה כללית של הכרזה",
+    "posterOverlapLegend": "האזורים המוצללים חוזרים בגיליונות הסמוכים",
     "posterScale": "קנה מידה של האריחים",
     "posterOverlap": "חפיפה",
     "posterCutMarks": "סימני חיתוך",
     "posterLabels": "תוויות (קובץ, עמוד, אריח)",
     "posterOnlyLarge": "לחלק לאריחים רק עמודים גדולים",
+    "posterEdgeCrop": "חיתוך קל של השוליים החיצוניים",
+    "posterEdgeCropHint": "עד {{max}} מ״מ בכל קצה חיצוני, להדפסה זו בלבד. כבוי: שמירת כל התוכן.",
     "posterTileInfo": "עמוד {{page}}: אריח {{row}},{{col}} (שורה, עמודה) מתוך {{rows}} × {{cols}}",
     "posterNotTiled": "עמוד {{page}} נכנס בגיליון אחד ואינו מחולק.",
     "posterAssumedPaper": "גודל הנייר אינו ידוע: האריחים נפרסים על {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "מסמך וסימונים",
     "document": "מסמך",
     "printAsImage": "הדפסה כתמונה",
+    "colorMode": "מצב צבע:",
+    "colorModeColor": "צבעוני",
+    "colorModeGrayscale": "גווני אפור",
+    "colorModeBlackWhite": "שחור-לבן",
     "pagesToPrint": "עמודים להדפסה",
     "noPrinterSelected": "לא נבחרה מדפסת.",
     "noPagesToPrint": "אין עמודים להדפסה.",
@@ -346,7 +364,13 @@
     "chooseImage": "בחירת תמונה...",
     "scale": "קנה מידה:",
     "selectImageFirst": "אנא בחר תמונה תחילה.",
-    "defaultText": "טיוטה"
+    "defaultText": "טיוטה",
+    "autoFit": "התאמה אוטומטית לעמוד",
+    "autoFitHint": "מתאים את הטקסט לכל עמוד. הגודל המוצג הוא של העמוד הנוכחי.",
+    "increaseFontSize": "הגדלת גודל הגופן",
+    "decreaseFontSize": "הקטנת גודל הגופן",
+    "textHistory": "טקסטים שהיו בשימוש בעבר",
+    "removeFromHistory": "הסרה מההיסטוריה"
   },
   "headerFooter": {
     "addTitle": "הוספת כותרת עליונה/תחתונה",
@@ -430,7 +454,8 @@
     "styleLabel": "סגנון:",
     "nestTitle": "קינון תחת סימנייה חדשה",
     "deleteTitle": "מחיקת סימניות",
-    "deleteConfirm": "למחוק {{count}} סימניות נבחרות וכל מה שמתחתיהן?"
+    "deleteConfirm": "למחוק {{count}} סימניות נבחרות וכל מה שמתחתיהן?",
+    "replaceAll": "החלפת כל הסימניות"
   },
   "formValidation": {
     "title": "שגיאת אימות"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "שמירה כדוח IFC",
     "failed": "שמירת דוח ה-IFC נכשלה: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "ייצוא ל-IFCX (בטא)",
+    "betaNote": "בטא: IFCX (IFC5) עדיין בפיתוח. בדקו את התוצאה לפני שתסתמכו עליה.",
+    "pages": "עמודים:",
+    "allPages": "כל העמודים",
+    "currentPage": "העמוד הנוכחי",
+    "customPages": "טווח עמודים",
+    "rangePlaceholder": "לדוגמה 1-3, 5",
+    "includeRaster": "כלול תמונות",
+    "includeText": "כלול טקסט",
+    "includeAnnotations": "הערות בשכבה נפרדת",
+    "export": "ייצוא",
+    "progress": "מייצא עמוד {{done}} מתוך {{total}}…",
+    "done": "נכתב: {{file}} (גיליונות: {{sheets}}, נתיבים: {{paths}}, טקסטים: {{texts}}, תמונות: {{images}}, הערות: {{annotations}}).",
+    "capPaths": "עמוד {{page}}: יוצאו {{kept}} מתוך {{total}} נתיבים; השאר חורג מהמגבלה.",
+    "capTexts": "עמוד {{page}}: יוצאו {{kept}} מתוך {{total}} שורות טקסט; השאר חורג מהמגבלה.",
+    "capImages": "עמוד {{page}}: יוצאו {{kept}} מתוך {{total}} תמונות; השאר חורג מהמגבלה.",
+    "imagesOmitted": "תמונות ללא נתוני פיקסלים (לא נתמכות או גדולות מדי): {{count}}. המיקום שלהן נשמר.",
+    "sizeLimit": "עמוד {{page}} והעמודים שאחריו לא יוצאו: הקובץ הגיע למגבלת הגודל.",
+    "noPages": "לא נבחרו עמודים.",
+    "noBytes": "נתוני ה-PDF של מסמך זה אינם זמינים. שמרו את המסמך ונסו שוב.",
+    "failed": "ייצוא IFCX נכשל: {{error}}",
+    "unsavedNote": "שינויים שלא נשמרו בתוכן העמודים אינם נכללים; ההערות נכללות."
   },
   "styleType": {
     "lineTypes": "סוגי קווים",
@@ -1598,6 +1647,57 @@
       "cancel": "בוטל",
       "supersede": "הוחלף",
       "expire": "פג תוקף"
+    }
+  },
+  "pageOrganizer": {
+    "title": "עריכת עמודים",
+    "hint": "גררו עמודים כדי להזיז אותם; שחררו קובץ PDF כדי להוסיף את עמודיו. Ctrl+לחיצה, Shift+לחיצה או תיבות הסימון בוחרים כמה עמודים. דבר לא משתנה עד החלה.",
+    "moveLeft": "הזז שמאלה",
+    "moveRight": "הזז ימינה",
+    "moveToStart": "הזז להתחלה",
+    "moveToEnd": "הזז לסוף",
+    "selection": "נבחרו {{selected}} מתוך {{total}} עמודים",
+    "rotateLeft": "סיבוב שמאלה",
+    "rotateRight": "סיבוב ימינה",
+    "split": "פיצול",
+    "splitTitle": "הצבת סימני פיצול סביב העמודים שנבחרו: כל רצף הופך לקובץ נפרד",
+    "splitHere": "פיצול כאן (הצבה או הסרה של סימן פיצול)",
+    "extractTitle": "חילוץ העמודים שנבחרו לקובץ חדש",
+    "blankPage": "עמוד ריק",
+    "pagesFromFile": "עמודים מקובץ…",
+    "insertHere": "הוספת עמודים כאן",
+    "select": "בחירת עמוד",
+    "zoom": "זום",
+    "parts": "פיצול ל־{{count}} קבצים בעת ההחלה",
+    "chooseFolder": "בחרו את התיקייה לקבצים המפוצלים",
+    "fileFailed": "לא ניתן לקרוא את {{name}}: {{error}}",
+    "applyFailed": "החלת עריכות העמודים נכשלה: {{error}}",
+    "extractFailed": "חילוץ העמודים נכשל: {{error}}",
+    "blankSetup": "הגדרת עמוד ריק",
+    "sameAsAdjacent": "כמו העמוד הסמוך",
+    "width": "רוחב:",
+    "height": "גובה:",
+    "unit": "יחידה:"
+  },
+  "accessibilityReport": {
+    "title": "בדיקת נגישות",
+    "starting": "בודק...",
+    "checking": "בודק עמוד {{done}} מתוך {{total}}...",
+    "noIssues": "לא נמצאו בעיות.",
+    "summary": "נמצאו {{count}} בעיות. לחצו פעמיים על פריט כדי לעבור לעמוד שלו.",
+    "failed": "לא ניתן היה להריץ את הבדיקה על מסמך זה.",
+    "recheck": "בדיקה חוזרת",
+    "close": "סגירה",
+    "goTo": "לחצו פעמיים כדי לעבור לעמוד",
+    "page": "עמוד {{page}}",
+    "kind": {
+      "notTagged": "למסמך אין תגים: אין עץ מבנה, ולכן טכנולוגיות מסייעות אינן יכולות לעקוב אחר סדר הקריאה.",
+      "notMarked": "המסמך אינו מסומן כמתויג (/MarkInfo /Marked).",
+      "noLanguage": "שפת המסמך לא הוגדרה.",
+      "figureNoAlt": "{{role}} ללא טקסט חלופי",
+      "pageNotTagged": "אין תוכן מתויג בעמוד זה ({{count}} פריטי טקסט)",
+      "untaggedContent": "{{count}} פריטי טקסט מחוץ לתגים",
+      "annotationNoText": "הערה ({{type}}) ללא תיאור"
     }
   }
 }

@@ -570,7 +570,7 @@ function applyUndo(cmd, lookup) {
     }
     case 'modifyWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
-      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.oldState);
+      if (idx !== -1) zetWatermerkStaat(doc.watermarks[idx], cmd.oldState);
       break;
     }
     case 'addBookmark': {
@@ -714,7 +714,7 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
-      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.newState);
+      if (idx !== -1) zetWatermerkStaat(doc.watermarks[idx], cmd.newState);
       break;
     }
     case 'addBookmark': {
@@ -760,7 +760,24 @@ async function refresh() {
 
 // ---- Helper recorders ----
 
-export function recordAdd(annotation) {
+// Called with every annotation the user adds, before it is recorded: the
+// Tool Sets feature (#311) puts the properties of its active item on it here, so
+// the undo record and redo hold the finished annotation.
+let _addAnnotationHook = null;
+export function setAddAnnotationHook(fn) {
+  _addAnnotationHook = typeof fn === 'function' ? fn : null;
+}
+
+/**
+ * Record an added annotation. `options.copy`: the annotation is an exact copy
+ * (paste, duplicate) or fully described by its caller (automation); the add
+ * hook leaves it as it is, so pasting while a tool set item is the active
+ * tool does not restyle the pasted annotation as if it were drawn with it.
+ */
+export function recordAdd(annotation, options) {
+  if (_addAnnotationHook && annotation && !options?.copy) {
+    try { _addAnnotationHook(annotation); } catch (e) { console.warn('Add-annotation hook failed:', e); }
+  }
   execute({
     type: 'addAnnotation',
     annotation: cloneAnnotation(annotation)
@@ -1005,6 +1022,13 @@ export function flushPropertyChange() {
   pendingPropertyChange = null;
   clearTimeout(propertyChangeTimer);
   updateButtons();
+}
+
+// Een watermerk krijgt precies de bewaarde stand terug: ook instellingen die
+// de wijziging toevoegde (zoals autoFit, #849) verdwijnen weer.
+function zetWatermerkStaat(wm, staat) {
+  for (const sleutel of Object.keys(wm)) if (!(sleutel in staat)) delete wm[sleutel];
+  Object.assign(wm, staat);
 }
 
 // Watermark undo/redo helpers

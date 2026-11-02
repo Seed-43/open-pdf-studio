@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Velký formát",
+      "detailblad": "List detailů",
+      "voorblad": "Titulní list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "na výšku",
+      "landscape": "na šířku"
+    },
     "title": "Nový dokument",
     "paperSize": "Velikost papíru:",
     "widthMm": "Šířka (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Tisknout okraj stránky",
     "perSheetNote": "Každá stránka se přizpůsobí své buňce, takže výše uvedené měřítko stránky se nepoužije.",
     "poster": "Plakát (dlaždice)",
+    "posterOverview": "Přehled plakátu",
+    "posterOverlapLegend": "Zvýrazněné oblasti se opakují na sousedních listech",
     "posterScale": "Měřítko dlaždic",
     "posterOverlap": "Přesah",
     "posterCutMarks": "Ořezové značky",
     "posterLabels": "Popisky (soubor, stránka, dlaždice)",
     "posterOnlyLarge": "Dělit jen velké stránky",
+    "posterEdgeCrop": "Oříznout malé vnější okraje",
+    "posterEdgeCropHint": "Až {{max}} mm na každém vnějším okraji, pouze pro tento tisk. Vypnuto: zachovat veškerý obsah.",
     "posterTileInfo": "Stránka {{page}}: dlaždice {{row}},{{col}} (řádek, sloupec) z {{rows}} × {{cols}}",
     "posterNotTiled": "Stránka {{page}} se vejde na jeden list a nedělí se.",
     "posterAssumedPaper": "Formát papíru není znám: dlaždice se rozvrhnou na {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokument a značky",
     "document": "Dokument",
     "printAsImage": "Tisknout jako obrázek",
+    "colorMode": "Barevný režim:",
+    "colorModeColor": "Barevně",
+    "colorModeGrayscale": "Odstíny šedi",
+    "colorModeBlackWhite": "Černobíle",
     "pagesToPrint": "stránek k tisku",
     "noPrinterSelected": "Není vybrána žádná tiskárna.",
     "noPagesToPrint": "Žádné stránky k tisku.",
@@ -346,7 +364,13 @@
     "chooseImage": "Vybrat obrázek...",
     "scale": "Měřítko:",
     "selectImageFirst": "Nejprve prosím vyberte obrázek.",
-    "defaultText": "NÁVRH"
+    "defaultText": "NÁVRH",
+    "autoFit": "Automaticky přizpůsobit stránce",
+    "autoFitHint": "Přizpůsobí text každé stránce. Zobrazená velikost platí pro aktuální stránku.",
+    "increaseFontSize": "Zvětšit velikost písma",
+    "decreaseFontSize": "Zmenšit velikost písma",
+    "textHistory": "Dříve použité texty",
+    "removeFromHistory": "Odebrat z historie"
   },
   "headerFooter": {
     "addTitle": "Přidat záhlaví/zápatí",
@@ -430,7 +454,8 @@
     "styleLabel": "Styl:",
     "nestTitle": "Vnořit pod novou záložku",
     "deleteTitle": "Odstranit záložky",
-    "deleteConfirm": "Odstranit vybrané záložky ({{count}}) a vše pod nimi?"
+    "deleteConfirm": "Odstranit vybrané záložky ({{count}}) a vše pod nimi?",
+    "replaceAll": "Nahradit všechny záložky"
   },
   "formValidation": {
     "title": "Chyba ověření"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Uložit jako zprávu IFC",
     "failed": "Uložení zprávy IFC se nezdařilo: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportovat do IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) je stále ve vývoji. Než se na výsledek spolehnete, zkontrolujte ho.",
+    "pages": "Stránky:",
+    "allPages": "Všechny stránky",
+    "currentPage": "Aktuální stránka",
+    "customPages": "Rozsah stránek",
+    "rangePlaceholder": "např. 1-3, 5",
+    "includeRaster": "Zahrnout obrázky",
+    "includeText": "Zahrnout text",
+    "includeAnnotations": "Poznámky v samostatné vrstvě",
+    "export": "Exportovat",
+    "progress": "Exportuje se stránka {{done}} z {{total}}…",
+    "done": "Zapsáno: {{file}} (listy: {{sheets}}, cesty: {{paths}}, texty: {{texts}}, obrázky: {{images}}, poznámky: {{annotations}}).",
+    "capPaths": "Stránka {{page}}: exportováno {{kept}} z {{total}} cest; zbytek překračuje limit.",
+    "capTexts": "Stránka {{page}}: exportováno {{kept}} z {{total}} řádků textu; zbytek překračuje limit.",
+    "capImages": "Stránka {{page}}: exportováno {{kept}} z {{total}} obrázků; zbytek překračuje limit.",
+    "imagesOmitted": "Obrázky bez obrazových dat (nepodporované nebo příliš velké): {{count}}. Jejich umístění zůstává zachováno.",
+    "sizeLimit": "Stránka {{page}} a následující stránky nebyly exportovány: soubor dosáhl limitu velikosti.",
+    "noPages": "Nejsou vybrány žádné stránky.",
+    "noBytes": "Data PDF tohoto dokumentu nejsou k dispozici. Uložte dokument a zkuste to znovu.",
+    "failed": "Export do IFCX se nezdařil: {{error}}",
+    "unsavedNote": "Neuložené změny obsahu stránek nejsou zahrnuty; poznámky ano."
   },
   "styleType": {
     "lineTypes": "Typy čar",
@@ -1598,6 +1647,57 @@
       "cancel": "Zrušeno",
       "supersede": "Nahrazeno",
       "expire": "Vypršelo"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Upravit stránky",
+    "hint": "Přetažením stránky přesunete; přetažením souboru PDF vložíte jeho stránky. Ctrl+klik, Shift+klik nebo zaškrtávací políčka vyberou více stránek. Do Použít se nic nezmění.",
+    "moveLeft": "Posunout doleva",
+    "moveRight": "Posunout doprava",
+    "moveToStart": "Přesunout na začátek",
+    "moveToEnd": "Přesunout na konec",
+    "selection": "Vybráno stránek: {{selected}} z {{total}}",
+    "rotateLeft": "Otočit doleva",
+    "rotateRight": "Otočit doprava",
+    "split": "Rozdělit",
+    "splitTitle": "Umístit značky rozdělení kolem vybraných stránek: každý úsek bude samostatný soubor",
+    "splitHere": "Rozdělit zde (umístit nebo odebrat značku rozdělení)",
+    "extractTitle": "Extrahovat vybrané stránky do nového souboru",
+    "blankPage": "Prázdná stránka",
+    "pagesFromFile": "Stránky ze souboru…",
+    "insertHere": "Vložit stránky sem",
+    "select": "Vybrat stránku",
+    "zoom": "Lupa",
+    "parts": "Při použití rozděleno do {{count}} souborů",
+    "chooseFolder": "Vyberte složku pro rozdělené soubory",
+    "fileFailed": "{{name}} nelze přečíst: {{error}}",
+    "applyFailed": "Úpravy stránek se nepodařilo použít: {{error}}",
+    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}",
+    "blankSetup": "Nastavení prázdné stránky",
+    "sameAsAdjacent": "Stejně jako sousední stránka",
+    "width": "Šířka:",
+    "height": "Výška:",
+    "unit": "Jednotka:"
+  },
+  "accessibilityReport": {
+    "title": "Kontrola přístupnosti",
+    "starting": "Probíhá kontrola...",
+    "checking": "Kontroluje se stránka {{done}} z {{total}}...",
+    "noIssues": "Nebyly nalezeny žádné problémy.",
+    "summary": "Počet nalezených problémů: {{count}}. Dvojitým kliknutím na položku přejdete na její stránku.",
+    "failed": "Kontrolu tohoto dokumentu nebylo možné provést.",
+    "recheck": "Zkontrolovat znovu",
+    "close": "Zavřít",
+    "goTo": "Dvojitým kliknutím přejdete na stránku",
+    "page": "Stránka {{page}}",
+    "kind": {
+      "notTagged": "Dokument nemá značky: chybí strom struktury, takže asistenční technologie nemohou sledovat pořadí čtení.",
+      "notMarked": "Dokument není označen jako označkovaný (/MarkInfo /Marked).",
+      "noLanguage": "Jazyk dokumentu není nastaven.",
+      "figureNoAlt": "{{role}} bez alternativního textu",
+      "pageNotTagged": "Na této stránce není žádný označkovaný obsah (textové položky: {{count}})",
+      "untaggedContent": "Textové položky mimo značky: {{count}}",
+      "annotationNoText": "Poznámka ({{type}}) bez popisu"
     }
   }
 }

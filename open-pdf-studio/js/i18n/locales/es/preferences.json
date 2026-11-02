@@ -9,7 +9,8 @@
     "behavior": "Comportamiento",
     "fileAssociation": "Asociación de archivos",
     "virtualPrinter": "Impresora virtual",
-    "pageDisplay": "Visualización de página"
+    "pageDisplay": "Visualización de página",
+    "keyboardShortcuts": "Atajos de teclado"
   },
   "resetToDefaults": "Restablecer valores predeterminados",
   "resetConfirm": "¿Restablecer todas las preferencias a los valores predeterminados?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Activa en {{adres}}",
     "aiLinkViaFlag": "Activa mediante parámetro de inicio ({{adres}})",
     "aiLinkOff": "Desactivada",
-    "aiLinkError": "No iniciada: {{fout}}"
+    "aiLinkError": "No iniciada: {{fout}}",
+    "interfaceScale": "Tamaño de la interfaz"
   },
   "annotations": {
     "generalDefaults": "Valores predeterminados generales",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Flecha abierta (invertida)",
     "headClosedReversed": "Flecha cerrada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valores predeterminados de polílínea"
+    "polylineDefaults": "Valores predeterminados de polílínea",
+    "smoothing": "Suavizado",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "pressureMinWidth": "Ancho mínimo (%)",
+    "penOnly": "Solo lápiz (ignorar toque)",
+    "penOnlyHint": "El toque no dibuja con la herramienta a mano alzada; útil contra el contacto de la palma al escribir con lápiz"
   },
   "shapes": {
     "rectangleDefaults": "Valores predeterminados de rectángulo",
@@ -161,12 +169,19 @@
     "snapToNearest": "Ajustar al más cercano",
     "objectSnapRadius": "Radio de ajuste (píxeles)",
     "snapToPdfContent": "Ajustar al contenido del dibujo PDF",
+    "moveInference": "Inferencia al mover (G / mv)",
+    "moveInferenceTracking": "Líneas de rastreo (alinear con puntos de otra geometría)",
+    "moveInferenceExtension": "Prolongaciones de líneas y caras de muros",
+    "moveInferenceParallel": "Paralelo / perpendicular a líneas cercanas",
+    "moveInferenceHint": "Sitúe el cursor un momento sobre un punto para adquirirlo, mantenga Mayús para bloquear una guía, Tab alterna entre distancia y ángulo. Las guías polares siguen la configuración del rastreo polar.",
     "creation": "Creación",
     "autoSelectAfterCreation": "Seleccionar automáticamente la anotación después de crearla",
     "deletion": "Eliminación",
     "confirmBeforeDeleting": "Confirmar antes de eliminar anotaciones",
     "navigation": "Navegación",
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
+    "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
+    "ribbonWheelSwitchesTabs": "Cambiar las pestañas de la cinta con la rueda del ratón",
     "dynamicScaling": "Escalar marcas automáticamente"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Para establecer Open PDF Studio como visor PDF predeterminado en macOS:\n\n1. Haga clic derecho en cualquier archivo PDF en Finder\n2. Seleccione \"Obtener información\"\n3. En \"Abrir con\", seleccione Open PDF Studio\n4. Haga clic en \"Cambiar todo...\"",
     "linuxInstructions": "Para establecer Open PDF Studio como visor PDF predeterminado en Linux:\n\nEjecute en la terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Verificar Finder > Obtener información",
-    "notSet": "No establecido"
+    "notSet": "No establecido",
+    "chosenInSystemSettings": "Elegido en la configuración del sistema",
+    "sandboxInstructions": "Open PDF Studio se ejecuta como paquete {{package}} y no puede cambiar por sí mismo la aplicación PDF predeterminada.\n\nElija Open PDF Studio en la configuración del sistema, en Aplicaciones predeterminadas, o haga clic derecho en un archivo PDF y use Abrir con.",
+    "xdgMimeMissing": "xdg-mime (paquete xdg-utils) no está instalado, por lo que la aplicación PDF predeterminada no se puede establecer desde aquí.\n\nInstale xdg-utils o elija Open PDF Studio en la configuración del sistema, en Aplicaciones predeterminadas.",
+    "linuxDone": "Open PDF Studio es ahora la aplicación predeterminada para archivos PDF.",
+    "linuxFailed": "No se pudo establecer Open PDF Studio como aplicación PDF predeterminada.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorador de archivos",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Fuerte",
     "pageSharpenLevel4": "Máximo",
     "showScrollbars": "Mostrar barras de desplazamiento del lienzo",
+    "backgroundColor": "Color de fondo",
+    "backgroundColorDefault": "Predeterminado",
+    "backgroundColorHint": "Color del área alrededor y entre las páginas. La página, la impresión y la exportación no cambian.",
     "panels": "Paneles",
     "showPropertiesPanel": "Mostrar el panel de propiedades de forma predeterminada",
     "showToolPalette": "Mostrar la paleta de herramientas de forma predeterminada",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Flecha abierta (invertida)",
     "closedArrowReversed": "Flecha cerrada (invertida)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Atajos de teclado",
+    "search": "Buscar por comando o tecla",
+    "command": "Comando",
+    "shortcuts": "Atajos",
+    "none": "Ninguno",
+    "noMatches": "Ningún comando coincide con la búsqueda.",
+    "selectHint": "Seleccione un comando para cambiar sus atajos.",
+    "addShortcut": "Añadir atajo",
+    "remove": "Quitar atajo",
+    "resetCommand": "Restablecer valor predeterminado",
+    "resetAll": "Restablecer todo",
+    "resetAllConfirm": "¿Restablecer todos los atajos de teclado a sus valores predeterminados?",
+    "loadPreset": "Cargar ajuste predefinido…",
+    "replaceConfirm": "Esto reemplazará sus atajos de teclado personalizados. ¿Desea continuar?",
+    "presets": {
+      "markupStyle": "Atajos estilo marcado"
+    },
+    "import": "Importar…",
+    "export": "Exportar…",
+    "fileType": "Atajos de teclado",
+    "imported": "Atajos importados. Haga clic en Guardar para aplicarlos.",
+    "importFailed": "Este no es un archivo de atajos de teclado válido.",
+    "exported": "Atajos exportados.",
+    "exportFailed": "No se pudieron exportar los atajos:",
+    "recording": "Pulse la nueva combinación de teclas… (Esc cancela)",
+    "conflict": "{{keys}} ya lo usa «{{command}}».",
+    "reassign": "Reasignar",
+    "reserved": "{{keys}} tiene una función fija y no se puede asignar.",
+    "defaultLabel": "Predeterminado: {{keys}}",
+    "customize": "Personalizar…",
+    "fixedGroup": "Teclas fijas",
+    "applyHint": "Los cambios se aplican al hacer clic en Guardar.",
+    "categories": {
+      "file": "Archivo",
+      "edit": "Edición",
+      "view": "Vista",
+      "search": "Buscar",
+      "tools": "Herramientas",
+      "drafting": "Ayudas de dibujo",
+      "panels": "Paneles",
+      "review": "Revisión",
+      "help": "Ayuda",
+      "extensions": "Extensiones",
+      "ribbon": "Cinta: {{tab}}",
+      "other": "Otros"
+    },
+    "commands": {
+      "findNext": "Buscar siguiente",
+      "splitPaneLarger": "Agrandar el panel activo",
+      "splitPaneSmaller": "Reducir el panel activo"
+    }
   }
 }

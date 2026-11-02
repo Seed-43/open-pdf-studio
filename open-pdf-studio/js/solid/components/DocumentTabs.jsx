@@ -3,6 +3,7 @@ import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import i18next from '../../i18n/config.js';
 import { invoke } from '../../core/platform.js';
+import { laadDesktopDragPlugin } from '../../core/desktop-drag-plugin.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import {
   revealInFileManager,
@@ -295,11 +296,10 @@ let _dragModulePromise = null;
 let _dragIconPromise = null;
 function preloadDragDeps() {
   if (!_dragModulePromise) {
-    // Tab naar buiten slepen kan alleen op het bureaublad. In de gehoste build
-    // valt de import zo weg en zit de plugin niet in de webbundel (#692).
-    _dragModulePromise = import.meta.env.MODE === 'hosted'
-      ? Promise.resolve(null)
-      : import('@crabnebula/tauri-plugin-drag').catch(() => null);
+    // Tab naar buiten slepen kan alleen op het bureaublad. In elke webbouw
+    // zet Vite hier een lege vervanger neer, zodat de plugin niet in de
+    // webbundel komt (#692, #776; scripts/web-bouw.mjs).
+    _dragModulePromise = laadDesktopDragPlugin();
   }
   if (!_dragIconPromise) {
     _dragIconPromise = invoke('drag_icon_path').catch(() => '');
@@ -596,11 +596,18 @@ export default function DocumentTabs() {
             border: '1px solid #7a7a7a',
             'box-shadow': '2px 2px 6px rgba(0,0,0,0.25)',
             'z-index': 2000,
-            'min-width': '200px',
-            'font-size': '13px',
+            // Interface size (#883): like the other context menus.
+            'min-width': 'calc(200px * var(--ui-scale, 1))',
+            'font-size': 'calc(13px * var(--ui-scale, 1))',
           }}
           onMouseLeave={hideCtxMenu}
         >
+          <div
+            style={{ padding: '6px 14px', cursor: 'default' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
+            onMouseLeave={(e) => e.currentTarget.style.background = ''}
+            onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); import('../../pdf/split-view/split-view.js').then(m => m.openDocumentInSplit(idx)).catch(e => console.warn('[tabs] openen in gesplitste weergave mislukt:', e)); }}
+          >{tCommon('tabs.openInSplitView')}</div>
           <div
             style={{ padding: '6px 14px', cursor: 'pointer' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}

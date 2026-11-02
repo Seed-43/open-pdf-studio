@@ -62,7 +62,9 @@ test('switchToTab geeft de render-belofte terug en de sneltoets gebruikt de tabb
 
 test('de doorlopende weergave zet de scrollpositie terug zodra de pagina\'s staan', () => {
   const tabs = bron('ui/chrome/tabs.js');
-  const wissel = blok(tabs, 'export function switchToTab', '\n}\n');
+  // De wissel zelf staat sinds #893 in toonTab (switchToTab rondt daaromheen
+  // een paneelwissel van de gesplitste weergave af).
+  const wissel = blok(tabs, 'function toonTab', '\n}\n');
   assert.doesNotMatch(wissel, /setTimeout\(\(\) => \{\s*pdfContainer\.scrollLeft/, 'geen vertraagde scrollsprong meer');
   assert.match(wissel, /Promise\.resolve\(firstRender\)/);
 });
@@ -93,12 +95,16 @@ test('in de vergelijkingsweergave bladert alleen PageUp/PageDown zonder Ctrl', (
   assert.ok(ctrlRegel >= 0 && ctrlRegel < toetsen.indexOf("e.key === 'PageDown'"), 'Ctrl+PageDown is de tabwissel');
 });
 
-test('het sneltoetsenoverzicht noemt de nieuwe toetsen', () => {
+test('het sneltoetsenoverzicht noemt de nieuwe toetsen', async () => {
+  // Sinds #714 komt het overzicht uit het sneltoetsenregister; de vaste
+  // toetsen van de tabwissel staan in FIXED_SHORTCUTS.
   const dialoog = bron('solid/components/dialogs/ShortcutsDialog.jsx');
-  assert.match(dialoog, /'tabs\.nextTab'[^\n]*\['Ctrl', 'Tab'\]/);
-  assert.match(dialoog, /'tabs\.previousTab'[^\n]*\['Ctrl', 'Shift', 'Tab'\]/);
-  assert.match(dialoog, /'tabs\.nextTab'[^\n]*\['Ctrl', 'PgDn'\]/);
-  assert.match(dialoog, /'tabs\.previousTab'[^\n]*\['Ctrl', 'PgUp'\]/);
+  assert.match(dialoog, /FIXED_SHORTCUTS\.map\(/);
+  const { FIXED_SHORTCUTS } = await import('../../core/keybindings/default-commands.js');
+  const volgende = FIXED_SHORTCUTS.find((f) => f.labelKey === 'common:tabs.nextTab');
+  const vorige = FIXED_SHORTCUTS.find((f) => f.labelKey === 'common:tabs.previousTab');
+  assert.deepEqual(volgende.keys, ['Ctrl+Tab', 'Ctrl+PageDown']);
+  assert.deepEqual(vorige.keys, ['Ctrl+Shift+Tab', 'Ctrl+PageUp']);
 });
 
 // ── Vertalingen ──────────────────────────────────────────────────────────────

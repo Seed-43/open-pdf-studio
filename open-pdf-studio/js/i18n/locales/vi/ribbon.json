@@ -169,7 +169,9 @@
     "flattenAll": "Làm phẳng tất cả",
     "flattenAllTooltip": "Làm phẳng tất cả đánh dấu vào nội dung trang",
     "unflattenAll": "Hoàn tác làm phẳng",
-    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục"
+    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục",
+    "fileAttachment": "Đính kèm tệp",
+    "fileAttachmentTitle": "Tệp đính kèm: nhấp vào trang và chọn một tệp"
   },
   "view": {
     "pageDisplay": "Hiển thị Trang",
@@ -198,6 +200,7 @@
     "thinLines": "Nét mảnh",
     "compareGroup": "So sánh",
     "fullscreen": "Toàn màn hình",
+    "fullscreenUnavailable": "Không thể dùng toàn màn hình ở đây: trình duyệt hoặc trang hiển thị ứng dụng đã từ chối. Hãy dùng tùy chọn toàn màn hình trong menu của trình duyệt.",
     "window": "Cửa sổ",
     "display": "Hiển thị",
     "keystrokes": "Phím bấm",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Xoay chế độ xem sang trái",
     "rotateViewRight": "Xoay chế độ xem sang phải",
     "rotateViewLeftTitle": "Xoay chế độ xem 90° ngược chiều kim đồng hồ. Bản thân tài liệu không thay đổi.",
-    "rotateViewRightTitle": "Xoay chế độ xem 90° theo chiều kim đồng hồ. Bản thân tài liệu không thay đổi."
+    "rotateViewRightTitle": "Xoay chế độ xem 90° theo chiều kim đồng hồ. Bản thân tài liệu không thay đổi.",
+    "splitGroup": "Chia",
+    "split": "Chia",
+    "splitTitle": "Chia khung nhìn thành hai ngăn của cùng một tài liệu",
+    "splitOptions": "Tùy chọn chia",
+    "splitVertical": "Chia dọc",
+    "splitHorizontal": "Chia ngang",
+    "unsplit": "Bỏ chia",
+    "splitSync": "Đồng bộ",
+    "splitSyncTitle": "Cuộn và thu phóng cả hai ngăn cùng lúc",
+    "splitDividerTitle": "Kéo để đổi kích thước các ngăn. Nhấp đúp để về lại 50/50.",
+    "accessibilityGroup": "Trợ năng",
+    "readAloud": "Đọc to",
+    "readAloudPause": "Tạm dừng",
+    "readAloudTitle": "Đọc to phần đã chọn, hoặc tài liệu từ trang hiện tại",
+    "tagsPanel": "Thẻ",
+    "tagsPanelTitle": "Hiển thị các thẻ cấu trúc của tài liệu",
+    "accessibilityCheck": "Kiểm tra",
+    "accessibilityCheckTitle": "Tìm văn bản thay thế bị thiếu và nội dung chưa gắn thẻ"
   },
   "elementVisibility": {
     "buttonTitle": "Hiển thị đối tượng — hiện/ẩn và làm mờ các loại chú thích",
@@ -328,7 +349,9 @@
     "scanText": "Sửa Văn bản Quét",
     "scanTextHint": "Nhấp vào một từ đã nhận dạng để thay thế. Từ cũ trong bản quét sẽ được che lại.",
     "scanTextNone": "Không có văn bản đã nhận dạng trên trang này. Hãy chạy Nhận dạng văn bản (OCR) trước.",
-    "shiftPage": "Dịch chuyển trang"
+    "shiftPage": "Dịch chuyển trang",
+    "editPages": "Chỉnh sửa trang",
+    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách"
   },
   "help": {
     "settings": "Cài đặt",
@@ -348,6 +371,7 @@
     "updates": "Cập nhật",
     "checkForUpdates": "Kiểm tra Cập nhật",
     "updatesLabel": "Cập nhật",
+    "updatesManaged": "Các bản cập nhật cho bản cài đặt này được quản lý tập trung.",
     "startupDiagnosticsTitle": "Hiển thị tệp chẩn đoán khởi động an toàn quyền riêng tư",
     "startupDiagnostics": "Chẩn đoán",
     "fileAssociation": "Liên kết Tệp",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Dán vùng đã cắt vào đây, giữ nguyên dữ liệu vector",
     "symbolScale": "Tỷ lệ",
     "symbolScaleTitle": "Kích thước khi đặt một ký hiệu mới",
-    "symbolScaleCustom": "Tỷ lệ tùy chỉnh"
+    "symbolScaleCustom": "Tỷ lệ tùy chỉnh",
+    "count": "Đếm",
+    "arc": "Cung"
   },
   "proofread": {
     "group": "Hiệu đính",
@@ -678,6 +704,7 @@
     "saveNote": "Ghi chú và các đánh dấu khác không có hình thức trên trang vẫn là đánh dấu. Tệp chỉ thay đổi khi bạn lưu; trước đó, Hoàn tác sẽ đảo ngược bước này.",
     "ok": "Làm phẳng",
     "busy": "Đang làm phẳng đánh dấu...",
+    "cancelled": "Đã hủy làm phẳng. Tài liệu không bị thay đổi.",
     "nothing": "Tài liệu này không có đánh dấu để làm phẳng.",
     "nothingBaked": "Không đánh dấu nào có hình thức trên trang, nên không có gì được làm phẳng.",
     "notLoaded": "Các đánh dấu của tài liệu này vẫn đang tải. Hãy thử lại sau giây lát.",
@@ -691,5 +718,60 @@
     "noRecovery": "Các đánh dấu trong tài liệu này đã được làm phẳng mà không cho phép khôi phục. Chúng là một phần nội dung trang và không thể khôi phục.",
     "done": "Đã khôi phục đánh dấu: {{count}}.",
     "failed": "Khôi phục thất bại: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Biểu tượng nhỏ",
+    "largeIcons": "Biểu tượng lớn",
+    "settings": "Cài đặt"
+  },
+  "symbolPalette": {
+    "search": "Tìm ký hiệu...",
+    "noResults": "Không tìm thấy ký hiệu",
+    "drawingSettings": "Cài đặt bản vẽ",
+    "manageSystemTypes": "Quản lý loại hệ thống",
+    "settingsTitle": "Cài đặt thư viện ký hiệu",
+    "industry": "Ngành",
+    "country": "Quốc gia",
+    "libraryLoading": "Đang tải thư viện trực tuyến…",
+    "libraryOffline": "Không truy cập được thư viện trực tuyến — danh sách quốc gia bị giới hạn",
+    "downloading": "Đang tải xuống {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Bộ sưu tập có sẵn trực tuyến: {{n}} ({{symbols}} ký hiệu)",
+    "activateDownloaded": "Bộ sưu tập đã tải xuống cần kích hoạt cho quốc gia này: {{n}}",
+    "download": "Tải xuống",
+    "downloadFailed": "Tải xuống thất bại: {{error}}",
+    "builtIn": "Tích hợp sẵn",
+    "online": "Trực tuyến",
+    "addSymbol": "+ Thêm ký hiệu",
+    "export": "Xuất",
+    "remove": "Gỡ bỏ",
+    "noSymbolsYet": "Chưa có ký hiệu",
+    "newGroupName": "Tên nhóm mới...",
+    "addGroup": "Thêm nhóm",
+    "importGroup": "Nhập nhóm",
+    "catalogLoaded": "Đã tải danh mục '{{id}}': {{families}} họ, {{sizes}} kích thước",
+    "catalogNoPreview": "{{n}} không có bản xem trước trong tệp",
+    "fileNotRecognized": "Không nhận dạng được tệp: không phải nhóm ký hiệu cũng không phải danh mục",
+    "importFailed": "Nhập thất bại: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Xây dựng",
+      "nl-elektra": "NL Điện",
+      "nl-bouwplaats": "NL Công trường",
+      "nl-sanitair": "NL Thiết bị vệ sinh",
+      "nl-keuken": "NL Nhà bếp",
+      "nen1414-tb": "NL NEN 1414 — Phòng cháy",
+      "nen1414-tbk": "NL NEN 1414 — Hệ thống chữa cháy",
+      "nen1414-td": "NL NEN 1414 — Cửa",
+      "nen1414-tn": "NL NEN 1414 — Chiếu sáng khẩn cấp",
+      "nen1414-tr": "NL NEN 1414 — Hút khói/nhiệt",
+      "nen1414-tv": "NL NEN 1414 — Thông gió",
+      "nen1414-tw": "NL NEN 1414 — Nước/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Xây dựng)",
+      "electrical": "Kỹ thuật điện",
+      "process": "Quy trình / P&ID",
+      "mep": "Hệ thống kỹ thuật tòa nhà (MEP)",
+      "infra": "Hạ tầng"
+    }
   }
 }

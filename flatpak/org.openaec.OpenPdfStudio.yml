@@ -20,8 +20,9 @@ finish-args:
   - --share=network
   # IPC (X11 shared memory)
   - --share=ipc
-  # Printing: lpstat/lp praten met de CUPS-socket; zonder deze regel blijft
-  # de printerlijst in de flatpak leeg (#326).
+  # Printing: de app praat IPP met de CUPS-socket (print_unix.rs; de runtime
+  # heeft geen lpstat/lp); zonder deze regel blijft de printerlijst in de
+  # flatpak leeg (#326) en rest alleen het printportaal.
   - --socket=cups
 
 build-options:
@@ -51,6 +52,8 @@ modules:
       - install -Dm644 open-pdf-studio/src-tauri/icons/128x128.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/32x32.png ${FLATPAK_DEST}/share/icons/hicolor/32x32/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/64x64.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/256x256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/512x512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/org.openaec.OpenPdfStudio.png
     sources:
       - type: dir
         path: ..

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Veliki format",
+      "detailblad": "List s detaljima",
+      "voorblad": "Naslovni list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "uspravno",
+      "landscape": "vodoravno"
+    },
     "title": "Novi dokument",
     "paperSize": "Veličina papira:",
     "widthMm": "Širina (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Ispiši obrub stranice",
     "perSheetNote": "Svaka se stranica prilagođava svojoj ćeliji, pa se gornje skaliranje stranice ne primjenjuje.",
     "poster": "Plakat (pločice)",
+    "posterOverview": "Pregled plakata",
+    "posterOverlapLegend": "Osjenčana područja ponavljaju se na susjednim listovima",
     "posterScale": "Mjerilo pločica",
     "posterOverlap": "Preklapanje",
     "posterCutMarks": "Oznake za rezanje",
     "posterLabels": "Natpisi (datoteka, stranica, pločica)",
     "posterOnlyLarge": "Dijeli samo velike stranice",
+    "posterEdgeCrop": "Blago obreži vanjske rubove",
+    "posterEdgeCropHint": "Do {{max}} mm po vanjskom rubu, samo za ovaj ispis. Isključeno: sačuvaj sav sadržaj.",
     "posterTileInfo": "Stranica {{page}}: pločica {{row}},{{col}} (redak, stupac) od {{rows}} × {{cols}}",
     "posterNotTiled": "Stranica {{page}} stane na jedan list i ne dijeli se.",
     "posterAssumedPaper": "Veličina papira nije poznata: pločice se raspoređuju na {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokument i oznake",
     "document": "Dokument",
     "printAsImage": "Ispiši kao sliku",
+    "colorMode": "Način boje:",
+    "colorModeColor": "U boji",
+    "colorModeGrayscale": "Sivi tonovi",
+    "colorModeBlackWhite": "Crno-bijelo",
     "pagesToPrint": "stranica za ispis",
     "noPrinterSelected": "Pisač nije odabran.",
     "noPagesToPrint": "Nema stranica za ispis.",
@@ -346,7 +364,13 @@
     "chooseImage": "Odaberite sliku...",
     "scale": "Mjerilo:",
     "selectImageFirst": "Molimo prvo odaberite sliku.",
-    "defaultText": "NACRT"
+    "defaultText": "NACRT",
+    "autoFit": "Automatski prilagodi stranici",
+    "autoFitHint": "Prilagođava tekst svakoj stranici. Prikazana veličina odnosi se na trenutačnu stranicu.",
+    "increaseFontSize": "Povećaj veličinu fonta",
+    "decreaseFontSize": "Smanji veličinu fonta",
+    "textHistory": "Prethodno korišteni tekstovi",
+    "removeFromHistory": "Ukloni iz povijesti"
   },
   "headerFooter": {
     "addTitle": "Dodaj zaglavlje/podnožje",
@@ -430,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Ugnijezdi pod novu knjižnu oznaku",
     "deleteTitle": "Izbriši knjižne oznake",
-    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?"
+    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?",
+    "replaceAll": "Zamijeni sve knjižne oznake"
   },
   "formValidation": {
     "title": "Pogreška provjere valjanosti"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Spremi kao IFC izvješće",
     "failed": "Spremanje IFC izvješća nije uspjelo: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Izvezi u IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) još je u razvoju. Provjerite rezultat prije nego što se na njega oslonite.",
+    "pages": "Stranice:",
+    "allPages": "Sve stranice",
+    "currentPage": "Trenutačna stranica",
+    "customPages": "Raspon stranica",
+    "rangePlaceholder": "npr. 1-3, 5",
+    "includeRaster": "Uključi slike",
+    "includeText": "Uključi tekst",
+    "includeAnnotations": "Bilješke na zasebnom sloju",
+    "export": "Izvezi",
+    "progress": "Izvoz stranice {{done}} od {{total}}…",
+    "done": "Zapisano: {{file}} (listovi: {{sheets}}, putanje: {{paths}}, tekstovi: {{texts}}, slike: {{images}}, bilješke: {{annotations}}).",
+    "capPaths": "Stranica {{page}}: izvezeno {{kept}} od {{total}} putanja; ostatak prelazi ograničenje.",
+    "capTexts": "Stranica {{page}}: izvezeno {{kept}} od {{total}} redaka teksta; ostatak prelazi ograničenje.",
+    "capImages": "Stranica {{page}}: izvezeno {{kept}} od {{total}} slika; ostatak prelazi ograničenje.",
+    "imagesOmitted": "Slike bez podataka o pikselima (nepodržane ili prevelike): {{count}}. Njihov položaj je zadržan.",
+    "sizeLimit": "Stranica {{page}} i sljedeće stranice nisu izvezene: datoteka je dosegla ograničenje veličine.",
+    "noPages": "Nije odabrana nijedna stranica.",
+    "noBytes": "PDF podaci ovog dokumenta nisu dostupni. Spremite dokument i pokušajte ponovno.",
+    "failed": "Izvoz u IFCX nije uspio: {{error}}",
+    "unsavedNote": "Nespremljene promjene sadržaja stranica nisu uključene; bilješke jesu."
   },
   "styleType": {
     "lineTypes": "Vrste linija",
@@ -1598,6 +1647,57 @@
       "cancel": "Otkazano",
       "supersede": "Zamijenjeno",
       "expire": "Isteklo"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Uredi stranice",
+    "hint": "Povucite stranice da biste ih premjestili; ispustite PDF datoteku da biste umetnuli njezine stranice. Ctrl+klik, Shift+klik ili potvrdni okviri odabiru više stranica. Ništa se ne mijenja do Primijeni.",
+    "moveLeft": "Pomakni lijevo",
+    "moveRight": "Pomakni desno",
+    "moveToStart": "Pomakni na početak",
+    "moveToEnd": "Pomakni na kraj",
+    "selection": "Odabrano stranica: {{selected}} od {{total}}",
+    "rotateLeft": "Rotiraj lijevo",
+    "rotateRight": "Rotiraj desno",
+    "split": "Podijeli",
+    "splitTitle": "Postavi oznake dijeljenja oko odabranih stranica: svaki niz postaje zasebna datoteka",
+    "splitHere": "Podijeli ovdje (postavi ili ukloni oznaku dijeljenja)",
+    "extractTitle": "Izdvoji odabrane stranice u novu datoteku",
+    "blankPage": "Prazna stranica",
+    "pagesFromFile": "Stranice iz datoteke…",
+    "insertHere": "Umetni stranice ovdje",
+    "select": "Odaberi stranicu",
+    "zoom": "Zumiranje",
+    "parts": "Pri primjeni podijeljeno u {{count}} datoteka",
+    "chooseFolder": "Odaberite mapu za podijeljene datoteke",
+    "fileFailed": "Nije moguće pročitati {{name}}: {{error}}",
+    "applyFailed": "Primjena izmjena stranica nije uspjela: {{error}}",
+    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}",
+    "blankSetup": "Postavke prazne stranice",
+    "sameAsAdjacent": "Isto kao susjedna stranica",
+    "width": "Širina:",
+    "height": "Visina:",
+    "unit": "Jedinica:"
+  },
+  "accessibilityReport": {
+    "title": "Provjera pristupačnosti",
+    "starting": "Provjera...",
+    "checking": "Provjera stranice {{done}} od {{total}}...",
+    "noIssues": "Nisu pronađeni problemi.",
+    "summary": "Broj pronađenih problema: {{count}}. Dvaput kliknite stavku za prijelaz na njezinu stranicu.",
+    "failed": "Provjera ovog dokumenta nije se mogla izvršiti.",
+    "recheck": "Provjeri ponovno",
+    "close": "Zatvori",
+    "goTo": "Dvaput kliknite za prijelaz na stranicu",
+    "page": "Stranica {{page}}",
+    "kind": {
+      "notTagged": "Dokument nema oznake: nema stabla strukture pa pomoćne tehnologije ne mogu pratiti redoslijed čitanja.",
+      "notMarked": "Dokument nije označen kao označen oznakama (/MarkInfo /Marked).",
+      "noLanguage": "Jezik dokumenta nije postavljen.",
+      "figureNoAlt": "{{role}} bez zamjenskog teksta",
+      "pageNotTagged": "Na ovoj stranici nema označenog sadržaja (tekstnih stavki: {{count}})",
+      "untaggedContent": "Tekstnih stavki izvan oznaka: {{count}}",
+      "annotationNoText": "Napomena ({{type}}) bez opisa"
     }
   }
 }

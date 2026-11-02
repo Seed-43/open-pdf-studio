@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Nagy formátum",
+      "detailblad": "Részletrajzlap",
+      "voorblad": "Fedőlap"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "álló",
+      "landscape": "fekvő"
+    },
     "title": "Új dokumentum",
     "paperSize": "Papírméret:",
     "widthMm": "Szélesség (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Oldalszegély nyomtatása",
     "perSheetNote": "Minden oldal a cellájához igazodik, ezért a fenti oldalméretezés nem érvényes.",
     "poster": "Poszter (csempék)",
+    "posterOverview": "Poszter áttekintése",
+    "posterOverlapLegend": "Az árnyékolt területek a szomszédos lapokon ismétlődnek",
     "posterScale": "Csempe méretaránya",
     "posterOverlap": "Átfedés",
     "posterCutMarks": "Vágójelek",
     "posterLabels": "Címkék (fájl, oldal, csempe)",
     "posterOnlyLarge": "Csak a nagy oldalak felosztása",
+    "posterEdgeCrop": "Külső szélek kis mértékű levágása",
+    "posterEdgeCropHint": "Külső szélenként legfeljebb {{max}} mm, csak ennél a nyomtatásnál. Kikapcsolva: minden tartalom megmarad.",
     "posterTileInfo": "{{page}}. oldal: {{row}},{{col}}. csempe (sor, oszlop), összesen {{rows}} × {{cols}}",
     "posterNotTiled": "A(z) {{page}}. oldal elfér egy lapon, ezért nincs felosztva.",
     "posterAssumedPaper": "Ismeretlen papírméret: a csempék {{paper}} lapokra kerülnek.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokumentum és jelölések",
     "document": "Dokumentum",
     "printAsImage": "Nyomtatás képként",
+    "colorMode": "Színmód:",
+    "colorModeColor": "Színes",
+    "colorModeGrayscale": "Szürkeárnyalatos",
+    "colorModeBlackWhite": "Fekete-fehér",
     "pagesToPrint": "nyomtatandó oldal(ak)",
     "noPrinterSelected": "Nincs nyomtató kiválasztva.",
     "noPagesToPrint": "Nincs nyomtatandó oldal.",
@@ -346,7 +364,13 @@
     "chooseImage": "Kép választása...",
     "scale": "Méretezés:",
     "selectImageFirst": "Kérem, először válasszon egy képet.",
-    "defaultText": "TERVEZET"
+    "defaultText": "TERVEZET",
+    "autoFit": "Automatikus igazítás az oldalhoz",
+    "autoFitHint": "A szöveget minden oldalhoz igazítja. A megjelenített méret az aktuális oldalra vonatkozik.",
+    "increaseFontSize": "Betűméret növelése",
+    "decreaseFontSize": "Betűméret csökkentése",
+    "textHistory": "Korábban használt szövegek",
+    "removeFromHistory": "Eltávolítás az előzményekből"
   },
   "headerFooter": {
     "addTitle": "Élőfej/élőláb hozzáadása",
@@ -430,7 +454,8 @@
     "styleLabel": "Stílus:",
     "nestTitle": "Beágyazás új könyvjelző alá",
     "deleteTitle": "Könyvjelzők törlése",
-    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?"
+    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?",
+    "replaceAll": "Az összes könyvjelző lecserélése"
   },
   "formValidation": {
     "title": "Érvényesítési hiba"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Mentés IFC-jelentésként",
     "failed": "Az IFC-jelentés mentése sikertelen: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportálás IFCX formátumba (béta)",
+    "betaNote": "Béta: az IFCX (IFC5) még fejlesztés alatt áll. Ellenőrizze az eredményt, mielőtt támaszkodna rá.",
+    "pages": "Oldalak:",
+    "allPages": "Minden oldal",
+    "currentPage": "Aktuális oldal",
+    "customPages": "Oldaltartomány",
+    "rangePlaceholder": "pl. 1-3, 5",
+    "includeRaster": "Képekkel együtt",
+    "includeText": "Szöveggel együtt",
+    "includeAnnotations": "Megjegyzések külön rétegen",
+    "export": "Exportálás",
+    "progress": "{{done}}. oldal exportálása ({{total}} oldalból)…",
+    "done": "Elkészült: {{file}} ({{sheets}} lap, {{paths}} útvonal, {{texts}} szöveg, {{images}} kép, {{annotations}} megjegyzés).",
+    "capPaths": "{{page}}. oldal: {{total}} útvonalból {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "capTexts": "{{page}}. oldal: {{total}} szövegsorból {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "capImages": "{{page}}. oldal: {{total}} képből {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "imagesOmitted": "Képpontadatok nélküli képek (nem támogatott vagy túl nagy): {{count}}. A helyük megmarad.",
+    "sizeLimit": "A(z) {{page}}. oldal és az utána következők nem lettek exportálva: a fájl elérte a méretkorlátot.",
+    "noPages": "Nincs kijelölt oldal.",
+    "noBytes": "A dokumentum PDF-adatai nem érhetők el. Mentse a dokumentumot, és próbálja újra.",
+    "failed": "Az IFCX-exportálás sikertelen: {{error}}",
+    "unsavedNote": "Az oldaltartalom nem mentett módosításai nem kerülnek bele; a megjegyzések igen."
   },
   "styleType": {
     "lineTypes": "Vonaltípusok",
@@ -1598,6 +1647,57 @@
       "cancel": "Visszavonva",
       "supersede": "Felülírva",
       "expire": "Lejárt"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Oldalak szerkesztése",
+    "hint": "Húzza az oldalakat az áthelyezéshez; ejtsen ide egy PDF-fájlt az oldalai beszúrásához. Ctrl+kattintás, Shift+kattintás vagy a jelölőnégyzetek több oldalt jelölnek ki. Az Alkalmaz gombig semmi sem változik.",
+    "moveLeft": "Mozgatás balra",
+    "moveRight": "Mozgatás jobbra",
+    "moveToStart": "Mozgatás az elejére",
+    "moveToEnd": "Mozgatás a végére",
+    "selection": "{{selected}} / {{total}} oldal kijelölve",
+    "rotateLeft": "Forgatás balra",
+    "rotateRight": "Forgatás jobbra",
+    "split": "Felosztás",
+    "splitTitle": "Felosztási jelek a kijelölt oldalak köré: minden sorozat külön fájl lesz",
+    "splitHere": "Felosztás itt (felosztási jel elhelyezése vagy eltávolítása)",
+    "extractTitle": "A kijelölt oldalak kibontása új fájlba",
+    "blankPage": "Üres oldal",
+    "pagesFromFile": "Oldalak fájlból…",
+    "insertHere": "Oldalak beszúrása ide",
+    "select": "Oldal kijelölése",
+    "zoom": "Nagyítás",
+    "parts": "Alkalmazáskor {{count}} fájlra osztva",
+    "chooseFolder": "Válassza ki a felosztott fájlok mappáját",
+    "fileFailed": "{{name}} nem olvasható: {{error}}",
+    "applyFailed": "Az oldalmódosítások alkalmazása nem sikerült: {{error}}",
+    "extractFailed": "Az oldalak kibontása nem sikerült: {{error}}",
+    "blankSetup": "Üres oldal beállítása",
+    "sameAsAdjacent": "A szomszédos oldallal azonos",
+    "width": "Szélesség:",
+    "height": "Magasság:",
+    "unit": "Mértékegység:"
+  },
+  "accessibilityReport": {
+    "title": "Akadálymentességi ellenőrzés",
+    "starting": "Ellenőrzés...",
+    "checking": "{{done}}. oldal ellenőrzése ({{total}} közül)...",
+    "noIssues": "Nem található probléma.",
+    "summary": "{{count}} probléma található. Kattintson duplán egy elemre az oldalához ugráshoz.",
+    "failed": "Az ellenőrzést nem sikerült lefuttatni ezen a dokumentumon.",
+    "recheck": "Újraellenőrzés",
+    "close": "Bezárás",
+    "goTo": "Kattintson duplán az oldalra ugráshoz",
+    "page": "{{page}}. oldal",
+    "kind": {
+      "notTagged": "A dokumentum nincs címkézve: nincs szerkezeti fa, így a kisegítő technológiák nem tudják követni az olvasási sorrendet.",
+      "notMarked": "A dokumentum nincs címkézettként megjelölve (/MarkInfo /Marked).",
+      "noLanguage": "A dokumentum nyelve nincs beállítva.",
+      "figureNoAlt": "{{role}} helyettesítő szöveg nélkül",
+      "pageNotTagged": "Ezen az oldalon nincs címkézett tartalom ({{count}} szövegelem)",
+      "untaggedContent": "{{count}} szövegelem a címkéken kívül",
+      "annotationNoText": "Megjegyzés ({{type}}) leírás nélkül"
     }
   }
 }

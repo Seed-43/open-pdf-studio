@@ -9,7 +9,8 @@
     "behavior": "動作",
     "fileAssociation": "ファイルの関連付け",
     "virtualPrinter": "仮想プリンター",
-    "pageDisplay": "ページ表示"
+    "pageDisplay": "ページ表示",
+    "keyboardShortcuts": "キーボードショートカット"
   },
   "resetToDefaults": "既定値に戻す",
   "resetConfirm": "すべての環境設定を既定値に戻しますか？",
@@ -31,7 +32,8 @@
     "aiLinkActive": "{{adres}} で有効",
     "aiLinkViaFlag": "起動オプションで有効（{{adres}}）",
     "aiLinkOff": "オフ",
-    "aiLinkError": "開始できません：{{fout}}"
+    "aiLinkError": "開始できません：{{fout}}",
+    "interfaceScale": "インターフェースのサイズ"
   },
   "annotations": {
     "generalDefaults": "全般の既定値",
@@ -105,7 +107,13 @@
     "headOpenReversed": "開いた矢印（反転）",
     "headClosedReversed": "閉じた矢印（反転）",
     "headSlash": "スラッシュ",
-    "polylineDefaults": "ポリラインの既定値"
+    "polylineDefaults": "ポリラインの既定値",
+    "smoothing": "スムージング",
+    "pressure": "筆圧",
+    "pressureHint": "筆圧で線の太さが変わります（マウスの線は一定の太さです）",
+    "pressureMinWidth": "最小幅 (%)",
+    "penOnly": "ペンのみ（タッチを無視）",
+    "penOnlyHint": "タッチではフリーハンドツールで描画しません。ペンで書くときの手のひらの接触を防ぐのに役立ちます"
   },
   "shapes": {
     "rectangleDefaults": "四角形の既定値",
@@ -161,12 +169,19 @@
     "snapToNearest": "近接点にスナップ",
     "objectSnapRadius": "スナップ半径（ピクセル）",
     "snapToPdfContent": "PDF の図形内容にスナップ",
+    "moveInference": "移動時の推論ガイド (G / mv)",
+    "moveInferenceTracking": "トラッキング線 (他の図形の点に位置合わせ)",
+    "moveInferenceExtension": "線と壁面の延長線",
+    "moveInferenceParallel": "近くの線に平行 / 垂直",
+    "moveInferenceHint": "点の上にカーソルを少し置くと取得され、Shift を押し続けるとガイドがロックされ、Tab で距離と角度を切り替えます。極ガイドは極トラッキングの設定に従います。",
     "creation": "作成",
     "autoSelectAfterCreation": "作成後に注釈を自動選択する",
     "deletion": "削除",
     "confirmBeforeDeleting": "注釈を削除する前に確認する",
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
+    "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
+    "ribbonWheelSwitchesTabs": "マウスホイールでリボンのタブを切り替える",
     "dynamicScaling": "マークアップを自動スケーリング"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "macOS で Open PDF Studio を既定の PDF ビューアーに設定するには：\n\n1. Finder で任意の PDF ファイルを右クリック\n2. 「情報を見る」を選択\n3. 「このアプリケーションで開く」で Open PDF Studio を選択\n4. 「すべてを変更...」をクリック",
     "linuxInstructions": "Linux で Open PDF Studio を既定の PDF ビューアーに設定するには：\n\nターミナルで実行：\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > 情報を見る を確認",
-    "notSet": "未設定"
+    "notSet": "未設定",
+    "chosenInSystemSettings": "システム設定で選択",
+    "sandboxInstructions": "Open PDF Studio は {{package}} パッケージとして実行されているため、既定の PDF アプリを自分で変更できません。\n\nシステム設定の「既定のアプリケーション」で Open PDF Studio を選択するか、PDF ファイルを右クリックして「プログラムから開く」を使用してください。",
+    "xdgMimeMissing": "xdg-mime（パッケージ xdg-utils）がインストールされていないため、ここから既定の PDF アプリを設定できません。\n\nxdg-utils をインストールするか、システム設定の「既定のアプリケーション」で Open PDF Studio を選択してください。",
+    "linuxDone": "Open PDF Studio が PDF ファイルの既定のアプリになりました。",
+    "linuxFailed": "Open PDF Studio を既定の PDF アプリに設定できませんでした。\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "エクスプローラー",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "強",
     "pageSharpenLevel4": "最大",
     "showScrollbars": "キャンバスのスクロールバーを表示",
+    "backgroundColor": "背景色",
+    "backgroundColorDefault": "既定",
+    "backgroundColorHint": "ページの周囲とページ間の領域の色です。ページ自体、印刷、エクスポートは変わりません。",
     "panels": "パネル",
     "showPropertiesPanel": "プロパティパネルを既定で表示",
     "showToolPalette": "ツールパレットを既定で表示",
@@ -291,5 +314,58 @@
     "openArrowReversed": "開いた矢印（反転）",
     "closedArrowReversed": "閉じた矢印（反転）",
     "slash": "スラッシュ"
+  },
+  "keyboardShortcuts": {
+    "title": "キーボードショートカット",
+    "search": "コマンドまたはキーで検索",
+    "command": "コマンド",
+    "shortcuts": "ショートカット",
+    "none": "なし",
+    "noMatches": "検索に一致するコマンドはありません。",
+    "selectHint": "ショートカットを変更するコマンドを選択してください。",
+    "addShortcut": "ショートカットを追加",
+    "remove": "ショートカットを削除",
+    "resetCommand": "既定に戻す",
+    "resetAll": "すべて既定に戻す",
+    "resetAllConfirm": "すべてのキーボードショートカットを既定に戻しますか？",
+    "loadPreset": "プリセットを読み込む…",
+    "replaceConfirm": "カスタムのキーボードショートカットが置き換えられます。続行しますか?",
+    "presets": {
+      "markupStyle": "マークアップ形式のショートカット"
+    },
+    "import": "インポート…",
+    "export": "エクスポート…",
+    "fileType": "キーボードショートカット",
+    "imported": "ショートカットをインポートしました。適用するには［保存］をクリックしてください。",
+    "importFailed": "有効なキーボードショートカットファイルではありません。",
+    "exported": "ショートカットをエクスポートしました。",
+    "exportFailed": "ショートカットのエクスポートに失敗しました：",
+    "recording": "新しいキーの組み合わせを押してください…（Esc でキャンセル）",
+    "conflict": "{{keys}} は既に「{{command}}」で使用されています。",
+    "reassign": "割り当て直す",
+    "reserved": "{{keys}} は固定の役割があるため割り当てできません。",
+    "defaultLabel": "既定: {{keys}}",
+    "customize": "カスタマイズ…",
+    "fixedGroup": "固定キー",
+    "applyHint": "変更は［保存］をクリックすると反映されます。",
+    "categories": {
+      "file": "ファイル",
+      "edit": "編集",
+      "view": "表示",
+      "search": "検索",
+      "tools": "ツール",
+      "drafting": "作図補助",
+      "panels": "パネル",
+      "review": "校閲",
+      "help": "ヘルプ",
+      "extensions": "拡張機能",
+      "ribbon": "リボン: {{tab}}",
+      "other": "その他"
+    },
+    "commands": {
+      "findNext": "次を検索",
+      "splitPaneLarger": "アクティブなペインを大きくする",
+      "splitPaneSmaller": "アクティブなペインを小さくする"
+    }
   }
 }

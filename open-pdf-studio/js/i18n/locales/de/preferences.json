@@ -9,7 +9,8 @@
     "behavior": "Verhalten",
     "fileAssociation": "Dateizuordnung",
     "virtualPrinter": "Virtueller Drucker",
-    "pageDisplay": "Seitenanzeige"
+    "pageDisplay": "Seitenanzeige",
+    "keyboardShortcuts": "Tastenkombinationen"
   },
   "resetToDefaults": "Standardwerte wiederherstellen",
   "resetConfirm": "Alle Einstellungen auf Standardwerte zurücksetzen?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktiv auf {{adres}}",
     "aiLinkViaFlag": "Aktiv über Startparameter ({{adres}})",
     "aiLinkOff": "Aus",
-    "aiLinkError": "Nicht gestartet: {{fout}}"
+    "aiLinkError": "Nicht gestartet: {{fout}}",
+    "interfaceScale": "Oberflächengröße"
   },
   "annotations": {
     "generalDefaults": "Allgemeine Standardwerte",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Offener Pfeil (umgekehrt)",
     "headClosedReversed": "Geschlossener Pfeil (umgekehrt)",
     "headSlash": "Schrägstrich",
-    "polylineDefaults": "Polylinien-Standardwerte"
+    "polylineDefaults": "Polylinien-Standardwerte",
+    "smoothing": "Glättung",
+    "pressure": "Stiftdruck",
+    "pressureHint": "Der Stiftdruck verändert die Strichbreite (Mausstriche behalten eine feste Breite)",
+    "pressureMinWidth": "Mindestbreite (%)",
+    "penOnly": "Nur Stift (Berührung ignorieren)",
+    "penOnlyHint": "Berührung zeichnet nicht mit dem Freihandwerkzeug; hilfreich gegen Handballenkontakt beim Schreiben mit dem Stift"
   },
   "shapes": {
     "rectangleDefaults": "Rechteck-Standardwerte",
@@ -161,12 +169,19 @@
     "snapToNearest": "Am nächstgelegenen Punkt einrasten",
     "objectSnapRadius": "Fangradius (Pixel)",
     "snapToPdfContent": "An PDF-Zeichnungsinhalt einrasten",
+    "moveInference": "Fanghilfen beim Verschieben (G / mv)",
+    "moveInferenceTracking": "Spurlinien (an Punkten anderer Geometrie ausrichten)",
+    "moveInferenceExtension": "Verlängerungen von Linien und Wandflächen",
+    "moveInferenceParallel": "Parallel / senkrecht zu Linien in der Nähe",
+    "moveInferenceHint": "Zeigen Sie kurz auf einen Punkt, um ihn zu erfassen, halten Sie Shift gedrückt, um eine Hilfslinie zu sperren, Tab wechselt zwischen Abstand und Winkel. Polare Hilfslinien folgen den Polarfang-Einstellungen.",
     "creation": "Erstellung",
     "autoSelectAfterCreation": "Anmerkung nach Erstellung automatisch auswählen",
     "deletion": "Löschen",
     "confirmBeforeDeleting": "Vor dem Löschen von Anmerkungen bestätigen",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
+    "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
+    "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
     "dynamicScaling": "Markierungen automatisch skalieren"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Um Open PDF Studio als Standard-PDF-Betrachter auf macOS festzulegen:\n\n1. Klicken Sie mit der rechten Maustaste auf eine PDF-Datei im Finder\n2. Wählen Sie „Informationen“\n3. Unter „Öffnen mit“ wählen Sie Open PDF Studio\n4. Klicken Sie auf „Alle ändern...“",
     "linuxInstructions": "Um Open PDF Studio als Standard-PDF-Betrachter auf Linux festzulegen:\n\nFühren Sie im Terminal aus:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Überprüfen Sie Finder > Informationen",
-    "notSet": "Nicht festgelegt"
+    "notSet": "Nicht festgelegt",
+    "chosenInSystemSettings": "In den Systemeinstellungen festgelegt",
+    "sandboxInstructions": "Open PDF Studio läuft als {{package}}-Paket und kann die Standard-PDF-App nicht selbst ändern.\n\nWählen Sie Open PDF Studio in den Systemeinstellungen unter Standardanwendungen, oder klicken Sie mit der rechten Maustaste auf eine PDF-Datei und verwenden Sie Öffnen mit.",
+    "xdgMimeMissing": "xdg-mime (Paket xdg-utils) ist nicht installiert, daher kann die Standard-PDF-App hier nicht festgelegt werden.\n\nInstallieren Sie xdg-utils oder wählen Sie Open PDF Studio in den Systemeinstellungen unter Standardanwendungen.",
+    "linuxDone": "Open PDF Studio ist jetzt die Standard-App für PDF-Dateien.",
+    "linuxFailed": "Open PDF Studio konnte nicht als Standard-PDF-App festgelegt werden.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Datei-Explorer",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Stark",
     "pageSharpenLevel4": "Maximal",
     "showScrollbars": "Bildlaufleisten der Zeichenfläche anzeigen",
+    "backgroundColor": "Hintergrundfarbe",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Farbe der Fläche um und zwischen den Seiten. Die Seite selbst, Drucken und Exportieren ändern sich nicht.",
     "panels": "Bereiche",
     "showPropertiesPanel": "Eigenschaftenbereich standardmäßig anzeigen",
     "showToolPalette": "Werkzeugpalette standardmäßig anzeigen",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Offener Pfeil (umgekehrt)",
     "closedArrowReversed": "Geschlossener Pfeil (umgekehrt)",
     "slash": "Schrägstrich"
+  },
+  "keyboardShortcuts": {
+    "title": "Tastenkombinationen",
+    "search": "Nach Befehl oder Taste suchen",
+    "command": "Befehl",
+    "shortcuts": "Tastenkombinationen",
+    "none": "Keine",
+    "noMatches": "Keine Befehle gefunden.",
+    "selectHint": "Wählen Sie einen Befehl, um seine Tastenkombinationen zu ändern.",
+    "addShortcut": "Tastenkombination hinzufügen",
+    "remove": "Tastenkombination entfernen",
+    "resetCommand": "Auf Standard zurücksetzen",
+    "resetAll": "Alle zurücksetzen",
+    "resetAllConfirm": "Alle Tastenkombinationen auf die Standardwerte zurücksetzen?",
+    "loadPreset": "Vorlage laden…",
+    "replaceConfirm": "Dadurch werden Ihre eigenen Tastenkürzel ersetzt. Fortfahren?",
+    "presets": {
+      "markupStyle": "Tastenkürzel im Markup-Stil"
+    },
+    "import": "Importieren…",
+    "export": "Exportieren…",
+    "fileType": "Tastenkombinationen",
+    "imported": "Tastenkombinationen importiert. Klicken Sie auf Speichern, um sie zu übernehmen.",
+    "importFailed": "Dies ist keine gültige Tastenkombinationsdatei.",
+    "exported": "Tastenkombinationen exportiert.",
+    "exportFailed": "Export der Tastenkombinationen fehlgeschlagen:",
+    "recording": "Drücken Sie die neue Tastenkombination… (Esc bricht ab)",
+    "conflict": "{{keys}} wird bereits von „{{command}}“ verwendet.",
+    "reassign": "Neu zuweisen",
+    "reserved": "{{keys}} hat eine feste Bedeutung und kann nicht zugewiesen werden.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Anpassen…",
+    "fixedGroup": "Feste Tasten",
+    "applyHint": "Änderungen gelten, sobald Sie auf Speichern klicken.",
+    "categories": {
+      "file": "Datei",
+      "edit": "Bearbeiten",
+      "view": "Ansicht",
+      "search": "Suchen",
+      "tools": "Werkzeuge",
+      "drafting": "Zeichenhilfen",
+      "panels": "Bereiche",
+      "review": "Prüfen",
+      "help": "Hilfe",
+      "extensions": "Erweiterungen",
+      "ribbon": "Menüband: {{tab}}",
+      "other": "Sonstiges"
+    },
+    "commands": {
+      "findNext": "Weitersuchen",
+      "splitPaneLarger": "Aktiven Bereich vergrößern",
+      "splitPaneSmaller": "Aktiven Bereich verkleinern"
+    }
   }
 }

@@ -6,6 +6,7 @@ import { setViewMode, fitPage } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorkerUrl from 'virtual:opds-pdfjs-worker-url';
 import { isTauri, isMobile, heeftRustRenderer, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
@@ -81,17 +82,12 @@ export function clearCachedPdfBytes(filePath) {
   }
 }
 
-// Set worker source (path relative to HTML file, not this module)
-// Dev: Vite herschrijft de new URL(...)-vorm naar een /@fs/-URL en die valt
-// onder server.fs.allow — een verse webview (zonder cache) krijgt daar 403 op,
-// waarna PDF.js' fake-worker-fallback op dezelfde 403 strandt en getDocument
-// nooit resolvet (document laadt nooit). Het kale /node_modules/-pad wordt
-// altijd geserveerd, dus gebruik dat in dev; prod houdt de asset-URL (de
-// worker wordt door rollup als asset geëmit — zie assetFileNames in
-// vite.config.js).
-pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env?.DEV
-  ? '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
-  : new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href;
+// Vite serves/emits the pinned worker with the PostScript progress (#839),
+// zero-size initial font (#878) and XRef stream offset (#638) backports
+// (scripts/pdfjs-postscript-progress.mjs).
+// The build hashes the patched bytes; dev retains a same-origin /node_modules/
+// URL so a fresh WebView cannot hit the historical /@fs/ access failure.
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 // Gehoste bouw (#704): in de werkplek (opaque origin) start PDF.js zijn
 // worker niet zelf; hij zou een module-worker uit een blob maken, en die
@@ -340,6 +336,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
           console.warn('[PERF] cold-open preview paint failed:', e?.message ?? e);
         }
       }).catch((e) => {
+        if (e?.renderCancelled) return; // another document was opened meanwhile (#506)
         console.warn('[PERF] cold-open pre-render failed:', e?.message ?? e);
       });
     }
@@ -632,13 +629,14 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // De lezing draagt een kenmerk: wijzigt de gebruiker de pagina's terwijl
     // ze nog loopt, dan komt deze uitkomst (van de oude bytes) niet meer
     // binnen en leest de paginabeheerder de nieuwe bytes zelf.
-    import('./pdf-viewports.js').then(async ({ leesPdfViewports, beginViewportLezing, rondViewportLezingAf }) => {
+    import('./pdf-viewports.js').then(async ({ leesPdfViewports, leesUserUnits, beginViewportLezing, rondViewportLezingAf }) => {
       if (isClosed()) return;
       const kenmerk = beginViewportLezing(doc);
       try {
         const pdfLibDoc = await getSharedPdfLibDoc(doc);
         const geldig = !isClosed() && pdfLibDoc;
-        rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null);
+        // Met de /UserUnit per pagina: een schaal 1:N rekent daarmee (#884).
+        rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null, geldig ? leesUserUnits(pdfLibDoc) : null);
       } catch {
         rondViewportLezingAf(doc, kenmerk, null); // viewports zijn optioneel
       }
@@ -661,13 +659,10 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
           const result = await detectScaleFromPdf(1, doc);
           if (isClosed() || doc.measureScale) return;
           if (result && result.ratio > 0) {
-            const pixelsPerUnit = 72 / (25.4 * result.ratio);
-            doc.measureScale = {
-              pixelsPerUnit,
-              unit: 'mm',
-              method: 'auto-detect',
-              scaleRatio: `1:${result.ratio}`,
-            };
+            // In page units of page 1, /UserUnit included (#884).
+            const { measureScaleFromTitleBlock } = await import('../annotations/document-scale.js');
+            if (isClosed() || doc.measureScale) return;
+            doc.measureScale = measureScaleFromTitleBlock(result);
             const { saveDocumentScale } = await import('../annotations/measurement.js');
             saveDocumentScale(doc);
             console.log(`Auto-detected scale: 1:${result.ratio} from "${result.scaleText}"`);
@@ -1090,7 +1085,9 @@ export function markAllAnnotationPagesLoaded(numPages, doc) {
 }
 
 // Get or lazily load the shared pdf-lib document for color extraction
-async function getSharedPdfLibDoc(doc) {
+// Ook gelezen door de live Type3-weergave van tekstbewerkingen (#723),
+// alleen lezend.
+export async function getSharedPdfLibDoc(doc) {
   if (!doc) {
     doc = getActiveDocument();
   }
@@ -1138,7 +1135,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
 
   const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
   const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
+  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
 
   let stampImageMap = null;
   let annotColorMap = null;
@@ -1293,7 +1290,7 @@ export async function loadExistingAnnotations(doc) {
 
       const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
       const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
+      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
 
       let stampImageMap = null;
       let annotColorMap = null;
@@ -1344,7 +1341,7 @@ export async function loadExistingAnnotations(doc) {
 
         const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
         const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
+        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
 
         let stampImageMap = null;
         let annotColorMap = null;

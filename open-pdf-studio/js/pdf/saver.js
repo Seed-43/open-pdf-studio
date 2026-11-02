@@ -1,19 +1,25 @@
+import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
 import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-utils.js';
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
-import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
+import { markDocumentSaved, markDocumentModified, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile,
+  hostKanOpslaanAls, leesHostNieuwPad, leesHostPad, hostNieuwUitkomst, meldHostNieuwStil, meldHostGeopend, extractFileName } from '../core/platform.js';
+import { kopieNaam } from '../core/host-opslaan-als.js';
+import { legDocumentVast, blijfBijOrigineel, wisselNaarNieuwBestand } from './host-opslaan-als-document.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
-import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
+import { getCachedPdfBytes, setCachedPdfBytes, clearCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { insluitBytes } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
-import { ruimOngebruikteObjectenOp } from './saver/objecten-opruimen.js';
+import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
+import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
@@ -22,6 +28,8 @@ import { schrijfMeetvlakSchaal, meetvlakRect } from './saver/meetvlak-opslaan.js
 import { vlakZijdeTeksten } from '../annotations/measurement.js';
 import { verzamelSchaalBronnen } from '../annotations/schaal-op-punt.js';
 import { attachVectorAP } from './saver/vector-ap.js';
+import { isGladdeInkt, inktAppearanceInhoud } from '../annotations/pressure-ink.js';
+import { inktSleutels } from './saver/inkt-sleutels.js';
 import { MODEL_ID_SLEUTEL } from './flatten-bytes.js';
 import { schaalgebiedAppearance } from './saver/scale-region-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
@@ -38,21 +46,28 @@ import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream, zetDoorzichtigheidInAp, tekstvakFontDict, boogHoekenNaRotatie,
-  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs } from './saver/utils.js';
+  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs, streepOperator } from './saver/utils.js';
 import { eigenVulDekking } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
 import { hostFoutMelding } from '../core/host-brug.js';
-import { runsToText, dsMargeUitInzet } from '../annotations/rendering/textbox-layout.js';
+import { runsToText, dsMargeUitInzet, verticaleVerschuiving } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrLayers } from './saver/ocr-text-layer.js';
 import { maakCjkFontKeten } from './saver/cjk-fonts.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
+import { applyEditsToPdf, hasEdits, editsAfterSave } from '../accessibility/struct-edits.js';
+import { notifyStructEditsSaved } from '../accessibility/struct-tree-events.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
-import { schrijfAnnotatieLagen, ocVoorAnnotatie } from './saver/annotatie-lagen.js';
+import { schrijfAnnotatieLagen, ocVoorAnnotatie, laagstandZonderEigenLagen } from './saver/annotatie-lagen.js';
+import { schrijfStandaardLaagstand } from './lagen-boom.js';
+import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan, verhuisLaagstand } from './lagen-schakelen.js';
+import { bouwBijlageAnnotatie, origineleBijlage, bijlageBewerkt } from './bijlage-annotatie.js';
+import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
+import { vormVan, vakPadPdf } from '../annotations/rendering/textbox-vorm.js';
 import { heeftNietWinAnsi, pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
 import { typemachineVak, typemachineRegelBreedte } from './saver/typemachine.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
@@ -167,18 +182,11 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
 // Afbeeldingsbytes uit ann.imageData voor pdf-lib-embedding. Normaal een
 // data:-URL; een blob:-URL (regressie of oude sessie-staat, #352) wordt via
 // fetch gelezen zodat de afbeelding alsnog in het bestand belandt in plaats
-// van een leeg stempel. JPEG wordt aan de magic bytes herkend, want een
-// blob:-URL draagt geen mimetype in zijn tekst.
+// van een leeg stempel. Het formaat komt uit de bytes, niet uit de URL. Een
+// GIF, BMP, WebP of SVG (pdf-lib sluit alleen PNG en JPEG in) wordt eerst
+// PNG: anders faalde embedPng en was het stempel na heropenen weg (#749).
 async function imageBytesFromDataUrl(dataUrl) {
-  let bytes;
-  if (dataUrl.startsWith('blob:')) {
-    bytes = new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
-  } else {
-    const base64 = dataUrl.split(',')[1];
-    bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-  }
-  const isJpeg = bytes.length > 2 && bytes[0] === 0xFF && bytes[1] === 0xD8;
-  return { bytes, isJpeg };
+  return insluitBytes(dataUrl);
 }
 
 // Gedeclareerd in het deel hieronder, dat save-document.test.mjs los draait.
@@ -308,7 +316,9 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
   // en zou de saver die annotaties weglaten. De save begint pas na een lopende
   // wissel, en een nieuwe wissel wacht tot de save klaar is. _saveBezig staat
   // meteen, zodat een tweede save ook tijdens het wachten op de eerste wacht.
-  _saveBezig = metOpslagSlot(() => _savePDFNu(saveAsPath, activeDoc)).finally(() => { _saveBezig = null; });
+  // `opties.annulering` (saver/opslag-annuleren.js): een eigen annulering van
+  // de aanroeper; zonder maakt de save er zelf een voor de knop Annuleren.
+  _saveBezig = metOpslagSlot(() => _savePDFNu(saveAsPath, activeDoc, { annulering: opties.annulering })).finally(() => { _saveBezig = null; });
   const gelukt = await _saveBezig;
   // Opgeslagen: de herstelmomentopname van dit document is niet meer nodig.
   if (gelukt && activeDoc) meldOpgeslagen(activeDoc);
@@ -336,12 +346,14 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
  * uit het model en zonder iets weg te schrijven (Alles vlakken, #615). De
  * annotaties die deze save schreef, hebben een objectnummer boven
  * `eersteNieuwObject`.
+ * Met `annulering` (saver/opslag-annuleren.js) te stoppen; dan gooit het
+ * OpslagGeannuleerd.
  * @returns {Promise<{pdfDocLib: PDFDocument, eersteNieuwObject: number}>}
  */
-export async function bouwAnnotatieDocument(activeDoc = getActiveDocument()) {
+export async function bouwAnnotatieDocument(activeDoc = getActiveDocument(), { annulering = null } = {}) {
   if (!activeDoc?.pdfDoc) throw new Error('no document');
   if (_saveBezig) await _saveBezig.catch(() => {});
-  return metOpslagSlot(() => _savePDFNu(null, activeDoc, { alleenAnnotaties: true }));
+  return metOpslagSlot(() => _savePDFNu(null, activeDoc, { alleenAnnotaties: true, annulering }));
 }
 
 /**
@@ -367,16 +379,35 @@ export async function bouwMomentopname(doc) {
 /** Objecten per pauze bij een momentopname (gewoon opslaan: 5000, pdf-lib-snelheid.js). */
 const MOMENTOPNAME_OBJECTEN_PER_TIK = 500;
 
-async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false } = {}) {
+async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false, annulering: eigenAnnulering = null } = {}) {
   const currentPath = activeDoc?.filePath;
   const sourcePdf = activeDoc?.pdfDoc;
   const stillCurrent = () => state.documents.includes(activeDoc)
     && activeDoc.pdfDoc === sourcePdf && activeDoc.filePath === currentPath;
+  // The structure edits (tags panel, #384) this save writes. The panel puts a
+  // new object on the document per edit, so after the save an edit made
+  // during it is told apart by reference and kept (editsAfterSave).
+  let opgeslagenStructEdits = null;
   const changedDuringSave = () => new Error(i18next.t('documentChangedDuringSave', {
     defaultValue: 'The document changed while saving. Save again.',
   }));
+  // Annuleren (#766): de knop in het voortgangsvenster en Esc stoppen de save
+  // op het eerstvolgende veilige punt (saver/opslag-annuleren.js). Een
+  // herstelmomentopname is nooit te annuleren; een annulering van de
+  // gebruiker raakt haar dus niet.
+  const annulering = momentopname ? GEEN_ANNULERING : (eigenAnnulering || maakOpslagAnnulering());
+  const toonVoortgang = () => showLoading(
+    annulering.geannuleerd
+      ? i18next.t('saveCancelling', { defaultValue: 'Cancelling the save…' })
+      : i18next.t('savingPdf', { defaultValue: 'Saving PDF…' }),
+    // Na het punt zonder terugkeer blijft de knop staan, maar uit.
+    { annuleren: () => annulering.annuleer(), annulerenUit: !annulering.kanAnnuleren },
+  );
+  // Alles vlakken (alleenAnnotaties) heeft een eigen voortgangsvenster.
+  const eigenVenster = !momentopname && !alleenAnnotaties;
+  const stopVoortgang = eigenVenster ? annulering.opWijziging(toonVoortgang) : null;
   try {
-    if (!momentopname) showLoading('Saving PDF...');
+    if (eigenVenster) toonVoortgang();
 
     // Get original PDF bytes (from cache or disk, with memory key fallback for untitled docs)
     let existingPdfBytes = getCachedPdfBytes(currentPath);
@@ -386,12 +417,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       }
     }
     if (!existingPdfBytes) {
-      existingPdfBytes = await readBinaryFile(currentPath);
+      existingPdfBytes = await annulering.wacht(readBinaryFile(currentPath));
     }
 
     const pdfDocLib = momentopname
       ? await PDFDocument.load(existingPdfBytes, { parseSpeed: MOMENTOPNAME_OBJECTEN_PER_TIK })
-      : await PDFDocument.load(existingPdfBytes);
+      : await annulering.wacht(PDFDocument.load(existingPdfBytes));
     // Een voorbeeld van het importvenster kan inhoud missen en wordt nooit
     // als document opgeslagen (#400).
     {
@@ -440,6 +471,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       huidigeLaag: currentLayerId(doc),
     });
 
+    // De laagstand als standaard (#377): na "Als standaard instellen" in het
+    // paneel Lagen gaat de geschakelde stand van de tekening als /D /ON /OFF
+    // het bestand in. De eigen annotatielagen staan er net al in; een
+    // overgenomen laag van de tekening ('ocg-…') niet: die volgt deze stand.
+    const laagStandaard = standaardOmTeBewaren(doc);
+    if (laagStandaard) {
+      laagstandZonderEigenLagen(laagStandaard, laagOcgs);
+      schrijfStandaardLaagstand(pdfDocLib, laagStandaard);
+    }
+
     // Group annotations by page
     const annotationsByPage = {};
     for (const ann of docAnnotations) {
@@ -453,6 +494,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       // Momentopname: de bediening krijgt na elke pagina even ruimte.
       if (momentopname) await new Promise((r) => setTimeout(r, 0));
+      // Veilig punt per pagina (#766).
+      await annulering.punt();
       const pageNum = pageIndex + 1;
       const page = pages[pageIndex];
 
@@ -503,7 +546,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const handledSubtypes = new Set([
         '/Highlight', '/Underline', '/StrikeOut', '/Squiggly',
         '/Square', '/Circle', '/Line', '/Ink', '/PolyLine', '/Polygon',
-        '/Text', '/FreeText', '/Stamp', '/Caret'
+        '/Text', '/FreeText', '/Stamp', '/Caret', '/FileAttachment'
       ]);
       let annotsArray = [];
       const verwijderdeRefs = []; // weggehaald en uit het model herschreven
@@ -518,7 +561,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             const dict = context.lookup(ref);
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
-            if (!subtype || !handledSubtypes.has(subtype)) {
+            if (!subtype || !handledSubtypes.has(subtype) || isShxTextDictionary(dict, context)) {
               annotsArray.push(ref); // Keep annotations we don't manage
             } else if (subtype === '/Square' && readPluginPdfAnnotation(dict, context) &&
                        !getAnnotationType(readPluginPdfAnnotation(dict, context).type)) {
@@ -555,9 +598,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const dictById = new Map();
       // /NM per pagina uniek: een kopie draagt de naam van het origineel mee.
       const gebruikteNm = new Set();
+      // Bijlage-annotaties die ongemoeid blijven (#376, zie 'fileAttachment').
+      const behoudenBijlagen = new Set();
 
       // Add our annotations
       for (const annRaw of pageAnnotations) {
+        // Veilig punt per annotatie; de event-loop krijgt alleen na een
+        // partij rekenwerk ruimte (saver/opslag-annuleren.js).
+        await annulering.punt();
         // On rotated pages, remap visual coords into the unrotated page frame
         // so the convert helpers below produce correct PDF coordinates. rot 0
         // returns the annotation unchanged (non-rotated pages untouched).
@@ -578,6 +626,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         const borderWidth = ann.lineWidth ?? 2;
 
         let annotDict;
+        // Een origineel dat ongewijzigd blijft staan in plaats van een nieuwe dict.
+        let behoudenRef = null;
 
         switch (ann.type) {
           case 'highlight':
@@ -914,7 +964,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const inkDict = {
               Type: 'Annot',
               Subtype: 'Ink',
-              Rect: [minX - borderWidth, minY - borderWidth, maxX + borderWidth, maxY + borderWidth],
+              // Een gladde streek kan iets buiten de ingevoerde punten buigen.
+              Rect: (() => {
+                const pad = borderWidth + (isGladdeInkt(ann) ? 1 : 0);
+                return [minX - pad, minY - pad, maxX + pad, maxY + pad];
+              })(),
               InkList: [inkList],
               C: strokeColorArr,
               CA: opacity,
@@ -926,7 +980,19 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
             inkDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
+            // Drukgevoelige / gladde inkt (#385): /InkList blijft de
+            // middellijn (andere lezers: vaste breedte /BS /W), de appearance
+            // tekent de gladde streek met variabele breedte als gevuld vlak.
+            // De druk per punt, de minimale breedte en de gladheid gaan in
+            // eigen sleutels mee, zodat de streek na heropenen bewerkbaar blijft.
+            Object.assign(inkDict, inktSleutels(ann));
+
             annotDict = context.obj(inkDict);
+            if (isGladdeInkt(ann)) {
+              attachVectorAP(context, annotDict, {
+                content: inktAppearanceInhoud(ann, convertX, convertY, hexToRgb(ann.strokeColor || ann.color || '#000000')),
+              }, inkDict.Rect);
+            }
             break;
           }
 
@@ -1252,7 +1318,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
               if (pgStroke) {
                 const [psr, psg, psb] = hexToRgb(ann.strokeColor || ann.color || '#000000');
-                const pgDash = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const pgDash = streepOperator(ann.borderStyle);
                 pgContent += `q\n${borderWidth} w\n${pgDash}${psr} ${psg} ${psb} RG\n${pad}S\nQ\n`;
               }
               if (pgContent) {
@@ -1495,7 +1561,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
               // Draw callout leader line and arrowhead first (using absolute page coords)
               if (isCallout) {
-                const dashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const dashOp = streepOperator(ann.borderStyle);
                 // Leader armOrigin -> knee -> tip with its heads, as the screen
                 // draws it (calloutLeiderOps, #612). 'curved' = a smooth
                 // Catmull-Rom spline (cubic Bézier `c` operators) through the
@@ -1514,7 +1580,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
 
               // Draw text box fill + stroke (absolute coords)
-              const ftDashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+              const ftDashOp = streepOperator(ann.borderStyle);
               // A border is drawn ONLY when the textbox actually has one. Without
               // this the AP always stroked the rect — with `0 w` (hairline) and a
               // black fallback colour when strokeColor was 'none' — so other
@@ -1547,7 +1613,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 if (ftHasBorder) {
                   ftStreamContent += `${ftBorderWidth} w\n${ftDashOp}${sr} ${sg} ${sb} RG\n`;
                 }
-                ftStreamContent += `${bx} ${by} ${visW} ${visH} re ${ftRectOp}\n`;
+                ftStreamContent += `${vakPadPdf(bx, by, visW, visH, vormVan(ann))}\n${ftRectOp}\n`;
               };
               // Wrap in a transform whenever the content is rotated in PDF
               // space OR the page itself is rotated (then the visual box dims
@@ -1604,6 +1670,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const boxTop = needsRotationInAP ? visH : tbY2;
                 const bottomLimit = needsRotationInAP ? 0 : tbY1;
                 let textY = boxTop - pad - layout.halfLeading - layout.ascent;
+                // Verticale uitlijning (boven, midden, onder) van het tekstblok.
+                textY -= verticaleVerschuiving(ann.textVAlign, visH - 2 * pad, layout.lines.length * lineHeight);
 
                 ftStreamContent += 'BT\n';
                 const basisKleur = ann.textColor ? `${tr} ${tg} ${tb}` : '0 0 0';
@@ -1704,6 +1772,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               // without an explicit key the loader's matrix heuristic would
               // misread that compensation as annotation rotation.
               annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ftRotation));
+              // The shape of the box (rounded or oval); a rectangle is the default and gets no key.
+              if (vormVan(ann) !== 'rect') annotDict.set(PDFName.of('OPS_BoxShape'), PDFName.of(vormVan(ann)));
+              // Vertical alignment of the text; top is the default and gets no key.
+              if (ann.textVAlign === 'middle' || ann.textVAlign === 'bottom') annotDict.set(PDFName.of('OPS_TextVAlign'), PDFName.of(ann.textVAlign));
             }
 
             break;
@@ -1739,6 +1811,50 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Draaiing van het pictogram (#619): de specificatie kent er geen
             // sleutel voor; andere lezers tekenen hun eigen pictogram rechtop.
             if (ann.rotation) annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ann.rotation));
+            break;
+          }
+
+          case 'fileAttachment': {
+            // Bijlage-annotatie (#376): pictogram met ingesloten bestand.
+            const faW = ann.width || 24;
+            const faH = ann.height || 24;
+            const faInhoud = await bijlageInhoud(annRaw, activeDoc);
+            const faBestand = annRaw.attachment || {};
+            // Onbewerkt blijft het origineel staan zoals het was (met /FS, /AP
+            // en sleutels die de app niet kent, zoals /CI), ook als de inhoud
+            // te lezen is. Bewerkt en de inhoud niet te lezen: de nieuwe
+            // annotatie krijgt de oorspronkelijke bestandsspecificatie, zodat
+            // het ingesloten bestand niet stil verdwijnt.
+            const faOrigineel = origineleBijlage(context, verwijderdeRefs, annRaw);
+            if (faOrigineel?.ref && !alleenAnnotaties && !bijlageBewerkt(annRaw)
+                && !behoudenBijlagen.has(faOrigineel.ref)) {
+              behoudenRef = faOrigineel.ref;
+              behoudenBijlagen.add(behoudenRef);
+              break;
+            }
+            annotDict = bouwBijlageAnnotatie(pdfDocLib, {
+              rect: [convertX(ann.x), convertY(ann.y + faH), convertX(ann.x + faW), convertY(ann.y)],
+              icoon: ann.icon,
+              kleur: ann.color,
+              kleurArray: hexToColorArray(ann.color || '#2B579A'),
+              opacity,
+              tekst: ann.text || '',
+              auteur: pdfTextString(ann.author || 'User'),
+              flags: computeAnnotFlags(ann),
+              tekstObj: pdfTextString,
+              bestand: {
+                naam: faBestand.name || 'attachment',
+                beschrijving: faBestand.description || ann.text || '',
+                mime: faBestand.mime || undefined,
+                aangemaakt: faBestand.createdAt || undefined,
+                gewijzigd: faBestand.modifiedAt || undefined,
+                relatie: faBestand.relationship || undefined,
+                grootte: faBestand.size ?? undefined,
+                ...(faInhoud?.bytes ? { bytes: faInhoud.bytes } : faInhoud?.ruw ? { ruw: faInhoud.ruw } : {}),
+              },
+              bestaandeFs: faInhoud ? undefined : faOrigineel?.fs,
+            });
+            if (!faInhoud && !faOrigineel && annotDict) console.warn(`[saver] file attachment "${faBestand.name}" has no content; written without /EF`);
             break;
           }
 
@@ -2237,6 +2353,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               OPS_SRCount: srGeom.params.count,
               OPS_SRDiameter: srGeom.params.diameter,
               OPS_SRBarLengthMm: srGeom.params.barLengthMm,
+              // Staafnummer en staalkwaliteit voor de buigstaat (leeg = automatisch).
+              ...(String(ann.barMark ?? '').trim() ? { OPS_SRBarMark: pdfTextString(String(ann.barMark).trim()) } : {}),
+              ...(String(ann.steelGrade ?? '').trim() ? { OPS_SRSteelGrade: pdfTextString(String(ann.steelGrade).trim()) } : {}),
               OPS_SRLegDir: pdfTextString(srGeom.params.legDir),
               OPS_SRLegLength: srGeom.params.legLength,
               OPS_SRLineTail: srGeom.params.lineTail,
@@ -2753,6 +2872,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Holle punten van een omtrekmaat uit een ander programma.
             Object.assign(mpDict, kopVullingSleutels(ann));
             annotDict = context.obj(mpDict);
+            // Diepte van de omtrekmaat (#311).
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
             // Vector /AP so the polyline AND the perimeter value label render in
             // other viewers (label was Contents-only) — issue #256.
@@ -3018,6 +3139,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
         // Add annotation to page
         let parentAnnotRef = null;
+        if (behoudenRef) {
+          // Het origineel gaat terug de pagina op; antwoorden en koppelingen
+          // hieronder wijzen ernaar zoals naar een nieuwe annotatie.
+          parentAnnotRef = behoudenRef;
+          annotsArray.push(behoudenRef);
+          verwijderdeRefs.splice(verwijderdeRefs.indexOf(behoudenRef), 1);
+          if (annRaw.nm != null) gebruikteNm.add(String(annRaw.nm));
+          refById.set(annRaw.id, behoudenRef);
+          dictById.set(annRaw.id, context.lookup(behoudenRef));
+        }
         if (annotDict) {
           // Vul-alfa bewaren (zie fillOpacity hierboven) — één plek voor elke
           // annotatiesoort, vlak voordat de dict de pagina in gaat.
@@ -3064,7 +3195,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         // /Text met /IRT naar deze annotatie (PDF-spec), zodat ze ook in andere
         // programma's bij de annotatie horen en bij heropenen terugkomen.
         if (parentAnnotRef) {
-          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, annotDict, gebruikteNm)) {
+          const ouderDict = annotDict || (behoudenRef ? context.lookup(behoudenRef) : null);
+          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm)) {
             annotsArray.push(context.register(antwoord));
           }
         }
@@ -3141,7 +3273,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       applyGroupLinks(context, plan, refById, dictById, annotsArray);
       // Overige koppelingen naar een andere annotatie (#619): /IRT en /RT.
       schrijfKoppelingen(pageAnnotations, refById, dictById);
-      annotsArray = dropOrphanPopups(context, annotsArray, correctionRefKeys(context, verwijderdeRefs));
+      // Ook de popup van een herschreven bijlage-annotatie (#376) valt weg: via
+      // haar /Parent hield die de oude annotatie, en daarmee een kopie van het
+      // ingesloten bestand, bij elke save in het bestand.
+      const popupOuders = correctionRefKeys(context, verwijderdeRefs);
+      for (const ref of verwijderdeRefs) {
+        if (context.lookup(ref)?.get?.(PDFName.of('Subtype'))?.toString() === '/FileAttachment') popupOuders.add(ref.toString());
+      }
+      annotsArray = dropOrphanPopups(context, annotsArray, popupOuders);
 
       // Set the updated annotations array
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));
@@ -3154,7 +3293,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     let ocrUitkomst = null;
     if (!alleenAnnotaties) {
       // Burn text edits into the PDF (cover-and-replace)
-      await saveTextEditsToPages(pdfDocLib, pages, activeDoc);
+      await annulering.punt();
+      await saveTextEditsToPages(pdfDocLib, pages, activeDoc, { annulering });
 
       // Write out any OCR results as an invisible searchable text layer.
       // Zonder lettertype (bestand ontbreekt) geen tekstlaag, maar wel een
@@ -3163,11 +3303,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // overgeslagen. Een nagekeken woord dat niet in de laag kan, of
       // nagekeken woorden zonder lettertype, weigeren de opslag (#657); een
       // herstelmomentopname laat zo'n woord weg in plaats van te mislukken.
-      ocrUitkomst = await writeOcrLayers(pdfDocLib, pages, activeDoc, { strictReviews: !momentopname });
+      await annulering.punt();
+      ocrUitkomst = await writeOcrLayers(pdfDocLib, pages, activeDoc, { strictReviews: !momentopname, annulering });
 
       // Burn watermarks into the PDF. Kop-/voetteksten vervangen die van een
       // eerdere save (#375); de uitkomst zegt welke er nu in het bestand staan.
-      watermerkUitkomst = await saveWatermarksToPages(pdfDocLib, pages, activeDoc);
+      await annulering.punt();
+      watermerkUitkomst = await saveWatermarksToPages(pdfDocLib, pages, activeDoc, { annulering });
 
       // Save bookmarks to PDF outline
       saveBookmarksToOutline(pdfDocLib, activeDoc);
@@ -3181,7 +3323,15 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Bijlagen die in het paneel zijn toegevoegd of verwijderd (bijlagen.js).
       pasBijlagenToe(pdfDocLib, activeDoc.bijlagenWijzigingen);
+
+      // Tags panel (#384): alt text and reading order of structure elements.
+      if (hasEdits(activeDoc?.structEdits)) {
+        opgeslagenStructEdits = activeDoc.structEdits;
+        const r = applyEditsToPdf(pdfDocLib, opgeslagenStructEdits);
+        if (r.skipped) console.warn(`[saver] ${r.skipped} structure edit(s) no longer match the document and were skipped`);
+      }
     }
+    await annulering.punt();
 
     // Vectorknipsels: opruimen wat de vorige stempels en het inbedden achter-
     // lieten, anders groeit het bestand per save met de hele bronpagina. Eerst
@@ -3192,10 +3342,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       || !!pdfDocLib.catalog.get(PDFName.of(KNIPSEL_CATALOGUS));
     if (heeftKnipsels) {
       try {
-        await pdfDocLib.flush();
+        await annulering.wacht(pdfDocLib.flush());
         const r = ruimKnipselRestenOp(pdfDocLib, oudeKnipselStempels, { nieuwVanaf: eersteNieuwObject });
         if (r.verwijderd) console.log(`[saver] knipsel-resten opgeruimd: ${r.verwijderd} objecten, bronnen weg: ${r.bronnenWeg.length}`);
       } catch (err) {
+        if (isOpslagGeannuleerd(err)) throw err;
         console.warn('[saver] knipsel-resten opruimen overgeslagen:', err?.message || err);
       }
     }
@@ -3209,37 +3360,54 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // nummers: anders groeit het bestand bij elke save (saver/objecten-
     // opruimen.js). Eerst alles laten aanmaken wat pdf-lib anders pas bij
     // save() aanmaakt.
+    await annulering.punt();
     pdfDocLib.formCache.getValue()?.updateFieldAppearances();
-    await pdfDocLib.flush();
-    ruimOngebruikteObjectenOp(pdfDocLib, { nieuwVanaf: eersteNieuwObject });
+    await annulering.wacht(pdfDocLib.flush());
+    // Per partij objecten een veilig punt (#766).
+    await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
 
     // Herstelmomentopname: alleen de bytes; niets wegschrijven of bijwerken.
     if (momentopname) {
       return new Uint8Array(await pdfDocLib.save({ objectsPerTick: MOMENTOPNAME_OBJECTEN_PER_TIK }));
     }
 
-    // Save the PDF
-    const pdfBytes = await pdfDocLib.save({ updateFieldAppearances: false });
+    // Save the PDF. pdf-lib serialiseert in partijen en laat zich niet
+    // onderbreken: bij annuleren stopt de save meteen en wordt de uitkomst
+    // van pdf-lib genegeerd.
+    const pdfBytes = await annulering.wacht(pdfDocLib.save({ updateFieldAppearances: false }));
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
     const savedBytes = new Uint8Array(pdfBytes);
     // Structural edits replace the PDF and often move its working path. A
     // serialization started before that replacement must not write old bytes.
     if (!stillCurrent()) throw changedDuringSave();
 
+    // Laatste veilig punt vóór het schrijven.
+    annulering.controleer();
     // Temporarily release lock so we can write, then re-lock
     await unlockFile(outputPath);
     try {
       if (!stillCurrent()) throw changedDuringSave();
-      await writeBinaryFileAtomic(outputPath, savedBytes);
+      // Het schrijven zelf is nog te annuleren tot het tijdelijke bestand over
+      // het doel gaat (core/platform.js, src-tauri/src/atomic_file.rs); bij
+      // annuleren verdwijnt het tijdelijke bestand en blijft het doel zoals
+      // het was. Kan de schrijver niet annuleren, dan legt hij de annulering
+      // vóór het schrijven vast.
+      await writeBinaryFileAtomic(outputPath, savedBytes, { annulering });
     } catch (writeErr) {
       // Re-lock before reporting error
       await lockFile(outputPath);
+      // Al gemeld (een weigering van de site bij Opslaan als, #726): ongewijzigd door.
+      if (isOpslagGeannuleerd(writeErr) || writeErr?.gemeld) throw writeErr;
       const msg = writeErr?.message || String(writeErr);
       if (msg.includes('denied') || msg.includes('locked') || msg.includes('sharing') || msg.includes('used by another')) {
         throw new Error(i18next.t('fileLocked', { defaultValue: 'The file is being used by another application. Please close it and try again.' }));
       }
       throw writeErr;
     }
+    // Het doel is vervangen: vanaf hier niet meer te annuleren. Een annulering
+    // die tijdens het schrijven binnenkwam, was te laat; de save gaat gewoon
+    // door en meldt dat (geen terugdraaien).
+    annulering.vastleggen({ naSchrijven: true });
     await lockFile(outputPath);
 
     // Invalidate the Rust-side PDF bytes cache so next render reads the updated file
@@ -3260,6 +3428,21 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Mark document as saved
     markDocumentSaved(activeDoc);
+    // Lagen (#377): de bewaarde stand is nu de beginstand van het bestand, en
+    // een weergavekopie volgt de nieuwe bytes.
+    lagenNaOpslaan(activeDoc, { standBewaard: !!laagStandaard })
+      .catch((e) => console.warn('[lagen] na opslaan:', e));
+
+    // The structure edits are in the file now; the tags panel reads the tree
+    // again from the saved bytes (the keys of the edits belong to the old ones).
+    // Only the edits this save wrote are cleared: an alt text or order changed
+    // during a long save stays, rebased on the saved structure, and keeps the
+    // document modified, so it is not lost.
+    if (activeDoc?.structEdits) {
+      activeDoc.structEdits = editsAfterSave(activeDoc.structEdits, opgeslagenStructEdits);
+      if (activeDoc.structEdits) markDocumentModified(activeDoc);
+      notifyStructEditsSaved(activeDoc);
+    }
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.
@@ -3358,9 +3541,22 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       }
     }
 
+    if (annulering.teLaat) {
+      updateStatusMessage(i18next.t('saveCancelTooLate', { defaultValue: 'The file had already been saved; it was too late to cancel.' }));
+    }
     return true;
   } catch (error) {
     if (alleenAnnotaties || momentopname) throw error;
+    // Geannuleerd (#766): het bestand is niet aangeraakt en het document blijft
+    // gewijzigd; geen bytes-cache, geen opgeslagen-markering. De voorlopige
+    // bake-administratie van tekstbewerkingen hoort bij deze save en vervalt.
+    if (isOpslagGeannuleerd(error)) {
+      for (const te of (Array.isArray(activeDoc?.textEdits) ? activeDoc.textEdits : [])) {
+        if (te) delete te._pendingBakeInfo;
+      }
+      updateStatusMessage(i18next.t('saveCancelled', { defaultValue: 'Save cancelled. The file was not changed.' }));
+      return false;
+    }
     // Een tekstbewerking met tekens die geen font heeft (#717): het bestand
     // bleef ongewijzigd; noem de tekens.
     if (isOntbrekendeGlyfenFout(error)) {
@@ -3368,6 +3564,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       showMessage(i18next.t('textEditMissingGlyphsSave', { chars: tekensVoorMelding(error.tekens) }));
       return false;
     }
+    // De gebruiker zag de fout al, met de keuze om te downloaden (#726).
+    if (error?.gemeld) return false;
     // De gastsite weigerde met een bekende code (versie_alleen_lezen, #712):
     // een eigen melding, met de tekst van de site als terugval.
     const hostMelding = hostFoutMelding(error, (s, o) => i18next.t(s, o));
@@ -3380,12 +3578,64 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     showMessage(i18next.t('failedToSavePdf', { error: error?.message || String(error) }));
     return false;
   } finally {
-    if (!momentopname) hideLoading();
+    stopVoortgang?.();
+    if (eigenVenster) hideLoading();
   }
 }
 
 
 
+
+/**
+ * Opslaan als een nieuw bestand op de site (#726). savePDF() schrijft via
+ * storage.saveAs (core/platform.js); daarna kiest de gebruiker tussen het
+ * nieuwe bestand openen en verder met het origineel. Downloadde de gebruiker
+ * na een weigering van de site toch, dan blijft het document zoals het was.
+ */
+async function slaOpAlsOpSite(doc, savePath, opties) {
+  const voor = legDocumentVast(doc);
+  meldHostNieuwStil(savePath);
+  const success = await savePDF(savePath, opties, doc);
+  const uitkomst = hostNieuwUitkomst(savePath);
+  if (!success || !uitkomst) return false;
+
+  const blijf = () => {
+    const { weerGewijzigd } = blijfBijOrigineel(doc, voor);
+    if (weerGewijzigd) markDocumentModified(doc);
+    clearCachedPdfBytes(savePath);
+    updateWindowTitle();
+  };
+  if (uitkomst.gedownload) {
+    blijf();
+    return true;
+  }
+
+  const { HOST_OPSLAAN_ALS_UI } = await import('./host-opslaan-als-ui.js');
+  const keuze = await HOST_OPSLAAN_ALS_UI.naOpslaanAls(uitkomst);
+  if (keuze !== 'nieuw' || !state.documents.includes(doc)) {
+    blijf();
+    return true;
+  }
+
+  // De bytes van het nieuwe bestand onder zijn eigen pad, zodat een volgende
+  // save daarop voortbouwt.
+  const bytes = getCachedPdfBytes(savePath);
+  if (bytes) setCachedPdfBytes(uitkomst.pad, bytes);
+  clearCachedPdfBytes(savePath);
+  const { weergavePad, nieuwPad } = wisselNaarNieuwBestand(doc, uitkomst);
+  verhuisLaagstand(doc, weergavePad, nieuwPad);
+  if (weergavePad && weergavePad !== nieuwPad) {
+    try {
+      const { wisselBestandspad } = await import('./pdf-viewport.js');
+      wisselBestandspad(weergavePad, nieuwPad);
+    } catch (e) { console.warn('[save-as] view not moved to the new site file:', e); }
+  }
+  markDocumentSaved(doc);
+  updateWindowTitle();
+  window.__OPDS_SESSION_SAVE__?.();
+  void meldHostGeopend(uitkomst.id);
+  return true;
+}
 
 // Save As - prompt for new file path
 export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, opties = {}) {
@@ -3405,9 +3655,17 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
   let savePath = explicitPath;
   if (!savePath) {
     const { opslaanAlsStandaardPad } = await import('./handtekeningen/opslaan.js');
-    const defaultPath = opslaanAlsStandaardPad(doc, map);
+    let defaultPath = opslaanAlsStandaardPad(doc, map);
+    // Een document van de site als nieuw bestand op de site (#726): standaard
+    // "<naam> (copy).pdf", zodat het origineel niet ongemerkt een tweeling krijgt.
+    if (hostKanOpslaanAls() && leesHostPad(doc.saveTargetPath || doc.filePath)) {
+      defaultPath = kopieNaam(extractFileName(defaultPath), (b) => i18next.t('hostSaveAs.copyName', { name: b }));
+    }
     savePath = await saveFileDialog(defaultPath);
   }
+
+  // Een nieuw bestand op de site (#726).
+  if (savePath && leesHostNieuwPad(savePath)) return slaOpAlsOpSite(doc, savePath, opties);
 
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;
@@ -3433,6 +3691,9 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
         doc.isUntitled = false; // now a real, user-chosen file
         doc.saveTargetPath = null; // lives at its real path now; no separate save target
         doc._renderTemp = false;
+        // De geschakelde laagstand verhuist mee naar het nieuwe pad, voordat
+        // het paneel hem leest (anders vervalt hij als verouderd).
+        verhuisLaagstand(doc, weergavePad, savePath);
       }
       // De weergave verhuist mee naar het opgeslagen bestand (zelfde bytes),
       // vóórdat de werkkopie hieronder van schijf gaat. Anders vraagt de

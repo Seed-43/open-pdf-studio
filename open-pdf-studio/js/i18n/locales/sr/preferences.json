@@ -9,7 +9,8 @@
     "behavior": "Понашање",
     "fileAssociation": "Асоцијација фајлова",
     "virtualPrinter": "Виртуелни штампач",
-    "pageDisplay": "Приказ странице"
+    "pageDisplay": "Приказ странице",
+    "keyboardShortcuts": "Пречице на тастатури"
   },
   "resetToDefaults": "Врати на подразумевано",
   "resetConfirm": "Вратити сва подешавања на подразумеване вредности?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Активно на {{adres}}",
     "aiLinkViaFlag": "Активно преко параметра покретања ({{adres}})",
     "aiLinkOff": "Искључено",
-    "aiLinkError": "Није покренуто: {{fout}}"
+    "aiLinkError": "Није покренуто: {{fout}}",
+    "interfaceScale": "Величина интерфејса"
   },
   "annotations": {
     "generalDefaults": "Опште подразумеване вредности",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Отворена стрелица (обрнута)",
     "headClosedReversed": "Затворена стрелица (обрнута)",
     "headSlash": "Коса црта",
-    "polylineDefaults": "Подразумевано за полилинију"
+    "polylineDefaults": "Подразумевано за полилинију",
+    "smoothing": "Изглађивање",
+    "pressure": "Притисак оловке",
+    "pressureHint": "Притисак оловке мења дебљину потеза (потези мишем задржавају сталну дебљину)",
+    "pressureMinWidth": "Најмања ширина (%)",
+    "penOnly": "Само оловка (занемари додир)",
+    "penOnlyHint": "Додир не црта алатом слободне руке; корисно против додира длана при писању оловком"
   },
   "shapes": {
     "rectangleDefaults": "Подразумевано за правоугаоник",
@@ -165,8 +173,15 @@
     "deletion": "Брисање",
     "confirmBeforeDeleting": "Потврди пре брисања анотација",
     "snapToPdfContent": "Привлачење на садржај PDF цртежа",
+    "moveInference": "Помоћне линије при померању (G / mv)",
+    "moveInferenceTracking": "Линије праћења (поравнање са тачкама друге геометрије)",
+    "moveInferenceExtension": "Продужеци линија и лица зидова",
+    "moveInferenceParallel": "Паралелно / управно на оближње линије",
+    "moveInferenceHint": "Задржите показивач кратко изнад тачке да је ухватите, држите Shift да закључате помоћну линију, Tab прелази између растојања и угла. Поларне помоћне линије прате подешавања поларног праћења.",
     "navigation": "Навигација",
     "wheelZoomWithoutCtrl": "Зумирање точкићем миша (без држања тастера Ctrl)",
+    "middleDoubleClickFit": "Двоструки клик средњим тастером миша уклапа страницу",
+    "ribbonWheelSwitchesTabs": "Мењај картице траке точкићем миша",
     "dynamicScaling": "Аутоматски скалирај ознаке"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Да бисте поставили Open PDF Studio као подразумевани PDF прегледач на macOS:\n\n1. Десни клик на било који PDF фајл у Finder-у\n2. Изаберите \"Get Info\"\n3. Под \"Open with\", изаберите Open PDF Studio\n4. Кликните \"Change All...\"",
     "linuxInstructions": "Да бисте поставили Open PDF Studio као подразумевани PDF прегледач на Linux-у:\n\nПокрените у терминалу:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Проверите Finder > Get Info",
-    "notSet": "Није постављено"
+    "notSet": "Није постављено",
+    "chosenInSystemSettings": "Изабрано у подешавањима система",
+    "sandboxInstructions": "Open PDF Studio ради као {{package}} пакет и не може сам да промени подразумевану PDF апликацију.\n\nИзаберите Open PDF Studio у подешавањима система под Подразумеване апликације или десним кликом на PDF датотеку употребите Отвори помоћу.",
+    "xdgMimeMissing": "xdg-mime (пакет xdg-utils) није инсталиран, па се подразумевана PDF апликација не може подесити одавде.\n\nИнсталирајте xdg-utils или изаберите Open PDF Studio у подешавањима система под Подразумеване апликације.",
+    "linuxDone": "Open PDF Studio је сада подразумевана апликација за PDF датотеке.",
+    "linuxFailed": "Није могуће подесити Open PDF Studio као подразумевану PDF апликацију.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Истраживач датотека",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Јако",
     "pageSharpenLevel4": "Максимално",
     "showScrollbars": "Прикажи траке за померање платна",
+    "backgroundColor": "Боја позадине",
+    "backgroundColorDefault": "Подразумевано",
+    "backgroundColorHint": "Боја површине око страница и између њих. Сама страница, штампање и извоз се не мењају.",
     "panels": "Панели",
     "showPropertiesPanel": "Подразумевано прикажи панел својстава",
     "showToolPalette": "Подразумевано прикажи палету алатки",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Отворена стрелица (обрнута)",
     "closedArrowReversed": "Затворена стрелица (обрнута)",
     "slash": "Коса црта"
+  },
+  "keyboardShortcuts": {
+    "title": "Пречице на тастатури",
+    "search": "Претражи по наредби или тастеру",
+    "command": "Наредба",
+    "shortcuts": "Пречице",
+    "none": "Нема",
+    "noMatches": "Ниједна наредба не одговара претрази.",
+    "selectHint": "Изаберите наредбу да бисте променили њене пречице.",
+    "addShortcut": "Додај пречицу",
+    "remove": "Уклони пречицу",
+    "resetCommand": "Врати подразумевано",
+    "resetAll": "Врати све",
+    "resetAllConfirm": "Вратити све пречице на тастатури на подразумеване вредности?",
+    "loadPreset": "Учитај унапред подешено…",
+    "replaceConfirm": "Ово ће заменити ваше прилагођене пречице на тастатури. Наставити?",
+    "presets": {
+      "markupStyle": "Пречице у стилу означавања"
+    },
+    "import": "Увези…",
+    "export": "Извези…",
+    "fileType": "Пречице на тастатури",
+    "imported": "Пречице су увезене. Кликните на Сачувај да их примените.",
+    "importFailed": "Ово није исправна датотека пречица на тастатури.",
+    "exported": "Пречице су извезене.",
+    "exportFailed": "Извоз пречица није успео:",
+    "recording": "Притисните нову комбинацију тастера… (Esc отказује)",
+    "conflict": "{{keys}} већ користи „{{command}}”.",
+    "reassign": "Поново додели",
+    "reserved": "{{keys}} има фиксно значење и не може се доделити.",
+    "defaultLabel": "Подразумевано: {{keys}}",
+    "customize": "Прилагоди…",
+    "fixedGroup": "Фиксни тастери",
+    "applyHint": "Измене важе када кликнете на Сачувај.",
+    "categories": {
+      "file": "Датотека",
+      "edit": "Уређивање",
+      "view": "Приказ",
+      "search": "Претрага",
+      "tools": "Алатке",
+      "drafting": "Помагала за цртање",
+      "panels": "Панели",
+      "review": "Преглед",
+      "help": "Помоћ",
+      "extensions": "Проширења",
+      "ribbon": "Трака: {{tab}}",
+      "other": "Остало"
+    },
+    "commands": {
+      "findNext": "Пронађи следеће",
+      "splitPaneLarger": "Повећај активно окно",
+      "splitPaneSmaller": "Смањи активно окно"
+    }
   }
 }

@@ -34,6 +34,10 @@
   "draw": "Tegn",
   "saved": "Gemt",
   "documentChangedDuringSave": "Dokumentet blev ændret under gemning. Gem igen.",
+  "savingPdf": "Gemmer PDF…",
+  "saveCancelling": "Annullerer gemning…",
+  "saveCancelled": "Gemning annulleret. Filen blev ikke ændret.",
+  "saveCancelTooLate": "Filen var allerede gemt; det var for sent at annullere.",
   "documentChangedDuringExport": "Dokumentet blev ændret under eksporten. Start forfra.",
   "rasterExportProgress": "Rasteriserer sider: {{done}} af {{total}}",
   "search": "Søg",
@@ -120,7 +124,79 @@
         "label": "Plantegning",
         "hint": "Tegn en bygningsplantegning: vægge, vinduer og døre, rum, målsætning og indretning (sanitet, køkken)",
         "prompt": "Tegn en bygningsplantegning. Hvad der skal tegnes: "
+      },
+      "find-on-sheet": {
+        "label": "Find på arket",
+        "hint": "Find et begreb (et rumnavn, en snitmarkering, et symbol), gå til siden, og fremhæv resultaterne",
+        "prompt": "Find på dette ark: "
+      },
+      "explain-selection": {
+        "label": "Forklar valget",
+        "hint": "Beskriv det valgte område, den valgte tekst eller markering i almindeligt sprog, med mål når en måleskala er angivet",
+        "prompt": "Forklar det valgte."
+      },
+      "compare-sheets": {
+        "label": "Sammenlign ark",
+        "hint": "Navngiv og markér, hvad der er tilføjet, fjernet eller flyttet i forhold til en anden side",
+        "prompt": "Sammenlign denne side med side: "
+      },
+      "measure": {
+        "label": "Mål dette",
+        "hint": "Mål den valgte figur eller et beskrevet element, og angiv det i tegningens skala",
+        "prompt": "Mål: "
+      },
+      "take-off": {
+        "label": "Mængdeudtræk",
+        "hint": "Tæl eller mål elementer af én type, og placér resultatet som en liste på arket",
+        "prompt": "Lav mængdeudtræk af: "
+      },
+      "check-scale": {
+        "label": "Kontrollér skalaen",
+        "hint": "Find skalaen ud fra tegningshovedet eller et kendt mål, og angiv den",
+        "prompt": "Kontrollér skalaen på denne tegning."
+      },
+      "review-sheet": {
+        "label": "Gennemgå ark",
+        "hint": "Tilføj skyer med nummererede kommentarer til de punkter, en kontrollant ville påpege",
+        "prompt": "Gennemgå dette ark for: "
+      },
+      "stamp-date": {
+        "label": "Stempl og datér",
+        "hint": "Placér et stempel, udfyld et felt i tegningshovedet, eller tilføj en revisionsnote med dagens dato",
+        "prompt": "Stempl og datér: "
+      },
+      "clean-up": {
+        "label": "Ryd op i markeringer",
+        "hint": "Justér, omnummerér eller omfarv de eksisterende markeringer ensartet",
+        "prompt": "Ryd op i mine markeringer: "
+      },
+      "import-cad": {
+        "label": "Hent en tegning",
+        "hint": "Importér en DWG- eller DXF-tegning som underlag i den rette skala",
+        "prompt": "Hent tegningen (sti til DWG- eller DXF-filen): "
+      },
+      "export-cad": {
+        "label": "Eksportér til CAD",
+        "hint": "Skriv denne side eller det valgte område til en DXF- eller DWG-fil",
+        "prompt": "Eksportér denne side til (sti til DXF- eller DWG-filen): "
       }
+    },
+    "groups": {
+      "document": "Oversæt og opsummér",
+      "reading": "Læs tegningen",
+      "measuring": "Måling og mængder",
+      "markup": "Markering",
+      "structure": "Konstruktion og plantegning",
+      "cad": "CAD-tegninger"
+    },
+    "need": {
+      "document": "Åbn først en PDF: denne færdighed arbejder på det åbne dokument.",
+      "selection": "Vælg først en markering eller noget tekst på tegningen, og klik derefter på færdigheden igen.",
+      "scale": "Denne tegning har endnu ingen måleskala. Angiv først en (for eksempel med \"Kontrollér skalaen\"), og prøv igen.",
+      "input": "Udfyld teksten i indtastningsfeltet efter kolonet, og send den.",
+      "selectionOrInput": "Vælg en figur på tegningen, eller beskriv efter kolonet, hvad der skal måles.",
+      "page": "Angiv nummeret på den anden side (1 til {{max}}), ikke den aktuelle side.",
+      "twoPages": "Dette dokument har kun én side. Vil du sammenligne med en anden fil, så erstat teksten i indtastningsfeltet med dit eget spørgsmål."
     }
   },
   "onlineSymbolLibrary": "Online symbolbibliotek",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Dette er en ældre version af filen, åbnet skrivebeskyttet, så den kan ikke gemmes. Brug Gem som for at downloade en kopi.",
   "hostVersionReadOnlyRefused": "Webstedet gemte ikke filen: en ældre version af den er åbnet skrivebeskyttet. Åbn den aktuelle version igen for at gemme, eller brug Gem som for at downloade en kopi.",
   "hostVersionInvalid": "Denne version af filen kan ikke åbnes: versionsnummeret er ugyldigt.",
+  "hostSaveAs": {
+    "title": "Gem i dokumenter",
+    "location": "Mappe:",
+    "currentFolder": "Aktuel mappe",
+    "up": "Op",
+    "loading": "Indlæser…",
+    "listError": "Mappelisten kunne ikke indlæses. Du kan stadig gemme i den aktuelle mappe.",
+    "empty": "Denne mappe er tom.",
+    "readOnly": "skrivebeskyttet",
+    "fileName": "Filnavn:",
+    "save": "Gem",
+    "download": "Download i stedet",
+    "nameEmpty": "Angiv et filnavn.",
+    "nameInvalid": "Filnavnet indeholder tegn, der ikke er tilladt.",
+    "copyName": "{{name}} (kopi)",
+    "saved": "Gemt som »{{name}}« i dine dokumenter.",
+    "renamed": "Der findes allerede en fil med det navn, så kopien blev gemt som »{{name}}«. Intet blev overskrevet.",
+    "openNew": "Åbn den nye fil",
+    "keepOriginal": "Fortsæt med originalen",
+    "notSavedTitle": "Ikke gemt",
+    "errorReadOnly": "Du har ikke tilladelse til at gemme i denne mappe. Vælg en anden mappe, eller download filen.",
+    "errorInvalidName": "Webstedet accepterer ikke dette filnavn. Vælg et andet navn, eller download filen.",
+    "errorTooLarge": "Filen er for stor til at blive gemt på webstedet. Download den i stedet.",
+    "errorQuota": "Der er ikke nok lagerplads tilbage. Frigør plads, eller download filen.",
+    "errorNetwork": "Webstedet kunne ikke nås, så filen blev ikke gemt. Prøv igen, eller download filen.",
+    "errorUnsupported": "Dette websted kan ikke gemme nye filer. Download filen i stedet.",
+    "errorFailed": "Webstedet gemte ikke filen: {{error}}"
+  },
   "textEditMissingGlyphs": "Teksten blev ikke ændret: ingen tilgængelig skrifttype har disse tegn, så de kan ikke gemmes: {{chars}}",
   "textEditMissingGlyphsLater": "Ingen tilgængelig skrifttype har disse tegn, så de kan ikke gemmes: {{chars}}. Ret denne tekst; indtil da kan PDF'en ikke gemmes.",
   "textEditMissingGlyphsSave": "PDF'en blev ikke gemt: redigeret tekst indeholder tegn, som ingen tilgængelig skrifttype har: {{chars}}. Ret teksten, og gem igen.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Gå til side",
     "openExternalFile": "Åbn: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Internt link"
+    "internalLink": "Internt link",
+    "attachmentOnPage": "Side {{page}}",
+    "attachmentCreated": "Oprettet: {{date}}",
+    "attachmentModified": "Ændret: {{date}}",
+    "openAttachmentRiskTitle": "Åbn vedhæftet fil",
+    "openAttachmentRiskMessage": "\"{{name}}\" kan køre programmer på denne computer. Åbn den kun, hvis du har tillid til kilden. Åbn alligevel?"
   },
   "failedToInsertPagesFromFile": "Sider fra filen kunne ikke indsættes: {{error}}",
   "previewPdfRefused": "Denne PDF er en forhåndsvisning fra tegningsimporten og kan være ufuldstændig. Den kan ikke indsættes eller gemmes; importér tegningen igen.",
@@ -245,10 +354,15 @@
     "detachFailed": "Vinduet kunne ikke løsnes: {{error}}",
     "dragFileGone": "Denne fil findes ikke længere på disken — fanen kan ikke flyttes.",
     "dragNotStarted": "Fanen kunne ikke trækkes til et andet vindue. Prøv igen, eller brug højreklik → Åbn i nyt vindue.",
+    "openInSplitView": "Åbn i delt visning",
     "openInNewWindow": "Åbn i nyt vindue",
     "closeTab": "Luk fane",
     "nextTab": "Næste fane",
     "previousTab": "Forrige fane"
+  },
+  "pageNav": {
+    "nextPage": "Næste side",
+    "previousPage": "Forrige side"
   },
   "quickAccess": {
     "exportRaster": "Eksportér som raster-PDF (åbner i en ny fane)"
@@ -290,5 +404,50 @@
     "readFailed": "3D-modellen kunne ikke læses.",
     "partial": "Nogle dele af 3D-modellen kunne ikke læses ({{n}} sprunget over).",
     "viewerFailed": "3D-visningen kunne ikke startes."
+  },
+  "readAloud": {
+    "title": "Læs højt",
+    "play": "Læs",
+    "pause": "Pause",
+    "resume": "Fortsæt",
+    "stop": "Stop",
+    "close": "Luk",
+    "voice": "Stemme",
+    "defaultVoice": "Standardstemme",
+    "rate": "Hastighed",
+    "loading": "Forbereder...",
+    "reading": "Læser op",
+    "paused": "Sat på pause",
+    "page": "side {{page}}",
+    "tagOrder": "tag-rækkefølge",
+    "contentOrder": "siderækkefølge",
+    "noEngine": "Der er ingen talesyntese tilgængelig på dette system.",
+    "noEngineLinux": "Ingen talesyntese fundet. Installer speech-dispatcher (spd-say) eller espeak-ng, og prøv igen.",
+    "speechFailed": "Oplæsningen stoppede på grund af en fejl.",
+    "nothingToRead": "Der er ingen tekst at læse op.",
+    "online": "(online)",
+    "allowOnline": "Onlinestemmer",
+    "allowOnlineHint": "Tilbyd også onlinestemmer. Med en onlinestemme sendes den oplæste tekst til en online taletjeneste.",
+    "onlyOnlineVoices": "Der er kun onlinestemmer tilgængelige. Slå Onlinestemmer til for at bruge en; den oplæste tekst sendes så til en online taletjeneste.",
+    "noLocalVoice": "Der er ingen lokal stemme installeret til dette sprog; den lokale standardstemme bruges."
+  },
+  "moveInference": {
+    "onAxisX": "På X-aksen",
+    "onAxisY": "På Y-aksen",
+    "fromPoint": "Fra punkt",
+    "extension": "På forlængelse",
+    "parallel": "Parallel",
+    "perpendicular": "Vinkelret",
+    "intersection": "Skæringspunkt",
+    "polar": "Polær",
+    "locked": "Låst"
+  },
+  "portable": {
+    "updateTitle": "Opdatering tilgængelig",
+    "updateAvailable": "Version {{version}} er tilgængelig.\n\nDenne bærbare kopi opdaterer ikke sig selv. Hent {{file}} og udpak den oven i denne mappe; mappen data med dine indstillinger bevares.\n\nÅbn downloadsiden?",
+    "fileAssoc": "Denne bærbare kopi er ikke registreret i Windows. For at åbne PDF-filer med den skal du højreklikke på en PDF, vælge Åbn med > Vælg en anden app og vælge open-pdf-studio.exe i denne mappe.",
+    "explorerThumbnails": "PDF-miniaturer i Stifinder er kun tilgængelige i den installerede version.",
+    "virtualPrinter": "Den virtuelle printer er kun tilgængelig i den installerede version: den føjes til Windows med administratorrettigheder.",
+    "notWritable": "Open PDF Studio kan ikke skrive i mappen {{dir}}, så dine indstillinger gemmes denne gang i din brugerprofil. Flyt den bærbare mappe til et sted med skriveadgang, f.eks. et USB-drev eller din mappe Dokumenter."
   }
 }

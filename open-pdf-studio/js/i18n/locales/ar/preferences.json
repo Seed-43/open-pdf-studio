@@ -9,7 +9,8 @@
     "behavior": "السلوك",
     "fileAssociation": "اقتران الملفات",
     "virtualPrinter": "الطابعة الافتراضية",
-    "pageDisplay": "عرض الصفحة"
+    "pageDisplay": "عرض الصفحة",
+    "keyboardShortcuts": "اختصارات لوحة المفاتيح"
   },
   "resetToDefaults": "إعادة التعيين إلى الافتراضي",
   "resetConfirm": "هل تريد إعادة تعيين جميع التفضيلات إلى القيم الافتراضية؟",
@@ -31,7 +32,8 @@
     "aiLinkActive": "نشط على {{adres}}",
     "aiLinkViaFlag": "نشط عبر معامل التشغيل ({{adres}})",
     "aiLinkOff": "متوقف",
-    "aiLinkError": "لم يبدأ: {{fout}}"
+    "aiLinkError": "لم يبدأ: {{fout}}",
+    "interfaceScale": "حجم الواجهة"
   },
   "annotations": {
     "generalDefaults": "الإعدادات الافتراضية العامة",
@@ -105,7 +107,13 @@
     "headOpenReversed": "سهم مفتوح (معكوس)",
     "headClosedReversed": "سهم مغلق (معكوس)",
     "headSlash": "شرطة مائلة",
-    "polylineDefaults": "إعدادات الخط المتعدد الافتراضية"
+    "polylineDefaults": "إعدادات الخط المتعدد الافتراضية",
+    "smoothing": "التنعيم",
+    "pressure": "ضغط القلم",
+    "pressureHint": "يغيّر ضغط القلم عرض الخط (تحتفظ خطوط الفأرة بعرض ثابت)",
+    "pressureMinWidth": "أدنى عرض (%)",
+    "penOnly": "القلم فقط (تجاهل اللمس)",
+    "penOnlyHint": "لا يرسم اللمس بأداة الرسم الحر؛ مفيد ضد ملامسة راحة اليد أثناء الكتابة بالقلم"
   },
   "shapes": {
     "rectangleDefaults": "إعدادات المستطيل الافتراضية",
@@ -161,12 +169,19 @@
     "snapToNearest": "الانطباق على الأقرب",
     "objectSnapRadius": "نصف قطر الانطباق (بالبكسل)",
     "snapToPdfContent": "الانطباق على محتوى رسم PDF",
+    "moveInference": "خطوط الاستدلال أثناء النقل (G / mv)",
+    "moveInferenceTracking": "خطوط التتبع (المحاذاة مع نقاط هندسة أخرى)",
+    "moveInferenceExtension": "امتدادات الخطوط وأوجه الجدران",
+    "moveInferenceParallel": "موازٍ / عمودي على الخطوط القريبة",
+    "moveInferenceHint": "مرّر المؤشر لحظة فوق نقطة لالتقاطها، واضغط مع الاستمرار على Shift لتثبيت خط إرشادي، ويبدّل Tab بين المسافة والزاوية. تتبع الخطوط القطبية إعدادات التتبع القطبي.",
     "creation": "الإنشاء",
     "autoSelectAfterCreation": "تحديد التعليق تلقائيًا بعد الإنشاء",
     "deletion": "الحذف",
     "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات",
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
+    "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
+    "ribbonWheelSwitchesTabs": "التبديل بين علامات تبويب الشريط بعجلة الماوس",
     "dynamicScaling": "تغيير مقياس العلامات تلقائيًا"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "لتعيين Open PDF Studio كعارض PDF الافتراضي على macOS:\n\n1. انقر بزر الماوس الأيمن على أي ملف PDF في Finder\n2. اختر \"الحصول على معلومات\"\n3. ضمن \"فتح باستخدام\"، اختر Open PDF Studio\n4. انقر على \"تغيير الكل...\"",
     "linuxInstructions": "لتعيين Open PDF Studio كعارض PDF الافتراضي على Linux:\n\nقم بتشغيل في الطرفية:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "تحقق من Finder > الحصول على معلومات",
-    "notSet": "غير معيّن"
+    "notSet": "غير معيّن",
+    "chosenInSystemSettings": "تم الاختيار في إعدادات النظام",
+    "sandboxInstructions": "يعمل Open PDF Studio كحزمة {{package}} ولا يمكنه تغيير تطبيق PDF الافتراضي بنفسه.\n\nاختر Open PDF Studio في إعدادات النظام ضمن التطبيقات الافتراضية، أو انقر بزر الماوس الأيمن على ملف PDF واستخدم فتح باستخدام.",
+    "xdgMimeMissing": "الأداة xdg-mime (الحزمة xdg-utils) غير مثبتة، لذلك لا يمكن تعيين تطبيق PDF الافتراضي من هنا.\n\nثبّت xdg-utils، أو اختر Open PDF Studio في إعدادات النظام ضمن التطبيقات الافتراضية.",
+    "linuxDone": "أصبح Open PDF Studio الآن التطبيق الافتراضي لملفات PDF.",
+    "linuxFailed": "تعذر تعيين Open PDF Studio كتطبيق PDF الافتراضي.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "مستكشف الملفات",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "قوية",
     "pageSharpenLevel4": "قصوى",
     "showScrollbars": "إظهار أشرطة تمرير اللوحة",
+    "backgroundColor": "لون الخلفية",
+    "backgroundColorDefault": "الافتراضي",
+    "backgroundColorHint": "لون المنطقة المحيطة بالصفحات وبينها. لا تتغير الصفحة نفسها ولا الطباعة ولا التصدير.",
     "panels": "لوحات",
     "showPropertiesPanel": "إظهار لوحة الخصائص افتراضيًا",
     "showToolPalette": "إظهار لوحة الأدوات افتراضيًا",
@@ -291,5 +314,58 @@
     "openArrowReversed": "سهم مفتوح (معكوس)",
     "closedArrowReversed": "سهم مغلق (معكوس)",
     "slash": "شرطة مائلة"
+  },
+  "keyboardShortcuts": {
+    "title": "اختصارات لوحة المفاتيح",
+    "search": "البحث حسب الأمر أو المفتاح",
+    "command": "الأمر",
+    "shortcuts": "الاختصارات",
+    "none": "لا يوجد",
+    "noMatches": "لا توجد أوامر مطابقة للبحث.",
+    "selectHint": "اختر أمرًا لتغيير اختصاراته.",
+    "addShortcut": "إضافة اختصار",
+    "remove": "إزالة الاختصار",
+    "resetCommand": "إعادة التعيين إلى الافتراضي",
+    "resetAll": "إعادة تعيين الكل",
+    "resetAllConfirm": "هل تريد إعادة جميع اختصارات لوحة المفاتيح إلى القيم الافتراضية؟",
+    "loadPreset": "تحميل إعداد مسبق…",
+    "replaceConfirm": "سيؤدي هذا إلى استبدال اختصارات لوحة المفاتيح المخصصة لديك. هل تريد المتابعة؟",
+    "presets": {
+      "markupStyle": "اختصارات بنمط التعليق التوضيحي"
+    },
+    "import": "استيراد…",
+    "export": "تصدير…",
+    "fileType": "اختصارات لوحة المفاتيح",
+    "imported": "تم استيراد الاختصارات. انقر على حفظ لتطبيقها.",
+    "importFailed": "هذا ليس ملف اختصارات لوحة مفاتيح صالحًا.",
+    "exported": "تم تصدير الاختصارات.",
+    "exportFailed": "فشل تصدير الاختصارات:",
+    "recording": "اضغط مجموعة المفاتيح الجديدة… (Esc للإلغاء)",
+    "conflict": "{{keys}} مستخدم بالفعل بواسطة «{{command}}».",
+    "reassign": "إعادة التعيين للأمر",
+    "reserved": "{{keys}} له معنى ثابت ولا يمكن تعيينه.",
+    "defaultLabel": "الافتراضي: {{keys}}",
+    "customize": "تخصيص…",
+    "fixedGroup": "مفاتيح ثابتة",
+    "applyHint": "تسري التغييرات عند النقر على حفظ.",
+    "categories": {
+      "file": "ملف",
+      "edit": "تحرير",
+      "view": "عرض",
+      "search": "بحث",
+      "tools": "أدوات",
+      "drafting": "مساعدات الرسم",
+      "panels": "لوحات",
+      "review": "مراجعة",
+      "help": "تعليمات",
+      "extensions": "الإضافات",
+      "ribbon": "الشريط: {{tab}}",
+      "other": "أخرى"
+    },
+    "commands": {
+      "findNext": "البحث عن التالي",
+      "splitPaneLarger": "تكبير الجزء النشط",
+      "splitPaneSmaller": "تصغير الجزء النشط"
+    }
   }
 }

@@ -91,10 +91,13 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
   const pdfCtx = pdfCanvas.getContext('2d');
 
   // Render PDF page
+  // Geschakelde lagen (#377): afdrukken en exporteren tonen wat in beeld is.
+  const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
   const renderContext = {
     canvasContext: pdfCtx,
     viewport: viewport,
-    annotationMode: 0
+    annotationMode: 0,
+    ...pdfjsLaagOpties(doc),
   };
   // Part of the page: shifted so the part starts at pixel (0,0); the canvas
   // clips the rest.
@@ -132,7 +135,7 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
  * @param {{width:number, height:number}} viewport  the page at `exportScale`
  * @returns {HTMLCanvasElement}
  */
-export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel = null, markeringen = true } = {}) {
+export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel = null, markeringen = true, watermerken = true } = {}) {
   const annCanvas = document.createElement('canvas');
   annCanvas.width = deel ? deel.breedte : viewport.width;
   annCanvas.height = deel ? deel.hoogte : viewport.height;
@@ -152,7 +155,7 @@ export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport,
   const savedScale = doc.scale;
   doc.scale = exportScale;
   try {
-    const lagen = { uitvoer: true, markeringen, snippetBitmaps };
+    const lagen = { uitvoer: true, markeringen, watermerken, snippetBitmaps };
     if (deel) {
       // The same shift in page coordinates (scale 1); watermarks keep the whole page.
       renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,

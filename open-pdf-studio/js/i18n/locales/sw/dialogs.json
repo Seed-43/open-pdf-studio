@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Muundo mkubwa",
+      "detailblad": "Karatasi ya maelezo",
+      "voorblad": "Karatasi ya jalada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "wima",
+      "landscape": "mlalo"
+    },
     "title": "Hati Mpya",
     "paperSize": "Ukubwa wa Karatasi:",
     "widthMm": "Upana (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Chapisha mpaka wa ukurasa",
     "perSheetNote": "Kila ukurasa hupimwa kutoshea kisanduku chake, kwa hivyo ukubwa wa ukurasa ulio juu hautumiki.",
     "poster": "Bango (vigae)",
+    "posterOverview": "Muhtasari wa bango",
+    "posterOverlapLegend": "Maeneo yenye kivuli yanarudiwa kwenye karatasi zilizo karibu",
     "posterScale": "Kipimo cha vigae",
     "posterOverlap": "Mwingiliano",
     "posterCutMarks": "Alama za kukata",
     "posterLabels": "Lebo (faili, ukurasa, kigae)",
     "posterOnlyLarge": "Gawa kurasa kubwa pekee",
+    "posterEdgeCrop": "Kata kingo za nje kidogo",
+    "posterEdgeCropHint": "Hadi mm {{max}} kwa kila ukingo wa nje, kwa uchapishaji huu tu. Zima: hifadhi maudhui yote.",
     "posterTileInfo": "Ukurasa {{page}}: kigae {{row}},{{col}} (safu, safu wima) kati ya {{rows}} × {{cols}}",
     "posterNotTiled": "Ukurasa {{page}} unatosha kwenye karatasi moja na haugawanywi.",
     "posterAssumedPaper": "Ukubwa wa karatasi haujulikani: vigae vinapangwa kwenye {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Hati na Alama",
     "document": "Hati",
     "printAsImage": "Chapisha kama Picha",
+    "colorMode": "Hali ya rangi:",
+    "colorModeColor": "Rangi",
+    "colorModeGrayscale": "Kijivu",
+    "colorModeBlackWhite": "Nyeusi na nyeupe",
     "pagesToPrint": "ukurasa wa kuchapisha",
     "noPrinterSelected": "Hakuna printa iliyochaguliwa.",
     "noPagesToPrint": "Hakuna kurasa za kuchapisha.",
@@ -346,7 +364,13 @@
     "chooseImage": "Chagua Picha...",
     "scale": "Kipimo:",
     "selectImageFirst": "Tafadhali chagua picha kwanza.",
-    "defaultText": "RASIMU"
+    "defaultText": "RASIMU",
+    "autoFit": "Linganisha kiotomatiki na ukurasa",
+    "autoFitHint": "Hulinganisha maandishi na kila ukurasa. Ukubwa unaoonyeshwa ni wa ukurasa wa sasa.",
+    "increaseFontSize": "Ongeza ukubwa wa fonti",
+    "decreaseFontSize": "Punguza ukubwa wa fonti",
+    "textHistory": "Maandishi yaliyotumika awali",
+    "removeFromHistory": "Ondoa kwenye historia"
   },
   "headerFooter": {
     "addTitle": "Ongeza Kichwa/Kiguu",
@@ -430,7 +454,8 @@
     "styleLabel": "Mtindo:",
     "nestTitle": "Weka chini ya alamisho jipya",
     "deleteTitle": "Futa alamisho",
-    "deleteConfirm": "Futa alamisho {{count}} zilizochaguliwa na kila kitu kilicho chini yake?"
+    "deleteConfirm": "Futa alamisho {{count}} zilizochaguliwa na kila kitu kilicho chini yake?",
+    "replaceAll": "Badilisha alamisho zote"
   },
   "formValidation": {
     "title": "Kosa la Uthibitishaji"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Hifadhi kama ripoti ya IFC",
     "failed": "Kuhifadhi ripoti ya IFC kumeshindwa: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Hamisha kwenda IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) bado inaendelezwa. Kagua matokeo kabla ya kuyategemea.",
+    "pages": "Kurasa:",
+    "allPages": "Kurasa zote",
+    "currentPage": "Ukurasa wa sasa",
+    "customPages": "Masafa ya kurasa",
+    "rangePlaceholder": "k.m. 1-3, 5",
+    "includeRaster": "Jumuisha picha",
+    "includeText": "Jumuisha maandishi",
+    "includeAnnotations": "Maelezo kwenye tabaka tofauti",
+    "export": "Hamisha",
+    "progress": "Inahamisha ukurasa {{done}} kati ya {{total}}…",
+    "done": "Imeandikwa: {{file}} (laha {{sheets}}, njia {{paths}}, maandishi {{texts}}, picha {{images}}, maelezo {{annotations}}).",
+    "capPaths": "Ukurasa {{page}}: njia {{kept}} kati ya {{total}} zimehamishwa; zilizobaki zinazidi kikomo.",
+    "capTexts": "Ukurasa {{page}}: mistari ya maandishi {{kept}} kati ya {{total}} imehamishwa; iliyobaki inazidi kikomo.",
+    "capImages": "Ukurasa {{page}}: picha {{kept}} kati ya {{total}} zimehamishwa; zilizobaki zinazidi kikomo.",
+    "imagesOmitted": "Picha zisizo na data ya pikseli (hazitumiki au ni kubwa mno): {{count}}. Nafasi zao zinahifadhiwa.",
+    "sizeLimit": "Ukurasa {{page}} na kurasa zinazofuata hazikuhamishwa: faili limefikia kikomo chake cha ukubwa.",
+    "noPages": "Hakuna kurasa zilizochaguliwa.",
+    "noBytes": "Data ya PDF ya hati hii haipatikani. Hifadhi hati kisha ujaribu tena.",
+    "failed": "Uhamishaji wa IFCX umeshindwa: {{error}}",
+    "unsavedNote": "Mabadiliko ambayo hayajahifadhiwa kwenye maudhui ya kurasa hayajumuishwi; maelezo yanajumuishwa."
   },
   "styleType": {
     "lineTypes": "Aina za mistari",
@@ -1598,6 +1647,57 @@
       "cancel": "Imeghairiwa",
       "supersede": "Imepitwa",
       "expire": "Imeisha muda"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Hariri Kurasa",
+    "hint": "Buruta kurasa ili kuzisogeza; dondosha faili ya PDF ili kuingiza kurasa zake. Ctrl+bofya, Shift+bofya au visanduku vya kuteua huchagua kurasa kadhaa. Hakuna kinachobadilika hadi Tekeleza.",
+    "moveLeft": "Sogeza kushoto",
+    "moveRight": "Sogeza kulia",
+    "moveToStart": "Sogeza mwanzoni",
+    "moveToEnd": "Sogeza mwishoni",
+    "selection": "Kurasa {{selected}} kati ya {{total}} zimechaguliwa",
+    "rotateLeft": "Zungusha Kushoto",
+    "rotateRight": "Zungusha Kulia",
+    "split": "Gawanya",
+    "splitTitle": "Weka alama za kugawanya kuzunguka kurasa zilizochaguliwa: kila mfululizo unakuwa faili tofauti",
+    "splitHere": "Gawanya hapa (weka au ondoa alama ya kugawanya)",
+    "extractTitle": "Toa kurasa zilizochaguliwa kwenye faili mpya",
+    "blankPage": "Ukurasa tupu",
+    "pagesFromFile": "Kurasa kutoka faili…",
+    "insertHere": "Ingiza kurasa hapa",
+    "select": "Chagua ukurasa",
+    "zoom": "Kuza",
+    "parts": "Itagawanywa katika faili {{count}} ukitekeleza",
+    "chooseFolder": "Chagua folda ya faili zilizogawanywa",
+    "fileFailed": "Imeshindwa kusoma {{name}}: {{error}}",
+    "applyFailed": "Imeshindwa kutekeleza mabadiliko ya kurasa: {{error}}",
+    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}",
+    "blankSetup": "Mpangilio wa ukurasa tupu",
+    "sameAsAdjacent": "Sawa na ukurasa jirani",
+    "width": "Upana:",
+    "height": "Urefu:",
+    "unit": "Kipimo:"
+  },
+  "accessibilityReport": {
+    "title": "Ukaguzi wa Ufikivu",
+    "starting": "Inakagua...",
+    "checking": "Inakagua ukurasa {{done}} kati ya {{total}}...",
+    "noIssues": "Hakuna matatizo yaliyopatikana.",
+    "summary": "Matatizo {{count}} yamepatikana. Bofya mara mbili kipengee ili kwenda kwenye ukurasa wake.",
+    "failed": "Ukaguzi haukuweza kufanyika kwenye hati hii.",
+    "recheck": "Kagua tena",
+    "close": "Funga",
+    "goTo": "Bofya mara mbili ili kwenda kwenye ukurasa",
+    "page": "Ukurasa {{page}}",
+    "kind": {
+      "notTagged": "Hati haina lebo: hakuna mti wa muundo, kwa hivyo teknolojia saidizi haziwezi kufuata mpangilio wa kusoma.",
+      "notMarked": "Hati haijawekwa alama kuwa na lebo (/MarkInfo /Marked).",
+      "noLanguage": "Lugha ya hati haijawekwa.",
+      "figureNoAlt": "{{role}} bila maandishi mbadala",
+      "pageNotTagged": "Hakuna maudhui yenye lebo kwenye ukurasa huu (vipengee {{count}} vya maandishi)",
+      "untaggedContent": "Vipengee {{count}} vya maandishi nje ya lebo",
+      "annotationNoText": "Kidokezo ({{type}}) bila maelezo"
     }
   }
 }

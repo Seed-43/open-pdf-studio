@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Suuri formaatti",
+      "detailblad": "Detaljiarkki",
+      "voorblad": "Kansilehti"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "pystysuunta",
+      "landscape": "vaakasuunta"
+    },
     "title": "Uusi asiakirja",
     "paperSize": "Paperikoko:",
     "widthMm": "Leveys (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Tulosta sivun reunus",
     "perSheetNote": "Jokainen sivu skaalataan sopimaan soluunsa, joten yllä oleva sivun skaalaus ei ole käytössä.",
     "poster": "Juliste (palat)",
+    "posterOverview": "Julisteen yleiskuva",
+    "posterOverlapLegend": "Varjostetut alueet toistuvat vierekkäisillä arkeilla",
     "posterScale": "Palojen skaalaus",
     "posterOverlap": "Limitys",
     "posterCutMarks": "Leikkausmerkit",
     "posterLabels": "Tunnisteet (tiedosto, sivu, pala)",
     "posterOnlyLarge": "Jaa vain suuret sivut",
+    "posterEdgeCrop": "Rajaa hieman ulkoreunoja",
+    "posterEdgeCropHint": "Enintään {{max}} mm kustakin ulkoreunasta, vain tässä tulostuksessa. Pois: säilytä kaikki sisältö.",
     "posterTileInfo": "Sivu {{page}}: pala {{row}},{{col}} (rivi, sarake), yhteensä {{rows}} × {{cols}}",
     "posterNotTiled": "Sivu {{page}} mahtuu yhdelle arkille, eikä sitä jaeta.",
     "posterAssumedPaper": "Paperikoko on tuntematon: palat asetellaan {{paper}}-arkeille.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Asiakirja ja merkinnät",
     "document": "Asiakirja",
     "printAsImage": "Tulosta kuvana",
+    "colorMode": "Väritila:",
+    "colorModeColor": "Värillinen",
+    "colorModeGrayscale": "Harmaasävy",
+    "colorModeBlackWhite": "Mustavalkoinen",
     "pagesToPrint": "tulostettavaa sivua",
     "noPrinterSelected": "Tulostinta ei ole valittu.",
     "noPagesToPrint": "Ei tulostettavia sivuja.",
@@ -346,7 +364,13 @@
     "chooseImage": "Valitse kuva...",
     "scale": "Skaalaus:",
     "selectImageFirst": "Valitse ensin kuva.",
-    "defaultText": "LUONNOS"
+    "defaultText": "LUONNOS",
+    "autoFit": "Sovita automaattisesti sivulle",
+    "autoFitHint": "Sovittaa tekstin jokaiselle sivulle. Näytetty koko koskee nykyistä sivua.",
+    "increaseFontSize": "Suurenna fonttikokoa",
+    "decreaseFontSize": "Pienennä fonttikokoa",
+    "textHistory": "Aiemmin käytetyt tekstit",
+    "removeFromHistory": "Poista historiasta"
   },
   "headerFooter": {
     "addTitle": "Lisää ylätunniste/alatunniste",
@@ -430,7 +454,8 @@
     "styleLabel": "Tyyli:",
     "nestTitle": "Sisennä uuden kirjanmerkin alle",
     "deleteTitle": "Poista kirjanmerkit",
-    "deleteConfirm": "Poistetaanko {{count}} valittua kirjanmerkkiä ja kaikki niiden alla olevat?"
+    "deleteConfirm": "Poistetaanko {{count}} valittua kirjanmerkkiä ja kaikki niiden alla olevat?",
+    "replaceAll": "Korvaa kaikki kirjanmerkit"
   },
   "formValidation": {
     "title": "Vahvistusvirhe"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Tallenna IFC-raporttina",
     "failed": "IFC-raportin tallennus epäonnistui: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Vie IFCX-muotoon (beta)",
+    "betaNote": "Beta: IFCX (IFC5) on vielä kehitteillä. Tarkista tulos ennen kuin luotat siihen.",
+    "pages": "Sivut:",
+    "allPages": "Kaikki sivut",
+    "currentPage": "Nykyinen sivu",
+    "customPages": "Sivualue",
+    "rangePlaceholder": "esim. 1-3, 5",
+    "includeRaster": "Sisällytä kuvat",
+    "includeText": "Sisällytä teksti",
+    "includeAnnotations": "Merkinnät omalle tasolleen",
+    "export": "Vie",
+    "progress": "Viedään sivua {{done}}/{{total}}…",
+    "done": "Kirjoitettu: {{file}} ({{sheets}} arkkia, {{paths}} polkua, {{texts}} tekstiä, {{images}} kuvaa, {{annotations}} merkintää).",
+    "capPaths": "Sivu {{page}}: viety {{kept}}/{{total}} polkua; loput ylittävät rajan.",
+    "capTexts": "Sivu {{page}}: viety {{kept}}/{{total}} tekstiriviä; loput ylittävät rajan.",
+    "capImages": "Sivu {{page}}: viety {{kept}}/{{total}} kuvaa; loput ylittävät rajan.",
+    "imagesOmitted": "Kuvia ilman pikselitietoja (ei tuettu tai liian suuri): {{count}}. Niiden sijainti säilyy.",
+    "sizeLimit": "Sivua {{page}} ja sitä seuraavia sivuja ei viety: tiedosto saavutti kokorajansa.",
+    "noPages": "Sivuja ei ole valittu.",
+    "noBytes": "Tämän asiakirjan PDF-tiedot eivät ole käytettävissä. Tallenna asiakirja ja yritä uudelleen.",
+    "failed": "IFCX-vienti epäonnistui: {{error}}",
+    "unsavedNote": "Sivusisällön tallentamattomat muutokset eivät ole mukana; merkinnät ovat."
   },
   "styleType": {
     "lineTypes": "Viivatyypit",
@@ -1598,6 +1647,57 @@
       "cancel": "Peruutettu",
       "supersede": "Korvattu",
       "expire": "Vanhentunut"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Muokkaa sivuja",
+    "hint": "Siirrä sivuja vetämällä; pudota PDF-tiedosto lisätäksesi sen sivut. Ctrl+napsautus, Vaihto+napsautus tai valintaruudut valitsevat useita sivuja. Mikään ei muutu ennen Käytä-painiketta.",
+    "moveLeft": "Siirrä vasemmalle",
+    "moveRight": "Siirrä oikealle",
+    "moveToStart": "Siirrä alkuun",
+    "moveToEnd": "Siirrä loppuun",
+    "selection": "{{selected}}/{{total}} sivua valittu",
+    "rotateLeft": "Kierrä vasemmalle",
+    "rotateRight": "Kierrä oikealle",
+    "split": "Jaa",
+    "splitTitle": "Lisää jakomerkit valittujen sivujen ympärille: jokaisesta jaksosta tulee oma tiedosto",
+    "splitHere": "Jaa tästä (lisää tai poista jakomerkki)",
+    "extractTitle": "Irrota valitut sivut uuteen tiedostoon",
+    "blankPage": "Tyhjä sivu",
+    "pagesFromFile": "Sivut tiedostosta…",
+    "insertHere": "Lisää sivuja tähän",
+    "select": "Valitse sivu",
+    "zoom": "Zoomaus",
+    "parts": "Jaetaan {{count}} tiedostoon käytettäessä",
+    "chooseFolder": "Valitse kansio jaetuille tiedostoille",
+    "fileFailed": "Tiedostoa {{name}} ei voitu lukea: {{error}}",
+    "applyFailed": "Sivumuutosten käyttäminen epäonnistui: {{error}}",
+    "extractFailed": "Sivujen irrottaminen epäonnistui: {{error}}",
+    "blankSetup": "Tyhjän sivun asetukset",
+    "sameAsAdjacent": "Sama kuin viereinen sivu",
+    "width": "Leveys:",
+    "height": "Korkeus:",
+    "unit": "Yksikkö:"
+  },
+  "accessibilityReport": {
+    "title": "Saavutettavuuden tarkistus",
+    "starting": "Tarkistetaan...",
+    "checking": "Tarkistetaan sivua {{done}}/{{total}}...",
+    "noIssues": "Ongelmia ei löytynyt.",
+    "summary": "Löytyi {{count}} ongelmaa. Siirry kohteen sivulle kaksoisnapsauttamalla sitä.",
+    "failed": "Tarkistusta ei voitu suorittaa tälle asiakirjalle.",
+    "recheck": "Tarkista uudelleen",
+    "close": "Sulje",
+    "goTo": "Siirry sivulle kaksoisnapsauttamalla",
+    "page": "Sivu {{page}}",
+    "kind": {
+      "notTagged": "Asiakirjassa ei ole tunnisteita: rakennepuuta ei ole, joten avustavat teknologiat eivät voi seurata lukujärjestystä.",
+      "notMarked": "Asiakirjaa ei ole merkitty tunnisteelliseksi (/MarkInfo /Marked).",
+      "noLanguage": "Asiakirjan kieltä ei ole määritetty.",
+      "figureNoAlt": "{{role}} ilman vaihtoehtoista tekstiä",
+      "pageNotTagged": "Tällä sivulla ei ole tunnisteellista sisältöä ({{count}} tekstikohdetta)",
+      "untaggedContent": "{{count}} tekstikohdetta tunnisteiden ulkopuolella",
+      "annotationNoText": "Merkintä ({{type}}) ilman kuvausta"
     }
   }
 }

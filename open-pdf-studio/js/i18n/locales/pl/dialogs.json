@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Duży format",
+      "detailblad": "Arkusz szczegółów",
+      "voorblad": "Arkusz tytułowy"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "pionowa",
+      "landscape": "pozioma"
+    },
     "title": "Nowy dokument",
     "paperSize": "Rozmiar papieru:",
     "widthMm": "Szerokość (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Drukuj obramowanie strony",
     "perSheetNote": "Każda strona jest skalowana do swojej komórki, więc powyższe skalowanie strony nie ma zastosowania.",
     "poster": "Plakat (kafelki)",
+    "posterOverview": "Podgląd plakatu",
+    "posterOverlapLegend": "Zacienione obszary powtarzają się na sąsiednich arkuszach",
     "posterScale": "Skala kafelków",
     "posterOverlap": "Zakładka",
     "posterCutMarks": "Znaczniki cięcia",
     "posterLabels": "Etykiety (plik, strona, kafelek)",
     "posterOnlyLarge": "Dziel tylko duże strony",
+    "posterEdgeCrop": "Przytnij nieznacznie zewnętrzne krawędzie",
+    "posterEdgeCropHint": "Do {{max}} mm z każdej zewnętrznej krawędzi, tylko dla tego wydruku. Wyłączone: zachowaj całą zawartość.",
     "posterTileInfo": "Strona {{page}}: kafelek {{row}},{{col}} (wiersz, kolumna) z {{rows}} × {{cols}}",
     "posterNotTiled": "Strona {{page}} mieści się na jednym arkuszu i nie jest dzielona.",
     "posterAssumedPaper": "Nieznany rozmiar papieru: kafelki są rozmieszczane na {{paper}}.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokument i adnotacje",
     "document": "Dokument",
     "printAsImage": "Drukuj jako obraz",
+    "colorMode": "Tryb koloru:",
+    "colorModeColor": "Kolor",
+    "colorModeGrayscale": "Skala szarości",
+    "colorModeBlackWhite": "Czarno-biały",
     "pagesToPrint": "stron do druku",
     "noPrinterSelected": "Nie wybrano drukarki.",
     "noPagesToPrint": "Brak stron do wydrukowania.",
@@ -346,7 +364,13 @@
     "chooseImage": "Wybierz obraz...",
     "scale": "Skala:",
     "selectImageFirst": "Proszę najpierw wybrać obraz.",
-    "defaultText": "WERSJA ROBOCZA"
+    "defaultText": "WERSJA ROBOCZA",
+    "autoFit": "Automatycznie dopasuj do strony",
+    "autoFitHint": "Dopasowuje tekst do każdej strony. Wyświetlany rozmiar dotyczy bieżącej strony.",
+    "increaseFontSize": "Zwiększ rozmiar czcionki",
+    "decreaseFontSize": "Zmniejsz rozmiar czcionki",
+    "textHistory": "Wcześniej używane teksty",
+    "removeFromHistory": "Usuń z historii"
   },
   "headerFooter": {
     "addTitle": "Dodaj nagłówek/stopkę",
@@ -430,7 +454,8 @@
     "styleLabel": "Styl:",
     "nestTitle": "Zagnieźdź pod nową zakładką",
     "deleteTitle": "Usuń zakładki",
-    "deleteConfirm": "Usunąć zaznaczone zakładki ({{count}}) i wszystko pod nimi?"
+    "deleteConfirm": "Usunąć zaznaczone zakładki ({{count}}) i wszystko pod nimi?",
+    "replaceAll": "Zastąp wszystkie zakładki"
   },
   "formValidation": {
     "title": "Błąd walidacji"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Zapisz jako raport IFC",
     "failed": "Nie udało się zapisać raportu IFC: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Eksportuj do IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) jest wciąż rozwijany. Sprawdź wynik, zanim na nim polegasz.",
+    "pages": "Strony:",
+    "allPages": "Wszystkie strony",
+    "currentPage": "Bieżąca strona",
+    "customPages": "Zakres stron",
+    "rangePlaceholder": "np. 1-3, 5",
+    "includeRaster": "Uwzględnij obrazy",
+    "includeText": "Uwzględnij tekst",
+    "includeAnnotations": "Adnotacje na osobnej warstwie",
+    "export": "Eksportuj",
+    "progress": "Eksportowanie strony {{done}} z {{total}}…",
+    "done": "Zapisano: {{file}} (arkusze: {{sheets}}, ścieżki: {{paths}}, teksty: {{texts}}, obrazy: {{images}}, adnotacje: {{annotations}}).",
+    "capPaths": "Strona {{page}}: wyeksportowano {{kept}} z {{total}} ścieżek; reszta przekracza limit.",
+    "capTexts": "Strona {{page}}: wyeksportowano {{kept}} z {{total}} wierszy tekstu; reszta przekracza limit.",
+    "capImages": "Strona {{page}}: wyeksportowano {{kept}} z {{total}} obrazów; reszta przekracza limit.",
+    "imagesOmitted": "Obrazy bez danych pikseli (nieobsługiwane lub za duże): {{count}}. Ich położenie zostaje zachowane.",
+    "sizeLimit": "Strona {{page}} i kolejne nie zostały wyeksportowane: plik osiągnął limit rozmiaru.",
+    "noPages": "Nie wybrano stron.",
+    "noBytes": "Dane PDF tego dokumentu są niedostępne. Zapisz dokument i spróbuj ponownie.",
+    "failed": "Eksport IFCX nie powiódł się: {{error}}",
+    "unsavedNote": "Niezapisane zmiany treści stron nie są uwzględniane; adnotacje tak."
   },
   "styleType": {
     "lineTypes": "Typy linii",
@@ -1598,6 +1647,57 @@
       "cancel": "Anulowano",
       "supersede": "Zastąpiono",
       "expire": "Wygasło"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Edytuj strony",
+    "hint": "Przeciągnij strony, aby je przenieść; upuść plik PDF, aby wstawić jego strony. Ctrl+klik, Shift+klik lub pola wyboru zaznaczają wiele stron. Nic się nie zmienia do kliknięcia Zastosuj.",
+    "moveLeft": "Przesuń w lewo",
+    "moveRight": "Przesuń w prawo",
+    "moveToStart": "Przesuń na początek",
+    "moveToEnd": "Przesuń na koniec",
+    "selection": "Zaznaczono stron: {{selected}} z {{total}}",
+    "rotateLeft": "Obróć w lewo",
+    "rotateRight": "Obróć w prawo",
+    "split": "Podziel",
+    "splitTitle": "Umieść znaczniki podziału wokół zaznaczonych stron: każdy ciąg stanie się osobnym plikiem",
+    "splitHere": "Podziel tutaj (wstaw lub usuń znacznik podziału)",
+    "extractTitle": "Wyodrębnij zaznaczone strony do nowego pliku",
+    "blankPage": "Pusta strona",
+    "pagesFromFile": "Strony z pliku…",
+    "insertHere": "Wstaw strony tutaj",
+    "select": "Zaznacz stronę",
+    "zoom": "Powiększenie",
+    "parts": "Po zastosowaniu podział na {{count}} plików",
+    "chooseFolder": "Wybierz folder dla podzielonych plików",
+    "fileFailed": "Nie można odczytać {{name}}: {{error}}",
+    "applyFailed": "Nie udało się zastosować zmian stron: {{error}}",
+    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}",
+    "blankSetup": "Ustawienia pustej strony",
+    "sameAsAdjacent": "Jak sąsiednia strona",
+    "width": "Szerokość:",
+    "height": "Wysokość:",
+    "unit": "Jednostka:"
+  },
+  "accessibilityReport": {
+    "title": "Sprawdzanie dostępności",
+    "starting": "Sprawdzanie...",
+    "checking": "Sprawdzanie strony {{done}} z {{total}}...",
+    "noIssues": "Nie znaleziono problemów.",
+    "summary": "Znaleziono problemy: {{count}}. Kliknij dwukrotnie element, aby przejść do jego strony.",
+    "failed": "Nie udało się sprawdzić tego dokumentu.",
+    "recheck": "Sprawdź ponownie",
+    "close": "Zamknij",
+    "goTo": "Kliknij dwukrotnie, aby przejść do strony",
+    "page": "Strona {{page}}",
+    "kind": {
+      "notTagged": "Dokument nie ma znaczników: brak drzewa struktury, więc technologie wspomagające nie mogą śledzić kolejności czytania.",
+      "notMarked": "Dokument nie jest oznaczony jako otagowany (/MarkInfo /Marked).",
+      "noLanguage": "Nie ustawiono języka dokumentu.",
+      "figureNoAlt": "{{role}} bez tekstu alternatywnego",
+      "pageNotTagged": "Brak otagowanej treści na tej stronie (elementy tekstu: {{count}})",
+      "untaggedContent": "Elementy tekstu poza znacznikami: {{count}}",
+      "annotationNoText": "Adnotacja ({{type}}) bez opisu"
     }
   }
 }

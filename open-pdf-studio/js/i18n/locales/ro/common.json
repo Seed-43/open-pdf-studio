@@ -34,6 +34,10 @@
   "draw": "Desenare",
   "saved": "Salvat",
   "documentChangedDuringSave": "Documentul s-a modificat în timpul salvării. Salvați din nou.",
+  "savingPdf": "Se salvează PDF-ul…",
+  "saveCancelling": "Se anulează salvarea…",
+  "saveCancelled": "Salvare anulată. Fișierul nu a fost modificat.",
+  "saveCancelTooLate": "Fișierul fusese deja salvat; era prea târziu pentru anulare.",
   "documentChangedDuringExport": "Documentul s-a modificat în timpul exportului. Reîncepeți.",
   "rasterExportProgress": "Rasterizarea paginilor: {{done}} din {{total}}",
   "search": "Cautare",
@@ -120,7 +124,79 @@
         "label": "Plan de nivel",
         "hint": "Desenează un plan arhitectural: pereți, tâmplărie, încăperi, cote și dotări (sanitare, bucătărie)",
         "prompt": "Desenează un plan arhitectural. Ce trebuie desenat: "
+      },
+      "find-on-sheet": {
+        "label": "Caută pe planșă",
+        "hint": "Caută un termen (un nume de încăpere, un marcaj de secțiune, un simbol), mergi la pagina lui și evidențiază rezultatele",
+        "prompt": "Caută pe această planșă: "
+      },
+      "explain-selection": {
+        "label": "Explică selecția",
+        "hint": "Descrie în limbaj simplu zona, textul sau marcajul selectat, cu dimensiuni dacă este setată o scară de măsurare",
+        "prompt": "Explică selecția."
+      },
+      "compare-sheets": {
+        "label": "Compară planșe",
+        "hint": "Numește și marchează ce a fost adăugat, eliminat sau mutat față de altă pagină",
+        "prompt": "Compară această pagină cu pagina: "
+      },
+      "measure": {
+        "label": "Măsoară asta",
+        "hint": "Măsoară forma selectată sau un element descris și raportează rezultatul la scara planșei",
+        "prompt": "Măsoară: "
+      },
+      "take-off": {
+        "label": "Antemăsurătoare",
+        "hint": "Numără sau măsoară elementele de un singur tip și plasează rezultatul ca tabel pe planșă",
+        "prompt": "Fă antemăsurătoarea pentru: "
+      },
+      "check-scale": {
+        "label": "Verifică scara",
+        "hint": "Determină scara din cartuș sau dintr-o cotă cunoscută și seteaz-o",
+        "prompt": "Verifică scara acestei planșe."
+      },
+      "review-sheet": {
+        "label": "Verifică planșa",
+        "hint": "Adaugă nori cu comentarii numerotate la punctele pe care le-ar semnala un verificator",
+        "prompt": "Verifică această planșă pentru: "
+      },
+      "stamp-date": {
+        "label": "Ștampilă și dată",
+        "hint": "Plasează o ștampilă, completează un câmp din cartuș sau adaugă o notă de revizie cu data de azi",
+        "prompt": "Ștampilă și dată: "
+      },
+      "clean-up": {
+        "label": "Ordonează marcajele",
+        "hint": "Aliniază, renumerotează sau recolorează uniform marcajele existente",
+        "prompt": "Ordonează-mi marcajele: "
+      },
+      "import-cad": {
+        "label": "Importă un desen",
+        "hint": "Importă un desen DWG sau DXF ca fundal la scara corectă",
+        "prompt": "Importă desenul (calea fișierului DWG sau DXF): "
+      },
+      "export-cad": {
+        "label": "Exportă în CAD",
+        "hint": "Scrie această pagină sau zona selectată într-un fișier DXF sau DWG",
+        "prompt": "Exportă această pagină în (calea fișierului DXF sau DWG): "
       }
+    },
+    "groups": {
+      "document": "Traducere și rezumat",
+      "reading": "Citirea planșei",
+      "measuring": "Măsurători și cantități",
+      "markup": "Marcaje",
+      "structure": "Structură și plan de nivel",
+      "cad": "Desene CAD"
+    },
+    "need": {
+      "document": "Deschideți mai întâi un PDF: această abilitate lucrează pe documentul deschis.",
+      "selection": "Selectați mai întâi un marcaj sau un text pe planșă, apoi faceți din nou clic pe abilitate.",
+      "scale": "Această planșă nu are încă o scară de măsurare. Setați mai întâi una (de exemplu cu „Verifică scara”) și încercați din nou.",
+      "input": "Completați textul din caseta de introducere după cele două puncte, apoi trimiteți.",
+      "selectionOrInput": "Selectați o formă pe planșă sau descrieți după cele două puncte ce trebuie măsurat.",
+      "page": "Introduceți numărul celeilalte pagini (de la 1 la {{max}}), nu al paginii curente.",
+      "twoPages": "Acest document are o singură pagină. Pentru a compara cu alt fișier, înlocuiți textul din caseta de introducere cu propria întrebare."
     }
   },
   "onlineSymbolLibrary": "Bibliotecă de simboluri online",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Aceasta este o versiune mai veche a fișierului, deschisă doar pentru citire, deci nu poate fi salvată. Folosiți Salvare ca pentru a descărca o copie.",
   "hostVersionReadOnlyRefused": "Site-ul nu a salvat fișierul: o versiune mai veche a acestuia este deschisă doar pentru citire. Deschideți din nou versiunea curentă pentru a salva sau folosiți Salvare ca pentru a descărca o copie.",
   "hostVersionInvalid": "Această versiune a fișierului nu poate fi deschisă: numărul versiunii nu este valid.",
+  "hostSaveAs": {
+    "title": "Salvează în documente",
+    "location": "Dosar:",
+    "currentFolder": "Dosarul curent",
+    "up": "Sus",
+    "loading": "Se încarcă…",
+    "listError": "Lista de dosare nu a putut fi încărcată. Puteți salva totuși în dosarul curent.",
+    "empty": "Acest dosar este gol.",
+    "readOnly": "doar citire",
+    "fileName": "Nume fișier:",
+    "save": "Salvează",
+    "download": "Descarcă în schimb",
+    "nameEmpty": "Introduceți un nume de fișier.",
+    "nameInvalid": "Numele fișierului conține caractere nepermise.",
+    "copyName": "{{name}} (copie)",
+    "saved": "Salvat ca „{{name}}” în documentele dvs.",
+    "renamed": "Există deja un fișier cu acest nume, așa că copia a fost salvată ca „{{name}}”. Nu s-a suprascris nimic.",
+    "openNew": "Deschide fișierul nou",
+    "keepOriginal": "Continuă editarea originalului",
+    "notSavedTitle": "Nesalvat",
+    "errorReadOnly": "Nu aveți permisiunea de a salva în acest dosar. Alegeți alt dosar sau descărcați fișierul.",
+    "errorInvalidName": "Site-ul nu acceptă acest nume de fișier. Alegeți alt nume sau descărcați fișierul.",
+    "errorTooLarge": "Fișierul este prea mare pentru a fi salvat pe site. Descărcați-l în schimb.",
+    "errorQuota": "Nu mai este suficient spațiu de stocare. Eliberați spațiu sau descărcați fișierul.",
+    "errorNetwork": "Site-ul nu a putut fi contactat, așa că fișierul nu a fost salvat. Încercați din nou sau descărcați fișierul.",
+    "errorUnsupported": "Acest site nu poate salva fișiere noi. Descărcați fișierul în schimb.",
+    "errorFailed": "Site-ul nu a salvat fișierul: {{error}}"
+  },
   "textEditMissingGlyphs": "Textul nu a fost modificat: niciun font disponibil nu conține aceste caractere, deci nu pot fi salvate: {{chars}}",
   "textEditMissingGlyphsLater": "Niciun font disponibil nu conține aceste caractere, deci nu pot fi salvate: {{chars}}. Modificați acest text; până atunci PDF-ul nu poate fi salvat.",
   "textEditMissingGlyphsSave": "PDF-ul nu a fost salvat: un text editat conține caractere pe care nu le are niciun font disponibil: {{chars}}. Modificați acel text și salvați din nou.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Mergi la pagina",
     "openExternalFile": "Deschidere: {{filename}}",
     "destination": "Destinatie: {{name}}",
-    "internalLink": "Link intern"
+    "internalLink": "Link intern",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creat: {{date}}",
+    "attachmentModified": "Modificat: {{date}}",
+    "openAttachmentRiskTitle": "Deschide atașamentul",
+    "openAttachmentRiskMessage": "„{{name}}” poate rula programe pe acest computer. Deschideți-l doar dacă aveți încredere în sursă. Deschideți totuși?"
   },
   "failedToInsertPagesFromFile": "Paginile din fișier nu au putut fi inserate: {{error}}",
   "previewPdfRefused": "Acest PDF este o previzualizare din importul desenului și poate fi incomplet. Nu poate fi inserat sau salvat; importați din nou desenul.",
@@ -245,10 +354,15 @@
     "detachFailed": "Fereastra nu a putut fi detașată: {{error}}",
     "dragFileGone": "Acest fișier nu mai există pe disc — fila nu poate fi mutată.",
     "dragNotStarted": "Fila nu a putut fi trasă în altă fereastră. Încercați din nou sau folosiți clic dreapta → Deschidere în fereastră nouă.",
+    "openInSplitView": "Deschide în vizualizare divizată",
     "openInNewWindow": "Deschidere în fereastră nouă",
     "closeTab": "Închidere filă",
     "nextTab": "Fila urmatoare",
     "previousTab": "Fila anterioara"
+  },
+  "pageNav": {
+    "nextPage": "Pagina urmatoare",
+    "previousPage": "Pagina anterioara"
   },
   "quickAccess": {
     "exportRaster": "Export ca PDF raster (se deschide într-o filă nouă)"
@@ -290,5 +404,50 @@
     "readFailed": "Modelul 3D nu a putut fi citit.",
     "partial": "Unele părți ale modelului 3D nu au putut fi citite ({{n}} omise).",
     "viewerFailed": "Vizualizarea 3D nu a putut fi pornită."
+  },
+  "readAloud": {
+    "title": "Citire cu voce tare",
+    "play": "Citește",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "stop": "Oprește",
+    "close": "Închide",
+    "voice": "Voce",
+    "defaultVoice": "Voce implicită",
+    "rate": "Viteză",
+    "loading": "Se pregătește...",
+    "reading": "Se citește",
+    "paused": "În pauză",
+    "page": "pagina {{page}}",
+    "tagOrder": "ordinea etichetelor",
+    "contentOrder": "ordinea paginilor",
+    "noEngine": "Nu există niciun motor de vorbire disponibil pe acest sistem.",
+    "noEngineLinux": "Nu s-a găsit niciun motor de vorbire. Instalați speech-dispatcher (spd-say) sau espeak-ng și încercați din nou.",
+    "speechFailed": "Citirea s-a oprit din cauza unei erori.",
+    "nothingToRead": "Nu există text de citit.",
+    "online": "(online)",
+    "allowOnline": "Voci online",
+    "allowOnlineHint": "Oferă și voci online. Cu o voce online, textul citit este trimis unui serviciu vocal online.",
+    "onlyOnlineVoices": "Sunt disponibile doar voci online. Activați Voci online pentru a folosi una; textul citit este atunci trimis unui serviciu vocal online.",
+    "noLocalVoice": "Nu este instalată nicio voce locală pentru această limbă; se folosește vocea locală implicită."
+  },
+  "moveInference": {
+    "onAxisX": "Pe axa X",
+    "onAxisY": "Pe axa Y",
+    "fromPoint": "Din punct",
+    "extension": "Pe prelungire",
+    "parallel": "Paralel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersecție",
+    "polar": "Polar",
+    "locked": "Blocat"
+  },
+  "portable": {
+    "updateTitle": "Actualizare disponibilă",
+    "updateAvailable": "Versiunea {{version}} este disponibilă.\n\nAceastă copie portabilă nu se actualizează singură. Descărcați {{file}} și extrageți-l peste acest folder; folderul data cu setările dvs. se păstrează.\n\nDeschideți pagina de descărcare?",
+    "fileAssoc": "Această copie portabilă nu este înregistrată în Windows. Pentru a deschide fișiere PDF cu ea, faceți clic dreapta pe un PDF, alegeți Deschidere cu > Alegeți altă aplicație și selectați open-pdf-studio.exe din acest folder.",
+    "explorerThumbnails": "Miniaturile PDF din Explorer sunt disponibile doar în versiunea instalată.",
+    "virtualPrinter": "Imprimanta virtuală este disponibilă doar în versiunea instalată: este adăugată în Windows cu drepturi de administrator.",
+    "notWritable": "Open PDF Studio nu poate scrie în folderul {{dir}}, așa că de data aceasta setările sunt salvate în profilul dvs. de utilizator. Mutați folderul portabil într-o locație în care se poate scrie, de exemplu un stick USB sau folderul Documente."
   }
 }

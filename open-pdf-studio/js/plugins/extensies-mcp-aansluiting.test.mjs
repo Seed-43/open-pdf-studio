@@ -47,12 +47,12 @@ test('Rust: lijst, dispatch, metatabel en de telling van het publieke profiel', 
     assert.match(rs, new RegExp(`"${naam}"\\s+=> tool_app_request\\(state, "${gebeurtenis}",\\s+&arguments, Duration::from_secs\\(${seconden}\\)\\)`));
     assert.match(meta, new RegExp(`${soort}\\("${naam}", "[^"]+"\\)`));
   }
-  assert.match(rs, /assert_eq!\(arr\.len\(\), 89\);/);
-  assert.match(lees('../../../mcp-stdio/brug.test.mjs'), /assert\.equal\(lijst\.length, 89\);/);
+  assert.match(rs, /assert_eq!\(arr\.len\(\), 98\);/);
+  assert.match(lees('../../../mcp-stdio/brug.test.mjs'), /assert\.equal\(lijst\.length, 98\);/);
   // De README noemt dezelfde telling (twee keer).
   const leesmij = lees('../../../mcp-stdio/README.md');
-  assert.match(leesmij, /\(89 public tools:/);
-  assert.match(leesmij, /OK — 89 tools available/);
+  assert.match(leesmij, /\(98 public tools:/);
+  assert.match(leesmij, /OK — 98 tools available/);
   assert.doesNotMatch(leesmij, /\b62 (public )?tools\b/);
   assert.match(rs, /Extension actions appear as 'ext:<extensionId>:<itemId>'\./);
 });
@@ -170,7 +170,7 @@ test('plug-in-API, saver en native commando\'s zijn aangesloten', () => {
   const savePdf = saver.slice(saver.indexOf('export async function savePDF('), saver.indexOf('async function _savePDFNu('));
   // Opslaan en een wissel sluiten elkaar uit; het slot komt na de handtekeningvraag.
   assert.match(saver, /^import \{ metOpslagSlot \} from '\.\.\/plugins\/opslag-wissel-slot\.js';$/m);
-  assert.match(savePdf, /_saveBezig = metOpslagSlot\(\(\) => _savePDFNu\(saveAsPath, activeDoc\)\)\.finally\(/);
+  assert.match(savePdf, /_saveBezig = metOpslagSlot\(\(\) => _savePDFNu\(saveAsPath, activeDoc, \{ annulering: opties\.annulering \}\)\)\.finally\(/);
   assert.ok(savePdf.indexOf('bevestigOpslaanMetHandtekeningen') < savePdf.indexOf('metOpslagSlot('), 'na de handtekeningvraag');
   assert.doesNotMatch(saver, /wachtOpExtensieWissel/);
   const lib = lees('../../src-tauri/src/lib.rs');

@@ -34,6 +34,10 @@
   "draw": "Chora",
   "saved": "Imehifadhiwa",
   "documentChangedDuringSave": "Hati ilibadilika wakati wa kuhifadhi. Hifadhi tena.",
+  "savingPdf": "Inahifadhi PDF…",
+  "saveCancelling": "Inaghairi uhifadhi…",
+  "saveCancelled": "Uhifadhi umeghairiwa. Faili haikubadilishwa.",
+  "saveCancelTooLate": "Faili lilikuwa limeshahifadhiwa; ilikuwa kuchelewa mno kughairi.",
   "documentChangedDuringExport": "Hati ilibadilika wakati wa kuhamisha nje. Anza tena.",
   "rasterExportProgress": "Inageuza kurasa kuwa picha: {{done}} kati ya {{total}}",
   "search": "Tafuta",
@@ -120,7 +124,79 @@
         "label": "Ramani ya sakafu",
         "hint": "Chora ramani ya sakafu ya jengo: kuta, fremu za milango na madirisha, vyumba, vipimo na vifaa (vyoo, jiko)",
         "prompt": "Chora ramani ya sakafu ya jengo. Kinachopaswa kuchorwa: "
+      },
+      "find-on-sheet": {
+        "label": "Tafuta kwenye karatasi",
+        "hint": "Tafuta neno (jina la chumba, alama ya sehemu, alama), nenda kwenye ukurasa wake na uangazie matokeo",
+        "prompt": "Tafuta kwenye karatasi hii: "
+      },
+      "explain-selection": {
+        "label": "Eleza uteuzi",
+        "hint": "Eleza eneo, maandishi au alama iliyochaguliwa kwa lugha rahisi, pamoja na vipimo ikiwa kipimo cha upimaji kimewekwa",
+        "prompt": "Eleza uteuzi."
+      },
+      "compare-sheets": {
+        "label": "Linganisha karatasi",
+        "hint": "Taja na uweke alama kilichoongezwa, kuondolewa au kuhamishwa ukilinganisha na ukurasa mwingine",
+        "prompt": "Linganisha ukurasa huu na ukurasa: "
+      },
+      "measure": {
+        "label": "Pima hiki",
+        "hint": "Pima umbo lililochaguliwa au kipengele kilichoelezwa na uripoti kwa kipimo cha mchoro",
+        "prompt": "Pima: "
+      },
+      "take-off": {
+        "label": "Hesabu idadi",
+        "hint": "Hesabu au pima vipengele vya aina moja na uweke matokeo kama jedwali kwenye karatasi",
+        "prompt": "Hesabu idadi ya: "
+      },
+      "check-scale": {
+        "label": "Kagua kipimo",
+        "hint": "Tafuta kipimo kutoka kwenye kizuizi cha kichwa au kipimo kinachojulikana na ukiweke",
+        "prompt": "Kagua kipimo cha mchoro huu."
+      },
+      "review-sheet": {
+        "label": "Kagua karatasi",
+        "hint": "Ongeza mawingu yenye maoni yaliyopewa namba kwa hoja ambazo mkaguzi angeibua",
+        "prompt": "Kagua karatasi hii kwa: "
+      },
+      "stamp-date": {
+        "label": "Muhuri na tarehe",
+        "hint": "Weka muhuri, jaza sehemu ya kizuizi cha kichwa au ongeza maelezo ya marekebisho yenye tarehe ya leo",
+        "prompt": "Weka muhuri na tarehe: "
+      },
+      "clean-up": {
+        "label": "Panga alama",
+        "hint": "Panga, weka namba upya au badilisha rangi za alama zilizopo kwa uthabiti",
+        "prompt": "Panga alama zangu: "
+      },
+      "import-cad": {
+        "label": "Leta mchoro",
+        "hint": "Leta mchoro wa DWG au DXF kama msingi kwa kipimo sahihi",
+        "prompt": "Leta mchoro (njia ya faili ya DWG au DXF): "
+      },
+      "export-cad": {
+        "label": "Hamisha kwenda CAD",
+        "hint": "Andika ukurasa huu au eneo lililochaguliwa kwenye faili ya DXF au DWG",
+        "prompt": "Hamisha ukurasa huu kwenda (njia ya faili ya DXF au DWG): "
       }
+    },
+    "groups": {
+      "document": "Tafsiri na fupisha",
+      "reading": "Kusoma mchoro",
+      "measuring": "Vipimo na idadi",
+      "markup": "Kuweka alama",
+      "structure": "Muundo na ramani ya sakafu",
+      "cad": "Michoro ya CAD"
+    },
+    "need": {
+      "document": "Fungua PDF kwanza: ujuzi huu unafanya kazi kwenye hati iliyofunguliwa.",
+      "selection": "Chagua alama au maandishi kwenye mchoro kwanza, kisha bofya ujuzi tena.",
+      "scale": "Mchoro huu bado hauna kipimo cha upimaji. Weka kimoja kwanza (kwa mfano kwa \"Kagua kipimo\") kisha ujaribu tena.",
+      "input": "Kamilisha maandishi kwenye kisanduku cha kuingiza baada ya nukta mbili, kisha utume.",
+      "selectionOrInput": "Chagua umbo kwenye mchoro, au eleza baada ya nukta mbili kinachopaswa kupimwa.",
+      "page": "Weka namba ya ukurasa mwingine (1 hadi {{max}}), si ukurasa wa sasa.",
+      "twoPages": "Hati hii ina ukurasa mmoja tu. Ili kulinganisha na faili nyingine, badilisha maandishi kwenye kisanduku cha kuingiza kwa swali lako mwenyewe."
     }
   },
   "onlineSymbolLibrary": "Maktaba ya alama mtandaoni",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Hili ni toleo la zamani la faili, limefunguliwa kwa kusoma tu, kwa hiyo haliwezi kuhifadhiwa. Tumia Hifadhi Kama ili kupakua nakala.",
   "hostVersionReadOnlyRefused": "Tovuti haikuhifadhi faili: toleo la zamani la faili hili limefunguliwa kwa kusoma tu. Fungua tena toleo la sasa ili kuhifadhi, au tumia Hifadhi Kama ili kupakua nakala.",
   "hostVersionInvalid": "Toleo hili la faili haliwezi kufunguliwa: nambari ya toleo si sahihi.",
+  "hostSaveAs": {
+    "title": "Hifadhi kwenye hati",
+    "location": "Folda:",
+    "currentFolder": "Folda ya sasa",
+    "up": "Juu",
+    "loading": "Inapakia…",
+    "listError": "Orodha ya folda haikuweza kupakiwa. Bado unaweza kuhifadhi kwenye folda ya sasa.",
+    "empty": "Folda hii ni tupu.",
+    "readOnly": "kusoma tu",
+    "fileName": "Jina la faili:",
+    "save": "Hifadhi",
+    "download": "Pakua badala yake",
+    "nameEmpty": "Weka jina la faili.",
+    "nameInvalid": "Jina la faili lina herufi zisizoruhusiwa.",
+    "copyName": "{{name}} (nakala)",
+    "saved": "Imehifadhiwa kama “{{name}}” kwenye hati zako.",
+    "renamed": "Faili yenye jina hilo tayari ipo, kwa hivyo nakala imehifadhiwa kama “{{name}}”. Hakuna kilichoandikwa juu.",
+    "openNew": "Fungua faili mpya",
+    "keepOriginal": "Endelea kuhariri asili",
+    "notSavedTitle": "Haijahifadhiwa",
+    "errorReadOnly": "Huna ruhusa ya kuhifadhi kwenye folda hii. Chagua folda nyingine au pakua faili.",
+    "errorInvalidName": "Tovuti haikubali jina hili la faili. Chagua jina lingine au pakua faili.",
+    "errorTooLarge": "Faili ni kubwa mno kuhifadhiwa kwenye tovuti. Ipakue badala yake.",
+    "errorQuota": "Hakuna nafasi ya kutosha ya hifadhi. Futa nafasi au pakua faili.",
+    "errorNetwork": "Tovuti haikuweza kufikiwa, kwa hivyo faili haikuhifadhiwa. Jaribu tena au pakua faili.",
+    "errorUnsupported": "Tovuti hii haiwezi kuhifadhi faili mpya. Pakua faili badala yake.",
+    "errorFailed": "Tovuti haikuhifadhi faili: {{error}}"
+  },
   "textEditMissingGlyphs": "Maandishi hayakubadilishwa: hakuna fonti inayopatikana yenye herufi hizi, kwa hiyo haziwezi kuhifadhiwa: {{chars}}",
   "textEditMissingGlyphsLater": "Hakuna fonti inayopatikana yenye herufi hizi, kwa hiyo haziwezi kuhifadhiwa: {{chars}}. Badilisha maandishi haya; hadi hapo PDF haiwezi kuhifadhiwa.",
   "textEditMissingGlyphsSave": "PDF haikuhifadhiwa: maandishi yaliyohaririwa yana herufi ambazo hakuna fonti inayopatikana iliyo nazo: {{chars}}. Badilisha maandishi hayo na uhifadhi tena.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Nenda ukurasa",
     "openExternalFile": "Fungua: {{filename}}",
     "destination": "Marudio: {{name}}",
-    "internalLink": "Kiungo cha ndani"
+    "internalLink": "Kiungo cha ndani",
+    "attachmentOnPage": "Ukurasa {{page}}",
+    "attachmentCreated": "Imeundwa: {{date}}",
+    "attachmentModified": "Imebadilishwa: {{date}}",
+    "openAttachmentRiskTitle": "Fungua kiambatisho",
+    "openAttachmentRiskMessage": "\"{{name}}\" inaweza kuendesha programu kwenye kompyuta hii. Ifungue tu ikiwa unaamini chanzo chake. Ifungue hata hivyo?"
   },
   "failedToInsertPagesFromFile": "Imeshindwa kuingiza kurasa kutoka faili: {{error}}",
   "previewPdfRefused": "PDF hii ni hakikisho kutoka kwenye uingizaji wa mchoro na huenda haijakamilika. Haiwezi kuingizwa wala kuhifadhiwa; ingiza mchoro tena.",
@@ -245,10 +354,15 @@
     "detachFailed": "Haikuweza kutenganisha dirisha: {{error}}",
     "dragFileGone": "Faili hii haipo tena kwenye diski — kichupo hakiwezi kuhamishwa.",
     "dragNotStarted": "Kichupo hakikuweza kuburutwa kwenda dirisha jingine. Jaribu tena, au tumia bofya kulia → fungua kwenye dirisha jipya.",
+    "openInSplitView": "Fungua katika Mwonekano Uliogawanywa",
     "openInNewWindow": "Fungua kwenye dirisha jipya",
     "closeTab": "Funga kichupo",
     "nextTab": "Kichupo Kinachofuata",
     "previousTab": "Kichupo Kilichotangulia"
+  },
+  "pageNav": {
+    "nextPage": "Ukurasa Ujao",
+    "previousPage": "Ukurasa Uliopita"
   },
   "quickAccess": {
     "exportRaster": "Hamisha nje kama PDF ya raster (hufunguka kwenye kichupo kipya)"
@@ -290,5 +404,50 @@
     "readFailed": "Modeli ya 3D haikuweza kusomwa.",
     "partial": "Baadhi ya sehemu za modeli ya 3D hazikuweza kusomwa ({{n}} zimerukwa).",
     "viewerFailed": "Mwonekano wa 3D haukuweza kuanzishwa."
+  },
+  "readAloud": {
+    "title": "Soma kwa sauti",
+    "play": "Soma",
+    "pause": "Sitisha",
+    "resume": "Endelea",
+    "stop": "Simamisha",
+    "close": "Funga",
+    "voice": "Sauti",
+    "defaultVoice": "Sauti chaguomsingi",
+    "rate": "Kasi",
+    "loading": "Inaandaa...",
+    "reading": "Inasoma",
+    "paused": "Imesitishwa",
+    "page": "ukurasa {{page}}",
+    "tagOrder": "mpangilio wa lebo",
+    "contentOrder": "mpangilio wa kurasa",
+    "noEngine": "Hakuna injini ya usemi inayopatikana kwenye mfumo huu.",
+    "noEngineLinux": "Injini ya usemi haikupatikana. Sakinisha speech-dispatcher (spd-say) au espeak-ng kisha ujaribu tena.",
+    "speechFailed": "Usomaji umesimama kwa sababu ya hitilafu.",
+    "nothingToRead": "Hakuna maandishi ya kusoma.",
+    "online": "(mtandaoni)",
+    "allowOnline": "Sauti za mtandaoni",
+    "allowOnlineHint": "Toa pia sauti za mtandaoni. Ukitumia sauti ya mtandaoni, maandishi yanayosomwa hutumwa kwa huduma ya sauti ya mtandaoni.",
+    "onlyOnlineVoices": "Kuna sauti za mtandaoni pekee. Washa Sauti za mtandaoni ili kutumia mojawapo; maandishi yanayosomwa hutumwa kisha kwa huduma ya sauti ya mtandaoni.",
+    "noLocalVoice": "Hakuna sauti ya ndani iliyosakinishwa kwa lugha hii; sauti ya ndani chaguomsingi inatumika."
+  },
+  "moveInference": {
+    "onAxisX": "Kwenye mhimili X",
+    "onAxisY": "Kwenye mhimili Y",
+    "fromPoint": "Kutoka pointi",
+    "extension": "Kwenye mwendelezo",
+    "parallel": "Sambamba",
+    "perpendicular": "Pembemraba",
+    "intersection": "Makutano",
+    "polar": "Kipolari",
+    "locked": "Imefungwa"
+  },
+  "portable": {
+    "updateTitle": "Sasisho linapatikana",
+    "updateAvailable": "Toleo {{version}} linapatikana.\n\nNakala hii inayobebeka haijisasishi yenyewe. Pakua {{file}} na uifungue juu ya folda hii; folda ya data yenye mipangilio yako inabaki.\n\nFungua ukurasa wa kupakua?",
+    "fileAssoc": "Nakala hii inayobebeka haijasajiliwa kwenye Windows. Ili kufungua faili za PDF nayo, bofya kulia PDF, chagua Fungua kwa > Chagua programu nyingine, kisha uchague open-pdf-studio.exe katika folda hii.",
+    "explorerThumbnails": "Vijipicha vya PDF katika File Explorer vinapatikana tu katika toleo lililosakinishwa.",
+    "virtualPrinter": "Printa pepe inapatikana tu katika toleo lililosakinishwa: huongezwa kwenye Windows kwa haki za msimamizi.",
+    "notWritable": "Open PDF Studio haiwezi kuandika kwenye folda {{dir}}, kwa hiyo mara hii mipangilio yako imehifadhiwa kwenye wasifu wako wa mtumiaji. Hamisha folda inayobebeka hadi mahali panapoweza kuandikwa, kama diski ya USB au folda yako ya Documents."
   }
 }

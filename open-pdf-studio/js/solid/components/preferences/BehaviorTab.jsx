@@ -81,6 +81,18 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.snapToVertices[0]()} onChange={e => p.snapToVertices[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+            <span>{t('behavior.snapToVertices')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.snapToStartPoints[0]()} onChange={e => p.snapToStartPoints[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+            <span>{t('behavior.snapToStartPoints')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.snapToEdges[0]()} onChange={e => p.snapToEdges[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
             <span>{t('behavior.snapToEdges')}</span>
           </label>
@@ -128,6 +140,31 @@ export default function BehaviorTab(props) {
       </fieldset>
 
       <fieldset class="pref-fieldset">
+        <legend>{t('behavior.moveInference')}</legend>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceTracking[0]()} onChange={e => p.moveInferenceTracking[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceTracking')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceExtension[0]()} onChange={e => p.moveInferenceExtension[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceExtension')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceParallel[0]()} onChange={e => p.moveInferenceParallel[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceParallel')}</span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <span class="pref-hint">{t('behavior.moveInferenceHint')}</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="pref-fieldset">
         <legend>{t('behavior.creation')}</legend>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
@@ -161,6 +198,18 @@ export default function BehaviorTab(props) {
           <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.wheelZoomWithoutCtrl[0]()} onChange={e => p.wheelZoomWithoutCtrl[1](e.target.checked)} />
             <span>{t('behavior.wheelZoomWithoutCtrl') || 'Zoomen met muiswiel (zonder Ctrl)'}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.middleDoubleClickFit[0]()} onChange={e => p.middleDoubleClickFit[1](e.target.checked)} />
+            <span>{t('behavior.middleDoubleClickFit')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" id="pref-ribbon-wheel-tabs" checked={p.ribbonWheelSwitchesTabs[0]()} onChange={e => p.ribbonWheelSwitchesTabs[1](e.target.checked)} />
+            <span>{t('behavior.ribbonWheelSwitchesTabs')}</span>
           </label>
         </div>
       </fieldset>

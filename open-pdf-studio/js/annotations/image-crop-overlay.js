@@ -13,9 +13,10 @@
 // de opgeslagen AP-stream, issue #212) plus de verkleinde rechthoek. De
 // geometrie zelf staat in crop-geometrie.js en is los getest.
 //
-// De overlay hangt eigen pointer-handlers aan het annotatiecanvas en blijft
-// zo los van de gereedschaps-dispatcher; het tekenen gebeurt vanuit
-// redrawAnnotations() via drawImageCropOverlay().
+// De overlay hangt eigen pointer-handlers in de capture-fase aan het document
+// en houdt een klik op een greep daar tegen, zodat het selectiegereedschap
+// niet tegelijk de afbeelding schaalt (#749, zie crop-invoer.js); het
+// tekenen gebeurt vanuit redrawAnnotations() via drawImageCropOverlay().
 // ============================================================================
 
 import { state, getActiveDocument } from '../core/state.js';
@@ -26,6 +27,8 @@ import { recordPropertyChange } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { fracties, volledigVak, vensterOpVak, fractiesNaSleep, rectNaBijsnijden } from './crop-geometrie.js';
 import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
+import { draaipuntNaVakWissel } from './draaipunt.js';
+import { inDocumentWeergave, eisGebeurtenisOp, installeerCropInvoer } from './crop-invoer.js';
 
 // De annotatie die bijgesneden wordt (null = inactief).
 let _cropAnn = null;
@@ -33,7 +36,9 @@ let _cropAnn = null;
 let _snapshot = null;
 // Lopende sleep.
 let _dragHandle = null; // 'l' | 'r' | 't' | 'b' | 'tl' | 'tr' | 'bl' | 'br'
-let _installed = false;
+// Het element dat de pointer vasthoudt tijdens het slepen.
+let _captureEl = null;
+let _verwijderInvoer = null;
 
 const GREPEN = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'];
 
@@ -50,12 +55,37 @@ function effScale() {
   return (doc?.scale || 1.5) * dpr;
 }
 
-function maakSnapshot(ann) {
+// Het eigen draaipunt (#826) staat als losse getallen in de snapshot, zodat
+// de vergelijkingen hieronder (!==) blijven werken; null = het midden.
+export function maakSnapshot(ann) {
   return {
     x: ann.x, y: ann.y, width: ann.width, height: ann.height,
     cropLeft: ann.cropLeft || 0, cropTop: ann.cropTop || 0,
     cropRight: ann.cropRight || 0, cropBottom: ann.cropBottom || 0,
+    draaipuntU: ann.draaipunt ? ann.draaipunt.u : null,
+    draaipuntV: ann.draaipunt ? ann.draaipunt.v : null,
   };
+}
+
+/** Zet een snapshot van maakSnapshot terug op de annotatie. */
+export function pasSnapshotToe(ann, snap) {
+  const { draaipuntU, draaipuntV, ...rest } = snap;
+  Object.assign(ann, rest);
+  if (draaipuntU == null || draaipuntV == null) delete ann.draaipunt;
+  else ann.draaipunt = { u: draaipuntU, v: draaipuntV };
+}
+
+/**
+ * Nieuwe bijsnijding toepassen. De pixels blijven op hun plek, dus een eigen
+ * draaipunt (#826) blijft op hetzelfde punt van de pagina staan, ook als het
+ * daardoor buiten het nieuwe vak valt.
+ */
+export function pasBijsnijdingToe(ann, f1, nieuw) {
+  const dp = draaipuntNaVakWissel(ann, { ...nieuw, rotation: ann.rotation || 0 });
+  ann.cropLeft = f1.l; ann.cropTop = f1.t; ann.cropRight = f1.r; ann.cropBottom = f1.b;
+  ann.x = nieuw.x; ann.y = nieuw.y; ann.width = nieuw.width; ann.height = nieuw.height;
+  if (dp) ann.draaipunt = dp;
+  else delete ann.draaipunt;
 }
 
 const rectVan = (ann) => ({ x: ann.x, y: ann.y, width: ann.width, height: ann.height });
@@ -99,19 +129,20 @@ function hitHandle(local, ann) {
 }
 
 function onPointerDown(e) {
-  if (!_cropAnn || e.button !== 0) return;
+  if (!_cropAnn || e.button !== 0 || !inDocumentWeergave(e.target)) return;
   const local = toLocal(e, _cropAnn);
   const h = hitHandle(local, _cropAnn);
   if (!h) return;
-  e.preventDefault();
-  e.stopPropagation();
+  eisGebeurtenisOp(e);
   _dragHandle = h;
-  try { annotationCanvas?.setPointerCapture?.(e.pointerId); } catch (_) { /* ignore */ }
+  _captureEl = e.target;
+  try { _captureEl?.setPointerCapture?.(e.pointerId); } catch (_) { /* ignore */ }
 }
 
 function onPointerMove(e) {
   if (!_cropAnn) return;
   if (!_dragHandle) {
+    if (!inDocumentWeergave(e.target)) return;
     const local = toLocal(e, _cropAnn);
     const h = hitHandle(local, _cropAnn);
     if (annotationCanvas) {
@@ -126,8 +157,7 @@ function onPointerMove(e) {
     }
     return;
   }
-  e.preventDefault();
-  e.stopPropagation();
+  eisGebeurtenisOp(e);
   const ann = _cropAnn;
   const local = toLocal(e, ann);
   // Nieuwe fracties t.o.v. het volledige vak, dan de rechthoek daarop
@@ -137,15 +167,16 @@ function onPointerMove(e) {
   const vak = volledigVak(rectVan(ann), f0);
   const f1 = fractiesNaSleep(vak, f0, _dragHandle, local);
   const nieuw = rectNaBijsnijden(rectVan(ann), vensterOpVak(vak, f1), ann.rotation || 0);
-  ann.cropLeft = f1.l; ann.cropTop = f1.t; ann.cropRight = f1.r; ann.cropBottom = f1.b;
-  ann.x = nieuw.x; ann.y = nieuw.y; ann.width = nieuw.width; ann.height = nieuw.height;
+  pasBijsnijdingToe(ann, f1, nieuw);
   redraw();
 }
 
 function onPointerUp(e) {
   if (!_dragHandle) return;
+  eisGebeurtenisOp(e);
   _dragHandle = null;
-  try { annotationCanvas?.releasePointerCapture?.(e.pointerId); } catch (_) { /* ignore */ }
+  try { _captureEl?.releasePointerCapture?.(e.pointerId); } catch (_) { /* ignore */ }
+  _captureEl = null;
   const ann = _cropAnn;
   if (ann && _snapshot) {
     const nu = maakSnapshot(ann);
@@ -153,9 +184,9 @@ function onPointerUp(e) {
     if (changed) {
       // Snapshot even terugzetten zodat recordPropertyChange de toestand van
       // vóór deze sleep vastlegt, en daarna de nieuwe toestand herstellen.
-      Object.assign(ann, _snapshot);
+      pasSnapshotToe(ann, _snapshot);
       recordPropertyChange(ann);
-      Object.assign(ann, nu);
+      pasSnapshotToe(ann, nu);
       ann.modifiedAt = new Date().toISOString();
       _snapshot = nu;
       showProperties(ann);
@@ -184,29 +215,28 @@ function herstelSnapshot() {
   const nu = maakSnapshot(ann);
   if (Object.keys(nu).some(k => nu[k] !== _snapshot[k])) {
     recordPropertyChange(ann);
-    Object.assign(ann, _snapshot);
+    pasSnapshotToe(ann, _snapshot);
     ann.modifiedAt = new Date().toISOString();
     showProperties(ann);
   }
 }
 
 function install() {
-  if (_installed || !annotationCanvas) return;
-  annotationCanvas.addEventListener('pointerdown', onPointerDown, true);
-  annotationCanvas.addEventListener('pointermove', onPointerMove, true);
-  annotationCanvas.addEventListener('pointerup', onPointerUp, true);
+  if (_verwijderInvoer) return;
+  // Op het document, in de capture-fase: vóór elk element van de weergave,
+  // ook de paginacanvassen van de doorlopende weergave (#749).
+  _verwijderInvoer = installeerCropInvoer(document, {
+    pointerdown: onPointerDown, pointermove: onPointerMove, pointerup: onPointerUp,
+  });
   document.addEventListener('keydown', onKeyDown, true);
-  _installed = true;
 }
 
 function uninstall() {
-  if (!_installed) return;
-  annotationCanvas?.removeEventListener('pointerdown', onPointerDown, true);
-  annotationCanvas?.removeEventListener('pointermove', onPointerMove, true);
-  annotationCanvas?.removeEventListener('pointerup', onPointerUp, true);
+  if (!_verwijderInvoer) return;
+  _verwijderInvoer();
+  _verwijderInvoer = null;
   document.removeEventListener('keydown', onKeyDown, true);
   if (annotationCanvas) annotationCanvas.style.cursor = '';
-  _installed = false;
 }
 
 // Publieke API ----------------------------------------------------------------
@@ -229,6 +259,7 @@ export function stopImageCrop(_commit = true) {
   _cropAnn = null;
   _snapshot = null;
   _dragHandle = null;
+  _captureEl = null;
   state.imageCropMode = false;
   redraw();
 }

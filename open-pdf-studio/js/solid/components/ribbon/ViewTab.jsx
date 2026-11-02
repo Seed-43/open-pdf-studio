@@ -3,6 +3,7 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import ThemePicker from './ThemePicker.jsx';
+import SplitButton from './SplitButton.jsx';
 import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon, annotationLayersIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { isFullscreen } from '../../stores/ribbonStore.js';
 import { toggleFullscreen } from '../../../ui/chrome/fullscreen.js';
@@ -23,7 +24,12 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog, showMessage } from '../../stores/dialogStore.js';
 import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
 import { setReaderTracking } from '../../../pdf/reader-mode-view.js';
-import { compareActive, exitCompare } from '../../../compare/compare-store.js';
+import { compareActive, compareFocused, exitCompare } from '../../../compare/compare-store.js';
+import { status as readAloudStatus } from '../../stores/readAloudStore.js';
+import { activeTab as leftPanelTab } from '../../stores/leftPanelStore.js';
+import { splitsWeergave, hefSplitsingOp, zetSplitSync } from '../../../pdf/split-view/split-view.js';
+import { sneltoetsVoor } from '../../stores/keybindingStore.js';
+import { titleWithShortcut } from '../../../core/keybindings/labels.js';
 
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
@@ -33,6 +39,12 @@ export default function ViewTab() {
   // en niet ongedaan te maken. Pagina's echt draaien (opgeslagen, ongedaan
   // te maken) staat op het tabblad Bewerken & combineren.
   const rotateView = (delta) => draaiWeergave(delta);
+
+  // Gesplitste weergave (#715): per document, staat op doc.splitView.
+  const splitView = () => state.documents[state.activeDocumentIndex]?.splitView || null;
+  const splitDisabled = () => noPdf() || compareFocused();
+  const splitVerticalIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`;
+  const splitSyncIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="8" height="14"/><rect x="14" y="5" width="8" height="14"/><path d="M6 9v6M18 9v6M4.5 13.5L6 15l1.5-1.5M16.5 13.5L18 15l1.5-1.5"/></svg>`;
 
   return (
     <div class="ribbon-content active" id="tab-view">
@@ -66,6 +78,44 @@ export default function ViewTab() {
             <RibbonButton size="small" id="view-rotate-right" title={t('view.rotateViewRightTitle')} icon={rotateRightIcon} label={t('view.rotateViewRight')}
               disabled={noPdf()} onClick={() => rotateView(90)} />
           </RibbonButtonStack>
+        </RibbonGroup>
+
+        <RibbonGroup label={t('view.splitGroup')}>
+          <SplitButton
+            id="split-view-btn"
+            mainIcon={splitVerticalIcon}
+            mainLabel={t('view.split')}
+            mainTitle={t('view.splitTitle')}
+            dropdownTitle={t('view.splitOptions')}
+            disabled={splitDisabled()}
+            onMainClick={() => { if (splitView()) hefSplitsingOp(); else splitsWeergave('vertical'); }}
+          >
+            <button class="ribbon-split-btn-menu-item" id="split-menu-vertical"
+              title={titleWithShortcut(t('view.splitVertical'), sneltoetsVoor('view.splitVertical'))}
+              classList={{ active: splitView()?.richting === 'vertical' }}
+              onClick={() => splitsWeergave('vertical')}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              {t('view.splitVertical')}
+            </button>
+            <button class="ribbon-split-btn-menu-item" id="split-menu-horizontal"
+              title={titleWithShortcut(t('view.splitHorizontal'), sneltoetsVoor('view.splitHorizontal'))}
+              classList={{ active: splitView()?.richting === 'horizontal' }}
+              onClick={() => splitsWeergave('horizontal')}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              {t('view.splitHorizontal')}
+            </button>
+            <button class="ribbon-split-btn-menu-item" id="split-menu-unsplit"
+              title={titleWithShortcut(t('view.unsplit'), sneltoetsVoor('view.unsplit'))}
+              disabled={!splitView()}
+              onClick={() => hefSplitsingOp()}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/></svg>
+              {t('view.unsplit')}
+            </button>
+          </SplitButton>
+          <RibbonButton id="split-view-sync" title={t('view.splitSyncTitle')} icon={splitSyncIcon} label={t('view.splitSync')}
+            disabled={splitDisabled() || !splitView()}
+            active={!!splitView()?.sync}
+            onClick={() => zetSplitSync(!splitView()?.sync)} />
         </RibbonGroup>
 
         <RibbonGroup label={t('view.display') || 'Display'}>
@@ -122,8 +172,35 @@ export default function ViewTab() {
               and the plugin extension-palette buttons were removed from this
               tab on request (the palettes themselves still exist and can be
               re-exposed later if needed). */}
-          <RibbonButton id="ribbon-symbol-palette" title="Toolpalette" icon={toolPaletteIcon} label="Toolpalette"
+          <RibbonButton id="ribbon-symbol-palette" title={t('view.toolPalette')} icon={toolPaletteIcon} label={t('view.toolPaletteLabel')}
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
+        </RibbonGroup>
+
+        {/* Read aloud and the structure tags (#384). */}
+        <RibbonGroup label={t('view.accessibilityGroup')}>
+          <RibbonButton id="ribbon-read-aloud"
+            title={t('view.readAloudTitle')}
+            icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18 6a8.5 8.5 0 010 12"/></svg>`}
+            label={readAloudStatus() === 'playing' ? t('view.readAloudPause') : t('view.readAloud')}
+            disabled={noPdf()}
+            active={readAloudStatus() !== 'idle'}
+            onClick={() => import('../../../accessibility/read-aloud.js').then((m) => {
+              if (m.isReading()) m.togglePauseReadAloud();
+              else m.startReadAloud();
+            })} />
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="ribbon-tags-panel" title={t('view.tagsPanelTitle')}
+              icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8" cy="8" r="1.5"/></svg>`}
+              label={t('view.tagsPanel')}
+              disabled={noPdf()}
+              active={!leftPanelCollapsed() && leftPanelTab() === 'tags'}
+              onClick={() => import('../../../ui/panels/left-panel.js').then((m) => m.switchLeftPanelTab('tags'))} />
+            <RibbonButton size="small" id="ribbon-accessibility-check" title={t('view.accessibilityCheckTitle')}
+              icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`}
+              label={t('view.accessibilityCheck')}
+              disabled={noPdf()}
+              onClick={() => openDialog('accessibility-report')} />
+          </RibbonButtonStack>
         </RibbonGroup>
 
         <RibbonGroup label={t('view.appearance')}>
@@ -145,7 +222,7 @@ export default function ViewTab() {
 
         <RibbonGroup label={t('view.window') || 'Window'}>
           <RibbonButton id="ribbon-fullscreen"
-            title={(t('view.fullscreen') || 'Fullscreen') + ' (Ctrl+L / F11)'}
+            title={t('view.fullscreen') || 'Fullscreen'}
             icon={isFullscreen() ? fullscreenExitIcon : fullscreenIcon}
             label={t('view.fullscreen') || 'Fullscreen'}
             active={isFullscreen()}

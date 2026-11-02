@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Großformat",
+      "detailblad": "Detailblatt",
+      "voorblad": "Deckblatt"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "Hochformat",
+      "landscape": "Querformat"
+    },
     "title": "Neues Dokument",
     "paperSize": "Papierformat:",
     "widthMm": "Breite (mm):",
@@ -128,11 +138,15 @@
     "pageBorder": "Seitenrahmen drucken",
     "perSheetNote": "Jede Seite wird auf ihre Zelle skaliert, daher gilt die obige Seitenskalierung nicht.",
     "poster": "Poster (Kacheln)",
+    "posterOverview": "Posterübersicht",
+    "posterOverlapLegend": "Markierte Bereiche werden auf benachbarten Blättern wiederholt",
     "posterScale": "Kachelmaßstab",
     "posterOverlap": "Überlappung",
     "posterCutMarks": "Schnittmarken",
     "posterLabels": "Beschriftung (Datei, Seite, Kachel)",
     "posterOnlyLarge": "Nur große Seiten kacheln",
+    "posterEdgeCrop": "Kleine Außenränder beschneiden",
+    "posterEdgeCropHint": "Bis zu {{max}} mm pro Außenrand, nur für diesen Druck. Aus: gesamten Inhalt erhalten.",
     "posterTileInfo": "Seite {{page}}: Kachel {{row}},{{col}} (Zeile, Spalte) von {{rows}} × {{cols}}",
     "posterNotTiled": "Seite {{page}} passt auf ein Blatt und wird nicht gekachelt.",
     "posterAssumedPaper": "Papierformat unbekannt: Die Kacheln werden auf {{paper}} verteilt.",
@@ -177,6 +191,10 @@
     "documentAndMarkups": "Dokument und Markierungen",
     "document": "Dokument",
     "printAsImage": "Als Bild drucken",
+    "colorMode": "Farbmodus:",
+    "colorModeColor": "Farbe",
+    "colorModeGrayscale": "Graustufen",
+    "colorModeBlackWhite": "Schwarzweiß",
     "pagesToPrint": "Seite(n) zu drucken",
     "noPrinterSelected": "Kein Drucker ausgewählt.",
     "noPagesToPrint": "Keine Seiten zum Drucken.",
@@ -346,7 +364,13 @@
     "chooseImage": "Bild auswählen...",
     "scale": "Skalierung:",
     "selectImageFirst": "Bitte wählen Sie zuerst ein Bild aus.",
-    "defaultText": "ENTWURF"
+    "defaultText": "ENTWURF",
+    "autoFit": "Automatisch an Seite anpassen",
+    "autoFitHint": "Passt den Text an jede Seite an. Die angezeigte Größe gilt für die aktuelle Seite.",
+    "increaseFontSize": "Schriftgröße erhöhen",
+    "decreaseFontSize": "Schriftgröße verringern",
+    "textHistory": "Zuvor verwendete Texte",
+    "removeFromHistory": "Aus dem Verlauf entfernen"
   },
   "headerFooter": {
     "addTitle": "Kopf-/Fußzeile hinzufügen",
@@ -430,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Unter neuem Lesezeichen verschachteln",
     "deleteTitle": "Lesezeichen löschen",
-    "deleteConfirm": "{{count}} ausgewählte Lesezeichen und alles darunter löschen?"
+    "deleteConfirm": "{{count}} ausgewählte Lesezeichen und alles darunter löschen?",
+    "replaceAll": "Alle Lesezeichen ersetzen"
   },
   "formValidation": {
     "title": "Validierungsfehler"
@@ -563,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Als IFC-Bericht speichern",
     "failed": "Speichern des IFC-Berichts fehlgeschlagen: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Nach IFCX exportieren (Beta)",
+    "betaNote": "Beta: IFCX (IFC5) befindet sich noch in Entwicklung. Prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.",
+    "pages": "Seiten:",
+    "allPages": "Alle Seiten",
+    "currentPage": "Aktuelle Seite",
+    "customPages": "Seitenbereich",
+    "rangePlaceholder": "z. B. 1-3, 5",
+    "includeRaster": "Bilder einbeziehen",
+    "includeText": "Text einbeziehen",
+    "includeAnnotations": "Anmerkungen auf eigener Ebene",
+    "export": "Exportieren",
+    "progress": "Seite {{done}} von {{total}} wird exportiert…",
+    "done": "Geschrieben: {{file}} ({{sheets}} Blätter, {{paths}} Pfade, {{texts}} Texte, {{images}} Bilder, {{annotations}} Anmerkungen).",
+    "capPaths": "Seite {{page}}: {{kept}} von {{total}} Pfaden exportiert; der Rest überschreitet das Limit.",
+    "capTexts": "Seite {{page}}: {{kept}} von {{total}} Textzeilen exportiert; der Rest überschreitet das Limit.",
+    "capImages": "Seite {{page}}: {{kept}} von {{total}} Bildern exportiert; der Rest überschreitet das Limit.",
+    "imagesOmitted": "Bilder ohne Pixeldaten (nicht unterstützt oder zu groß): {{count}}. Ihre Position bleibt erhalten.",
+    "sizeLimit": "Seite {{page}} und die folgenden Seiten wurden nicht exportiert: Die Datei hat ihre Größengrenze erreicht.",
+    "noPages": "Keine Seiten ausgewählt.",
+    "noBytes": "Die PDF-Daten dieses Dokuments sind nicht verfügbar. Speichern Sie das Dokument und versuchen Sie es erneut.",
+    "failed": "IFCX-Export fehlgeschlagen: {{error}}",
+    "unsavedNote": "Nicht gespeicherte Änderungen am Seiteninhalt werden nicht übernommen, Anmerkungen schon."
   },
   "styleType": {
     "lineTypes": "Linientypen",
@@ -1598,6 +1647,57 @@
       "cancel": "Abgebrochen",
       "supersede": "Ersetzt",
       "expire": "Abgelaufen"
+    }
+  },
+  "pageOrganizer": {
+    "title": "Seiten bearbeiten",
+    "hint": "Seiten ziehen, um sie zu verschieben; eine PDF-Datei ablegen, um ihre Seiten einzufügen. Strg+Klick, Umschalt+Klick oder die Kontrollkästchen wählen mehrere Seiten. Bis „Übernehmen“ ändert sich nichts.",
+    "moveLeft": "Nach links",
+    "moveRight": "Nach rechts",
+    "moveToStart": "An den Anfang",
+    "moveToEnd": "Ans Ende",
+    "selection": "{{selected}} von {{total}} Seiten ausgewählt",
+    "rotateLeft": "Links drehen",
+    "rotateRight": "Rechts drehen",
+    "split": "Teilen",
+    "splitTitle": "Teilungsmarken um die ausgewählten Seiten setzen: jede Folge wird eine eigene Datei",
+    "splitHere": "Hier teilen (Teilungsmarke setzen oder entfernen)",
+    "extractTitle": "Die ausgewählten Seiten in eine neue Datei extrahieren",
+    "blankPage": "Leere Seite",
+    "pagesFromFile": "Seiten aus Datei…",
+    "insertHere": "Hier Seiten einfügen",
+    "select": "Seite auswählen",
+    "zoom": "Zoom",
+    "parts": "Beim Übernehmen in {{count}} Dateien geteilt",
+    "chooseFolder": "Ordner für die geteilten Dateien wählen",
+    "fileFailed": "{{name}} konnte nicht gelesen werden: {{error}}",
+    "applyFailed": "Die Seitenbearbeitung konnte nicht übernommen werden: {{error}}",
+    "extractFailed": "Die Seiten konnten nicht extrahiert werden: {{error}}",
+    "blankSetup": "Leere Seite einrichten",
+    "sameAsAdjacent": "Wie angrenzende Seite",
+    "width": "Breite:",
+    "height": "Höhe:",
+    "unit": "Einheit:"
+  },
+  "accessibilityReport": {
+    "title": "Barrierefreiheitsprüfung",
+    "starting": "Wird geprüft...",
+    "checking": "Seite {{done}} von {{total}} wird geprüft...",
+    "noIssues": "Keine Probleme gefunden.",
+    "summary": "{{count}} Problem(e) gefunden. Doppelklicken Sie auf einen Eintrag, um zur Seite zu wechseln.",
+    "failed": "Die Prüfung konnte für dieses Dokument nicht ausgeführt werden.",
+    "recheck": "Erneut prüfen",
+    "close": "Schließen",
+    "goTo": "Doppelklicken, um zur Seite zu wechseln",
+    "page": "Seite {{page}}",
+    "kind": {
+      "notTagged": "Das Dokument hat keine Tags: Es gibt keinen Strukturbaum, daher können Hilfstechnologien der Lesereihenfolge nicht folgen.",
+      "notMarked": "Das Dokument ist nicht als getaggt gekennzeichnet (/MarkInfo /Marked).",
+      "noLanguage": "Die Dokumentsprache ist nicht festgelegt.",
+      "figureNoAlt": "{{role}} ohne Alternativtext",
+      "pageNotTagged": "Kein getaggter Inhalt auf dieser Seite ({{count}} Textelemente)",
+      "untaggedContent": "{{count}} Textelement(e) außerhalb der Tags",
+      "annotationNoText": "Anmerkung ({{type}}) ohne Beschreibung"
     }
   }
 }

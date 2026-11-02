@@ -9,7 +9,8 @@
     "behavior": "Toiminta",
     "fileAssociation": "Tiedostoyhteys",
     "virtualPrinter": "Virtuaalitulostin",
-    "pageDisplay": "Sivun näyttö"
+    "pageDisplay": "Sivun näyttö",
+    "keyboardShortcuts": "Pikanäppäimet"
   },
   "resetToDefaults": "Palauta oletukset",
   "resetConfirm": "Palautetaanko kaikki asetukset oletusarvoihin?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Käytössä osoitteessa {{adres}}",
     "aiLinkViaFlag": "Käytössä käynnistysparametrin kautta ({{adres}})",
     "aiLinkOff": "Pois",
-    "aiLinkError": "Ei käynnistetty: {{fout}}"
+    "aiLinkError": "Ei käynnistetty: {{fout}}",
+    "interfaceScale": "Käyttöliittymän koko"
   },
   "annotations": {
     "generalDefaults": "Yleiset oletukset",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Avoin nuoli (käänteinen)",
     "headClosedReversed": "Suljettu nuoli (käänteinen)",
     "headSlash": "Vinoviiva",
-    "polylineDefaults": "Murtoviivan oletukset"
+    "polylineDefaults": "Murtoviivan oletukset",
+    "smoothing": "Tasoitus",
+    "pressure": "Kynän paine",
+    "pressureHint": "Kynän paine muuttaa viivan leveyttä (hiirellä piirretty viiva pysyy saman levyisenä)",
+    "pressureMinWidth": "Vähimmäisleveys (%)",
+    "penOnly": "Vain kynä (ohita kosketus)",
+    "penOnlyHint": "Kosketus ei piirrä vapaalla kädellä; hyödyllinen kämmenen kosketusta vastaan kynällä kirjoitettaessa"
   },
   "shapes": {
     "rectangleDefaults": "Suorakulmion oletukset",
@@ -165,8 +173,15 @@
     "deletion": "Poistaminen",
     "confirmBeforeDeleting": "Vahvista ennen merkintöjen poistamista",
     "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
+    "moveInference": "Apuviivat siirrettäessä (G / mv)",
+    "moveInferenceTracking": "Seurantaviivat (tasaus muun geometrian pisteisiin)",
+    "moveInferenceExtension": "Viivojen ja seinäpintojen jatkeet",
+    "moveInferenceParallel": "Yhdensuuntainen / kohtisuora lähellä oleviin viivoihin",
+    "moveInferenceHint": "Pidä osoitinta hetki pisteen päällä poimiaksesi sen, pidä Shift painettuna lukitaksesi apuviivan, Tab vaihtaa etäisyyden ja kulman välillä. Napa-apuviivat noudattavat napaseurannan asetuksia.",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
+    "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
+    "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Aseta Open PDF Studio oletus-PDF-katseluohjelmaksi macOS:ssä:\n\n1. Napsauta mitä tahansa PDF-tiedostoa hiiren kakkospainikkeella Finderissa\n2. Valitse \"Hae tietoja\"\n3. Kohdasta \"Avaa sovelluksella\" valitse Open PDF Studio\n4. Napsauta \"Vaihda kaikki...\"",
     "linuxInstructions": "Aseta Open PDF Studio oletus-PDF-katseluohjelmaksi Linuxissa:\n\nSuorita terminaalissa:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Tarkista Finder > Hae tietoja",
-    "notSet": "Ei asetettu"
+    "notSet": "Ei asetettu",
+    "chosenInSystemSettings": "Valittu järjestelmän asetuksissa",
+    "sandboxInstructions": "Open PDF Studio toimii {{package}}-pakettina eikä voi itse vaihtaa oletus-PDF-sovellusta.\n\nValitse Open PDF Studio järjestelmän asetuksista kohdasta Oletussovellukset, tai napsauta PDF-tiedostoa hiiren oikealla painikkeella ja käytä Avaa sovelluksella.",
+    "xdgMimeMissing": "xdg-mime (paketti xdg-utils) ei ole asennettu, joten oletus-PDF-sovellusta ei voi asettaa täältä.\n\nAsenna xdg-utils tai valitse Open PDF Studio järjestelmän asetuksista kohdasta Oletussovellukset.",
+    "linuxDone": "Open PDF Studio on nyt PDF-tiedostojen oletussovellus.",
+    "linuxFailed": "Open PDF Studiota ei voitu asettaa oletus-PDF-sovellukseksi.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Resurssienhallinta",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Voimakas",
     "pageSharpenLevel4": "Maksimi",
     "showScrollbars": "Näytä piirtoalueen vierityspalkit",
+    "backgroundColor": "Taustaväri",
+    "backgroundColorDefault": "Oletus",
+    "backgroundColorHint": "Sivujen ympärillä ja välissä olevan alueen väri. Itse sivu, tulostus ja vienti eivät muutu.",
     "panels": "Paneelit",
     "showPropertiesPanel": "Näytä ominaisuuspaneeli oletuksena",
     "showToolPalette": "Näytä työkalupaletti oletuksena",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Avoin nuoli (käänteinen)",
     "closedArrowReversed": "Suljettu nuoli (käänteinen)",
     "slash": "Vinoviiva"
+  },
+  "keyboardShortcuts": {
+    "title": "Pikanäppäimet",
+    "search": "Hae komennon tai näppäimen mukaan",
+    "command": "Komento",
+    "shortcuts": "Pikanäppäimet",
+    "none": "Ei mitään",
+    "noMatches": "Haku ei vastaa yhtään komentoa.",
+    "selectHint": "Valitse komento muuttaaksesi sen pikanäppäimiä.",
+    "addShortcut": "Lisää pikanäppäin",
+    "remove": "Poista pikanäppäin",
+    "resetCommand": "Palauta oletus",
+    "resetAll": "Palauta kaikki",
+    "resetAllConfirm": "Palautetaanko kaikki pikanäppäimet oletuksiin?",
+    "loadPreset": "Lataa esiasetus…",
+    "replaceConfirm": "Tämä korvaa omat pikanäppäimesi. Jatketaanko?",
+    "presets": {
+      "markupStyle": "Merkintätyyliset pikanäppäimet"
+    },
+    "import": "Tuo…",
+    "export": "Vie…",
+    "fileType": "Pikanäppäimet",
+    "imported": "Pikanäppäimet tuotu. Ota ne käyttöön valitsemalla Tallenna.",
+    "importFailed": "Tämä ei ole kelvollinen pikanäppäintiedosto.",
+    "exported": "Pikanäppäimet viety.",
+    "exportFailed": "Pikanäppäinten vienti epäonnistui:",
+    "recording": "Paina uutta näppäinyhdistelmää… (Esc peruuttaa)",
+    "conflict": "{{keys}} on jo komennon ”{{command}}” käytössä.",
+    "reassign": "Määritä uudelleen",
+    "reserved": "{{keys}} on varattu kiinteään käyttöön, eikä sitä voi määrittää.",
+    "defaultLabel": "Oletus: {{keys}}",
+    "customize": "Mukauta…",
+    "fixedGroup": "Kiinteät näppäimet",
+    "applyHint": "Muutokset tulevat voimaan, kun valitset Tallenna.",
+    "categories": {
+      "file": "Tiedosto",
+      "edit": "Muokkaa",
+      "view": "Näytä",
+      "search": "Etsi",
+      "tools": "Työkalut",
+      "drafting": "Piirtoapuvälineet",
+      "panels": "Paneelit",
+      "review": "Tarkistus",
+      "help": "Ohje",
+      "extensions": "Laajennukset",
+      "ribbon": "Valintanauha: {{tab}}",
+      "other": "Muut"
+    },
+    "commands": {
+      "findNext": "Etsi seuraava",
+      "splitPaneLarger": "Suurenna aktiivista ruutua",
+      "splitPaneSmaller": "Pienennä aktiivista ruutua"
+    }
   }
 }

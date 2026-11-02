@@ -34,6 +34,10 @@
   "draw": "Vẽ",
   "saved": "Đã lưu",
   "documentChangedDuringSave": "Tài liệu đã thay đổi trong khi lưu. Hãy lưu lại.",
+  "savingPdf": "Đang lưu PDF…",
+  "saveCancelling": "Đang hủy lưu…",
+  "saveCancelled": "Đã hủy lưu. Tệp không bị thay đổi.",
+  "saveCancelTooLate": "Tệp đã được lưu xong; đã quá muộn để hủy.",
   "documentChangedDuringExport": "Tài liệu đã thay đổi trong khi xuất. Hãy bắt đầu lại.",
   "rasterExportProgress": "Đang raster hóa trang: {{done}} / {{total}}",
   "search": "Tìm kiếm",
@@ -120,7 +124,79 @@
         "label": "Mặt bằng",
         "hint": "Vẽ mặt bằng kiến trúc: tường, khung cửa, phòng, kích thước và trang thiết bị (vệ sinh, bếp)",
         "prompt": "Vẽ mặt bằng kiến trúc. Nội dung cần vẽ: "
+      },
+      "find-on-sheet": {
+        "label": "Tìm trên tờ",
+        "hint": "Tìm một thuật ngữ (tên phòng, ký hiệu mặt cắt, biểu tượng), chuyển đến trang của nó và tô sáng các kết quả",
+        "prompt": "Tìm trên tờ này: "
+      },
+      "explain-selection": {
+        "label": "Giải thích vùng chọn",
+        "hint": "Mô tả vùng, văn bản hoặc ghi chú đã chọn bằng ngôn ngữ dễ hiểu, kèm kích thước khi đã đặt tỷ lệ đo",
+        "prompt": "Giải thích vùng chọn."
+      },
+      "compare-sheets": {
+        "label": "So sánh các tờ",
+        "hint": "Nêu tên và đánh dấu những gì đã được thêm, xóa hoặc di chuyển so với một trang khác",
+        "prompt": "So sánh trang này với trang: "
+      },
+      "measure": {
+        "label": "Đo phần này",
+        "hint": "Đo hình đã chọn hoặc một cấu kiện được mô tả và báo cáo theo tỷ lệ của bản vẽ",
+        "prompt": "Đo: "
+      },
+      "take-off": {
+        "label": "Bóc khối lượng",
+        "hint": "Đếm hoặc đo các cấu kiện cùng loại và đặt kết quả dưới dạng bảng thống kê trên tờ",
+        "prompt": "Bóc khối lượng: "
+      },
+      "check-scale": {
+        "label": "Kiểm tra tỷ lệ",
+        "hint": "Tìm tỷ lệ từ khung tên hoặc một kích thước đã biết và đặt tỷ lệ đó",
+        "prompt": "Kiểm tra tỷ lệ của bản vẽ này."
+      },
+      "review-sheet": {
+        "label": "Rà soát tờ",
+        "hint": "Thêm các đám mây kèm nhận xét đánh số cho những điểm mà người kiểm tra sẽ nêu ra",
+        "prompt": "Rà soát tờ này về: "
+      },
+      "stamp-date": {
+        "label": "Đóng dấu và ghi ngày",
+        "hint": "Đặt con dấu, điền một ô trong khung tên hoặc thêm ghi chú sửa đổi với ngày hôm nay",
+        "prompt": "Đóng dấu và ghi ngày: "
+      },
+      "clean-up": {
+        "label": "Sắp xếp ghi chú",
+        "hint": "Căn chỉnh, đánh số lại hoặc đổi màu các ghi chú hiện có một cách thống nhất",
+        "prompt": "Sắp xếp các ghi chú của tôi: "
+      },
+      "import-cad": {
+        "label": "Đưa bản vẽ vào",
+        "hint": "Nhập bản vẽ DWG hoặc DXF làm lớp nền theo đúng tỷ lệ",
+        "prompt": "Đưa bản vẽ vào (đường dẫn tệp DWG hoặc DXF): "
+      },
+      "export-cad": {
+        "label": "Xuất sang CAD",
+        "hint": "Ghi trang này hoặc vùng đã chọn ra tệp DXF hoặc DWG",
+        "prompt": "Xuất trang này ra (đường dẫn tệp DXF hoặc DWG): "
       }
+    },
+    "groups": {
+      "document": "Dịch và tóm tắt",
+      "reading": "Đọc bản vẽ",
+      "measuring": "Đo đạc và khối lượng",
+      "markup": "Đánh dấu",
+      "structure": "Kết cấu và mặt bằng",
+      "cad": "Bản vẽ CAD"
+    },
+    "need": {
+      "document": "Hãy mở một tệp PDF trước: kỹ năng này hoạt động trên tài liệu đang mở.",
+      "selection": "Hãy chọn một ghi chú đánh dấu hoặc một đoạn văn bản trên bản vẽ trước, rồi nhấp lại vào kỹ năng.",
+      "scale": "Bản vẽ này chưa có tỷ lệ đo. Hãy đặt tỷ lệ trước (ví dụ bằng \"Kiểm tra tỷ lệ\") rồi thử lại.",
+      "input": "Hãy hoàn thành văn bản trong ô nhập sau dấu hai chấm, rồi gửi.",
+      "selectionOrInput": "Hãy chọn một hình trên bản vẽ, hoặc mô tả sau dấu hai chấm những gì cần đo.",
+      "page": "Hãy nhập số của trang kia (1 đến {{max}}), không phải trang hiện tại.",
+      "twoPages": "Tài liệu này chỉ có một trang. Để so sánh với tệp khác, hãy thay văn bản trong ô nhập bằng câu hỏi của riêng bạn."
     }
   },
   "onlineSymbolLibrary": "Thư viện ký hiệu trực tuyến",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Đây là một phiên bản cũ hơn của tệp, được mở ở chế độ chỉ đọc, nên không thể lưu. Hãy dùng Lưu thành để tải xuống một bản sao.",
   "hostVersionReadOnlyRefused": "Trang web không lưu tệp: một phiên bản cũ hơn của tệp đang mở ở chế độ chỉ đọc. Hãy mở lại phiên bản hiện tại để lưu, hoặc dùng Lưu thành để tải xuống một bản sao.",
   "hostVersionInvalid": "Không thể mở phiên bản này của tệp: số phiên bản không hợp lệ.",
+  "hostSaveAs": {
+    "title": "Lưu vào tài liệu",
+    "location": "Thư mục:",
+    "currentFolder": "Thư mục hiện tại",
+    "up": "Lên",
+    "loading": "Đang tải…",
+    "listError": "Không tải được danh sách thư mục. Bạn vẫn có thể lưu vào thư mục hiện tại.",
+    "empty": "Thư mục này trống.",
+    "readOnly": "chỉ đọc",
+    "fileName": "Tên tệp:",
+    "save": "Lưu",
+    "download": "Tải xuống thay thế",
+    "nameEmpty": "Nhập tên tệp.",
+    "nameInvalid": "Tên tệp chứa ký tự không được phép.",
+    "copyName": "{{name}} (bản sao)",
+    "saved": "Đã lưu thành “{{name}}” trong tài liệu của bạn.",
+    "renamed": "Đã có một tệp trùng tên, nên bản sao được lưu thành “{{name}}”. Không có gì bị ghi đè.",
+    "openNew": "Mở tệp mới",
+    "keepOriginal": "Tiếp tục sửa bản gốc",
+    "notSavedTitle": "Chưa lưu",
+    "errorReadOnly": "Bạn không có quyền lưu vào thư mục này. Hãy chọn thư mục khác hoặc tải tệp xuống.",
+    "errorInvalidName": "Trang web không chấp nhận tên tệp này. Hãy chọn tên khác hoặc tải tệp xuống.",
+    "errorTooLarge": "Tệp quá lớn để lưu trên trang web. Hãy tải xuống thay thế.",
+    "errorQuota": "Không còn đủ dung lượng lưu trữ. Hãy giải phóng dung lượng hoặc tải tệp xuống.",
+    "errorNetwork": "Không kết nối được với trang web nên tệp chưa được lưu. Hãy thử lại hoặc tải tệp xuống.",
+    "errorUnsupported": "Trang web này không thể lưu tệp mới. Hãy tải tệp xuống thay thế.",
+    "errorFailed": "Trang web đã không lưu tệp: {{error}}"
+  },
   "textEditMissingGlyphs": "Văn bản không được thay đổi: không phông chữ nào hiện có chứa các ký tự này, nên không thể lưu chúng: {{chars}}",
   "textEditMissingGlyphsLater": "Không phông chữ nào hiện có chứa các ký tự này, nên không thể lưu chúng: {{chars}}. Hãy sửa văn bản này; trước khi sửa, không thể lưu PDF.",
   "textEditMissingGlyphsSave": "PDF chưa được lưu: văn bản đã sửa chứa các ký tự mà không phông chữ nào hiện có chứa: {{chars}}. Hãy sửa văn bản đó và lưu lại.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Đi đến trang",
     "openExternalFile": "Mở: {{filename}}",
     "destination": "Đích đến: {{name}}",
-    "internalLink": "Liên kết nội bộ"
+    "internalLink": "Liên kết nội bộ",
+    "attachmentOnPage": "Trang {{page}}",
+    "attachmentCreated": "Tạo: {{date}}",
+    "attachmentModified": "Sửa đổi: {{date}}",
+    "openAttachmentRiskTitle": "Mở tệp đính kèm",
+    "openAttachmentRiskMessage": "\"{{name}}\" có thể chạy chương trình trên máy tính này. Chỉ mở nếu bạn tin tưởng nguồn gốc. Vẫn mở?"
   },
   "failedToInsertPagesFromFile": "Chèn trang từ tệp thất bại: {{error}}",
   "previewPdfRefused": "PDF này là bản xem trước từ việc nhập bản vẽ và có thể chưa đầy đủ. Không thể chèn hoặc lưu nó; hãy nhập lại bản vẽ.",
@@ -245,10 +354,15 @@
     "detachFailed": "Không thể tách cửa sổ: {{error}}",
     "dragFileGone": "Tệp này không còn trên ổ đĩa — không thể di chuyển thẻ.",
     "dragNotStarted": "Không thể kéo thẻ sang cửa sổ khác. Hãy thử lại, hoặc dùng nhấp chuột phải → mở trong cửa sổ mới.",
+    "openInSplitView": "Mở trong chế độ xem chia đôi",
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
     "nextTab": "Thẻ tiếp theo",
     "previousTab": "Thẻ trước"
+  },
+  "pageNav": {
+    "nextPage": "Trang tiếp",
+    "previousPage": "Trang trước"
   },
   "quickAccess": {
     "exportRaster": "Xuất thành PDF raster (mở trong thẻ mới)"
@@ -290,5 +404,50 @@
     "readFailed": "Không thể đọc mô hình 3D.",
     "partial": "Không thể đọc một số phần của mô hình 3D (đã bỏ qua {{n}}).",
     "viewerFailed": "Không thể khởi động chế độ xem 3D."
+  },
+  "readAloud": {
+    "title": "Đọc to",
+    "play": "Đọc",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "stop": "Dừng",
+    "close": "Đóng",
+    "voice": "Giọng đọc",
+    "defaultVoice": "Giọng mặc định",
+    "rate": "Tốc độ",
+    "loading": "Đang chuẩn bị...",
+    "reading": "Đang đọc",
+    "paused": "Đã tạm dừng",
+    "page": "trang {{page}}",
+    "tagOrder": "thứ tự thẻ",
+    "contentOrder": "thứ tự trang",
+    "noEngine": "Không có công cụ tổng hợp giọng nói nào trên hệ thống này.",
+    "noEngineLinux": "Không tìm thấy công cụ tổng hợp giọng nói. Hãy cài đặt speech-dispatcher (spd-say) hoặc espeak-ng rồi thử lại.",
+    "speechFailed": "Việc đọc đã dừng do lỗi.",
+    "nothingToRead": "Không có văn bản để đọc.",
+    "online": "(trực tuyến)",
+    "allowOnline": "Giọng trực tuyến",
+    "allowOnlineHint": "Cũng cung cấp giọng trực tuyến. Với giọng trực tuyến, văn bản đang đọc được gửi tới một dịch vụ giọng nói trực tuyến.",
+    "onlyOnlineVoices": "Chỉ có giọng trực tuyến. Bật Giọng trực tuyến để dùng một giọng; khi đó văn bản đang đọc được gửi tới một dịch vụ giọng nói trực tuyến.",
+    "noLocalVoice": "Không có giọng cục bộ nào được cài cho ngôn ngữ này; giọng cục bộ mặc định được dùng."
+  },
+  "moveInference": {
+    "onAxisX": "Trên trục X",
+    "onAxisY": "Trên trục Y",
+    "fromPoint": "Từ điểm",
+    "extension": "Trên đường kéo dài",
+    "parallel": "Song song",
+    "perpendicular": "Vuông góc",
+    "intersection": "Giao điểm",
+    "polar": "Cực",
+    "locked": "Đã khóa"
+  },
+  "portable": {
+    "updateTitle": "Có bản cập nhật",
+    "updateAvailable": "Đã có phiên bản {{version}}.\n\nBản di động này không tự cập nhật. Hãy tải {{file}} và giải nén đè lên thư mục này; thư mục data chứa cài đặt của bạn được giữ nguyên.\n\nMở trang tải xuống?",
+    "fileAssoc": "Bản di động này chưa được đăng ký với Windows. Để mở tệp PDF bằng nó, hãy nhấp chuột phải vào một tệp PDF, chọn Mở bằng > Chọn ứng dụng khác, rồi chọn open-pdf-studio.exe trong thư mục này.",
+    "explorerThumbnails": "Hình thu nhỏ PDF trong File Explorer chỉ có trong phiên bản đã cài đặt.",
+    "virtualPrinter": "Máy in ảo chỉ có trong phiên bản đã cài đặt: nó được thêm vào Windows với quyền quản trị viên.",
+    "notWritable": "Open PDF Studio không thể ghi vào thư mục {{dir}}, vì vậy lần này cài đặt của bạn được lưu trong hồ sơ người dùng. Hãy chuyển thư mục di động đến vị trí có thể ghi, chẳng hạn ổ USB hoặc thư mục Documents."
   }
 }

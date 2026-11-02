@@ -34,6 +34,10 @@
   "draw": "Piirrä",
   "saved": "Tallennettu",
   "documentChangedDuringSave": "Asiakirja muuttui tallennuksen aikana. Tallenna uudelleen.",
+  "savingPdf": "Tallennetaan PDF:ää…",
+  "saveCancelling": "Peruutetaan tallennusta…",
+  "saveCancelled": "Tallennus peruutettiin. Tiedostoa ei muutettu.",
+  "saveCancelTooLate": "Tiedosto oli jo tallennettu; peruuttaminen oli liian myöhäistä.",
   "documentChangedDuringExport": "Asiakirja muuttui viennin aikana. Aloita uudelleen.",
   "rasterExportProgress": "Rasteroidaan sivuja: {{done}}/{{total}}",
   "search": "Hae",
@@ -120,7 +124,79 @@
         "label": "Pohjapiirustus",
         "hint": "Piirrä rakennuksen pohjapiirustus: seinät, ikkunat ja ovet, tilat, mitoitus ja kalusteet (saniteetti, keittiö)",
         "prompt": "Piirrä rakennuksen pohjapiirustus. Mitä piirretään: "
+      },
+      "find-on-sheet": {
+        "label": "Etsi arkilta",
+        "hint": "Etsi termi (tilan nimi, leikkausmerkki, symboli), siirry sen sivulle ja korosta osumat",
+        "prompt": "Etsi tältä arkilta: "
+      },
+      "explain-selection": {
+        "label": "Selitä valinta",
+        "hint": "Kuvaile valittu alue, teksti tai merkintä selkokielellä, mittoineen, kun mittakaava on asetettu",
+        "prompt": "Selitä valinta."
+      },
+      "compare-sheets": {
+        "label": "Vertaa arkkeja",
+        "hint": "Nimeä ja merkitse, mitä on lisätty, poistettu tai siirretty toiseen sivuun verrattuna",
+        "prompt": "Vertaa tätä sivua sivuun: "
+      },
+      "measure": {
+        "label": "Mittaa tämä",
+        "hint": "Mittaa valittu muoto tai kuvailtu elementti ja ilmoita tulos piirustuksen mittakaavassa",
+        "prompt": "Mittaa: "
+      },
+      "take-off": {
+        "label": "Määrälaskenta",
+        "hint": "Laske tai mittaa samanlaiset elementit ja sijoita tulos luettelona arkille",
+        "prompt": "Laske määrät: "
+      },
+      "check-scale": {
+        "label": "Tarkista mittakaava",
+        "hint": "Selvitä mittakaava nimiöstä tai tunnetusta mitasta ja aseta se",
+        "prompt": "Tarkista tämän piirustuksen mittakaava."
+      },
+      "review-sheet": {
+        "label": "Tarkasta arkki",
+        "hint": "Lisää pilviä ja numeroituja kommentteja kohtiin, joihin tarkastaja puuttuisi",
+        "prompt": "Tarkasta tämä arkki seuraavien osalta: "
+      },
+      "stamp-date": {
+        "label": "Leima ja päiväys",
+        "hint": "Lisää leima, täytä nimiön kenttä tai lisää muutosmerkintä tämän päivän päiväyksellä",
+        "prompt": "Leimaa ja päivää: "
+      },
+      "clean-up": {
+        "label": "Siisti merkinnät",
+        "hint": "Tasaa, numeroi uudelleen tai väritä olemassa olevat merkinnät yhtenäisesti",
+        "prompt": "Siisti merkintäni: "
+      },
+      "import-cad": {
+        "label": "Tuo piirustus",
+        "hint": "Tuo DWG- tai DXF-piirustus taustakuvaksi oikeassa mittakaavassa",
+        "prompt": "Tuo piirustus (DWG- tai DXF-tiedoston polku): "
+      },
+      "export-cad": {
+        "label": "Vie CAD-muotoon",
+        "hint": "Kirjoita tämä sivu tai valittu alue DXF- tai DWG-tiedostoon",
+        "prompt": "Vie tämä sivu tiedostoon (DXF- tai DWG-tiedoston polku): "
       }
+    },
+    "groups": {
+      "document": "Käännä ja tiivistä",
+      "reading": "Piirustuksen lukeminen",
+      "measuring": "Mittaus ja määrät",
+      "markup": "Merkintöjen teko",
+      "structure": "Rakenne ja pohjapiirustus",
+      "cad": "CAD-piirustukset"
+    },
+    "need": {
+      "document": "Avaa ensin PDF: tämä taito toimii avoimessa asiakirjassa.",
+      "selection": "Valitse ensin merkintä tai tekstiä piirustuksesta ja napsauta sitten taitoa uudelleen.",
+      "scale": "Tällä piirustuksella ei ole vielä mittakaavaa. Aseta se ensin (esimerkiksi taidolla \"Tarkista mittakaava\") ja yritä uudelleen.",
+      "input": "Täydennä syöttökentän teksti kaksoispisteen jälkeen ja lähetä se.",
+      "selectionOrInput": "Valitse muoto piirustuksesta tai kuvaile kaksoispisteen jälkeen, mitä mitataan.",
+      "page": "Anna toisen sivun numero (1–{{max}}), ei nykyisen sivun.",
+      "twoPages": "Tässä asiakirjassa on vain yksi sivu. Jos haluat verrata toiseen tiedostoon, korvaa syöttökentän teksti omalla kysymykselläsi."
     }
   },
   "onlineSymbolLibrary": "Online-symbolikirjasto",
@@ -150,6 +226,34 @@
   "hostVersionSaveBlocked": "Tämä on tiedoston vanhempi versio, joka on avattu vain luku -tilassa, joten sitä ei voi tallentaa. Lataa kopio komennolla Tallenna nimellä.",
   "hostVersionReadOnlyRefused": "Sivusto ei tallentanut tiedostoa: sen vanhempi versio on avattu vain luku -tilassa. Avaa nykyinen versio uudelleen tallentaaksesi tai lataa kopio komennolla Tallenna nimellä.",
   "hostVersionInvalid": "Tätä tiedoston versiota ei voi avata: versionumero ei kelpaa.",
+  "hostSaveAs": {
+    "title": "Tallenna asiakirjoihin",
+    "location": "Kansio:",
+    "currentFolder": "Nykyinen kansio",
+    "up": "Ylös",
+    "loading": "Ladataan…",
+    "listError": "Kansioluetteloa ei voitu ladata. Voit silti tallentaa nykyiseen kansioon.",
+    "empty": "Tämä kansio on tyhjä.",
+    "readOnly": "vain luku",
+    "fileName": "Tiedostonimi:",
+    "save": "Tallenna",
+    "download": "Lataa sen sijaan",
+    "nameEmpty": "Anna tiedostonimi.",
+    "nameInvalid": "Tiedostonimessä on merkkejä, jotka eivät ole sallittuja.",
+    "copyName": "{{name}} (kopio)",
+    "saved": "Tallennettu nimellä ”{{name}}” asiakirjoihisi.",
+    "renamed": "Samanniminen tiedosto on jo olemassa, joten kopio tallennettiin nimellä ”{{name}}”. Mitään ei korvattu.",
+    "openNew": "Avaa uusi tiedosto",
+    "keepOriginal": "Jatka alkuperäisen muokkaamista",
+    "notSavedTitle": "Ei tallennettu",
+    "errorReadOnly": "Sinulla ei ole oikeutta tallentaa tähän kansioon. Valitse toinen kansio tai lataa tiedosto.",
+    "errorInvalidName": "Sivusto ei hyväksy tätä tiedostonimeä. Valitse toinen nimi tai lataa tiedosto.",
+    "errorTooLarge": "Tiedosto on liian suuri tallennettavaksi sivustolle. Lataa se sen sijaan.",
+    "errorQuota": "Tallennustilaa ei ole tarpeeksi jäljellä. Vapauta tilaa tai lataa tiedosto.",
+    "errorNetwork": "Sivustoon ei saatu yhteyttä, joten tiedostoa ei tallennettu. Yritä uudelleen tai lataa tiedosto.",
+    "errorUnsupported": "Tämä sivusto ei voi tallentaa uusia tiedostoja. Lataa tiedosto sen sijaan.",
+    "errorFailed": "Sivusto ei tallentanut tiedostoa: {{error}}"
+  },
   "textEditMissingGlyphs": "Tekstiä ei muutettu: missään käytettävissä olevassa fontissa ei ole näitä merkkejä, joten niitä ei voi tallentaa: {{chars}}",
   "textEditMissingGlyphsLater": "Missään käytettävissä olevassa fontissa ei ole näitä merkkejä, joten niitä ei voi tallentaa: {{chars}}. Muuta tätä tekstiä; siihen asti PDF-tiedostoa ei voi tallentaa.",
   "textEditMissingGlyphsSave": "PDF-tiedostoa ei tallennettu: muokattu teksti sisältää merkkejä, joita ei ole missään käytettävissä olevassa fontissa: {{chars}}. Muuta tekstiä ja tallenna uudelleen.",
@@ -224,7 +328,12 @@
     "goToPageLink": "Siirry sivulle",
     "openExternalFile": "Avaa: {{filename}}",
     "destination": "Kohde: {{name}}",
-    "internalLink": "Sisäinen linkki"
+    "internalLink": "Sisäinen linkki",
+    "attachmentOnPage": "Sivu {{page}}",
+    "attachmentCreated": "Luotu: {{date}}",
+    "attachmentModified": "Muokattu: {{date}}",
+    "openAttachmentRiskTitle": "Avaa liite",
+    "openAttachmentRiskMessage": "\"{{name}}\" voi suorittaa ohjelmia tällä tietokoneella. Avaa se vain, jos luotat lähteeseen. Avataanko silti?"
   },
   "failedToInsertPagesFromFile": "Sivujen lisääminen tiedostosta epäonnistui: {{error}}",
   "previewPdfRefused": "Tämä PDF on piirustuksen tuonnin esikatselu ja voi olla puutteellinen. Sitä ei voi lisätä eikä tallentaa; tuo piirustus uudelleen.",
@@ -245,10 +354,15 @@
     "detachFailed": "Ikkunan irrottaminen epäonnistui: {{error}}",
     "dragFileGone": "Tätä tiedostoa ei enää ole levyllä — välilehteä ei voi siirtää.",
     "dragNotStarted": "Välilehteä ei voitu vetää toiseen ikkunaan. Yritä uudelleen tai käytä hiiren oikeaa painiketta → avaa uudessa ikkunassa.",
+    "openInSplitView": "Avaa jaetussa näkymässä",
     "openInNewWindow": "Avaa uudessa ikkunassa",
     "closeTab": "Sulje välilehti",
     "nextTab": "Seuraava välilehti",
     "previousTab": "Edellinen välilehti"
+  },
+  "pageNav": {
+    "nextPage": "Seuraava sivu",
+    "previousPage": "Edellinen sivu"
   },
   "quickAccess": {
     "exportRaster": "Vie rasteri-PDF:nä (avautuu uuteen välilehteen)"
@@ -290,5 +404,50 @@
     "readFailed": "3D-mallia ei voitu lukea.",
     "partial": "Joitakin 3D-mallin osia ei voitu lukea ({{n}} ohitettu).",
     "viewerFailed": "3D-näkymää ei voitu käynnistää."
+  },
+  "readAloud": {
+    "title": "Lue ääneen",
+    "play": "Lue",
+    "pause": "Tauko",
+    "resume": "Jatka",
+    "stop": "Pysäytä",
+    "close": "Sulje",
+    "voice": "Ääni",
+    "defaultVoice": "Oletusääni",
+    "rate": "Nopeus",
+    "loading": "Valmistellaan...",
+    "reading": "Luetaan",
+    "paused": "Tauolla",
+    "page": "sivu {{page}}",
+    "tagOrder": "tunnistejärjestys",
+    "contentOrder": "sivujärjestys",
+    "noEngine": "Tässä järjestelmässä ei ole puhesyntetisaattoria.",
+    "noEngineLinux": "Puhesyntetisaattoria ei löytynyt. Asenna speech-dispatcher (spd-say) tai espeak-ng ja yritä uudelleen.",
+    "speechFailed": "Lukeminen keskeytyi virheen vuoksi.",
+    "nothingToRead": "Luettavaa tekstiä ei ole.",
+    "online": "(verkko)",
+    "allowOnline": "Verkkoäänet",
+    "allowOnlineHint": "Tarjoa myös verkkoääniä. Verkkoääntä käytettäessä luettava teksti lähetetään verkon puhepalveluun.",
+    "onlyOnlineVoices": "Saatavilla on vain verkkoääniä. Ota Verkkoäänet käyttöön, jos haluat käyttää jotakin niistä; luettava teksti lähetetään silloin verkon puhepalveluun.",
+    "noLocalVoice": "Tälle kielelle ei ole asennettu paikallista ääntä; käytetään paikallista oletusääntä."
+  },
+  "moveInference": {
+    "onAxisX": "X-akselilla",
+    "onAxisY": "Y-akselilla",
+    "fromPoint": "Pisteestä",
+    "extension": "Jatkeella",
+    "parallel": "Yhdensuuntainen",
+    "perpendicular": "Kohtisuora",
+    "intersection": "Leikkauspiste",
+    "polar": "Napa",
+    "locked": "Lukittu"
+  },
+  "portable": {
+    "updateTitle": "Päivitys saatavilla",
+    "updateAvailable": "Versio {{version}} on saatavilla.\n\nTämä siirrettävä kopio ei päivitä itseään. Lataa {{file}} ja pura se tämän kansion päälle; asetuksesi sisältävä data-kansio säilyy.\n\nAvataanko lataussivu?",
+    "fileAssoc": "Tätä siirrettävää kopiota ei ole rekisteröity Windowsiin. Jos haluat avata PDF-tiedostoja sillä, napsauta PDF-tiedostoa hiiren kakkospainikkeella, valitse Avaa sovelluksessa > Valitse toinen sovellus ja valitse tämän kansion open-pdf-studio.exe.",
+    "explorerThumbnails": "PDF-pikkukuvat Resurssienhallinnassa ovat käytettävissä vain asennetussa versiossa.",
+    "virtualPrinter": "Virtuaalitulostin on käytettävissä vain asennetussa versiossa: se lisätään Windowsiin järjestelmänvalvojan oikeuksin.",
+    "notWritable": "Open PDF Studio ei voi kirjoittaa kansioon {{dir}}, joten asetuksesi tallennetaan tällä kertaa käyttäjäprofiiliisi. Siirrä siirrettävä kansio paikkaan, johon voi kirjoittaa, kuten USB-muistille tai Tiedostot-kansioon."
   }
 }

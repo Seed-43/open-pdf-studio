@@ -9,7 +9,8 @@
     "behavior": "동작",
     "fileAssociation": "파일 연결",
     "virtualPrinter": "가상 프린터",
-    "pageDisplay": "페이지 표시"
+    "pageDisplay": "페이지 표시",
+    "keyboardShortcuts": "바로 가기 키"
   },
   "resetToDefaults": "기본값으로 초기화",
   "resetConfirm": "모든 환경 설정을 기본값으로 초기화하시겠습니까?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "{{adres}}에서 활성",
     "aiLinkViaFlag": "시작 옵션으로 활성 ({{adres}})",
     "aiLinkOff": "끔",
-    "aiLinkError": "시작되지 않음: {{fout}}"
+    "aiLinkError": "시작되지 않음: {{fout}}",
+    "interfaceScale": "인터페이스 크기"
   },
   "annotations": {
     "generalDefaults": "일반 기본값",
@@ -105,7 +107,13 @@
     "headOpenReversed": "열린 화살표(반대 방향)",
     "headClosedReversed": "닫힌 화살표(반대 방향)",
     "headSlash": "슬래시",
-    "polylineDefaults": "폴리라인 기본값"
+    "polylineDefaults": "폴리라인 기본값",
+    "smoothing": "다듬기",
+    "pressure": "펜 압력",
+    "pressureHint": "펜 압력에 따라 선 굵기가 달라집니다 (마우스로 그린 선은 굵기가 일정합니다)",
+    "pressureMinWidth": "최소 너비 (%)",
+    "penOnly": "펜만 사용 (터치 무시)",
+    "penOnlyHint": "터치로는 자유 그리기 도구로 그리지 않습니다. 펜으로 쓸 때 손바닥이 닿는 것을 막는 데 유용합니다"
   },
   "shapes": {
     "rectangleDefaults": "사각형 기본값",
@@ -161,12 +169,19 @@
     "snapToNearest": "근처점에 스냅",
     "objectSnapRadius": "스냅 반경(픽셀)",
     "snapToPdfContent": "PDF 도면 내용에 스냅",
+    "moveInference": "이동 시 추론 안내선 (G / mv)",
+    "moveInferenceTracking": "추적선 (다른 도형의 점에 정렬)",
+    "moveInferenceExtension": "선과 벽면의 연장선",
+    "moveInferenceParallel": "가까운 선에 평행 / 수직",
+    "moveInferenceHint": "점 위에 커서를 잠시 두면 점을 획득하고, Shift를 누르고 있으면 안내선이 고정되며, Tab으로 거리와 각도를 전환합니다. 극좌표 안내선은 극좌표 추적 설정을 따릅니다.",
     "creation": "생성",
     "autoSelectAfterCreation": "생성 후 주석 자동 선택",
     "deletion": "삭제",
     "confirmBeforeDeleting": "주석 삭제 전 확인",
     "navigation": "탐색",
     "wheelZoomWithoutCtrl": "마우스 휠로 확대/축소(Ctrl 키 없이)",
+    "middleDoubleClickFit": "마우스 가운데 버튼을 두 번 클릭하여 페이지 맞춤",
+    "ribbonWheelSwitchesTabs": "마우스 휠로 리본 탭 전환",
     "dynamicScaling": "마크업 자동 크기 조정"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "macOS에서 Open PDF Studio를 기본 PDF 뷰어로 설정하려면:\n\n1. Finder에서 아무 PDF 파일을 우클릭합니다\n2. \"정보 가져오기\"를 선택합니다\n3. \"다음으로 열기\"에서 Open PDF Studio를 선택합니다\n4. \"모두 변경...\"을 클릭합니다",
     "linuxInstructions": "Linux에서 Open PDF Studio를 기본 PDF 뷰어로 설정하려면:\n\n터미널에서 실행:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > 정보 가져오기 확인",
-    "notSet": "설정되지 않음"
+    "notSet": "설정되지 않음",
+    "chosenInSystemSettings": "시스템 설정에서 선택됨",
+    "sandboxInstructions": "Open PDF Studio는 {{package}} 패키지로 실행 중이어서 기본 PDF 앱을 직접 변경할 수 없습니다.\n\n시스템 설정의 기본 응용 프로그램에서 Open PDF Studio를 선택하거나, PDF 파일을 마우스 오른쪽 단추로 클릭하고 연결 프로그램을 사용하세요.",
+    "xdgMimeMissing": "xdg-mime(xdg-utils 패키지)이 설치되어 있지 않아 여기에서 기본 PDF 앱을 설정할 수 없습니다.\n\nxdg-utils를 설치하거나 시스템 설정의 기본 응용 프로그램에서 Open PDF Studio를 선택하세요.",
+    "linuxDone": "이제 Open PDF Studio가 PDF 파일의 기본 앱입니다.",
+    "linuxFailed": "Open PDF Studio를 기본 PDF 앱으로 설정할 수 없습니다.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "파일 탐색기",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "강하게",
     "pageSharpenLevel4": "최대",
     "showScrollbars": "캔버스 스크롤 막대 표시",
+    "backgroundColor": "배경색",
+    "backgroundColorDefault": "기본값",
+    "backgroundColorHint": "페이지 주변과 페이지 사이 영역의 색입니다. 페이지 자체, 인쇄 및 내보내기는 바뀌지 않습니다.",
     "panels": "패널",
     "showPropertiesPanel": "기본적으로 속성 패널 표시",
     "showToolPalette": "기본적으로 도구 팔레트 표시",
@@ -291,5 +314,58 @@
     "openArrowReversed": "열린 화살표(반대 방향)",
     "closedArrowReversed": "닫힌 화살표(반대 방향)",
     "slash": "슬래시"
+  },
+  "keyboardShortcuts": {
+    "title": "바로 가기 키",
+    "search": "명령 또는 키로 검색",
+    "command": "명령",
+    "shortcuts": "바로 가기 키",
+    "none": "없음",
+    "noMatches": "검색과 일치하는 명령이 없습니다.",
+    "selectHint": "바로 가기 키를 변경할 명령을 선택하세요.",
+    "addShortcut": "바로 가기 키 추가",
+    "remove": "바로 가기 키 제거",
+    "resetCommand": "기본값으로 재설정",
+    "resetAll": "모두 재설정",
+    "resetAllConfirm": "모든 바로 가기 키를 기본값으로 재설정하시겠습니까?",
+    "loadPreset": "프리셋 불러오기…",
+    "replaceConfirm": "사용자 지정 바로 가기 키가 대체됩니다. 계속하시겠습니까?",
+    "presets": {
+      "markupStyle": "마크업 스타일 바로 가기 키"
+    },
+    "import": "가져오기…",
+    "export": "내보내기…",
+    "fileType": "바로 가기 키",
+    "imported": "바로 가기 키를 가져왔습니다. 적용하려면 저장을 클릭하세요.",
+    "importFailed": "올바른 바로 가기 키 파일이 아닙니다.",
+    "exported": "바로 가기 키를 내보냈습니다.",
+    "exportFailed": "바로 가기 키를 내보내지 못했습니다:",
+    "recording": "새 키 조합을 누르세요… (Esc로 취소)",
+    "conflict": "{{keys}}은(는) 이미 “{{command}}”에서 사용 중입니다.",
+    "reassign": "다시 할당",
+    "reserved": "{{keys}}은(는) 고정된 의미가 있어 할당할 수 없습니다.",
+    "defaultLabel": "기본값: {{keys}}",
+    "customize": "사용자 지정…",
+    "fixedGroup": "고정 키",
+    "applyHint": "저장을 클릭하면 변경 사항이 적용됩니다.",
+    "categories": {
+      "file": "파일",
+      "edit": "편집",
+      "view": "보기",
+      "search": "찾기",
+      "tools": "도구",
+      "drafting": "그리기 보조",
+      "panels": "패널",
+      "review": "검토",
+      "help": "도움말",
+      "extensions": "확장 기능",
+      "ribbon": "리본: {{tab}}",
+      "other": "기타"
+    },
+    "commands": {
+      "findNext": "다음 찾기",
+      "splitPaneLarger": "활성 창 크게 하기",
+      "splitPaneSmaller": "활성 창 작게 하기"
+    }
   }
 }

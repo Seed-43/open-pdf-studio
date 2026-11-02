@@ -9,7 +9,8 @@
     "behavior": "Perilaku",
     "fileAssociation": "Asosiasi File",
     "virtualPrinter": "Printer Virtual",
-    "pageDisplay": "Tampilan Halaman"
+    "pageDisplay": "Tampilan Halaman",
+    "keyboardShortcuts": "Pintasan keyboard"
   },
   "resetToDefaults": "Atur Ulang ke Bawaan",
   "resetConfirm": "Atur ulang semua preferensi ke nilai bawaan?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter awal ({{adres}})",
     "aiLinkOff": "Mati",
-    "aiLinkError": "Tidak dimulai: {{fout}}"
+    "aiLinkError": "Tidak dimulai: {{fout}}",
+    "interfaceScale": "Ukuran antarmuka"
   },
   "annotations": {
     "generalDefaults": "Bawaan Umum",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Panah Terbuka (terbalik)",
     "headClosedReversed": "Panah Tertutup (terbalik)",
     "headSlash": "Garis Miring",
-    "polylineDefaults": "Bawaan Polyline"
+    "polylineDefaults": "Bawaan Polyline",
+    "smoothing": "Penghalusan",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "pressureMinWidth": "Lebar minimum (%)",
+    "penOnly": "Hanya pena (abaikan sentuhan)",
+    "penOnlyHint": "Sentuhan tidak menggambar dengan alat tangan bebas; berguna mencegah sentuhan telapak tangan saat menulis dengan pena"
   },
   "shapes": {
     "rectangleDefaults": "Bawaan Persegi Panjang",
@@ -165,8 +173,15 @@
     "deletion": "Penghapusan",
     "confirmBeforeDeleting": "Konfirmasi sebelum menghapus anotasi",
     "snapToPdfContent": "Snap ke Konten Gambar PDF",
+    "moveInference": "Inferensi saat memindahkan (G / mv)",
+    "moveInferenceTracking": "Garis pelacakan (sejajarkan dengan titik geometri lain)",
+    "moveInferenceExtension": "Perpanjangan garis dan muka dinding",
+    "moveInferenceParallel": "Sejajar / tegak lurus terhadap garis di dekatnya",
+    "moveInferenceHint": "Arahkan kursor sebentar pada sebuah titik untuk menangkapnya, tahan Shift untuk mengunci garis bantu, Tab beralih antara jarak dan sudut. Garis bantu polar mengikuti pengaturan pelacakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
+    "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
+    "ribbonWheelSwitchesTabs": "Ganti tab ribbon dengan roda mouse",
     "dynamicScaling": "Skalakan markup otomatis"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Untuk mengatur Open PDF Studio sebagai penampil PDF bawaan di macOS:\n\n1. Klik kanan file PDF mana pun di Finder\n2. Pilih \"Dapatkan Info\"\n3. Di bawah \"Buka dengan\", pilih Open PDF Studio\n4. Klik \"Ubah Semua...\"",
     "linuxInstructions": "Untuk mengatur Open PDF Studio sebagai penampil PDF bawaan di Linux:\n\nJalankan di terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Periksa Finder > Dapatkan Info",
-    "notSet": "Belum diatur"
+    "notSet": "Belum diatur",
+    "chosenInSystemSettings": "Dipilih di pengaturan sistem",
+    "sandboxInstructions": "Open PDF Studio berjalan sebagai paket {{package}} dan tidak dapat mengubah aplikasi PDF default sendiri.\n\nPilih Open PDF Studio di pengaturan sistem pada Aplikasi Default, atau klik kanan file PDF dan gunakan Buka Dengan.",
+    "xdgMimeMissing": "xdg-mime (paket xdg-utils) tidak terpasang, sehingga aplikasi PDF default tidak dapat diatur dari sini.\n\nPasang xdg-utils, atau pilih Open PDF Studio di pengaturan sistem pada Aplikasi Default.",
+    "linuxDone": "Open PDF Studio sekarang menjadi aplikasi default untuk file PDF.",
+    "linuxFailed": "Tidak dapat menjadikan Open PDF Studio sebagai aplikasi PDF default.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Penjelajah File",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Kuat",
     "pageSharpenLevel4": "Maksimum",
     "showScrollbars": "Tampilkan bilah gulir kanvas",
+    "backgroundColor": "Warna latar belakang",
+    "backgroundColorDefault": "Bawaan",
+    "backgroundColorHint": "Warna area di sekitar dan di antara halaman. Halaman itu sendiri, pencetakan, dan ekspor tidak berubah.",
     "panels": "Panel",
     "showPropertiesPanel": "Tampilkan Panel Properti secara bawaan",
     "showToolPalette": "Tampilkan Palet Alat secara bawaan",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Panah Terbuka (terbalik)",
     "closedArrowReversed": "Panah Tertutup (terbalik)",
     "slash": "Garis Miring"
+  },
+  "keyboardShortcuts": {
+    "title": "Pintasan keyboard",
+    "search": "Cari menurut perintah atau tombol",
+    "command": "Perintah",
+    "shortcuts": "Pintasan",
+    "none": "Tidak ada",
+    "noMatches": "Tidak ada perintah yang cocok dengan pencarian.",
+    "selectHint": "Pilih perintah untuk mengubah pintasannya.",
+    "addShortcut": "Tambah pintasan",
+    "remove": "Hapus pintasan",
+    "resetCommand": "Kembalikan ke default",
+    "resetAll": "Kembalikan semua",
+    "resetAllConfirm": "Kembalikan semua pintasan keyboard ke default?",
+    "loadPreset": "Muat preset…",
+    "replaceConfirm": "Ini akan mengganti pintasan keyboard kustom Anda. Lanjutkan?",
+    "presets": {
+      "markupStyle": "Pintasan gaya markup"
+    },
+    "import": "Impor…",
+    "export": "Ekspor…",
+    "fileType": "Pintasan keyboard",
+    "imported": "Pintasan diimpor. Klik Simpan untuk menerapkannya.",
+    "importFailed": "Ini bukan file pintasan keyboard yang valid.",
+    "exported": "Pintasan diekspor.",
+    "exportFailed": "Gagal mengekspor pintasan:",
+    "recording": "Tekan kombinasi tombol baru… (Esc membatalkan)",
+    "conflict": "{{keys}} sudah dipakai oleh “{{command}}”.",
+    "reassign": "Tetapkan ulang",
+    "reserved": "{{keys}} memiliki arti tetap dan tidak dapat ditetapkan.",
+    "defaultLabel": "Bawaan: {{keys}}",
+    "customize": "Sesuaikan…",
+    "fixedGroup": "Tombol tetap",
+    "applyHint": "Perubahan berlaku setelah Anda mengklik Simpan.",
+    "categories": {
+      "file": "Berkas",
+      "edit": "Sunting",
+      "view": "Tampilan",
+      "search": "Cari",
+      "tools": "Alat",
+      "drafting": "Bantuan menggambar",
+      "panels": "Panel",
+      "review": "Tinjau",
+      "help": "Bantuan",
+      "extensions": "Ekstensi",
+      "ribbon": "Pita: {{tab}}",
+      "other": "Lainnya"
+    },
+    "commands": {
+      "findNext": "Cari berikutnya",
+      "splitPaneLarger": "Perbesar panel aktif",
+      "splitPaneSmaller": "Perkecil panel aktif"
+    }
   }
 }

@@ -1,13 +1,16 @@
+import { tekenDocument as getActiveDocument } from './document-context.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
-import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
+import { heeftEigenDraaipunt } from '../draaipunt.js';
+import { state, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
+import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';
 import { getTemplate } from '../../symbols/registry.js';
 
 // Draw selection highlight and handles
 export function drawSelectionHandles(ctx, annotation) {
   const doc = getActiveDocument();
-  const sc = doc?.scale || 1;
+  const sc = schermSchaal(doc) || 1;
   const isEditingContour = annotation && annotation.type === 'filledArea' &&
     state.editingContour === annotation.id;
 
@@ -79,6 +82,15 @@ export function drawSelectionHandles(ctx, annotation) {
       break;
     case 'comment':
       // No selection indicators — fixed-size icon, move only
+      break;
+    case 'fileAttachment':
+      // Bijlage-annotatie (#376): gestippeld kader om het pictogram.
+      ctx.save();
+      ctx.setLineDash([3 / sc, 3 / sc]);
+      ctx.lineWidth = 1 / sc;
+      ctx.strokeRect(annotation.x - 2 / sc, annotation.y - 2 / sc,
+        (annotation.width || 24) + 4 / sc, (annotation.height || 24) + 4 / sc);
+      ctx.restore();
       break;
     case 'count':
       // Telelement: gestippelde ring om de marker zodat de selectie zichtbaar is.
@@ -250,14 +262,43 @@ export function drawSelectionHandles(ctx, annotation) {
   }
 
   // Draw resize/move handles (scale-independent size)
-  const scale = doc?.scale || 1;
-  const handles = getAnnotationHandles(annotation, scale);
+  const scale = schermSchaal(doc) || 1;
+  const alleGrepen = getAnnotationHandles(annotation, scale);
   const hs = HANDLE_SIZE / scale;
   const lw = 1 / scale;
+  // Het draaipunt als laatste, zodat het vizier zichtbaar blijft als het op
+  // een andere greep ligt. Bij een meervoudige selectie geen draaipunt: dat
+  // geldt alleen voor het slepen van één vorm, niet voor de groep.
+  const enkel = (doc?.selectedAnnotations?.length || 0) <= 1;
+  const handles = [
+    ...alleGrepen.filter(h => h.type !== HANDLE_TYPES.PIVOT),
+    ...(enkel ? alleGrepen.filter(h => h.type === HANDLE_TYPES.PIVOT) : []),
+  ];
 
   handles.forEach(handle => {
     const cx = handle.x + hs / 2;
     const cy = handle.y + hs / 2;
+
+    // Eigen draaipunt (#826): een vizier. Blauw op het midden, oranje als
+    // het verplaatst is, rood tijdens het slepen. Wit eronder voor contrast.
+    if (handle.type === HANDLE_TYPES.PIVOT) {
+      const r = hs * 0.8;
+      const arm = r * 1.7;
+      const actief = state.isResizing && state.activeHandle === HANDLE_TYPES.PIVOT;
+      const kleur = actief ? '#e81123' : (heeftEigenDraaipunt(annotation) ? '#e8590c' : '#0066cc');
+      ctx.save();
+      for (const [stroke, breedte] of [['#ffffff', 3 * lw], [kleur, 1.5 * lw]]) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = breedte;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.moveTo(cx - arm, cy); ctx.lineTo(cx + arm, cy);
+        ctx.moveTo(cx, cy - arm); ctx.lineTo(cx, cy + arm);
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
 
     // Draw rotation handle as a circle with rotation icon (green color)
     if (handle.type === HANDLE_TYPES.ROTATE) {
@@ -513,7 +554,7 @@ export function drawMultiSelectionBounds(ctx) {
   if (!bounds) return;
 
   const msDoc = getActiveDocument();
-  const sc = msDoc?.scale || 1;
+  const sc = schermSchaal(msDoc) || 1;
   ctx.strokeStyle = '#0066cc';
   ctx.lineWidth = 1.5 / sc;
   ctx.setLineDash([6 / sc, 3 / sc]);

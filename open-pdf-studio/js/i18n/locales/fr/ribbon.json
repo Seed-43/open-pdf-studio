@@ -169,7 +169,9 @@
     "flattenAll": "Tout aplatir",
     "flattenAllTooltip": "Aplatir toutes les annotations dans le contenu de la page",
     "unflattenAll": "Annuler l'aplatissement",
-    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée"
+    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée",
+    "fileAttachment": "Joindre un fichier",
+    "fileAttachmentTitle": "Pièce jointe : cliquez sur la page et choisissez un fichier"
   },
   "view": {
     "pageDisplay": "Affichage de la page",
@@ -198,6 +200,7 @@
     "thinLines": "Lignes fines",
     "compareGroup": "Comparer",
     "fullscreen": "Plein écran",
+    "fullscreenUnavailable": "Le plein écran n'est pas disponible ici : le navigateur ou la page qui affiche l'application l'a refusé. Utilisez plutôt l'option plein écran du menu de votre navigateur.",
     "window": "Fenêtre",
     "display": "Affichage",
     "keystrokes": "Frappes clavier",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Faire pivoter l'affichage à gauche",
     "rotateViewRight": "Faire pivoter l'affichage à droite",
     "rotateViewLeftTitle": "Fait pivoter l'affichage de 90° dans le sens antihoraire. Le document lui-même ne change pas.",
-    "rotateViewRightTitle": "Fait pivoter l'affichage de 90° dans le sens horaire. Le document lui-même ne change pas."
+    "rotateViewRightTitle": "Fait pivoter l'affichage de 90° dans le sens horaire. Le document lui-même ne change pas.",
+    "splitGroup": "Fractionner",
+    "split": "Fractionner",
+    "splitTitle": "Fractionner l'affichage en deux volets du même document",
+    "splitOptions": "Options de fractionnement",
+    "splitVertical": "Fractionner verticalement",
+    "splitHorizontal": "Fractionner horizontalement",
+    "unsplit": "Annuler le fractionnement",
+    "splitSync": "Synchroniser",
+    "splitSyncTitle": "Faire défiler et zoomer les deux volets ensemble",
+    "splitDividerTitle": "Faites glisser pour redimensionner les volets. Double-cliquez pour revenir à 50/50.",
+    "accessibilityGroup": "Accessibilité",
+    "readAloud": "Lecture à voix haute",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Lire à voix haute la sélection, ou le document à partir de la page actuelle",
+    "tagsPanel": "Balises",
+    "tagsPanelTitle": "Afficher les balises de structure du document",
+    "accessibilityCheck": "Vérifier",
+    "accessibilityCheckTitle": "Rechercher le texte de remplacement manquant et le contenu non balisé"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilité des éléments — afficher/masquer et atténuer les types d'annotation",
@@ -328,7 +349,9 @@
     "scanText": "Modifier le texte numérisé",
     "scanTextHint": "Cliquez sur un mot reconnu pour le remplacer. L'ancien mot de la numérisation est masqué.",
     "scanTextNone": "Aucun texte reconnu sur cette page. Lancez d'abord Reconnaissance de texte (OCR).",
-    "shiftPage": "Décaler la page"
+    "shiftPage": "Décaler la page",
+    "editPages": "Modifier les pages",
+    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner"
   },
   "help": {
     "settings": "Paramètres",
@@ -348,6 +371,7 @@
     "updates": "Mises à jour",
     "checkForUpdates": "Vérifier les mises à jour",
     "updatesLabel": "Mises à jour",
+    "updatesManaged": "Les mises à jour de cette installation sont gérées de manière centralisée.",
     "startupDiagnosticsTitle": "Afficher le fichier de diagnostic de démarrage (respectueux de la vie privée)",
     "startupDiagnostics": "Diagnostic",
     "fileAssociation": "Association de fichiers",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Coller ici la zone découpée en conservant ses données vectorielles",
     "symbolScale": "Échelle",
     "symbolScaleTitle": "Taille à laquelle un nouveau symbole est placé",
-    "symbolScaleCustom": "Échelle personnalisée"
+    "symbolScaleCustom": "Échelle personnalisée",
+    "count": "Compter",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Relecture",
@@ -678,6 +704,7 @@
     "saveNote": "Les notes et autres annotations sans apparence sur la page restent des annotations. Le fichier ne change qu'à l'enregistrement ; d'ici là, Annuler annule cette étape.",
     "ok": "Aplatir",
     "busy": "Aplatissement des annotations...",
+    "cancelled": "Aplatissement annulé. Le document n’a pas été modifié.",
     "nothing": "Ce document ne contient aucune annotation à aplatir.",
     "nothingBaked": "Aucune annotation n'a d'apparence sur la page ; rien n'a été aplati.",
     "notLoaded": "Les annotations de ce document sont encore en cours de chargement. Réessayez dans un instant.",
@@ -691,5 +718,60 @@
     "noRecovery": "Les annotations de ce document ont été aplaties sans autoriser la restauration. Elles font partie du contenu de la page et ne peuvent pas être restaurées.",
     "done": "Annotations restaurées : {{count}}.",
     "failed": "Échec de la restauration : {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Petites icônes",
+    "largeIcons": "Grandes icônes",
+    "settings": "Paramètres"
+  },
+  "symbolPalette": {
+    "search": "Rechercher des symboles...",
+    "noResults": "Aucun symbole trouvé",
+    "drawingSettings": "Paramètres du dessin",
+    "manageSystemTypes": "Gérer les types de système",
+    "settingsTitle": "Paramètres de la bibliothèque de symboles",
+    "industry": "Secteur",
+    "country": "Pays",
+    "libraryLoading": "Chargement de la bibliothèque en ligne…",
+    "libraryOffline": "Bibliothèque en ligne inaccessible — liste de pays limitée",
+    "downloading": "Téléchargement {{current}}/{{total}} : {{label}}",
+    "availableOnline": "Collections disponibles en ligne : {{n}} ({{symbols}} symboles)",
+    "activateDownloaded": "Collections téléchargées à activer pour ce pays : {{n}}",
+    "download": "Télécharger",
+    "downloadFailed": "Échec du téléchargement : {{error}}",
+    "builtIn": "Intégré",
+    "online": "En ligne",
+    "addSymbol": "+ Ajouter un symbole",
+    "export": "Exporter",
+    "remove": "Supprimer",
+    "noSymbolsYet": "Aucun symbole pour le moment",
+    "newGroupName": "Nom du nouveau groupe...",
+    "addGroup": "Ajouter un groupe",
+    "importGroup": "Importer un groupe",
+    "catalogLoaded": "Catalogue '{{id}}' chargé : {{families}} familles, {{sizes}} tailles",
+    "catalogNoPreview": "{{n}} sans aperçu dans le fichier",
+    "fileNotRecognized": "Fichier non reconnu : ni un groupe de symboles ni un catalogue",
+    "importFailed": "Échec de l'importation : {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construction",
+      "nl-elektra": "NL Électricité",
+      "nl-bouwplaats": "NL Chantier",
+      "nl-sanitair": "NL Sanitaire",
+      "nl-keuken": "NL Cuisine",
+      "nen1414-tb": "NL NEN 1414 — Protection incendie",
+      "nen1414-tbk": "NL NEN 1414 — Systèmes d'extinction",
+      "nen1414-td": "NL NEN 1414 — Portes",
+      "nen1414-tn": "NL NEN 1414 — Éclairage de secours",
+      "nen1414-tr": "NL NEN 1414 — Désenfumage",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Eau/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bâtiment)",
+      "electrical": "Électrotechnique",
+      "process": "Procédés / P&ID",
+      "mep": "Équipements techniques du bâtiment (MEP)",
+      "infra": "Infrastructures"
+    }
   }
 }

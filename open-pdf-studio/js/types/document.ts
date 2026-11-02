@@ -115,6 +115,9 @@ export interface DocumentState {
   /** Weergave draaien (#200): 0/90/180/270, rechtsom, voor alle pagina's van
    *  dit tabblad. Alleen de weergave; het document verandert niet. */
   viewRotation?: number;
+  /** Gesplitste weergave (#715): null/afwezig = één paneel. Alleen wat de
+   *  interface toont; de standen per paneel houdt pdf/split-view/split-view.js. */
+  splitView?: { richting: 'vertical' | 'horizontal'; actief: 0 | 1; verhouding: number; sync: boolean } | null;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
@@ -129,6 +132,9 @@ export interface DocumentState {
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
   pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;
+  /** /UserUnit per 1-gebaseerd paginanummer, alleen waar hij niet 1 is; een
+   *  schaal 1:N rekent daarmee naar pagina-eenheden (pixelsPerUnitFor, #884). */
+  pageUserUnits?: Record<number, number>;
   /** Benoemde lijnstijl-presets — persist in de PDF (catalog /OPS_StylePresets). */
   stylePresets: StylePreset[];
   /** Annotatielagen (#468); leeg = alleen de standaardlaag (js/annotations/annotatie-lagen.js). */

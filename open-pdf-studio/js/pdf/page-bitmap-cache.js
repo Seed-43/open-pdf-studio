@@ -21,6 +21,7 @@ import { invalidateRenderDiagnostics } from './render-diagnostics.js';
 import { isTauri, invoke } from '../core/platform.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { RENDER_PRIORITY, isRenderCancelled, renderQueue } from './render-queue.js';
 
 // Map<key, { bitmap: ImageBitmap, w, h, scale }>
 const _cache = new Map();
@@ -28,11 +29,95 @@ const _cache = new Map();
 // In-flight renders so we don't double-fire for the same key
 const _pending = new Map(); // key -> Promise
 
-// Per-page LRU bookkeeping (drop oldest entries above limit)
+// Per-page bookkeeping (drop oldest entries above limit)
 const MAX_ENTRIES = 12;
 
 function _key(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
   return `${filePath}:${pageNum}:${(rotation || 0) % 360}:${zoomBucket}:${thinLinesKey(thin)}`;
+}
+
+/** De cachesleutel van een paginabitmap (zelfde als ensureBitmap gebruikt). */
+export function bitmapSleutel(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
+  return _key(filePath, pageNum, rotation, zoomBucket, thin);
+}
+
+// ── Getoonde bitmaps worden nooit gesloten ────────────────────────────────
+// De cache deelt zijn bitmaps met wie ze tekent: de viewport houdt de
+// getoonde bitmap vast (viewport.currentBitmap) en tekent hem elk frame. Werd
+// die bij het verdringen of ongeldig maken gesloten, dan gaf elk frame
+// "drawImage: the image source is detached" (#715: het tweede paneel van de
+// gesplitste weergave vraagt bitmaps uit dezelfde cache en verdrong zo de
+// getoonde). Wie bitmaps toont, meldt hier een bron die zegt welke dat nu
+// zijn. Zo'n bitmap blijft bij verdringen in de cache staan; moet hij er toch
+// uit (ongeldig, document dicht), dan gaat hij pas dicht als niemand hem meer
+// toont (ruimUitgesteldOp).
+const _getoondBronnen = new Set();
+// Bitmaps die uit de cache zijn maar nog getoond werden toen ze eruit gingen.
+const _uitgesteld = new Set();
+// Sleutels die een eigenaar nu nodig heeft (het tweede paneel): niet
+// verdringen, anders vraagt hij ze meteen opnieuw aan (renderlus).
+const _claims = new Map(); // eigenaar -> Set<key>
+
+/**
+ * Meld een bron van getoonde bitmaps: een functie die de bitmaps teruggeeft
+ * die nu op het scherm staan (null/undefined mag). Geeft een afmeldfunctie.
+ */
+export function registreerGetoondeBitmaps(bron) {
+  if (typeof bron !== 'function') return () => {};
+  _getoondBronnen.add(bron);
+  return () => { _getoondBronnen.delete(bron); };
+}
+
+/**
+ * Leg vast welke cachesleutels `eigenaar` nu nodig heeft (vervangt de vorige
+ * set; een lege lijst laat alles los). Geclaimde entries worden niet verdrongen.
+ */
+export function claimBitmaps(eigenaar, sleutels) {
+  const set = new Set((sleutels || []).filter(Boolean));
+  if (set.size) _claims.set(eigenaar, set);
+  else _claims.delete(eigenaar);
+}
+
+function _getoond() {
+  const set = new Set();
+  for (const bron of _getoondBronnen) {
+    let lijst = null;
+    try { lijst = bron(); } catch { lijst = null; }
+    if (!lijst) continue;
+    for (const b of lijst) if (b) set.add(b);
+  }
+  return set;
+}
+
+function _geclaimd(key) {
+  for (const set of _claims.values()) if (set.has(key)) return true;
+  return false;
+}
+
+function _sluitNu(bitmap) {
+  try { bitmap && bitmap.close && bitmap.close(); } catch {}
+}
+
+// Sluit een bitmap die uit de cache gaat, behalve als hij nog getoond wordt:
+// die gaat dicht zodra niemand hem meer toont.
+function _sluit(bitmap, getoond) {
+  if (!bitmap) return;
+  if (getoond.has(bitmap)) { _uitgesteld.add(bitmap); return; }
+  _sluitNu(bitmap);
+}
+
+/** Sluit de uit de cache gehaalde bitmaps die nu niet meer getoond worden. */
+export function ruimUitgesteldOp() {
+  if (!_uitgesteld.size) return;
+  const getoond = _getoond();
+  for (const b of Array.from(_uitgesteld)) {
+    if (getoond.has(b)) continue;
+    _uitgesteld.delete(b);
+    // Kwam hij intussen weer in de cache (zelfde object)? Dan niet sluiten.
+    let inCache = false;
+    for (const e of _cache.values()) if (e.bitmap === b) { inCache = true; break; }
+    if (!inCache) _sluitNu(b);
+  }
 }
 
 // Compute the zoom bucket (power of 2) to render at, given a target scale.
@@ -91,10 +176,10 @@ export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bi
   const key = _key(filePath, pageNum, rotation, zoomBucket, thin);
   const prev = _cache.get(key);
   if (prev && prev.bitmap && prev.bitmap !== bitmap) {
-    try { prev.bitmap.close && prev.bitmap.close(); } catch {}
+    _sluit(prev.bitmap, _getoond());
   }
   _cache.set(key, { bitmap, w, h, scale });
-  _evictIfNeeded();
+  _evictIfNeeded(key);
 }
 
 // Find the best available cached bitmap for a target bucket: prefer exact
@@ -120,16 +205,21 @@ export function getBestAvailableBitmap(filePath, pageNum, rotation, targetBucket
   return null;
 }
 
-function _evictIfNeeded() {
+// Verdring de oudste entries (Map houdt de invoegvolgorde) tot er weer
+// MAX_ENTRIES zijn. Nooit: een getoonde bitmap, een geclaimde sleutel of de
+// entry die net is toegevoegd (`nieuw`; de aanvrager zet hem zo meteen op het
+// scherm). Zijn er alleen zulke entries, dan mag de cache tijdelijk groter zijn.
+function _evictIfNeeded(nieuw = null) {
+  ruimUitgesteldOp();
   if (_cache.size <= MAX_ENTRIES) return;
-  // Drop oldest insertion-order entries (Map preserves insertion order)
-  const overflow = _cache.size - MAX_ENTRIES;
-  let i = 0;
-  for (const k of _cache.keys()) {
-    if (i++ >= overflow) break;
+  const getoond = _getoond();
+  for (const k of Array.from(_cache.keys())) {
+    if (_cache.size <= MAX_ENTRIES) break;
+    if (k === nieuw || _geclaimd(k)) continue;
     const e = _cache.get(k);
-    try { e.bitmap.close && e.bitmap.close(); } catch {}
+    if (e && getoond.has(e.bitmap)) continue;
     _cache.delete(k);
+    _sluitNu(e && e.bitmap);
   }
 }
 
@@ -138,7 +228,7 @@ function _evictIfNeeded() {
  * one is already in flight. Resolves to the cached entry (or null on failure).
  */
 export function ensureBitmap(filePath, pageNum, rotation, zoomBucket) {
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, zoomBucket, zoomBucket);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, zoomBucket, zoomBucket, RENDER_PRIORITY.PAGE);
 }
 
 /**
@@ -154,7 +244,7 @@ export function ensureBitmap(filePath, pageNum, rotation, zoomBucket) {
  */
 export function ensureExactBitmap(filePath, pageNum, rotation, exactScale) {
   const roundedScale = Math.round(exactScale * 1000) / 1000;
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, roundedScale, roundedScale);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, roundedScale, roundedScale, RENDER_PRIORITY.TILE);
 }
 
 /**
@@ -167,10 +257,10 @@ export function ensureExactBitmap(filePath, pageNum, rotation, exactScale) {
  * targetBucket finds it via the proximity-sort search.
  */
 export function prefetchFallbackBitmap(filePath, pageNum, rotation, prefetchScale) {
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, 1, prefetchScale);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, 1, prefetchScale, RENDER_PRIORITY.PREFETCH);
 }
 
-function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderScale) {
+function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderScale, priority) {
   // Line mode captured once: the render and the cache key must agree even if
   // the user switches Thin Lines while this render is in flight.
   const thin = thinLinesOn();
@@ -179,6 +269,9 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
   if (_pending.has(key)) return _pending.get(key);
   if (!isTauri() || !filePath) return Promise.resolve(null);
 
+  // Closing the document empties this cache; a render that lands after that
+  // must not put its bitmap back (#506).
+  const docEpoch = renderQueue.documentEpoch(filePath);
   const p = (async () => {
     try {
       // PERF FIX #3: Rust now returns RGBA bytes directly via tauri::ipc::Response.
@@ -196,7 +289,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         scale: renderScale,
         rotation: rotation || 0,
         thinLines: thin,
-      });
+      }, { priority });
       console.log(`[pbc] whole-page KLAAR p${pageNum} scale=${renderScale.toFixed(3)} @${Math.round(performance.now() - _t0)}ms`);
       const fileBytes = result instanceof Uint8Array ? result : new Uint8Array(result);
       if (!fileBytes || fileBytes.length <= 8) return null;
@@ -211,15 +304,21 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
       const rgba = sharpenPageRgba(new Uint8ClampedArray(fileBytes.buffer, fileBytes.byteOffset + 8, expected), w, h);
       const imageData = new ImageData(rgba, w, h);
       const bitmap = await createImageBitmap(imageData);
+      if (renderQueue.documentEpoch(filePath) !== docEpoch) {
+        try { bitmap.close?.(); } catch { /* already gone */ }
+        return null;
+      }
       import('../solid/stores/engineStatusStore.js')
         .then((m) => m.reportActiveEngine('pdfium', filePath, pageNum))
         .catch(() => {});
       const entry = { bitmap, w, h, scale: renderScale };
       _cache.set(key, entry);
-      _evictIfNeeded();
+      _evictIfNeeded(key);
       return entry;
     } catch (e) {
-      console.warn('[page-bitmap-cache] render failed', e);
+      // A render dropped because its document closed or is no longer shown
+      // (#506) is not a failure; nothing is cached for it.
+      if (!isRenderCancelled(e)) console.warn('[page-bitmap-cache] render failed', e);
       return null;
     } finally {
       _pending.delete(key);
@@ -233,12 +332,18 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
 /// content changes (e.g. annotations saved into the PDF stream).
 export function invalidatePageBitmaps(filePath, pageNum) {
   invalidateRenderDiagnostics(filePath, pageNum);
-  const prefix = `${filePath}:${pageNum}:`;
+  _verwijderMetPrefix(`${filePath}:${pageNum}:`);
+}
+
+// Entries weg; een bitmap die nog getoond wordt gaat pas later dicht (de
+// viewport tekent hem tot de vervanger er is).
+function _verwijderMetPrefix(prefix) {
+  const getoond = _getoond();
   for (const k of Array.from(_cache.keys())) {
-    if (k.startsWith(prefix)) {
+    if (prefix === null || k.startsWith(prefix)) {
       const e = _cache.get(k);
-      try { e.bitmap.close && e.bitmap.close(); } catch {}
       _cache.delete(k);
+      _sluit(e && e.bitmap, getoond);
     }
   }
 }
@@ -246,21 +351,11 @@ export function invalidatePageBitmaps(filePath, pageNum) {
 /// Alle bitmaps van één document weg (tabblad gesloten).
 export function invalidateDocumentBitmaps(filePath) {
   invalidateRenderDiagnostics(filePath);
-  const prefix = `${filePath}:`;
-  for (const k of Array.from(_cache.keys())) {
-    if (k.startsWith(prefix)) {
-      const e = _cache.get(k);
-      try { e.bitmap.close && e.bitmap.close(); } catch {}
-      _cache.delete(k);
-    }
-  }
+  _verwijderMetPrefix(`${filePath}:`);
 }
 
 export function clearAllBitmaps() {
   invalidateRenderDiagnostics();
-  for (const e of _cache.values()) {
-    try { e.bitmap.close && e.bitmap.close(); } catch {}
-  }
-  _cache.clear();
+  _verwijderMetPrefix(null);
   _pending.clear();
 }

@@ -3,8 +3,9 @@ import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
 import { hasFill, hasStroke, colorWithoutStroke, kanZonderRand } from '../../annotations/fill-utils.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { blendPdfNaam } from '../../annotations/blend-modes.js';
-import { hatchFillOps } from './appearance-vectors.js';
+import { hatchFillOps, dashArrayForStyle } from './appearance-vectors.js';
 import { eigenVulDekking } from '../../annotations/vul-dekking.js';
+import { STANDAARD_FONTS, tekstvakFontSoort } from './tekstvak-fontnaam.js';
 
 /** Heeft de vorm een arcering uit het eigenschappenpaneel (#621)? */
 function heeftArcering(ann) {
@@ -61,27 +62,24 @@ export function hexToRgb(hex) {
   ];
 }
 
-// Dash arrays per border style, mirroring rendering/decorations.js
-// applyBorderStyle so a saved /BS /D pattern matches the on-screen look.
-// Solid → null (no /D; style stays 'S'). Extended (dash-dot) styles used to
-// fall through to solid, making dash-dot / long-dash lines render as plain
-// solid lines in other PDF viewers (issue #256).
-const BORDER_DASH_ARRAYS = {
-  'dashed': [8, 4],
-  'dotted': [2, 2],
-  'dash-dot': [10, 8, 2, 8],
-  'dash-dot-dot': [10, 8, 2, 8, 2, 8],
-  'long-dash': [20, 10],
-  'long-dash-dot': [20, 10, 2, 10],
-  'long-dash-dot-dot': [20, 10, 2, 10, 2, 10],
-};
-
-// Build a BS (Border Style) dictionary
+// Build a BS (Border Style) dictionary. /BS /D is the pattern the screen
+// draws (rendering/decorations.js applyBorderStyle) and the appearances write
+// (appearance-vectors.js dashArrayForStyle), so a reader that rebuilds the
+// appearance from /BS shows the same line. Solid → no /D; style stays 'S'.
+// Extended (dash-dot) styles used to fall through to solid (issue #256).
+// Older versions wrote dashed as [8 4] and dotted as [2 2]; the loader
+// (loader/color-extraction.js) still reads both.
 export function buildBorderStyle(context, width, borderStyle) {
-  const dash = BORDER_DASH_ARRAYS[borderStyle] || null;
+  const dash = dashArrayForStyle(borderStyle);
   const bs = { Type: 'Border', W: width, S: dash ? 'D' : 'S' };
   if (dash) bs.D = dash;
   return context.obj(bs);
+}
+
+/** Dash operator for an appearance stream ('' for a solid line). */
+export function streepOperator(borderStyle) {
+  const dash = dashArrayForStyle(borderStyle);
+  return dash ? `[${dash.join(' ')}] 0 d\n` : '';
 }
 
 // Vormen waarvan de rand via "geen rand" (strokeColor 'none') weg kan — de
@@ -158,81 +156,9 @@ export function computeAnnotFlags(ann) {
   return flags;
 }
 
-// Map CSS font family + bold/italic to PDF standard font name for DA string
-export function mapFontToPdfName(fontFamily, bold, italic) {
-  const f = (fontFamily || '').toLowerCase();
-
-  // Map well-known CSS fonts to PDF standard 14 font names
-  if (f.includes('courier') || f === 'mono' || f === 'monospace') {
-    if (bold && italic) return 'Courier-BoldOblique';
-    if (bold) return 'Courier-Bold';
-    if (italic) return 'Courier-Oblique';
-    return 'Courier';
-  }
-  if (f.includes('times') || (f.includes('serif') && !f.includes('sans'))) {
-    if (bold && italic) return 'Times-BoldItalic';
-    if (bold) return 'Times-Bold';
-    if (italic) return 'Times-Italic';
-    return 'Times-Roman';
-  }
-  if (f === 'helvetica' || f === 'arial' || f === 'sans-serif') {
-    if (bold && italic) return 'Helvetica-BoldOblique';
-    if (bold) return 'Helvetica-Bold';
-    if (italic) return 'Helvetica-Oblique';
-    return 'Helvetica';
-  }
-
-  // For non-standard fonts, preserve the actual name as CamelCase (no spaces)
-  // The loader's mapPdfFontName re-inserts spaces from CamelCase (e.g. "SegoeUI" → "Segoe UI")
-  let baseName = (fontFamily || 'Helvetica').replace(/\s+/g, '');
-  let suffix = '';
-  if (bold && italic) suffix = '-BoldItalic';
-  else if (bold) suffix = '-Bold';
-  else if (italic) suffix = '-Italic';
-  return baseName + suffix;
-}
-
-const _STANDAARD_FONTS = /^(Helvetica|Courier|Times|Symbol|ZapfDingbats)(-|$)/;
-// De twaalf standaardfonts voor tekst, precies zo gespeld: alleen van deze
-// namen heeft elke lezer de maten. 'Helvetica-Narrow' of 'Helvetica-Bold-Bold'
-// hoort er niet bij.
-const _TEKST_STANDAARDFONTS = /^(Helvetica(-Bold|-Oblique|-BoldOblique)?|Courier(-Bold|-Oblique|-BoldOblique)?|Times-(Roman|Bold|Italic|BoldItalic))$/;
-
-/** Is `naam` precies een van de twaalf standaardfonts voor tekst? */
-export function isTekstStandaardFont(naam) {
-  return _TEKST_STANDAARDFONTS.test(naam);
-}
-
-// Soort van een niet-standaard tekstvakfont, uit de naam: bepaalt de vlaggen
-// van zijn FontDescriptor en daarmee de letter waarmee een lezer hem vervangt.
-function tekstvakFontSoort(naam) {
-  const vet = /-Bold/.test(naam);
-  const cursief = /(Italic|Oblique)$/.test(naam);
-  const familie = naam.replace(/-.*$/, '').toLowerCase();
-  const mono = /mono|consol|courier|menlo|typewriter|code/.test(familie);
-  const schreef = !mono && !/sans/.test(familie)
-    && /serif|times|georgia|cambria|garamond|antiqua|palatino|bookman|baskerville|caslon|didot|bodoni|constantia|century|minion|rockwell|charter|cochin|sabon|plantin|perpetua|bell ?mt|book/.test(familie);
-  return { vet, cursief, mono, schreef };
-}
-
-/**
- * De standaardfont waarmee een lezer zonder het font een tekstvakfont tekent:
- * een standaardfont zichzelf, anders die met de vlaggen van zijn
- * FontDescriptor (vaste breedte, schreef, vet, cursief). Het font is niet
- * ingebed en heeft geen /Widths, dus dit zijn de breedtes van een lezer die de
- * vlaggen volgt. Niet van elke lezer: pdf.js leest de breedtes op naam en neemt
- * Helvetica voor een onbekende (zie typemachineRegelBreedte).
- * @param {string} naam  PDF-fontnaam van mapFontToPdfName
- * @returns {string} naam van een van de 14 standaardfonts (pdf-lib StandardFonts)
- */
-export function vervangendeStandaardFont(naam) {
-  if (isTekstStandaardFont(naam)) return naam;
-  // Een andere Helvetica-, Courier- of Times-naam valt op zijn familie terug.
-  const { vet, cursief, mono, schreef } = tekstvakFontSoort(/^(Symbol|ZapfDingbats)(-|$)/.test(naam) ? '' : naam);
-  if (mono) return `Courier${vet || cursief ? `-${vet ? 'Bold' : ''}${cursief ? 'Oblique' : ''}` : ''}`;
-  if (schreef) return vet ? (cursief ? 'Times-BoldItalic' : 'Times-Bold') : (cursief ? 'Times-Italic' : 'Times-Roman');
-  return `Helvetica${vet || cursief ? `-${vet ? 'Bold' : ''}${cursief ? 'Oblique' : ''}` : ''}`;
-}
+// Fontnamen van tekstvakken (pure functies, ook voor de UI): zie
+// tekstvak-fontnaam.js.
+export { mapFontToPdfName, isTekstStandaardFont, vervangendeStandaardFont } from './tekstvak-fontnaam.js';
 
 /**
  * Het fontwoordenboek voor een tekstvak-appearance (#512). Een niet-standaard
@@ -243,7 +169,7 @@ export function vervangendeStandaardFont(naam) {
  */
 export function tekstvakFontDict(context, naam) {
   const font = { Type: 'Font', Subtype: 'Type1', BaseFont: naam, Encoding: 'WinAnsiEncoding' };
-  if (_STANDAARD_FONTS.test(naam)) return context.obj(font);
+  if (STANDAARD_FONTS.test(naam)) return context.obj(font);
   const { vet, cursief, mono, schreef } = tekstvakFontSoort(naam);
   font.FontDescriptor = context.register(context.obj({
     Type: 'FontDescriptor',
@@ -473,6 +399,12 @@ export function generateAppearanceStream(context, ann, convertY) {
         const h = ann.height;
         bbox = [0, 0, w, h];
         const lw = ann.lineWidth ?? 2;
+        // Streeppatroon van rand en kruis, gelijk aan /BS /D (buildBorderStyle)
+        // en aan het scherm (rendering.js: applyBorderStyle vóór strokeRect en
+        // het kruis). Zonder deze d-operator tekenden andere lezers een
+        // gestreepte of gestippelde rechthoek doorgetrokken. Pas ná de
+        // arcering gezet: die tekent het scherm altijd doorgetrokken.
+        const vakStreep = streepOperator(ann.borderStyle);
         // Geen rand (#431): alleen de vulling. Het kruis blijft, in de kleur
         // waarin het scherm het tekent.
         const vakArcering = ann.type === 'box' ? vormArcering(ann, [
@@ -486,7 +418,7 @@ export function generateAppearanceStream(context, ann, convertY) {
           streamContent += vakArcering;
           if (ann.cross) {
             const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
-            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
+            streamContent += `${lw} w\n${vakStreep}${kr} ${kg} ${kb} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
           }
           break;
         }
@@ -497,7 +429,7 @@ export function generateAppearanceStream(context, ann, convertY) {
         if (onzichtbaarVlak(ann)) {
           streamContent = `0 0 ${w} ${h} re n\n${vakArcering}`;
           if (ann.type === 'box' && ann.cross) {
-            streamContent += `${lw} w\n${r} ${g} ${b} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
+            streamContent += `${lw} w\n${vakStreep}${r} ${g} ${b} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
           }
           break;
         }
@@ -512,12 +444,12 @@ export function generateAppearanceStream(context, ann, convertY) {
             const [fr, fg, fb] = hexToRgb(ann.fillColor);
             streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re f\n`;
           }
-          streamContent += `${vakArcering}0 0 ${w} ${h} re S\n`;
+          streamContent += `${vakArcering}${vakStreep}0 0 ${w} ${h} re S\n`;
         } else if (hasFill(ann.fillColor)) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
-          streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
+          streamContent += `${vakStreep}${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
         } else {
-          streamContent += `0 0 ${w} ${h} re S\n`;
+          streamContent += `${vakStreep}0 0 ${w} ${h} re S\n`;
         }
         if (ann.type === 'box' && ann.cross) {
           streamContent += `0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
@@ -532,6 +464,8 @@ export function generateAppearanceStream(context, ann, convertY) {
         const rx = w / 2, ry = h / 2;
         const k = 0.5522847498; // Bezier approximation of circle
         const lw = ann.lineWidth ?? 2;
+        // Streeppatroon van omtrek en kruis: zie de rechthoek hierboven.
+        const ellipsStreep = streepOperator(ann.borderStyle);
         // Ellipse via Bezier curves
         const ellips = `${cx} ${cy + ry} m\n`
           + `${cx + k*rx} ${cy + ry} ${cx + rx} ${cy + k*ry} ${cx + rx} ${cy} c\n`
@@ -557,7 +491,7 @@ export function generateAppearanceStream(context, ann, convertY) {
           streamContent += ellipsArcering;
           if (kruis) {
             const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
-            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n${kruis}`;
+            streamContent += `${lw} w\n${ellipsStreep}${kr} ${kg} ${kb} RG\n${kruis}`;
           }
           break;
         }
@@ -565,7 +499,7 @@ export function generateAppearanceStream(context, ann, convertY) {
         // Onzichtbaar vlak (#435): zie de rechthoek hierboven.
         if (onzichtbaarVlak(ann)) {
           streamContent = `${ellips}n\n${ellipsArcering}`;
-          if (kruis) streamContent += `${lw} w\n${r} ${g} ${b} RG\n${kruis}`;
+          if (kruis) streamContent += `${lw} w\n${ellipsStreep}${r} ${g} ${b} RG\n${kruis}`;
           break;
         }
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
@@ -578,9 +512,9 @@ export function generateAppearanceStream(context, ann, convertY) {
         if (ellipsArcering) {
           // Met arcering (#621): vulling, arcering, rand.
           if (ellipsVulling) streamContent += `${ellips}f\n`;
-          streamContent += `${ellipsArcering}${ellips}S\n`;
+          streamContent += `${ellipsArcering}${ellipsStreep}${ellips}S\n`;
         } else {
-          streamContent += ellips;
+          streamContent += ellipsStreep + ellips;
           streamContent += ellipsVulling ? 'B\n' : 'S\n';
         }
         streamContent += kruis;
@@ -601,7 +535,11 @@ export function generateAppearanceStream(context, ann, convertY) {
         bbox = [0, 0, maxX - minX, maxY - minY];
         const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         const lw = ann.lineWidth ?? 2;
-        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        // Round caps and joins plus the dash pattern, as the screen draws the
+        // stroke (rendering.js) and the pressure-ink appearance writes it
+        // (pressure-ink.js inktAppearanceInhoud). Without the dash operator a
+        // dashed or dotted stroke was solid in other readers.
+        streamContent = `${lw} w\n1 J\n1 j\n${r} ${g} ${b} RG\n${streepOperator(ann.borderStyle)}`;
         streamContent += `${ann.path[0].x - minX} ${maxY - ann.path[0].y} m\n`;
         for (let i = 1; i < ann.path.length; i++) {
           streamContent += `${ann.path[i].x - minX} ${maxY - ann.path[i].y} l\n`;

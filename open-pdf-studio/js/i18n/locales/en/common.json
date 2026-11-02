@@ -34,6 +34,10 @@
   "draw": "Draw",
   "saved": "Saved",
   "documentChangedDuringSave": "The document changed while saving. Save again.",
+  "savingPdf": "Saving PDF…",
+  "saveCancelling": "Cancelling the save…",
+  "saveCancelled": "Save cancelled. The file was not changed.",
+  "saveCancelTooLate": "The file had already been saved; it was too late to cancel.",
   "documentChangedDuringExport": "The document changed during export. Start again.",
   "rasterExportProgress": "Rasterizing pages: {{done}} of {{total}}",
   "snippetOutputFailed": "A vector snippet could not be rendered, so the export or print was stopped. Try again.",
@@ -121,7 +125,79 @@
         "label": "Floor plan",
         "hint": "Draw an architectural floor plan: walls, frames, rooms, dimensions and fittings (sanitary, kitchen)",
         "prompt": "Draw an architectural floor plan. What to draw: "
+      },
+      "find-on-sheet": {
+        "label": "Find on sheet",
+        "hint": "Find a term (a room name, a section marker, a symbol), go to its page and highlight the hits",
+        "prompt": "Find on this sheet: "
+      },
+      "explain-selection": {
+        "label": "Explain selection",
+        "hint": "Describe the selected area, text or markup in plain language, with dimensions when a measuring scale is set",
+        "prompt": "Explain the selection."
+      },
+      "compare-sheets": {
+        "label": "Compare sheets",
+        "hint": "Name and mark what was added, removed or moved compared with another page",
+        "prompt": "Compare this page with page: "
+      },
+      "measure": {
+        "label": "Measure this",
+        "hint": "Measure the selected shape or a described element and report it in the drawing's scale",
+        "prompt": "Measure: "
+      },
+      "take-off": {
+        "label": "Take off",
+        "hint": "Count or measure elements of one kind and place the result as a schedule on the sheet",
+        "prompt": "Take off: "
+      },
+      "check-scale": {
+        "label": "Check the scale",
+        "hint": "Find the scale from the title block or a known dimension and set it",
+        "prompt": "Check the scale of this drawing."
+      },
+      "review-sheet": {
+        "label": "Review sheet",
+        "hint": "Add clouds with numbered comments for the points a checker would raise",
+        "prompt": "Review this sheet for: "
+      },
+      "stamp-date": {
+        "label": "Stamp and date",
+        "hint": "Place a stamp, fill a title block field or add a revision note with today's date",
+        "prompt": "Stamp and date: "
+      },
+      "clean-up": {
+        "label": "Tidy markups",
+        "hint": "Align, renumber or recolour the existing markups consistently",
+        "prompt": "Clean up my markups: "
+      },
+      "import-cad": {
+        "label": "Bring in a drawing",
+        "hint": "Import a DWG or DXF drawing as an underlay at the right scale",
+        "prompt": "Bring in the drawing (path of the DWG or DXF file): "
+      },
+      "export-cad": {
+        "label": "Export to CAD",
+        "hint": "Write this page or the selected area to a DXF or DWG file",
+        "prompt": "Export this page to (path of the DXF or DWG file): "
       }
+    },
+    "groups": {
+      "document": "Translate and summarise",
+      "reading": "Reading the drawing",
+      "measuring": "Measuring and quantities",
+      "markup": "Marking up",
+      "structure": "Structure and floor plan",
+      "cad": "CAD drawings"
+    },
+    "need": {
+      "document": "Open a PDF first: this skill works on the open document.",
+      "selection": "Select a markup or some text on the drawing first, then click the skill again.",
+      "scale": "This drawing has no measuring scale yet. Set one first (for example with \"Check the scale\") and try again.",
+      "input": "Complete the text in the input box after the colon, then send.",
+      "selectionOrInput": "Select a shape on the drawing, or describe after the colon what to measure.",
+      "page": "Enter the number of the other page (1 to {{max}}), not the current page.",
+      "twoPages": "This document has only one page. To compare with another file, replace the text in the input box with your own question."
     }
   },
   "onlineSymbolLibrary": "Online symbol library",
@@ -134,6 +210,10 @@
   "noAnnotationsInXfdf": "No annotations found in XFDF file.",
   "noRedactionsOnPage": "No redaction marks on the current page to apply.",
   "noRedactionsInDocument": "No redaction marks in the document to apply.",
+  "applyRedactionsTitle": "Apply Redactions",
+  "applyRedactionsPageConfirm": "Cover {{count}} redaction mark(s) on page {{page}} with a black box?",
+  "applyRedactionsAllConfirm": "Cover {{count}} redaction mark(s) on {{pages}} page(s) with a black box?",
+  "applyRedactionsOverlayWarning": "Note: this only covers the marked areas. The text, images and graphics underneath are NOT removed from the PDF and can still be copied, searched or extracted. Do not rely on this to remove sensitive information.",
   "cannotDeleteAllPages": "Cannot delete all pages. At least one page must remain.",
   "cannotDeleteAllPagesSource": "Cannot delete all pages from the source document.",
   "noPagesSelected": "No pages selected for extraction.",
@@ -151,6 +231,34 @@
   "hostVersionSaveBlocked": "This is an older version of the file, opened read-only, so it cannot be saved. Use Save As to download a copy.",
   "hostVersionReadOnlyRefused": "The site did not save the file: an older version of it is open read-only. Open the current version again to save, or use Save As to download a copy.",
   "hostVersionInvalid": "This version of the file cannot be opened: the version number is not valid.",
+  "hostSaveAs": {
+    "title": "Save to documents",
+    "location": "Folder:",
+    "currentFolder": "Current folder",
+    "up": "Up",
+    "loading": "Loading…",
+    "listError": "The folder list could not be loaded. You can still save in the current folder.",
+    "empty": "This folder is empty.",
+    "readOnly": "read-only",
+    "fileName": "File name:",
+    "save": "Save",
+    "download": "Download instead",
+    "nameEmpty": "Enter a file name.",
+    "nameInvalid": "The file name contains characters that are not allowed.",
+    "copyName": "{{name}} (copy)",
+    "saved": "Saved as “{{name}}” in your documents.",
+    "renamed": "A file with that name already exists, so the copy was saved as “{{name}}”. Nothing was overwritten.",
+    "openNew": "Open the new file",
+    "keepOriginal": "Keep editing the original",
+    "notSavedTitle": "Not saved",
+    "errorReadOnly": "You do not have permission to save in this folder. Choose another folder, or download the file instead.",
+    "errorInvalidName": "The site does not accept this file name. Choose another name, or download the file instead.",
+    "errorTooLarge": "The file is too large to save on the site. Download it instead.",
+    "errorQuota": "There is not enough storage space left. Free up space, or download the file instead.",
+    "errorNetwork": "The site could not be reached, so the file was not saved. Try again, or download the file instead.",
+    "errorUnsupported": "This site cannot save new files. Download the file instead.",
+    "errorFailed": "The site did not save the file: {{error}}"
+  },
   "textEditMissingGlyphs": "The text was not changed: no available font has these characters, so they cannot be saved: {{chars}}",
   "textEditMissingGlyphsLater": "No available font has these characters, so they cannot be saved: {{chars}}. Change this text; until then the PDF cannot be saved.",
   "textEditMissingGlyphsSave": "The PDF was not saved: edited text contains characters that no available font has: {{chars}}. Change that text and save again.",
@@ -225,7 +333,12 @@
     "goToPageLink": "Go to page",
     "openExternalFile": "Open: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Internal Link"
+    "internalLink": "Internal Link",
+    "attachmentOnPage": "Page {{page}}",
+    "attachmentCreated": "Created: {{date}}",
+    "attachmentModified": "Modified: {{date}}",
+    "openAttachmentRiskTitle": "Open attachment",
+    "openAttachmentRiskMessage": "\"{{name}}\" can run programs on this computer. Only open it if you trust the source. Open anyway?"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
   "previewPdfRefused": "This PDF is a preview from the drawing import and may be incomplete. It cannot be inserted or saved; import the drawing again.",
@@ -246,10 +359,15 @@
     "detachFailed": "Could not detach the window: {{error}}",
     "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
     "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window.",
+    "openInSplitView": "Open in Split View",
     "openInNewWindow": "Open in new window",
     "closeTab": "Close tab",
     "nextTab": "Next Tab",
     "previousTab": "Previous Tab"
+  },
+  "pageNav": {
+    "nextPage": "Next Page",
+    "previousPage": "Previous Page"
   },
   "quickAccess": {
     "exportRaster": "Export as raster PDF (opens in a new tab)"
@@ -290,5 +408,50 @@
     "readFailed": "The 3D model could not be read.",
     "partial": "Some parts of the 3D model could not be read ({{n}} skipped).",
     "viewerFailed": "The 3D view could not be started."
+  },
+  "readAloud": {
+    "title": "Read aloud",
+    "play": "Read",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "close": "Close",
+    "voice": "Voice",
+    "defaultVoice": "Default voice",
+    "rate": "Speed",
+    "loading": "Preparing...",
+    "reading": "Reading",
+    "paused": "Paused",
+    "page": "page {{page}}",
+    "tagOrder": "tag order",
+    "contentOrder": "page order",
+    "noEngine": "No speech engine is available on this system.",
+    "noEngineLinux": "No speech engine found. Install speech-dispatcher (spd-say) or espeak-ng and try again.",
+    "speechFailed": "Speech stopped because of an error.",
+    "nothingToRead": "There is no text to read.",
+    "online": "(online)",
+    "allowOnline": "Online voices",
+    "allowOnlineHint": "Also offer online voices. With an online voice the text being read is sent to an online speech service.",
+    "onlyOnlineVoices": "Only online voices are available. Turn on Online voices to use one; the text being read is then sent to an online speech service.",
+    "noLocalVoice": "No local voice is installed for this language; the default local voice is used."
+  },
+  "moveInference": {
+    "onAxisX": "On X axis",
+    "onAxisY": "On Y axis",
+    "fromPoint": "From point",
+    "extension": "On extension",
+    "parallel": "Parallel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersection",
+    "polar": "Polar",
+    "locked": "Locked"
+  },
+  "portable": {
+    "updateTitle": "Update available",
+    "updateAvailable": "Version {{version}} is available.\n\nThis portable copy does not update itself. Download {{file}} and extract it over this folder; the data folder with your settings is kept.\n\nOpen the download page?",
+    "fileAssoc": "This portable copy is not registered with Windows. To open PDF files with it, right-click a PDF, choose Open with > Choose another app, and select open-pdf-studio.exe in this folder.",
+    "explorerThumbnails": "PDF thumbnails in File Explorer are only available in the installed version.",
+    "virtualPrinter": "The virtual printer is only available in the installed version: it is added to Windows with administrator rights.",
+    "notWritable": "Open PDF Studio cannot write to the folder {{dir}}, so your settings are stored in your user profile this time. Move the portable folder to a writable location, such as a USB drive or your Documents folder."
   }
 }

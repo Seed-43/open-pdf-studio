@@ -9,7 +9,8 @@
     "behavior": "Kelakuan",
     "fileAssociation": "Perkaitan Fail",
     "virtualPrinter": "Pencetak Maya",
-    "pageDisplay": "Paparan Halaman"
+    "pageDisplay": "Paparan Halaman",
+    "keyboardShortcuts": "Pintasan papan kekunci"
   },
   "resetToDefaults": "Tetapkan Semula kepada Lalai",
   "resetConfirm": "Tetapkan semula semua keutamaan kepada nilai lalai?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter permulaan ({{adres}})",
     "aiLinkOff": "Mati",
-    "aiLinkError": "Tidak dimulakan: {{fout}}"
+    "aiLinkError": "Tidak dimulakan: {{fout}}",
+    "interfaceScale": "Saiz antara muka"
   },
   "annotations": {
     "generalDefaults": "Lalai Umum",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Anak Panah Terbuka (terbalik)",
     "headClosedReversed": "Anak Panah Tertutup (terbalik)",
     "headSlash": "Palang",
-    "polylineDefaults": "Lalai Polyline"
+    "polylineDefaults": "Lalai Polyline",
+    "smoothing": "Pelicinan",
+    "pressure": "Tekanan pen",
+    "pressureHint": "Tekanan pen mengubah lebar lakaran (lakaran tetikus kekal dengan lebar yang sama)",
+    "pressureMinWidth": "Lebar minimum (%)",
+    "penOnly": "Pen sahaja (abaikan sentuhan)",
+    "penOnlyHint": "Sentuhan tidak melukis dengan alat bebas; berguna mengelakkan sentuhan tapak tangan semasa menulis dengan pen"
   },
   "shapes": {
     "rectangleDefaults": "Lalai Segi Empat Tepat",
@@ -165,8 +173,15 @@
     "deletion": "Pemadaman",
     "confirmBeforeDeleting": "Sahkan sebelum memadam anotasi",
     "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF",
+    "moveInference": "Inferens semasa mengalih (G / mv)",
+    "moveInferenceTracking": "Garisan penjejakan (jajarkan dengan titik geometri lain)",
+    "moveInferenceExtension": "Lanjutan garisan dan muka dinding",
+    "moveInferenceParallel": "Selari / serenjang dengan garisan berhampiran",
+    "moveInferenceHint": "Letakkan kursor seketika pada satu titik untuk menangkapnya, tahan Shift untuk mengunci garisan panduan, Tab bertukar antara jarak dan sudut. Garisan panduan polar mengikut tetapan penjejakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
+    "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
+    "ribbonWheelSwitchesTabs": "Tukar tab reben dengan roda tetikus",
     "dynamicScaling": "Skala automatik penanda"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Untuk menetapkan Open PDF Studio sebagai pemapar PDF lalai pada macOS:\n\n1. Klik kanan mana-mana fail PDF dalam Finder\n2. Pilih \"Dapatkan Maklumat\"\n3. Di bawah \"Buka dengan\", pilih Open PDF Studio\n4. Klik \"Tukar Semua...\"",
     "linuxInstructions": "Untuk menetapkan Open PDF Studio sebagai pemapar PDF lalai pada Linux:\n\nJalankan dalam terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Semak Finder > Dapatkan Maklumat",
-    "notSet": "Tidak ditetapkan"
+    "notSet": "Tidak ditetapkan",
+    "chosenInSystemSettings": "Dipilih dalam tetapan sistem",
+    "sandboxInstructions": "Open PDF Studio berjalan sebagai pakej {{package}} dan tidak boleh menukar aplikasi PDF lalai dengan sendiri.\n\nPilih Open PDF Studio dalam tetapan sistem di bawah Aplikasi Lalai, atau klik kanan fail PDF dan gunakan Buka Dengan.",
+    "xdgMimeMissing": "xdg-mime (pakej xdg-utils) tidak dipasang, jadi aplikasi PDF lalai tidak boleh ditetapkan dari sini.\n\nPasang xdg-utils, atau pilih Open PDF Studio dalam tetapan sistem di bawah Aplikasi Lalai.",
+    "linuxDone": "Open PDF Studio kini aplikasi lalai untuk fail PDF.",
+    "linuxFailed": "Tidak dapat menetapkan Open PDF Studio sebagai aplikasi PDF lalai.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Penjelajah Fail",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Kuat",
     "pageSharpenLevel4": "Maksimum",
     "showScrollbars": "Tunjukkan bar tatal kanvas",
+    "backgroundColor": "Warna latar belakang",
+    "backgroundColorDefault": "Lalai",
+    "backgroundColorHint": "Warna kawasan di sekeliling dan di antara halaman. Halaman itu sendiri, cetakan dan eksport tidak berubah.",
     "panels": "Panel",
     "showPropertiesPanel": "Tunjukkan Panel Sifat secara lalai",
     "showToolPalette": "Tunjukkan Palet Alat secara lalai",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Anak Panah Terbuka (terbalik)",
     "closedArrowReversed": "Anak Panah Tertutup (terbalik)",
     "slash": "Palang"
+  },
+  "keyboardShortcuts": {
+    "title": "Pintasan papan kekunci",
+    "search": "Cari mengikut arahan atau kekunci",
+    "command": "Arahan",
+    "shortcuts": "Pintasan",
+    "none": "Tiada",
+    "noMatches": "Tiada arahan yang sepadan dengan carian.",
+    "selectHint": "Pilih arahan untuk menukar pintasannya.",
+    "addShortcut": "Tambah pintasan",
+    "remove": "Buang pintasan",
+    "resetCommand": "Set semula kepada lalai",
+    "resetAll": "Set semula semua",
+    "resetAllConfirm": "Set semula semua pintasan papan kekunci kepada lalai?",
+    "loadPreset": "Muatkan pratetap…",
+    "replaceConfirm": "Ini akan menggantikan pintasan papan kekunci tersuai anda. Teruskan?",
+    "presets": {
+      "markupStyle": "Pintasan gaya penanda"
+    },
+    "import": "Import…",
+    "export": "Eksport…",
+    "fileType": "Pintasan papan kekunci",
+    "imported": "Pintasan diimport. Klik Simpan untuk menggunakannya.",
+    "importFailed": "Ini bukan fail pintasan papan kekunci yang sah.",
+    "exported": "Pintasan dieksport.",
+    "exportFailed": "Gagal mengeksport pintasan:",
+    "recording": "Tekan gabungan kekunci baharu… (Esc membatalkan)",
+    "conflict": "{{keys}} sudah digunakan oleh “{{command}}”.",
+    "reassign": "Tetapkan semula",
+    "reserved": "{{keys}} mempunyai makna tetap dan tidak boleh ditetapkan.",
+    "defaultLabel": "Lalai: {{keys}}",
+    "customize": "Sesuaikan…",
+    "fixedGroup": "Kekunci tetap",
+    "applyHint": "Perubahan berkuat kuasa apabila anda klik Simpan.",
+    "categories": {
+      "file": "Fail",
+      "edit": "Edit",
+      "view": "Paparan",
+      "search": "Cari",
+      "tools": "Alatan",
+      "drafting": "Bantuan lukisan",
+      "panels": "Panel",
+      "review": "Semak",
+      "help": "Bantuan",
+      "extensions": "Sambungan",
+      "ribbon": "Reben: {{tab}}",
+      "other": "Lain-lain"
+    },
+    "commands": {
+      "findNext": "Cari seterusnya",
+      "splitPaneLarger": "Besarkan anak tetingkap aktif",
+      "splitPaneSmaller": "Kecilkan anak tetingkap aktif"
+    }
   }
 }

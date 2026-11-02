@@ -169,7 +169,9 @@
     "flattenAll": "Litistä kaikki",
     "flattenAllTooltip": "Litistä kaikki merkinnät sivun sisällöksi",
     "unflattenAll": "Kumoa litistys",
-    "unflattenAllTooltip": "Palauta merkinnät, jotka litistettiin palautus sallittuna"
+    "unflattenAllTooltip": "Palauta merkinnät, jotka litistettiin palautus sallittuna",
+    "fileAttachment": "Liitä tiedosto",
+    "fileAttachmentTitle": "Tiedostoliite: napsauta sivua ja valitse tiedosto"
   },
   "view": {
     "pageDisplay": "Sivun näyttö",
@@ -198,6 +200,7 @@
     "thinLines": "Ohuet viivat",
     "compareGroup": "Vertailu",
     "fullscreen": "Koko näyttö",
+    "fullscreenUnavailable": "Koko näyttö ei ole käytettävissä tässä: selain tai sovellusta näyttävä sivu esti sen. Käytä sen sijaan selaimen valikon koko näytön valintaa.",
     "window": "Ikkuna",
     "display": "Näyttö",
     "keystrokes": "Näppäilyt",
@@ -208,7 +211,25 @@
     "rotateViewLeft": "Kierrä näkymää vasemmalle",
     "rotateViewRight": "Kierrä näkymää oikealle",
     "rotateViewLeftTitle": "Kiertää näkymää 90° vastapäivään. Itse asiakirja ei muutu.",
-    "rotateViewRightTitle": "Kiertää näkymää 90° myötäpäivään. Itse asiakirja ei muutu."
+    "rotateViewRightTitle": "Kiertää näkymää 90° myötäpäivään. Itse asiakirja ei muutu.",
+    "splitGroup": "Jaa",
+    "split": "Jaa",
+    "splitTitle": "Jaa näkymä kahteen ruutuun samasta asiakirjasta",
+    "splitOptions": "Jakoasetukset",
+    "splitVertical": "Jaa pystysuunnassa",
+    "splitHorizontal": "Jaa vaakasuunnassa",
+    "unsplit": "Poista jako",
+    "splitSync": "Synkronoi",
+    "splitSyncTitle": "Vieritä ja zoomaa molempia ruutuja yhdessä",
+    "splitDividerTitle": "Muuta ruutujen kokoa vetämällä. Kaksoisnapsautus palauttaa 50/50.",
+    "accessibilityGroup": "Saavutettavuus",
+    "readAloud": "Lue ääneen",
+    "readAloudPause": "Tauko",
+    "readAloudTitle": "Lue valinta tai asiakirja nykyiseltä sivulta alkaen ääneen",
+    "tagsPanel": "Tunnisteet",
+    "tagsPanelTitle": "Näytä asiakirjan rakennetunnisteet",
+    "accessibilityCheck": "Tarkista",
+    "accessibilityCheckTitle": "Etsi puuttuvia vaihtoehtoisia tekstejä ja tunnisteetonta sisältöä"
   },
   "elementVisibility": {
     "buttonTitle": "Elementtien näkyvyys — näytä/piilota ja himmennä merkintätyyppejä",
@@ -328,7 +349,9 @@
     "scanText": "Muokkaa skannattua tekstiä",
     "scanTextHint": "Korvaa tunnistettu sana napsauttamalla sitä. Skannauksen vanha sana peitetään.",
     "scanTextNone": "Tällä sivulla ei ole tunnistettua tekstiä. Suorita ensin Tekstintunnistus (OCR).",
-    "shiftPage": "Siirrä sivua"
+    "shiftPage": "Siirrä sivua",
+    "editPages": "Muokkaa sivuja",
+    "editPagesTitle": "Muokkaa sivuja visuaalisesti: järjestä, kierrä, lisää, poista, irrota ja jaa"
   },
   "help": {
     "settings": "Asetukset",
@@ -348,6 +371,7 @@
     "updates": "Päivitykset",
     "checkForUpdates": "Tarkista päivitykset",
     "updatesLabel": "Päivitykset",
+    "updatesManaged": "Tämän asennuksen päivityksiä hallitaan keskitetysti.",
     "startupDiagnosticsTitle": "Näytä yksityisyyden suojaava käynnistyksen diagnostiikkatiedosto",
     "startupDiagnostics": "Diagnostiikka",
     "fileAssociation": "Tiedostoyhteys",
@@ -657,7 +681,9 @@
     "vectorSnippetPasteTitle": "Liitä leikattu alue tähän vektoritiedot säilyttäen",
     "symbolScale": "Mittakaava",
     "symbolScaleTitle": "Koko, jossa uusi symboli sijoitetaan",
-    "symbolScaleCustom": "Mukautettu mittakaava"
+    "symbolScaleCustom": "Mukautettu mittakaava",
+    "count": "Laske",
+    "arc": "Kaari"
   },
   "proofread": {
     "group": "Oikoluku",
@@ -678,6 +704,7 @@
     "saveNote": "Huomautukset ja muut merkinnät, joilla ei ole ulkoasua sivulla, pysyvät merkintöinä. Tiedosto muuttuu vasta tallennettaessa; siihen asti Kumoa peruu tämän vaiheen.",
     "ok": "Litistä",
     "busy": "Litistetään merkintöjä...",
+    "cancelled": "Litistäminen peruutettiin. Asiakirjaa ei muutettu.",
     "nothing": "Tässä asiakirjassa ei ole litistettäviä merkintöjä.",
     "nothingBaked": "Millään merkinnällä ei ole ulkoasua sivulla, joten mitään ei litistetty.",
     "notLoaded": "Asiakirjan merkintöjä ladataan vielä. Yritä hetken kuluttua uudelleen.",
@@ -691,5 +718,60 @@
     "noRecovery": "Tämän asiakirjan merkinnät litistettiin sallimatta palautusta. Ne ovat osa sivun sisältöä eikä niitä voi palauttaa.",
     "done": "Palautetut merkinnät: {{count}}.",
     "failed": "Palautus epäonnistui: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Pienet kuvakkeet",
+    "largeIcons": "Suuret kuvakkeet",
+    "settings": "Asetukset"
+  },
+  "symbolPalette": {
+    "search": "Hae symboleita...",
+    "noResults": "Symboleita ei löytynyt",
+    "drawingSettings": "Piirustuksen asetukset",
+    "manageSystemTypes": "Hallitse järjestelmätyyppejä",
+    "settingsTitle": "Symbolikirjaston asetukset",
+    "industry": "Toimiala",
+    "country": "Maa",
+    "libraryLoading": "Ladataan verkkokirjastoa…",
+    "libraryOffline": "Verkkokirjastoon ei saada yhteyttä — rajoitettu maaluettelo",
+    "downloading": "Ladataan {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Verkossa saatavilla olevat kokoelmat: {{n}} ({{symbols}} symbolia)",
+    "activateDownloaded": "Tälle maalle aktivoitavat ladatut kokoelmat: {{n}}",
+    "download": "Lataa",
+    "downloadFailed": "Lataus epäonnistui: {{error}}",
+    "builtIn": "Sisäänrakennettu",
+    "online": "Verkossa",
+    "addSymbol": "+ Lisää symboli",
+    "export": "Vie",
+    "remove": "Poista",
+    "noSymbolsYet": "Ei vielä symboleita",
+    "newGroupName": "Uuden ryhmän nimi...",
+    "addGroup": "Lisää ryhmä",
+    "importGroup": "Tuo ryhmä",
+    "catalogLoaded": "Luettelo '{{id}}' ladattu: {{families}} perhettä, {{sizes}} kokoa",
+    "catalogNoPreview": "{{n}} ilman esikatselua tiedostossa",
+    "fileNotRecognized": "Tiedostoa ei tunnistettu: ei symboliryhmä eikä luettelo",
+    "importFailed": "Tuonti epäonnistui: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Rakentaminen",
+      "nl-elektra": "NL Sähkö",
+      "nl-bouwplaats": "NL Työmaa",
+      "nl-sanitair": "NL Saniteetti",
+      "nl-keuken": "NL Keittiö",
+      "nen1414-tb": "NL NEN 1414 — Palontorjunta",
+      "nen1414-tbk": "NL NEN 1414 — Sammutusjärjestelmät",
+      "nen1414-td": "NL NEN 1414 — Ovet",
+      "nen1414-tn": "NL NEN 1414 — Turvavalaistus",
+      "nen1414-tr": "NL NEN 1414 — Savunpoisto",
+      "nen1414-tv": "NL NEN 1414 — Ilmanvaihto",
+      "nen1414-tw": "NL NEN 1414 — Vesi/Sprinkleri"
+    },
+    "sectors": {
+      "aec": "AEC (Rakentaminen)",
+      "electrical": "Sähkötekniikka",
+      "process": "Prosessi / P&ID",
+      "mep": "Talotekniikka (MEP)",
+      "infra": "Infrastruktuuri"
+    }
   }
 }

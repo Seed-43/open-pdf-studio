@@ -9,7 +9,8 @@
     "behavior": "Comportament",
     "fileAssociation": "Associació de fitxers",
     "virtualPrinter": "Impressora virtual",
-    "pageDisplay": "Visualització de pàgina"
+    "pageDisplay": "Visualització de pàgina",
+    "keyboardShortcuts": "Dreceres de teclat"
   },
   "resetToDefaults": "Reinicia als valors per defecte",
   "resetConfirm": "Voleu reiniciar totes les preferències als valors per defecte?",
@@ -31,7 +32,8 @@
     "aiLinkActive": "Activa a {{adres}}",
     "aiLinkViaFlag": "Activa mitjançant paràmetre d'inici ({{adres}})",
     "aiLinkOff": "Desactivada",
-    "aiLinkError": "No iniciada: {{fout}}"
+    "aiLinkError": "No iniciada: {{fout}}",
+    "interfaceScale": "Mida de la interfície"
   },
   "annotations": {
     "generalDefaults": "Valors per defecte generals",
@@ -105,7 +107,13 @@
     "headOpenReversed": "Fletxa oberta (invertida)",
     "headClosedReversed": "Fletxa tancada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valors per defecte de polilínia"
+    "polylineDefaults": "Valors per defecte de polilínia",
+    "smoothing": "Suavitzat",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "pressureMinWidth": "Amplada mínima (%)",
+    "penOnly": "Només llapis (ignora el tacte)",
+    "penOnlyHint": "El tacte no dibuixa amb l'eina a mà alçada; útil contra el contacte del palmell en escriure amb el llapis"
   },
   "shapes": {
     "rectangleDefaults": "Valors per defecte del rectangle",
@@ -165,8 +173,15 @@
     "deletion": "Supressió",
     "confirmBeforeDeleting": "Confirma abans de suprimir anotacions",
     "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
+    "moveInference": "Inferència en moure (G / mv)",
+    "moveInferenceTracking": "Línies de rastreig (alinea amb punts d’altres geometries)",
+    "moveInferenceExtension": "Prolongacions de línies i cares de murs",
+    "moveInferenceParallel": "Paral·lel / perpendicular a línies properes",
+    "moveInferenceHint": "Atureu el cursor un moment sobre un punt per adquirir-lo, manteniu Maj premuda per bloquejar una guia, Tab alterna entre distància i angle. Les guies polars segueixen la configuració del rastreig polar.",
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
+    "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
+    "ribbonWheelSwitchesTabs": "Canvia les pestanyes de la cinta amb la roda del ratolí",
     "dynamicScaling": "Escala automàticament les marques"
   },
   "fileAssoc": {
@@ -179,7 +194,12 @@
     "macInstructions": "Per establir Open PDF Studio com a visualitzador PDF per defecte al macOS:\n\n1. Feu clic dret sobre qualsevol fitxer PDF al Finder\n2. Seleccioneu \"Obtenir informació\"\n3. A \"Obrir amb\", seleccioneu Open PDF Studio\n4. Feu clic a \"Canvia-ho tot...\"",
     "linuxInstructions": "Per establir Open PDF Studio com a visualitzador PDF per defecte al Linux:\n\nExecuteu al terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Comproveu Finder > Obtenir informació",
-    "notSet": "No establert"
+    "notSet": "No establert",
+    "chosenInSystemSettings": "Triat a la configuració del sistema",
+    "sandboxInstructions": "Open PDF Studio s'executa com a paquet {{package}} i no pot canviar per si mateix l'aplicació PDF predeterminada.\n\nTrieu Open PDF Studio a la configuració del sistema, a Aplicacions predeterminades, o feu clic dret en un fitxer PDF i useu Obre amb.",
+    "xdgMimeMissing": "xdg-mime (paquet xdg-utils) no està instal·lat, per tant l'aplicació PDF predeterminada no es pot establir des d'aquí.\n\nInstal·leu xdg-utils o trieu Open PDF Studio a la configuració del sistema, a Aplicacions predeterminades.",
+    "linuxDone": "Open PDF Studio és ara l'aplicació predeterminada per als fitxers PDF.",
+    "linuxFailed": "No s'ha pogut establir Open PDF Studio com a aplicació PDF predeterminada.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorador de fitxers",
@@ -231,6 +251,9 @@
     "pageSharpenLevel3": "Fort",
     "pageSharpenLevel4": "Màxim",
     "showScrollbars": "Mostra les barres de desplaçament del llenç",
+    "backgroundColor": "Color de fons",
+    "backgroundColorDefault": "Per defecte",
+    "backgroundColorHint": "Color de l'àrea al voltant i entre les pàgines. La pàgina, la impressió i l'exportació no canvien.",
     "panels": "Panells",
     "showPropertiesPanel": "Mostra el panell de propietats per defecte",
     "showToolPalette": "Mostra la paleta d'eines per defecte",
@@ -291,5 +314,58 @@
     "openArrowReversed": "Fletxa oberta (invertida)",
     "closedArrowReversed": "Fletxa tancada (invertida)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Dreceres de teclat",
+    "search": "Cerca per ordre o tecla",
+    "command": "Ordre",
+    "shortcuts": "Dreceres",
+    "none": "Cap",
+    "noMatches": "Cap ordre coincideix amb la cerca.",
+    "selectHint": "Seleccioneu una ordre per canviar-ne les dreceres.",
+    "addShortcut": "Afegeix una drecera",
+    "remove": "Elimina la drecera",
+    "resetCommand": "Restableix el valor per defecte",
+    "resetAll": "Restableix-ho tot",
+    "resetAllConfirm": "Voleu restablir totes les dreceres de teclat als valors per defecte?",
+    "loadPreset": "Carrega un predefinit…",
+    "replaceConfirm": "Això substituirà les vostres dreceres de teclat personalitzades. Voleu continuar?",
+    "presets": {
+      "markupStyle": "Dreceres d’estil de marcatge"
+    },
+    "import": "Importa…",
+    "export": "Exporta…",
+    "fileType": "Dreceres de teclat",
+    "imported": "Dreceres importades. Feu clic a Desa per aplicar-les.",
+    "importFailed": "Aquest no és un fitxer de dreceres de teclat vàlid.",
+    "exported": "Dreceres exportades.",
+    "exportFailed": "No s’han pogut exportar les dreceres:",
+    "recording": "Premeu la nova combinació de tecles… (Esc cancel·la)",
+    "conflict": "{{keys}} ja l’utilitza «{{command}}».",
+    "reassign": "Reassigna",
+    "reserved": "{{keys}} té un significat fix i no es pot assignar.",
+    "defaultLabel": "Per defecte: {{keys}}",
+    "customize": "Personalitza…",
+    "fixedGroup": "Tecles fixes",
+    "applyHint": "Els canvis s’apliquen quan feu clic a Desa.",
+    "categories": {
+      "file": "Fitxer",
+      "edit": "Edita",
+      "view": "Visualitza",
+      "search": "Cerca",
+      "tools": "Eines",
+      "drafting": "Ajudes de dibuix",
+      "panels": "Plafons",
+      "review": "Revisió",
+      "help": "Ajuda",
+      "extensions": "Extensions",
+      "ribbon": "Cinta: {{tab}}",
+      "other": "Altres"
+    },
+    "commands": {
+      "findNext": "Cerca el següent",
+      "splitPaneLarger": "Fes més gran la subfinestra activa",
+      "splitPaneSmaller": "Fes més petita la subfinestra activa"
+    }
   }
 }
