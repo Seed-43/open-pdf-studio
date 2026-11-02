@@ -2,6 +2,7 @@ import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { highlightMode, highlightActive, markeringKnop } from '../../tools/highlight-mode.js';
+import { ClipboardWindow, clipboardWindowOpen, toggleClipboardWindow, clipboardIcon } from './ClipboardHistory.jsx';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
 import {
   highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
@@ -276,6 +277,7 @@ function ToolList() {
   const { t } = useTranslation('ribbon');
   let lastGroup = -1;
   return (
+    <>
     <For each={tools}>
       {(item) => {
         const showSep = lastGroup !== -1 && lastGroup !== item.group;
@@ -290,12 +292,22 @@ function ToolList() {
         );
       }}
     </For>
+    {/* Clipboard: this session's copies in a window beside the palette. */}
+    <div class="tp-sep" />
+    <button
+      class={`tp-btn ${clipboardWindowOpen() ? 'active' : ''}`}
+      title={`${t('clipboardPalette.title')}\n${t('clipboardPalette.tip')}`}
+      onClick={(e) => toggleClipboardWindow(e.currentTarget)}
+      innerHTML={clipboardIcon}
+    />
+    <ClipboardWindow />
+    </>
   );
 }
 
 // Height needed for all tools in a single column
-const SINGLE_COL_HEIGHT_SMALL = 635;  // 20 btns × 30px + 5 seps × 7px
-const SINGLE_COL_HEIGHT_LARGE = 935;  // 20 btns × 44px + 5 seps × 7px
+const SINGLE_COL_HEIGHT_SMALL = 672;  // 21 btns × 30px + 6 seps × 7px
+const SINGLE_COL_HEIGHT_LARGE = 966;  // 21 btns × 44px + 6 seps × 7px
 
 // Docked strip — sits in the flex layout
 export function DockedToolPalette(props) {

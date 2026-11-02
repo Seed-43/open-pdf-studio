@@ -32,10 +32,6 @@ import { symboolSchaal, setSymboolSchaal } from '../../symbols/symbol-scale-stor
 import { SCHAAL_STAPPEN, schaalLabel, leesSchaalInvoer, volgendeSchaalStap } from '../../symbols/symbol-scale.js';
 import useDropdown from './preferences/useDropdown.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
-import {
-  clipboardHistory, clipboardHistoryActive, useClipboardHistoryItem,
-  removeClipboardHistoryItem, clearClipboardHistory,
-} from '../../annotations/clipboard-history.js';
 import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
 
 // Alleen catalogus-FAMILIES (maat-keuze, geen sprekend pictogram) krijgen de
@@ -258,55 +254,11 @@ function SchaalCombo(props) {
   );
 }
 
-// --- Clipboard: every markup copy of this session (clipboard-history.js).
-// Click one, then Ctrl+V on the sheet pastes it at the mouse.
-const [clipOpen, setClipOpen] = createSignal(true);
-function ClipboardSection() {
-  const { t } = useTranslation('ribbon');
-  return (
-    <div class="sp-clip">
-      <div class="sp-cat-header" onClick={() => setClipOpen(v => !v)} title={t('clipboardPalette.tip')}>
-        <div class={`sp-cat-arrow${clipOpen() ? ' expanded' : ''}`} innerHTML={arrowSvg} />
-        <div class="sp-cat-icon" innerHTML={`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6z"/><path d="M5.5 8h5M5.5 10.5h5"/></svg>`} />
-        <span class="sp-cat-name">{t('clipboardPalette.title')}</span>
-        <Show when={clipboardHistory().length > 0}>
-          <button class="sp-settings-btn sp-clip-clear" title={t('clipboardPalette.clear')}
-            onClick={(e) => { e.stopPropagation(); clearClipboardHistory(); }} innerHTML={closeSvg} />
-        </Show>
-        <span class="sp-cat-count">{clipboardHistory().length}</span>
-      </div>
-      <Show when={clipOpen()}>
-        <Show when={clipboardHistory().length > 0} fallback={<div class="sp-empty sp-clip-empty">{t('clipboardPalette.empty')}</div>}>
-          <div class="sp-clip-grid">
-            <For each={clipboardHistory()}>
-              {(item) => (
-                <div
-                  class={`sp-clip-item${clipboardHistoryActive() === item.id ? ' active' : ''}`}
-                  title={`${item.label}\n${t('clipboardPalette.tip')}`}
-                  onClick={() => useClipboardHistoryItem(item.id)}
-                >
-                  <Show when={item.thumb} fallback={<div class="sp-clip-thumb sp-clip-nothumb">{item.label}</div>}>
-                    <img class="sp-clip-thumb" src={item.thumb} alt="" draggable={false} />
-                  </Show>
-                  <span class="sp-clip-label">{item.label}</span>
-                  <button class="sp-clip-remove" title={t('clipboardPalette.remove')}
-                    onClick={(e) => { e.stopPropagation(); removeClipboardHistoryItem(item.id); }} innerHTML={closeSvg} />
-                </div>
-              )}
-            </For>
-          </div>
-        </Show>
-      </Show>
-    </div>
-  );
-}
-
 // --- Inner content (shared between docked and floating) ---
 function SymbolContent() {
   const { t } = useTranslation('ribbon');
   return (
     <>
-      <ClipboardSection />
       {/* Search */}
       <div class="sp-search">
         <div class="sp-search-wrap">
