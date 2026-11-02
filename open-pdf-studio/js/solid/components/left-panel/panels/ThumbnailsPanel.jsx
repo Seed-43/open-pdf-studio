@@ -1,9 +1,12 @@
-import { For, onMount } from 'solid-js';
-import { pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef } from '../../../stores/panels/thumbnailStore.js';
+import { For, createEffect, createSignal, on } from 'solid-js';
+import { pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef, activePage } from '../../../stores/panels/thumbnailStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import ThumbnailItem from '../ThumbnailItem.jsx';
 import { identityOrder, gapForDrop, moveGroupToGap } from '../../../../pdf/page-order.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
+import { volgendeTreffer, scrollVoorItem } from '../../../../ui/panels/bladwijzer-zoeken.js';
+import { labelVan } from '../../../../pdf/pagina-labels.js';
+import { state } from '../../../../core/state.js';
 
 export default function ThumbnailsPanel() {
   const { t } = useTranslation('properties');
@@ -16,6 +19,61 @@ export default function ThumbnailsPanel() {
   const handleNavigate = (pageNum) => {
     import('../../../../pdf/renderer.js').then(m => m.goToPage(pageNum));
   };
+
+  // Zoekveld, zoals bij de bladwijzers (#578): typen springt naar de eerste
+  // pagina waarvan het label (de bladnaam, #580) begint met of bevat wat je
+  // typt; Enter opent die pagina, nog eens Enter gaat naar de volgende treffer.
+  // De miniaturen worden niet gefilterd.
+  let containerRef;
+  let zoekRef;
+  const [gevonden, setGevonden] = createSignal(null);
+  const [geenTreffer, setGeenTreffer] = createSignal(false);
+
+  // De pagina's als "bladwijzers" voor de zoekfuncties: { id, title }.
+  const paginaKnopen = () => {
+    const labels = state.documents[state.activeDocumentIndex]?.pageLabels;
+    return pages().map(n => ({ id: n, title: labelVan(labels, n), page: n }));
+  };
+
+  function scrollNaar(pageNum) {
+    const el = containerRef?.querySelector(`.thumbnail-item[data-page="${pageNum}"]`);
+    if (!el) return;
+    const top = scrollVoorItem(containerRef.getBoundingClientRect(), el.getBoundingClientRect(), containerRef.scrollTop, 'center');
+    if (top != null) containerRef.scrollTop = top;
+  }
+
+  function zoek(tekst, naPagina) {
+    const pagina = volgendeTreffer(paginaKnopen(), tekst, naPagina);
+    setGevonden(pagina);
+    setGeenTreffer(String(tekst).trim() !== '' && !pagina);
+    if (pagina) requestAnimationFrame(() => scrollNaar(pagina));
+    return pagina;
+  }
+
+  function wisZoeken() {
+    if (zoekRef) zoekRef.value = '';
+    setGevonden(null);
+    setGeenTreffer(false);
+  }
+
+  // Ander document of andere pagina-indeling: een oude treffer klopt niet meer.
+  createEffect(on(() => state.activeDocumentIndex, wisZoeken, { defer: true }));
+
+  function onZoekToets(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      wisZoeken();
+      return;
+    }
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    e.stopPropagation();
+    let pagina = gevonden();
+    // De eerste Enter opent de treffer; elke volgende gaat naar de volgende.
+    if (!pagina || activePage() === pagina) pagina = zoek(zoekRef.value, pagina);
+    if (pagina) handleNavigate(pagina);
+  }
 
   // Dragging a selected page takes the whole selection along (#763).
   const handleReorder = async (fromPage, toPage, dropBefore) => {
@@ -53,6 +111,20 @@ export default function ThumbnailsPanel() {
     <div class={`left-panel-content${activeTab() === 'thumbnails' ? ' active' : ''}`} id="thumbnails-panel">
       <div class="left-panel-header">
         <span>{t('leftPanel.thumbnails')}</span>
+        <input
+          ref={zoekRef}
+          class="bookmarks-search thumbnails-search"
+          classList={{ 'no-match': geenTreffer() }}
+          type="text"
+          spellcheck={false}
+          autocomplete="off"
+          disabled={!pageCount()}
+          placeholder={t('leftPanel.findPage')}
+          title={t('leftPanel.findPageTip')}
+          aria-label={t('leftPanel.findPage')}
+          onInput={() => zoek(zoekRef.value, null)}
+          onKeyDown={onZoekToets}
+        />
         {/* Paginalabels: de naambouwer leest de bladnamen uit de onderhoek (#580). */}
         <button
           class="thumbnails-header-btn"
@@ -66,11 +138,12 @@ export default function ThumbnailsPanel() {
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 3.5h8l4.5 4.5-4.5 4.5h-8z"/><path d="M4 6.5h4M4 9.5h5"/></svg>
         </button>
       </div>
-      <div class="thumbnails-container" id="thumbnails-container" ref={setContainerRef} tabIndex={0} onKeyDown={handleKeyDown}>
+      <div class="thumbnails-container" id="thumbnails-container" ref={(el) => { containerRef = el; setContainerRef(el); }} tabIndex={0} onKeyDown={handleKeyDown}>
         <For each={pages()}>
           {(pageNum) => (
             <ThumbnailItem
               pageNum={pageNum}
+              found={gevonden() === pageNum}
               onNavigate={handleNavigate}
               onReorder={handleReorder}
             />

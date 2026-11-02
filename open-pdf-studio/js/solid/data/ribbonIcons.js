@@ -12,6 +12,7 @@ export const fullscreenExitIcon = `<svg fill="none" stroke="currentColor" viewBo
 
 export const handIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/></svg>`;
 
+export const textHighlightIcon = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="18" height="7" fill="#facc15" opacity="0.85"/><path d="M6 4h12M12 4v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 export const selectTextIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>`;
 
 export const selectCommentsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7h2M3 12h2M3 17h2"/></svg>`;

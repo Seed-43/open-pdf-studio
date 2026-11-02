@@ -3,6 +3,7 @@ import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
+import SplitButton from './SplitButton.jsx';
 import { colorPickerValue, lineWidthValue } from '../../stores/ribbonStore.js';
 import { strokeColor, fmtLineWidth, isLocked, opmaakDoel, opmaakOndersteunt, zetOpmaak } from '../../stores/formatStore.js';
 import { zetRanddikte } from '../../../annotations/rendering/textbox-layout.js';
@@ -14,7 +15,7 @@ import { hideProperties } from '../../../ui/panels/properties-panel.js';
 import { clearSelection } from '../../../core/stores/selection-helpers.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import {
-  highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
+  highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
   textAnnotIcon, textboxIcon, noteIcon, fileAttachmentIcon, calloutIcon,
   stampIcon, signatureIcon,
@@ -45,6 +46,15 @@ export function CommentGroups() {
   // Kleur en breedte (#668) werken op hetzelfde doel als de opmaakwerkbalk:
   // de selectie, anders het volgende object van het actieve gereedschap (of
   // de invoegsessie van symbolen). Zonder doel staan ze uit.
+  // Highlight mode, remembered per session: 'area' draws a box, 'text'
+  // highlights the text you drag across.
+  const kiesMarkering = (mode) => {
+    setHighlightMode(mode);
+    try { localStorage.setItem('ops.highlightMode', mode); } catch {}
+    if (mode === 'text') { setTool('selectText'); state.textHighlightMode = true; }
+    else setTool('highlight');
+  };
+
   const kan = (key) => !noPdf() && !isPdfAReadOnly() && !isLocked() && opmaakOndersteunt(key);
 
   return (
@@ -53,8 +63,27 @@ export function CommentGroups() {
             were moved to the dedicated Drawing tab. Comment tab keeps only
             comment-style annotations (highlight, callout, note, stamp, etc.). */}
         <RibbonGroup label={t('comment.drawing')}>
-          <RibbonButton id="tool-highlight" title={t('comment.highlight')} icon={highlightIcon} label={t('comment.highlight')}
-            disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'highlight'} onClick={() => setTool('highlight')} />
+          {/* Highlight: area (draw a box) or text (drag across text). The
+              main button uses the last mode picked in the dropdown. */}
+          <SplitButton
+            id="tool-highlight"
+            mainIcon={highlightMode() === 'text' ? textHighlightIcon : highlightIcon}
+            mainLabel={t('comment.highlight')}
+            mainTitle={highlightMode() === 'text' ? t('comment.textHighlightTitle') : t('comment.areaHighlightTitle')}
+            dropdownTitle={t('comment.highlightMode')}
+            disabled={noPdf() || isPdfAReadOnly()}
+            active={state.currentTool === 'highlight' || (state.currentTool === 'selectText' && !!state.textHighlightMode)}
+            onMainClick={() => kiesMarkering(highlightMode())}
+          >
+            <button class="ribbon-split-btn-menu-item" id="highlight-menu-area" onClick={() => kiesMarkering('area')}>
+              <span style="width:14px; height:14px; display:inline-block;" innerHTML={highlightIcon}></span>
+              {highlightMode() === 'area' ? '\u2713 ' : ''}{t('comment.areaHighlight')}
+            </button>
+            <button class="ribbon-split-btn-menu-item" id="highlight-menu-text" onClick={() => kiesMarkering('text')}>
+              <span style="width:14px; height:14px; display:inline-block;" innerHTML={textHighlightIcon}></span>
+              {highlightMode() === 'text' ? '\u2713 ' : ''}{t('comment.textHighlight')}
+            </button>
+          </SplitButton>
         </RibbonGroup>
 
         <RibbonGroup label={t('comment.text')}>
@@ -207,6 +236,10 @@ export function CommentGroups() {
     </>
   );
 }
+
+let _startMode = 'area';
+try { if (localStorage.getItem('ops.highlightMode') === 'text') _startMode = 'text'; } catch {}
+const [highlightMode, setHighlightMode] = createSignal(_startMode);
 
 export default function CommentTab() {
   return (

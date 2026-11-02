@@ -282,6 +282,11 @@ export function setTool(tool) {
   // makes its item active again right after choosing the item's tool.
   endToolSetSession();
 
+  // Text highlight is the text selection tool with auto-highlight; picking a
+  // tool (Select Text included) turns that off. The ribbon button sets it
+  // again right after choosing the tool.
+  state.textHighlightMode = false;
+
   // Deactivate the current tool via lifecycle
   if (state.currentTool !== tool) {
     const currentToolObj = getTool(state.currentTool);

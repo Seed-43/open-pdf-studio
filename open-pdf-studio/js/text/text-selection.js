@@ -14,6 +14,8 @@ import { selectionTextDir } from './leesrichting.js';
 let _guardRestricted = [];
 // De .endOfContent-div van de tekstlaag waarin de huidige sleep begon.
 let _activeEndOfContent = null;
+// True from a left-button mousedown in a text layer until the next mouseup.
+let _selectionDragActive = false;
 
 /**
  * Initializes text selection event listeners
@@ -97,7 +99,7 @@ function handleMouseDown(e) {
   const textLayer = findParentTextLayer(e.target);
   if (textLayer) {
     // Alleen de linkermuisknop start een tekstselectie-sleep.
-    if (e.button === 0) beginSelectionDrag(textLayer, e);
+    if (e.button === 0) { _selectionDragActive = true; beginSelectionDrag(textLayer, e); }
     return;
   }
 
@@ -115,7 +117,26 @@ function handleMouseDown(e) {
  * Handles mouseup: end a selection drag and lift the temporary column guard.
  */
 function handleMouseUp() {
+  const wasDragging = _selectionDragActive;
+  _selectionDragActive = false;
   endSelectionDrag();
+  // Text highlight tool: the selection made by this drag becomes a highlight
+  // as soon as the mouse is released; the tool stays active for the next one.
+  if (wasDragging && state.textHighlightMode && state.currentTool === 'selectText') {
+    setTimeout(async () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
+      const { createTextMarkupAnnotation } = await import('./text-markup.js');
+      createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+      clearTextSelection();
+      // Keep highlighting: don't leave the new markup selected (that would
+      // switch the ribbon to its Format tab after every line).
+      const { clearSelection } = await import('../core/stores/selection-helpers.js');
+      clearSelection();
+      const r = await import('../annotations/rendering.js');
+      if (getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous(); else r.redrawAnnotations();
+    }, 0);
+  }
 }
 
 /**

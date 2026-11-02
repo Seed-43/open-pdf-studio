@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup } from 'solid-js';
+import { createSignal, createRenderEffect, onMount, onCleanup } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
 import { volgPopup } from './ribbon-popup.js';
 
@@ -21,8 +21,8 @@ export default function SplitButton(props) {
 
   return (
     <div class="ribbon-split-btn" id={props.id} ref={containerRef}>
-      <button class="ribbon-btn" title={props.mainTitle} disabled={props.disabled} onClick={props.onMainClick}>
-        <div class="ribbon-btn-icon" ref={el => { if (props.mainIcon) el.innerHTML = props.mainIcon; }}></div>
+      <button class={`ribbon-btn${props.active ? ' active' : ''}`} title={props.mainTitle} disabled={props.disabled} onClick={props.onMainClick}>
+        <div class="ribbon-btn-icon" ref={el => createRenderEffect(() => { if (props.mainIcon || el.innerHTML) el.innerHTML = props.mainIcon || ''; })}></div>
         <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.mainLabel}</span>
       </button>
       <button

@@ -85,6 +85,7 @@ export default function ThumbnailItem(props) {
       classList={{
         active: isActive(),
         selected: isSelected(),
+        found: !!props.found,
         dragging: isDragging(),
         'drop-before': isDropBefore(),
         'drop-after': isDropAfter(),
