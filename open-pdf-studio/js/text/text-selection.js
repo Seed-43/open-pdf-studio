@@ -1,7 +1,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { showTextSelectionContextMenu } from '../ui/chrome/context-menus.js';
 import { applyBandRestriction, clearBandRestriction } from './selection-guard.js';
-import { weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+import { weergaveRectNaarPagina, clientNaarPagina } from '../pdf/weergave-ruimte.js';
 import { selectionTextDir } from './leesrichting.js';
 
 /**
@@ -315,6 +315,83 @@ function spanOpPunt(x, y) {
   return beste;
 }
 
+// Text at an angle (not a multiple of 90 degrees on screen): the selection's
+// rectangles are level boxes, so the highlight would cover a big square
+// around the label. Build turned quads that follow the text instead, one per
+// text-layer span the range touches, in page space. Returns null for level
+// (or vertical) text, which keeps the normal rectangles.
+function schuineMarkering(bereik) {
+  const laag = findParentTextLayer(bereik.commonAncestorContainer) || findParentTextLayer(bereik.startContainer);
+  if (!laag) return null;
+  const pagina = parseInt(laag.dataset.page, 10) || getActiveDocument()?.currentPage || 1;
+  const spans = [...laag.querySelectorAll('span')].filter(s => !s.querySelector('span') && s.textContent.trim() && bereik.intersectsNode(s));
+  if (!spans.length) return null;
+  const midden = (tn, i) => {
+    const r = document.createRange();
+    r.setStart(tn, i); r.setEnd(tn, i + 1);
+    const b = r.getBoundingClientRect();
+    return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2 };
+  };
+  const quads = [];
+  let schuin = false;
+  for (const span of spans) {
+    const tn = [...span.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.length);
+    if (!tn) continue;
+    const tekst = tn.data;
+    let a = span.contains(bereik.startContainer) ? bereik.startOffset : 0;
+    let b = span.contains(bereik.endContainer) ? bereik.endOffset : tekst.length;
+    while (a < b && /\s/.test(tekst[a])) a++;
+    while (b > a && /\s/.test(tekst[b - 1])) b--;
+    if (b <= a) continue;
+    // Reading direction on screen from the first and last letter of the span.
+    let eerste = 0, laatste = tekst.length - 1;
+    while (eerste < laatste && /\s/.test(tekst[eerste])) eerste++;
+    while (laatste > eerste && /\s/.test(tekst[laatste])) laatste--;
+    if (laatste <= eerste) return null; // one letter: no direction to read
+    const p0 = midden(tn, eerste), p1 = midden(tn, laatste);
+    const lang = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+    if (!lang) return null;
+    const ux = (p1.x - p0.x) / lang, uy = (p1.y - p0.y) / lang;
+    const hoek = Math.atan2(uy, ux) * 180 / Math.PI;
+    if (Math.abs(((hoek % 90) + 90) % 90 - 45) < 44) schuin = true;
+    // Letter pitch and height on screen.
+    const steek = lang / (laatste - eerste);
+    const m = getComputedStyle(span).transform;
+    const v = m && m !== 'none' ? m.match(/-?[\d.e]+/g).map(Number) : [1, 0, 0, 1];
+    const lLok = span.offsetWidth * Math.hypot(v[0], v[1]);
+    const hLok = span.offsetHeight * Math.hypot(v[2], v[3]);
+    const schaal = lLok > 0 ? (steek * tekst.length) / lLok : 1;
+    const h = hLok * schaal;
+    // The part of this span in the range, from its first to its last letter.
+    const q0 = midden(tn, a), q1 = midden(tn, b - 1);
+    const s0 = (q0.x - p0.x) * ux + (q0.y - p0.y) * uy - steek / 2;
+    const s1 = (q1.x - p0.x) * ux + (q1.y - p0.y) * uy + steek / 2;
+    // Line centre through the letter centres; "up" is against the normal.
+    const nx = -uy, ny = ux;
+    const punt = (s, d) => ({ x: p0.x + ux * s + nx * d, y: p0.y + uy * s + ny * d });
+    const hoeken = [punt(s0, -h / 2), punt(s1, -h / 2), punt(s0, h / 2), punt(s1, h / 2)]
+      .map(p => clientNaarPagina(pagina, p.x, p.y));
+    if (hoeken.some(p => !p)) return null;
+    quads.push(hoeken);
+  }
+  if (!schuin || !quads.length) return null;
+  const rects = quads.map(q => {
+    const xs = q.map(p => p.x), ys = q.map(p => p.y);
+    const x = Math.min(...xs), y = Math.min(...ys);
+    return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
+  });
+  const x = Math.min(...rects.map(r => r.x)), y = Math.min(...rects.map(r => r.y));
+  return {
+    page: pagina,
+    quads,
+    rects,
+    quadPoints: quads.map(q => q.flatMap(p => [p.x, p.y])),
+    x, y,
+    width: Math.max(...rects.map(r => r.x + r.width)) - x,
+    height: Math.max(...rects.map(r => r.y + r.height)) - y,
+  };
+}
+
 // Turn each range into a text highlight, then leave nothing selected so the
 // mode stays ready for the next one (a selected markup would also switch
 // the ribbon to its Format tab after every line).
@@ -324,9 +401,11 @@ async function markeerBereiken(bereiken) {
   if (!bereiken.length) { clearTextSelection(); return; }
   const { createTextMarkupAnnotation } = await import('./text-markup.js');
   for (const bereik of bereiken) {
+    let schuin = null;
+    try { schuin = schuineMarkering(bereik); } catch { schuin = null; }
     sel.removeAllRanges();
     sel.addRange(bereik);
-    createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+    createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3, schuin);
   }
   clearTextSelection();
   const { clearSelection } = await import('../core/stores/selection-helpers.js');

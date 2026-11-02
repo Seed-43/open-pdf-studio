@@ -1132,6 +1132,9 @@ export function applyMoveGeneric(annotation, dx, dy) {
     );
   }
   // Text-markup rects + PDF quadPoints ([x1,y1,...,x4,y4] flat arrays).
+  if (Array.isArray(annotation.quads)) {
+    annotation.quads = annotation.quads.map(q => Array.isArray(q) ? q.map(p => _movePoint(p, dx, dy)) : q);
+  }
   if (Array.isArray(annotation.rects)) {
     annotation.rects = annotation.rects.map(r => ({ ...r, x: r.x + dx, y: r.y + dy }));
   }

@@ -14,8 +14,10 @@ import { recordAdd } from '../core/undo-manager.js';
  * @param {string} type - 'textHighlight', 'textStrikethrough', or 'textUnderline'
  * @param {string} color - The annotation color
  * @param {number} opacity - The annotation opacity
+ * @param {object} [extra] - props that override the computed ones (e.g.
+ *   `quads`, `rects`, `x`/`y`/`width`/`height` for text at an angle)
  */
-export function createTextMarkupAnnotation(type, color, opacity) {
+export function createTextMarkupAnnotation(type, color, opacity, extra = null) {
   const rects = getSelectionRectsForAnnotation();
   if (rects.length === 0) return null;
 
@@ -51,7 +53,8 @@ export function createTextMarkupAnnotation(type, color, opacity) {
     ...(textDir !== null ? { textDir } : {}),
     // Appearance
     color: color,
-    opacity: opacity
+    opacity: opacity,
+    ...(extra || {})
   });
 
   const doc = getActiveDocument();
