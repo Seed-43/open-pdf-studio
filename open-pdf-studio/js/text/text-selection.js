@@ -80,6 +80,9 @@ export function initTextSelection() {
   // Clear selection when clicking outside text layer
   document.addEventListener('mousedown', handleMouseDown);
 
+  // Text highlight: double-click highlights a whole label.
+  document.addEventListener('dblclick', handleDoubleClick);
+
   // Einde van een sleep: hef de kolom-begrenzing en endOfContent weer op.
   // Document-breed zodat het ook vuurt als de muis buiten de tekstlaag loslaat.
   document.addEventListener('mouseup', handleMouseUp);
@@ -181,34 +184,58 @@ function handleMouseUp(e) {
   // released; the mode stays on for the next one. Checked on the selection
   // itself, not only on where the drag started, because the select tool's
   // canvas can take the mousedown and pass the drag on to the text layer.
-  if (state.textHighlightMode && state.currentTool === 'select') {
+  // A double-click's own mouseup is left to handleDoubleClick, which
+  // highlights the whole label instead of the word the browser picked.
+  // A plain click (no drag) highlights nothing either.
+  const geklikt = lijn && Math.hypot(lijn.x2 - lijn.x1, lijn.y2 - lijn.y1) < 3;
+  if (state.textHighlightMode && state.currentTool === 'select' && !(e && e.detail >= 2) && !geklikt) {
     setTimeout(async () => {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
       if (!wasDragging && !findParentTextLayer(sel.anchorNode)) return;
-      const { createTextMarkupAnnotation } = await import('./text-markup.js');
       // On drawings the text layer is in file order, not reading order, so a
       // native selection can pull in labels from elsewhere on the sheet.
       // Highlight only the runs of text the drag line actually crosses.
       const delen = lijn ? gekruisteDelen(sel.getRangeAt(0), lijn) : null;
-      if (delen && delen.length) {
-        for (const deel of delen) {
-          sel.removeAllRanges();
-          sel.addRange(deel);
-          createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
-        }
-      } else if (!delen) {
-        createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
-      }
-      clearTextSelection();
-      // Keep highlighting: don't leave the new markup selected (that would
-      // switch the ribbon to its Format tab after every line).
-      const { clearSelection } = await import('../core/stores/selection-helpers.js');
-      clearSelection();
-      const r = await import('../annotations/rendering.js');
-      if (getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous(); else r.redrawAnnotations();
+      await markeerBereiken(delen ? delen : [sel.getRangeAt(0)]);
     }, 0);
   }
+}
+
+// Text highlight: double-click a label to highlight all of it (the whole
+// text-layer span under the pointer, not just the word).
+function handleDoubleClick(e) {
+  if (!state.textHighlightMode || state.currentTool !== 'select' || e.button !== 0) return;
+  let span = e.target?.closest?.('.textLayer span');
+  if (!span) {
+    const el = document.elementsFromPoint(e.clientX, e.clientY).find(n => n.closest?.('.textLayer span'));
+    span = el ? el.closest('.textLayer span') : null;
+  }
+  if (!span || !span.textContent.trim()) return;
+  e.preventDefault();
+  const bereik = document.createRange();
+  bereik.selectNodeContents(span);
+  markeerBereiken([bereik]);
+}
+
+// Turn each range into a text highlight, then leave nothing selected so the
+// mode stays ready for the next one (a selected markup would also switch
+// the ribbon to its Format tab after every line).
+async function markeerBereiken(bereiken) {
+  const sel = window.getSelection();
+  if (!sel) return;
+  if (!bereiken.length) { clearTextSelection(); return; }
+  const { createTextMarkupAnnotation } = await import('./text-markup.js');
+  for (const bereik of bereiken) {
+    sel.removeAllRanges();
+    sel.addRange(bereik);
+    createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+  }
+  clearTextSelection();
+  const { clearSelection } = await import('../core/stores/selection-helpers.js');
+  clearSelection();
+  const r = await import('../annotations/rendering.js');
+  if (getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous(); else r.redrawAnnotations();
 }
 
 /**
