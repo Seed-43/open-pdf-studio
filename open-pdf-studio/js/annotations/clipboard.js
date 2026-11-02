@@ -12,6 +12,54 @@ import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { annotationBounds } from './spatial-index.js';
+import { applyMoveGeneric } from './transforms.js';
+
+// ── Paste at the mouse cursor ────────────────────────────────────────────
+// Ctrl+V puts what is pasted centred on the mouse when the mouse is over a
+// page in the viewer; otherwise (mouse on the ribbon, a panel, outside the
+// window) the old placement applies.
+let _muis = null;
+if (typeof document !== 'undefined') {
+  document.addEventListener('mousemove', (e) => { _muis = { x: e.clientX, y: e.clientY }; }, { capture: true, passive: true });
+  document.addEventListener('mouseleave', () => { _muis = null; });
+}
+
+/** { page, x, y } in page space under the mouse, or null. */
+export function plekOnderMuis() {
+  const doc = getActiveDocument();
+  if (!_muis || !doc?.pdfDoc || !pdfContainer?.getBoundingClientRect) return null;
+  const { x, y } = _muis;
+  const vr = pdfContainer.getBoundingClientRect();
+  if (x < vr.left || x > vr.right || y < vr.top || y > vr.bottom) return null;
+  let page = doc.currentPage || 1;
+  if (doc.viewMode === 'continuous') {
+    const el = document.elementsFromPoint(x, y).find(n => n.closest?.('.page-wrapper[data-page]'));
+    const p = el ? parseInt(el.closest('.page-wrapper[data-page]').dataset.page, 10) : NaN;
+    if (!Number.isInteger(p)) return null;
+    page = p;
+  }
+  const punt = clientNaarPagina(page, x, y, doc);
+  const maat = paginaMaat(page, doc);
+  if (!punt || !maat) return null;
+  if (punt.x < 0 || punt.y < 0 || punt.x > maat.breedte || punt.y > maat.hoogte) return null;
+  return { page, x: punt.x, y: punt.y };
+}
+
+// Move pasted copies so their combined box is centred on `plek`.
+function centreerOp(kopieen, plek) {
+  let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+  for (const a of kopieen) {
+    const b = annotationBounds(a);
+    if (!b) continue;
+    x1 = Math.min(x1, b.x); y1 = Math.min(y1, b.y);
+    x2 = Math.max(x2, b.x + b.width); y2 = Math.max(y2, b.y + b.height);
+  }
+  if (!Number.isFinite(x1)) return false;
+  const dx = plek.x - (x1 + x2) / 2, dy = plek.y - (y1 + y2) / 2;
+  for (const a of kopieen) { applyMoveGeneric(a, dx, dy); a.page = plek.page; }
+  return true;
+}
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -164,8 +212,10 @@ export async function pasteImageFromBlob(blob) {
   }
 
   // Plaats op de pagina die de gebruiker op dat moment bekijkt.
-  const targetPage = getActiveDocument()?.currentPage || 1;
-  const center = visibleCenterOnPage(targetPage);
+  // Of, met de muis boven een pagina, gecentreerd op de muis.
+  const plek = plekOnderMuis();
+  const targetPage = plek ? plek.page : (getActiveDocument()?.currentPage || 1);
+  const center = plek || visibleCenterOnPage(targetPage);
   const x = center ? center.x - (width / 2) : 10;
   const y = center ? center.y - (height / 2) : 10;
 
@@ -241,6 +291,9 @@ export function pasteAnnotation() {
   newAnnotation.page = getActiveDocument()?.currentPage || 1;
   newAnnotation.createdAt = new Date().toISOString();
   newAnnotation.modifiedAt = new Date().toISOString();
+  // Mouse over a page: centre the copy on the mouse instead.
+  const plek = plekOnderMuis();
+  if (plek) centreerOp([newAnnotation], plek);
   // Een losse helft van een vervanging (#508) hoort niet bij het origineel;
   // de kopie krijgt bij opslaan een eigen /NM.
   relinkPastedCorrections([state.clipboardAnnotation], [newAnnotation]);
@@ -336,6 +389,9 @@ export function pasteAnnotations() {
 
     newAnnotations.push(newAnn);
   }
+  // Mouse over a page: centre the whole group on the mouse instead.
+  const plek = plekOnderMuis();
+  if (plek) centreerOp(newAnnotations, plek);
   // Vervangingen (#508) koppelen aan hun eigen kopie, niet aan het origineel.
   relinkPastedCorrections(state.clipboardAnnotations, newAnnotations);
   relinkCopiedZones(state.clipboardAnnotations, newAnnotations);
