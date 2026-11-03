@@ -300,6 +300,8 @@
   },
   "mergePdfs": {
     "title": "PDF's samenvoegen",
+    "combineTitle": "Samenvoegen tot één PDF",
+    "combineButton": "Samenvoegen",
     "insertAt": "Invoegen op:",
     "endOfDocument": "Einde van document",
     "afterCurrentPage": "Na huidige pagina",

@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Gộp PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Chèn tại:",
     "endOfDocument": "Cuối tài liệu",
     "afterCurrentPage": "Sau trang hiện tại",

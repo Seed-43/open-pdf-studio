@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "PDF-ek összefűzése",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Beszúrás helye:",
     "endOfDocument": "Dokumentum végére",
     "afterCurrentPage": "Az aktuális oldal után",

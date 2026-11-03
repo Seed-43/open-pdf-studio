@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "מיזוג PDF-ים",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "הוספה ב:",
     "endOfDocument": "סוף המסמך",
     "afterCurrentPage": "אחרי העמוד הנוכחי",

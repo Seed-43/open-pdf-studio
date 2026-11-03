@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Συγχώνευση PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Εισαγωγή στο:",
     "endOfDocument": "Τέλος εγγράφου",
     "afterCurrentPage": "Μετά την τρέχουσα σελίδα",

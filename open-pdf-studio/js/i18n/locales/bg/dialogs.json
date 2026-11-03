@@ -319,6 +319,8 @@
   },
   "mergePdfs": {
     "title": "Обединяване на PDF файлове",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Вмъкване на:",
     "endOfDocument": "Края на документа",
     "afterCurrentPage": "След текущата страница",
