@@ -1285,6 +1285,33 @@ async function _buildCreateProps(type, page, props) {
       return { base };
     }
 
+    case 'textHighlight': {
+      // Text highlight as the Select tool's text mode makes it: one quad per
+      // piece of text, turned with angled text. quads: [[ul, ur, ll, lr], ...]
+      // with each corner {x, y} in page coordinates at 100% zoom.
+      const quads = p.quads;
+      if (!Array.isArray(quads) || !quads.length || !quads.every(q => _validPoints(q, 4) && q.length === 4)) {
+        return { error: "type 'textHighlight' requires props.quads: [[{x,y} x4], ...] (ul, ur, ll, lr)" };
+      }
+      const rects = quads.map(q => {
+        const xs = q.map(pt => pt.x), ys = q.map(pt => pt.y);
+        const x = Math.min(...xs), y = Math.min(...ys);
+        return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
+      });
+      const x = Math.min(...rects.map(r => r.x)), y = Math.min(...rects.map(r => r.y));
+      return { base: {
+        type, page,
+        quads: quads.map(q => q.map(pt => ({ x: pt.x, y: pt.y }))),
+        rects,
+        quadPoints: quads.map(q => q.flatMap(pt => [pt.x, pt.y])),
+        x, y,
+        width: Math.max(...rects.map(r => r.x + r.width)) - x,
+        height: Math.max(...rects.map(r => r.y + r.height)) - y,
+        color: p.color || '#FFFF00',
+        opacity: _isNum(p.opacity) ? p.opacity : 0.3,
+      }, vasteGeometrie: true };
+    }
+
     case 'polygon': {
       // Veelhoek (#622): de hoekpunten zoals de tool ze hoek voor hoek
       // plaatst (points, minstens drie), of een vak voor een regelmatige
@@ -1653,6 +1680,10 @@ async function handleCreateAnnotation(params) {
   // meegegeven vak of zijdenaantal beschreef alleen waar de punten liggen.
   if (built.veelhoekPunten) {
     for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
+  }
+  // Text highlight: the box and rects follow from the quads.
+  if (built.vasteGeometrie) {
+    for (const k of ['quads', 'rects', 'quadPoints', 'x', 'y', 'width', 'height']) merged[k] = built.base[k];
   }
   // parametricSymbol without an explicit rect: (x,y) was an INSERT POINT —
   // the builder centred a real-size bbox on it. Keep that computed bbox
