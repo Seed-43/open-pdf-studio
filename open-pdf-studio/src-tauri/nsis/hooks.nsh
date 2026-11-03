@@ -165,6 +165,12 @@ Var VPrinterState
   !insertmacro OPDS_SHELL_VERB ".webp" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB ".dwg" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB ".dxf" "OpenPDFStudio.ConvertToPdf" "Convert to PDF (Open PDF Studio)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB ".jpg" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".jpeg" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".png" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".bmp" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".gif" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
+  !insertmacro OPDS_SHELL_VERB ".webp" "OpenPDFStudio.Combine" "Convert and combine into one PDF (Open PDF Studio)" "--combine"
 !macroend
 
 !macro OPDS_SHELL_VERBS_REMOVE
@@ -177,6 +183,12 @@ Var VPrinterState
   DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.webp\shell\OpenPDFStudio.ConvertToPdf"
   DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.dwg\shell\OpenPDFStudio.ConvertToPdf"
   DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.dxf\shell\OpenPDFStudio.ConvertToPdf"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.jpg\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.jpeg\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.png\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.bmp\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.gif\shell\OpenPDFStudio.Combine"
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\.webp\shell\OpenPDFStudio.Combine"
 !macroend
 
 !macro NSIS_HOOK_PREINSTALL

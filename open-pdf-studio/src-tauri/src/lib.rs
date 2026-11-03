@@ -3106,7 +3106,11 @@ pub fn run(opts: StartupOpts) {
                         for path in &actie.files {
                             let _ = app.fs_scope().allow_file(path);
                         }
-                        let _ = app.emit("shell-action", &actie);
+                        // Queued, then signalled: a launch that arrives while the
+                        // window is still starting is picked up by
+                        // get_shell_action once the frontend listens.
+                        app.state::<ShellAction>().0.lock().unwrap().push(actie);
+                        let _ = app.emit("shell-action", ());
                         return;
                     }
                     let files: Vec<String> = argv.iter()

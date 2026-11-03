@@ -5,6 +5,8 @@
 // start brings its own file (get_shell_action), the others reach the running
 // app through the single-instance plugin ("shell-action" event). The files of
 // one multi-select are collected for a moment and then handled together.
+// Every launch is queued on the Rust side (get_shell_action); the event only
+// says "there is more", so launches during start-up are never lost.
 import { invoke, isTauri } from './platform.js';
 
 const WACHT_MS = 900;
@@ -20,6 +22,15 @@ function voegToe(actie) {
   if (klaar) planVerwerking();
 }
 
+// Take everything queued since the last time.
+async function haalOp() {
+  try {
+    for (const a of (await invoke('get_shell_action')) || []) voegToe(a);
+  } catch (e) {
+    console.warn('[shell-action] queue unavailable', e);
+  }
+}
+
 function planVerwerking() {
   clearTimeout(timer);
   timer = setTimeout(verwerk, WACHT_MS);
@@ -32,8 +43,15 @@ async function verwerk() {
   const combineren = wachtrij.combine.splice(0).sort(opNaam);
   const omzetten = wachtrij.convert.splice(0).sort(opNaam);
   if (combineren.length) {
+    // Images in the selection ("Convert and combine") become a PDF in a temp
+    // folder under their own name, so the dialog lists them as they are.
+    const files = [];
+    for (const pad of combineren) {
+      try { files.push(AFBEELDING.test(pad) ? await afbeeldingNaarTijdelijkePdf(pad) : pad); }
+      catch (e) { console.error('[combine] image skipped', pad, e); }
+    }
     const { openDialog } = await import('../solid/stores/dialogStore.js');
-    openDialog('merge-pdfs', { files: combineren, combineNew: true });
+    if (files.length) openDialog('merge-pdfs', { files, combineNew: true });
   }
   for (const pad of omzetten) {
     try { await zetOmNaarPdf(pad); } catch (e) { console.error('[convert-to-pdf]', pad, e); }
@@ -68,6 +86,24 @@ async function zetOmNaarPdf(pad) {
   await loadPDFIfNeeded(doel, index);
 }
 
+let tijdelijkeMap = null;
+
+async function afbeeldingNaarTijdelijkePdf(pad) {
+  try { await invoke('allow_fs_scope', { path: pad }); } catch {}
+  const { readBinaryFile, writeBinaryFile } = await import('./platform.js');
+  const pdfBytes = await afbeeldingNaarPdf(new Uint8Array(await readBinaryFile(pad)), pad);
+  if (!tijdelijkeMap) {
+    const temp = await window.__TAURI__.path.tempDir();
+    tijdelijkeMap = `${temp}${/[\\/]$/.test(temp) ? '' : '\\'}opds-combine-${Date.now()}`;
+    try { await invoke('allow_fs_scope', { path: tijdelijkeMap }); } catch {}
+    await window.__TAURI__.fs.mkdir(tijdelijkeMap, { recursive: true });
+  }
+  const doel = `${tijdelijkeMap}\\${naam(pad).replace(/\.[^.]+$/, '')}.pdf`;
+  try { await invoke('allow_fs_scope', { path: doel }); } catch {}
+  await writeBinaryFile(doel, pdfBytes);
+  return doel;
+}
+
 // Image bytes to a one-page PDF the size of the image at 96 dpi. JPEG and PNG
 // are embedded as they are; other formats are drawn to a canvas first.
 async function afbeeldingNaarPdf(bytes, pad) {
@@ -94,16 +130,11 @@ async function afbeeldingNaarPdf(bytes, pad) {
 export async function startShellActies() {
   if (!isTauri()) return;
   klaar = true;
-  try {
-    const acties = await invoke('get_shell_action');
-    for (const a of acties || []) voegToe(a);
-  } catch (e) {
-    console.warn('[shell-action] start action unavailable', e);
-  }
+  await haalOp();
   if (wachtrij.combine.length || wachtrij.convert.length) planVerwerking();
 }
 
-// Listen right away so launches that arrive during start-up are kept.
+// Launches that reach the running app; before start the queue simply waits.
 if (typeof window !== 'undefined' && window.__TAURI__?.event) {
-  window.__TAURI__.event.listen('shell-action', (event) => voegToe(event.payload));
+  window.__TAURI__.event.listen('shell-action', () => { if (klaar) haalOp(); });
 }
