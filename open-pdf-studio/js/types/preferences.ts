@@ -6,6 +6,8 @@ export interface Preferences {
   // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
   defaultViewMode: 'continuous' | 'single';
+  extensionCatalogs?: string[];
+  extensionSources?: Record<string, { link: string; catalogus: string }>;
 
   // General
   authorName: string;

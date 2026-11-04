@@ -16,6 +16,7 @@ pub mod draagbaar;
 mod email;
 pub mod export_policy;
 pub mod extensie_installatie;
+pub mod extensie_catalogus;
 pub mod linux_runtime;
 pub mod logboek;
 pub mod mcp_app_bridge;
@@ -3342,6 +3343,8 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            extensie_catalogus::extensie_tekst_ophalen,
+            extensie_catalogus::extensie_pakket_ophalen,
             save_session,
             load_session,
             get_username,
