@@ -345,8 +345,9 @@ export async function closeTab(index, force = false, dialogAction = null) {
   clearSelection();
   import('../../solid/stores/ribbonStore.js').then(m => m.setContextualTabsVisible(false));
 
-  // Release file lock so other apps can write to it again
-  if (doc.filePath) {
+  // Release file lock so other apps can write to it again, unless another
+  // tab still shows this file (a read-only second tab, #919).
+  if (doc.filePath && !state.documents.some(d => d !== doc && d.filePath === doc.filePath)) {
     await unlockFile(doc.filePath);
   }
   // Na een save met text-edits rendert het document uit een tijdelijke

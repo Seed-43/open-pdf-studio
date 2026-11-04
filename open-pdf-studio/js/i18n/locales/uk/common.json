@@ -214,6 +214,8 @@
     "detachFailed": "Не вдалося від'єднати вікно: {{error}}",
     "dragFileGone": "Цього файлу більше немає на диску — вкладку неможливо перемістити.",
     "dragNotStarted": "Не вдалося перетягнути вкладку в інше вікно. Спробуйте ще раз або клацніть правою кнопкою → відкрити в новому вікні.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "Відкрити в розділеному вигляді",
     "openInNewWindow": "Відкрити в новому вікні",
     "closeTab": "Закрити вкладку",

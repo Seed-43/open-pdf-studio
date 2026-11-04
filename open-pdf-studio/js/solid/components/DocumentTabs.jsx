@@ -5,6 +5,7 @@ import i18next from '../../i18n/config.js';
 import { invoke } from '../../core/platform.js';
 import { laadDesktopDragPlugin } from '../../core/desktop-drag-plugin.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
+import { kanTweedeWeergave, openTweedeWeergave } from '../../pdf/tweede-weergave.js';
 import {
   revealInFileManager,
   revealInFileManagerLabelKey,
@@ -542,7 +543,7 @@ export default function DocumentTabs() {
               <span class="document-tab-recovered" title={tDialogs('recovery.tabTip')}>{tDialogs('recovery.tabLabel')}</span>
             </Show>
             <Show when={editingIndex() === i()} fallback={
-              <span class="document-tab-title" title={doc.filePath || doc.fileName}>{doc.fileName}</span>
+              <span class="document-tab-title" title={doc.filePath || doc.fileName}>{doc.fileName}<Show when={doc.tweedeWeergave}><span class="document-tab-readonly">{tCommon('tabs.readOnlyTag')}</span></Show></span>
             }>
               <input
                 class="document-tab-rename-input"
@@ -608,6 +609,14 @@ export default function DocumentTabs() {
             onMouseLeave={(e) => e.currentTarget.style.background = ''}
             onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); import('../../pdf/split-view/split-view.js').then(m => m.openDocumentInSplit(idx)).catch(e => console.warn('[tabs] openen in gesplitste weergave mislukt:', e)); }}
           >{tCommon('tabs.openInSplitView')}</div>
+          <Show when={kanTweedeWeergave(state.documents[ctxMenu().index])}>
+            <div
+              style={{ padding: '6px 14px', cursor: 'pointer' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
+              onMouseLeave={(e) => e.currentTarget.style.background = ''}
+              onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); openTweedeWeergave(idx).catch(e => console.warn('[tabs] second tab not opened:', e)); }}
+            >{tCommon('tabs.openReadOnlyTab')}</div>
+          </Show>
           <div
             style={{ padding: '6px 14px', cursor: 'pointer' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}

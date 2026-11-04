@@ -214,6 +214,8 @@
     "detachFailed": "சாளரத்தைப் பிரிக்க முடியவில்லை: {{error}}",
     "dragFileGone": "இந்தக் கோப்பு இனி வட்டில் இல்லை — தாவலை நகர்த்த முடியாது.",
     "dragNotStarted": "தாவலை வேறொரு சாளரத்திற்கு இழுக்க முடியவில்லை. மீண்டும் முயலவும், அல்லது வலது-கிளிக் → புதிய சாளரத்தில் திற என்பதைப் பயன்படுத்தவும்.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "பிரிக்கப்பட்ட காட்சியில் திற",
     "openInNewWindow": "புதிய சாளரத்தில் திற",
     "closeTab": "தாவலை மூடு",

@@ -214,6 +214,8 @@
     "detachFailed": "לא ניתן לנתק את החלון: {{error}}",
     "dragFileGone": "קובץ זה כבר לא קיים בדיסק — לא ניתן להעביר את הלשונית.",
     "dragNotStarted": "לא ניתן היה לגרור את הלשונית לחלון אחר. נסה שוב, או השתמש בלחיצה ימנית ← פתיחה בחלון חדש.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "פתיחה בתצוגה מפוצלת",
     "openInNewWindow": "פתיחה בחלון חדש",
     "closeTab": "סגירת לשונית",

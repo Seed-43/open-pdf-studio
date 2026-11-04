@@ -178,3 +178,6 @@
   background: var(--theme-tab-add-hover);
   color: var(--theme-tab-active-text);
 }
+
+/* Read-only second tab of an open document (#919) */
+.document-tab-readonly { opacity: 0.7; font-style: italic; }

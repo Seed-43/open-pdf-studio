@@ -214,6 +214,8 @@
     "detachFailed": "Det gick inte att lösgöra fönstret: {{error}}",
     "dragFileGone": "Filen finns inte längre på disken — fliken kan inte flyttas.",
     "dragNotStarted": "Fliken kunde inte dras till ett annat fönster. Försök igen, eller högerklicka → öppna i nytt fönster.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "Öppna i delad vy",
     "openInNewWindow": "Öppna i nytt fönster",
     "closeTab": "Stäng flik",
