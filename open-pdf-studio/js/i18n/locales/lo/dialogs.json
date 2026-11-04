@@ -275,6 +275,15 @@
     "pagesCount": "ໜ້າ.",
     "cannotDeleteAll": "ບໍ່ສາມາດລຶບທຸກໜ້າໄດ້. ຕ້ອງເຫຼືອໄວ້ຢ່າງໜ້ອຍໜຶ່ງໜ້າ."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "ແຍກໜ້າອອກ",
     "pageRange": "ໄລຍະໜ້າ:",

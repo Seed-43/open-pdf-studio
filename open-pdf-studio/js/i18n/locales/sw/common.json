@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Haiwezekani kufuta kurasa zote. Angalau ukurasa mmoja lazima ubaki.",
   "cannotDeleteAllPagesSource": "Haiwezekani kufuta kurasa zote kutoka hati chanzo.",
   "noPagesSelected": "Hakuna kurasa zilizochaguliwa kwa ajili ya kutoa.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "PDF iliyochaguliwa haina kurasa.",
   "failedToSavePdf": "Imeshindwa kuhifadhi PDF: {{error}}",
   "failedToLoadPdf": "Imeshindwa kupakia PDF: {{error}}",

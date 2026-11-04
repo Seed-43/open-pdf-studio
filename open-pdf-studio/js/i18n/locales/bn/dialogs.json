@@ -275,6 +275,15 @@
     "pagesCount": "পৃষ্ঠা।",
     "cannotDeleteAll": "সব পৃষ্ঠা মুছে ফেলা যাবে না। অন্তত একটি পৃষ্ঠা থাকতে হবে।"
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "পৃষ্ঠা নিষ্কাশন",
     "pageRange": "পৃষ্ঠার পরিসর:",

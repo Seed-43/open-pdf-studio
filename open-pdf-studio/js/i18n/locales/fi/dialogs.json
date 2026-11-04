@@ -275,6 +275,15 @@
     "pagesCount": "sivua.",
     "cannotDeleteAll": "Kaikkia sivuja ei voi poistaa. Vähintään yhden sivun on jäätävä."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Poimi sivut",
     "pageRange": "Sivualue:",

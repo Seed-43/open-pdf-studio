@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Nie można usunąć wszystkich stron. Musi pozostać co najmniej jedna strona.",
   "cannotDeleteAllPagesSource": "Nie można usunąć wszystkich stron z dokumentu źródłowego.",
   "noPagesSelected": "Nie wybrano stron do wyodrębnienia.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Wybrany plik PDF nie ma stron.",
   "failedToSavePdf": "Nie udało się zapisać PDF: {{error}}",
   "failedToLoadPdf": "Nie udało się wczytać PDF: {{error}}",

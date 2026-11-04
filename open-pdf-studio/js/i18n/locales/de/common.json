@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Es können nicht alle Seiten gelöscht werden. Mindestens eine Seite muss erhalten bleiben.",
   "cannotDeleteAllPagesSource": "Es können nicht alle Seiten des Quelldokuments gelöscht werden.",
   "noPagesSelected": "Keine Seiten zum Extrahieren ausgewählt.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Das ausgewählte PDF hat keine Seiten.",
   "failedToSavePdf": "PDF konnte nicht gespeichert werden: {{error}}",
   "failedToLoadPdf": "PDF konnte nicht geladen werden: {{error}}",

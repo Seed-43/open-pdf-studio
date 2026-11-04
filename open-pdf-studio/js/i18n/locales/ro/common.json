@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Nu se pot șterge toate paginile. Trebuie să rămână cel puțin o pagină.",
   "cannotDeleteAllPagesSource": "Nu se pot șterge toate paginile din documentul sursă.",
   "noPagesSelected": "Nu s-au selectat pagini pentru extragere.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "PDF-ul selectat nu are pagini.",
   "failedToSavePdf": "PDF-ul nu a putut fi salvat: {{error}}",
   "failedToLoadPdf": "PDF-ul nu a putut fi încărcat: {{error}}",

@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Nie je možné odstrániť všetky strany. Aspoň jedna strana musí zostať.",
   "cannotDeleteAllPagesSource": "Nie je možné odstrániť všetky strany zo zdrojového dokumentu.",
   "noPagesSelected": "Nie sú vybrané žiadne strany na extrakciu.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Vybraté PDF nemá žiadne strany.",
   "failedToSavePdf": "Uloženie PDF zlyhalo: {{error}}",
   "failedToLoadPdf": "Načítanie PDF zlyhalo: {{error}}",

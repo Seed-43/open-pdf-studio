@@ -275,6 +275,15 @@
     "pagesCount": "kwa jumla.",
     "cannotDeleteAll": "Haiwezekani kufuta kurasa zote. Angalau ukurasa mmoja lazima ubaki."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Toa Kurasa",
     "pageRange": "Masafa ya Kurasa:",

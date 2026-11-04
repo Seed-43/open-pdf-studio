@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Tidak dapat menghapus semua halaman. Minimal satu halaman harus tersisa.",
   "cannotDeleteAllPagesSource": "Tidak dapat menghapus semua halaman dari dokumen sumber.",
   "noPagesSelected": "Tidak ada halaman yang dipilih untuk diekstrak.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "PDF yang dipilih tidak memiliki halaman.",
   "failedToSavePdf": "Gagal menyimpan PDF: {{error}}",
   "failedToLoadPdf": "Gagal memuat PDF: {{error}}",

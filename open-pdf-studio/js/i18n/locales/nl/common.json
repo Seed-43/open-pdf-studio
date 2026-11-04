@@ -292,6 +292,7 @@
   "cannotDeleteAllPages": "Kan niet alle pagina's verwijderen. Er moet minstens één pagina overblijven.",
   "cannotDeleteAllPagesSource": "Kan niet alle pagina's uit het brondocument verwijderen.",
   "noPagesSelected": "Geen pagina's geselecteerd om te extraheren.",
+  "pageClipboardEmpty": "Kopieer of knip eerst pagina's en kies dan Plakken en vervangen.",
   "selectedPdfNoPages": "De geselecteerde PDF heeft geen pagina's.",
   "failedToSavePdf": "PDF opslaan mislukt: {{error}}",
   "failedToLoadPdf": "PDF laden mislukt: {{error}}",

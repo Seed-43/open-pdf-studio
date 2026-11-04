@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Δεν είναι δυνατή η διαγραφή όλων των σελίδων. Πρέπει να μείνει τουλάχιστον μία σελίδα.",
   "cannotDeleteAllPagesSource": "Δεν είναι δυνατή η διαγραφή όλων των σελίδων από το αρχικό έγγραφο.",
   "noPagesSelected": "Δεν επιλέχθηκαν σελίδες για εξαγωγή.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Το επιλεγμένο PDF δεν έχει σελίδες.",
   "failedToSavePdf": "Η αποθήκευση του PDF απέτυχε: {{error}}",
   "failedToLoadPdf": "Η φόρτωση του PDF απέτυχε: {{error}}",

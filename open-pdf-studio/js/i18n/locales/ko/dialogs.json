@@ -275,6 +275,15 @@
     "pagesCount": "페이지.",
     "cannotDeleteAll": "모든 페이지를 삭제할 수는 없습니다. 최소 한 페이지는 남아 있어야 합니다."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "페이지 추출",
     "pageRange": "페이지 범위:",

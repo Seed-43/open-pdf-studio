@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "تمام صفحات حذف نہیں کیے جا سکتے۔ کم از کم ایک صفحہ باقی رہنا چاہیے۔",
   "cannotDeleteAllPagesSource": "ماخذ دستاویز سے تمام صفحات حذف نہیں کیے جا سکتے۔",
   "noPagesSelected": "نکالنے کے لیے کوئی صفحہ منتخب نہیں کیا گیا۔",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "منتخب PDF میں کوئی صفحہ نہیں۔",
   "failedToSavePdf": "PDF محفوظ کرنے میں ناکامی: {{error}}",
   "failedToLoadPdf": "PDF لوڈ کرنے میں ناکامی: {{error}}",

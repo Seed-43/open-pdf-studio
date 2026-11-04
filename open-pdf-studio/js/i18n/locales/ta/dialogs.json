@@ -275,6 +275,15 @@
     "pagesCount": "பக்கங்கள்.",
     "cannotDeleteAll": "எல்லாப் பக்கங்களையும் நீக்க முடியாது. குறைந்தது ஒரு பக்கம் இருக்க வேண்டும்."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "பக்கங்களைப் பிரித்தெடு",
     "pageRange": "பக்க வரம்பு:",

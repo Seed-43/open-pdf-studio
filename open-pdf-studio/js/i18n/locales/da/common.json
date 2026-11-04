@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Kan ikke slette alle sider. Mindst én side skal blive tilbage.",
   "cannotDeleteAllPagesSource": "Kan ikke slette alle sider fra kildedokumentet.",
   "noPagesSelected": "Ingen sider valgt til udtrækning.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Den valgte PDF har ingen sider.",
   "failedToSavePdf": "PDF'en kunne ikke gemmes: {{error}}",
   "failedToLoadPdf": "PDF'en kunne ikke indlæses: {{error}}",

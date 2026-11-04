@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "ไม่สามารถลบทุกหน้าได้ ต้องเหลืออย่างน้อยหนึ่งหน้า",
   "cannotDeleteAllPagesSource": "ไม่สามารถลบทุกหน้าออกจากเอกสารต้นทางได้",
   "noPagesSelected": "ไม่ได้เลือกหน้าที่จะแยกออก",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "PDF ที่เลือกไม่มีหน้า",
   "failedToSavePdf": "บันทึก PDF ไม่สำเร็จ: {{error}}",
   "failedToLoadPdf": "โหลด PDF ไม่สำเร็จ: {{error}}",

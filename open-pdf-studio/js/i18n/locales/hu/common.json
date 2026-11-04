@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Nem törölhető az összes oldal. Legalább egy oldalnak meg kell maradnia.",
   "cannotDeleteAllPagesSource": "A forrásdokumentum összes oldala nem törölhető.",
   "noPagesSelected": "Nincs kijelölt oldal a kibontáshoz.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "A kiválasztott PDF-nek nincsenek oldalai.",
   "failedToSavePdf": "A PDF mentése sikertelen: {{error}}",
   "failedToLoadPdf": "A PDF betöltése sikertelen: {{error}}",

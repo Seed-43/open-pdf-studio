@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "No es poden suprimir totes les pàgines. N'ha de quedar com a mínim una.",
   "cannotDeleteAllPagesSource": "No es poden suprimir totes les pàgines del document d'origen.",
   "noPagesSelected": "No s'ha seleccionat cap pàgina per extreure.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "El PDF seleccionat no té pàgines.",
   "failedToSavePdf": "No s'ha pogut desar el PDF: {{error}}",
   "failedToLoadPdf": "No s'ha pogut carregar el PDF: {{error}}",

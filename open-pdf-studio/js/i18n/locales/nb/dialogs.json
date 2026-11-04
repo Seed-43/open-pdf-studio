@@ -275,6 +275,15 @@
     "pagesCount": "sider.",
     "cannotDeleteAll": "Kan ikke slette alle sidene. Minst én side må bli igjen."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Pakk ut sider",
     "pageRange": "Sideområde:",

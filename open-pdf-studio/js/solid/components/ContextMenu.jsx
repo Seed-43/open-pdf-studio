@@ -1239,10 +1239,22 @@ function ThumbnailMenuContent() {
             await pm.copyPage(pages()[0]);
           }
         }} />
-      <MenuItem icon={thumbnailPasteIcon} label={tCommon('paste')} onClick={async () => {
-        const { pastePage } = await import('../../pdf/page-manager.js');
-        await pastePage(pageNum());
-      }} />
+      <Submenu icon={thumbnailPasteIcon} label={tCommon('paste')}>
+        <MenuItem label={t('thumbnail.pasteBefore')} onClick={async () => {
+          const { pastePage } = await import('../../pdf/page-manager.js');
+          await pastePage(pageNum() - 1);
+        }} />
+        <MenuItem label={t('thumbnail.pasteAfter')} onClick={async () => {
+          const { pastePage } = await import('../../pdf/page-manager.js');
+          await pastePage(pageNum());
+        }} />
+      </Submenu>
+      <MenuItem icon={thumbnailReplaceIcon}
+        label={isMulti() ? t('thumbnail.pasteReplacePages', { count: count() }) : t('thumbnail.pasteReplace')}
+        onClick={async () => {
+          const { pasteReplacePages } = await import('../../pdf/page-manager.js');
+          await pasteReplacePages(pages());
+        }} />
 
       <Separator />
 

@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "Tüm sayfalar silinemez. En az bir sayfa kalmalıdır.",
   "cannotDeleteAllPagesSource": "Kaynak belgedeki tüm sayfalar silinemez.",
   "noPagesSelected": "Çıkarmak için sayfa seçilmedi.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Seçilen PDF'de sayfa yok.",
   "failedToSavePdf": "PDF kaydedilemedi: {{error}}",
   "failedToLoadPdf": "PDF yüklenemedi: {{error}}",

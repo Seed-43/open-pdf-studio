@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "सभी पृष्ठ नहीं हटाए जा सकते। कम से कम एक पृष्ठ रहना चाहिए।",
   "cannotDeleteAllPagesSource": "स्रोत दस्तावेज़ से सभी पृष्ठ नहीं हटाए जा सकते।",
   "noPagesSelected": "निकालने के लिए कोई पृष्ठ नहीं चुना गया।",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "चयनित PDF में कोई पृष्ठ नहीं है।",
   "failedToSavePdf": "PDF सहेजने में विफल: {{error}}",
   "failedToLoadPdf": "PDF लोड करने में विफल: {{error}}",

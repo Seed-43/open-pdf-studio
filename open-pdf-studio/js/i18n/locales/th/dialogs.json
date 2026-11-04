@@ -275,6 +275,15 @@
     "pagesCount": "หน้า",
     "cannotDeleteAll": "ไม่สามารถลบทุกหน้าได้ ต้องเหลืออย่างน้อยหนึ่งหน้า"
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "แยกหน้า",
     "pageRange": "ช่วงหน้า:",

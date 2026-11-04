@@ -275,6 +275,15 @@
     "pagesCount": "стр.",
     "cannotDeleteAll": "Не може да изтриете всички страници. Трябва да остане поне една страница."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Извличане на страници",
     "pageRange": "Диапазон от страници:",

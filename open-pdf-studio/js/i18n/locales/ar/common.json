@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "لا يمكن حذف جميع الصفحات. يجب أن تبقى صفحة واحدة على الأقل.",
   "cannotDeleteAllPagesSource": "لا يمكن حذف جميع الصفحات من المستند المصدر.",
   "noPagesSelected": "لم يتم تحديد صفحات للاستخراج.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "لا يحتوي ملف PDF المحدد على صفحات.",
   "failedToSavePdf": "فشل حفظ PDF: {{error}}",
   "failedToLoadPdf": "فشل تحميل PDF: {{error}}",

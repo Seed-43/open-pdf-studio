@@ -212,6 +212,7 @@
   "cannotDeleteAllPages": "לא ניתן למחוק את כל העמודים. חייב להישאר לפחות עמוד אחד.",
   "cannotDeleteAllPagesSource": "לא ניתן למחוק את כל העמודים ממסמך המקור.",
   "noPagesSelected": "לא נבחרו עמודים לחילוץ.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "ב-PDF שנבחר אין עמודים.",
   "failedToSavePdf": "שמירת ה-PDF נכשלה: {{error}}",
   "failedToLoadPdf": "טעינת ה-PDF נכשלה: {{error}}",
