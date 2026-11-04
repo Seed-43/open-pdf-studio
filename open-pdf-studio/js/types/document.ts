@@ -107,6 +107,8 @@ export interface DocumentState {
   scrollPosition: ScrollPosition;
   /** Reader Mode: the reading position of this document is tracked (js/core/reader-mode-tracking.js). */
   readerModeActive: boolean;
+  /** A read-only second tab of a document that is open already (#919). */
+  tweedeWeergave?: boolean;
   /** Reader Mode: stored position that still has to be shown; blocks saving until applied. */
   _readerRestore?: { page?: number; scale?: number; scrollTop?: number; scrollHeight?: number; viewMode?: string } | null;
   /** Reader Mode: a jump to the stored position is under way. */
