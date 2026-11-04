@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Utambuzi wa Maandishi (OCR)",
     "run": "Tambua",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Lugha:",
     "info": "Kuna kurasa {{count}} katika hati. Huongeza safu ya maandishi isiyoonekana inayoweza kutafutwa — ukurasa unaonekana sawa. Inaweza kutenduliwa kikamilifu kabla ya kuhifadhi.",
     "options": {

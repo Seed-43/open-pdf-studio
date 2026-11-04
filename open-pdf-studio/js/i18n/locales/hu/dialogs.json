@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Szövegfelismerés (OCR)",
     "run": "Felismerés",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Nyelv:",
     "info": "{{count}} oldal a dokumentumban. Láthatatlan, kereshető szövegréteget ad hozzá — az oldal ugyanúgy néz ki. Mentés előtt a Visszavonással teljesen visszaállítható.",
     "options": {

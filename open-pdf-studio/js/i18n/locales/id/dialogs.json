@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Pengenalan Teks (OCR)",
     "run": "Kenali",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Bahasa:",
     "info": "{{count}} halaman dalam dokumen. Menambahkan lapisan teks tak terlihat yang dapat dicari — halaman tetap terlihat sama. Sepenuhnya dapat dibatalkan dengan Urungkan sebelum menyimpan.",
     "options": {

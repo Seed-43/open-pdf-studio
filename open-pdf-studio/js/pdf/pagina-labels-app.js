@@ -3,7 +3,7 @@
 // (normaliseren, /PageLabels schrijven, tekst in een vak) staat in
 // pagina-labels.js.
 
-import { invoke, isTauri } from '../core/platform.js';
+import { isTauri } from '../core/platform.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
@@ -100,7 +100,8 @@ async function ocrWoorden(doc, pageNum) {
   if (!doc.filePath || !isTauri()) return [];
   const sleutel = `${doc.id}|${doc.filePath}|${pageNum}`;
   if (_ocrWoorden.has(sleutel)) return _ocrWoorden.get(sleutel);
-  const woorden = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto' });
+  const { herkenPagina } = await import('./ocr-engines.js');
+  const woorden = await herkenPagina(doc, pageNum, { lang: 'auto' });
   if (_ocrWoorden.size > 500) _ocrWoorden.clear();
   const lijst = Array.isArray(woorden) ? woorden : [];
   _ocrWoorden.set(sleutel, lijst);
@@ -137,7 +138,18 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
       // OCR-woorden staan in de ruimte van de pagina mét /Rotate maar zonder
       // de draaiing uit de app; draai ze mee naar de ruimte van het vak.
       const extra = p?.extra || 0;
-      const woorden = (await ocrWoorden(doc, pageNum)).map((w) => {
+      // An extension engine that reads regions gets just this box (in its
+      // own space: without the app rotation); otherwise the whole page.
+      const { actieveOcrEngine, herkenPagina } = await import('./ocr-engines.js');
+      let bron;
+      if (actieveOcrEngine()?.region && p && doc.filePath && isTauri()) {
+        const gedraaid = extra % 180 !== 0;
+        const basisVak = draaiVak(vak, gedraaid ? p.hoogte : p.breedte, gedraaid ? p.breedte : p.hoogte, (360 - extra) % 360);
+        bron = await herkenPagina(doc, pageNum, { lang: 'auto', region: basisVak });
+      } else {
+        bron = await ocrWoorden(doc, pageNum);
+      }
+      const woorden = bron.map((w) => {
         if (!extra || !p) return w;
         const r = draaiVak({ x: w.left, y: w.top, width: w.width, height: w.height }, p.breedte, p.hoogte, extra);
         return { ...w, left: r.x, top: r.y, width: r.width, height: r.height };

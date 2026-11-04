@@ -69,7 +69,8 @@ export async function openFormRecognition(documentId) {
           });
           if (!words.length && ocr) {
             if (!isTauri() || !doc.filePath) throw new Error('DESKTOP_OCR_REQUIRED');
-            const raw = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNumber - 1, lang });
+            const { herkenPagina } = await import('./ocr-engines.js');
+            const raw = await herkenPagina(doc, pageNumber, { lang, signal });
             check();
             words = raw.map(w => ({ text: w.text, x: w.left, y: w.top, width: w.width, height: w.height }));
           }

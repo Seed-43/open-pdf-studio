@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Recunoaștere text (OCR)",
     "run": "Recunoaște",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Limbă:",
     "info": "{{count}} pagină(i) în document. Adaugă un strat de text invizibil, căutabil — pagina arată la fel. Complet reversibil cu Anulare înainte de salvare.",
     "options": {

@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Reconeixement de text (OCR)",
     "run": "Reconeix",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Idioma:",
     "info": "{{count}} pàgina(es) al document. Afegeix una capa de text invisible i cercable — la pàgina té el mateix aspecte. Totalment reversible amb Desfés abans de desar.",
     "options": {

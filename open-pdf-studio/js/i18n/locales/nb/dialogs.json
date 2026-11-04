@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Tekstgjenkjenning (OCR)",
     "run": "Gjenkjenn",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Språk:",
     "info": "{{count}} side(r) i dokumentet. Legger til et usynlig, søkbart tekstlag — siden ser fortsatt lik ut. Fullt reverserbart med Angre før lagring.",
     "options": {

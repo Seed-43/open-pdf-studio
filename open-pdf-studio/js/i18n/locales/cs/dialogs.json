@@ -696,6 +696,8 @@
   "ocrLanguage": {
     "title": "Rozpoznávání textu (OCR)",
     "run": "Rozpoznat",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Jazyk:",
     "info": "{{count}} stránka/stránky v dokumentu. Přidá neviditelnou, prohledávatelnou textovou vrstvu — stránka vypadá stejně. Před uložením plně vratné pomocí Zpět.",
     "options": {
