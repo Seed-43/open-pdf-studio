@@ -334,8 +334,9 @@ export function findDocumentByPath(filePath: string): number {
   // Een met een wachtwoord geopende PDF rendert uit een werkkopie; hij hoort
   // ook bij zijn originele pad (js/pdf/wachtwoord-pdf.js), zodat het origineel
   // nogmaals openen het bestaande tabblad toont.
-  return state.documents.findIndex(doc => doc.filePath === filePath
-    || (!!doc.originalFilePath && doc.originalFilePath === filePath));
+  // A read-only second tab (#919) is never "the" tab of a file.
+  return state.documents.findIndex(doc => !doc.tweedeWeergave && (doc.filePath === filePath
+    || (!!doc.originalFilePath && doc.originalFilePath === filePath)));
 }
 
 export function getPageRotation(pageNum: number): number {

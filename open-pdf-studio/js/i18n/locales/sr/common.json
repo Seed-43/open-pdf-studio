@@ -355,6 +355,8 @@
     "detachFailed": "Одвајање прозора није успело: {{error}}",
     "dragFileGone": "Ова датотека више не постоји на диску — картицу није могуће преместити.",
     "dragNotStarted": "Картицу није било могуће превући у други прозор. Покушајте поново или користите десни клик → отвори у новом прозору.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "Отвори у подељеном приказу",
     "openInNewWindow": "Отвори у новом прозору",
     "closeTab": "Затвори картицу",

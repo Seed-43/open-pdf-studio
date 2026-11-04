@@ -355,6 +355,8 @@
     "detachFailed": "Okno se nepodařilo oddělit: {{error}}",
     "dragFileGone": "Tento soubor již na disku neexistuje — kartu nelze přesunout.",
     "dragNotStarted": "Kartu se nepodařilo přetáhnout do jiného okna. Zkuste to znovu nebo použijte pravé tlačítko → otevřít v novém okně.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "Otevřít v rozděleném zobrazení",
     "openInNewWindow": "Otevřít v novém okně",
     "closeTab": "Zavřít kartu",

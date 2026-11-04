@@ -72,12 +72,14 @@ export function isAlleenLezen(doc) {
   if (!doc) return false;
   if (isBeveiligdDocument(doc)) return true;
   if (isHostAlleenLezen(doc)) return true;
+  // A second, read-only tab of a document that is open already (#919).
+  if (doc.tweedeWeergave === true) return true;
   return !!doc.pdfaCompliance && !doc.pdfADismissed;
 }
 
 /** Mag dit document niet opgeslagen worden? (PDF/A mag wel.) */
 export function opslaanGeweigerd(doc) {
-  return isBeveiligdDocument(doc);
+  return isBeveiligdDocument(doc) || doc?.tweedeWeergave === true;
 }
 
 /**

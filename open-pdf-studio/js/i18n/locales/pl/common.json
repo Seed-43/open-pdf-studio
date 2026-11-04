@@ -355,6 +355,8 @@
     "detachFailed": "Nie udało się odłączyć okna: {{error}}",
     "dragFileGone": "Ten plik nie istnieje już na dysku — nie można przenieść karty.",
     "dragNotStarted": "Nie udało się przeciągnąć karty do innego okna. Spróbuj ponownie lub użyj prawego przycisku myszy → otwórz w nowym oknie.",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "Otwórz w widoku podzielonym",
     "openInNewWindow": "Otwórz w nowym oknie",
     "closeTab": "Zamknij kartę",

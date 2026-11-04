@@ -355,6 +355,8 @@
     "detachFailed": "ไม่สามารถแยกหน้าต่างได้: {{error}}",
     "dragFileGone": "ไฟล์นี้ไม่มีอยู่ในดิสก์แล้ว จึงไม่สามารถย้ายแท็บได้",
     "dragNotStarted": "ไม่สามารถลากแท็บไปยังหน้าต่างอื่นได้ ลองอีกครั้ง หรือใช้คลิกขวา → เปิดในหน้าต่างใหม่",
+    "openReadOnlyTab": "Open again in a new tab (read-only)",
+    "readOnlyTag": " (read-only)",
     "openInSplitView": "เปิดในมุมมองแบบแบ่ง",
     "openInNewWindow": "เปิดในหน้าต่างใหม่",
     "closeTab": "ปิดแท็บ",
