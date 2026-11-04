@@ -7,6 +7,8 @@ export interface Preferences {
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
   defaultViewMode: 'continuous' | 'single';
   ocrEngine?: string | null;
+  extensionCatalogs?: string[];
+  extensionSources?: Record<string, { link: string; catalogus: string }>;
 
   // General
   authorName: string;

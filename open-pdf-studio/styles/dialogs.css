@@ -6291,3 +6291,39 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .choose-pages-num { display: flex; align-items: center; gap: 4px; }
 .choose-pages-fout { border-color: #d13438 !important; }
 .choose-pages-footer-left { display: flex; gap: 6px; }
+
+/* Extensions window: tabs, catalogue and custom links (pyRevit-style) */
+.ext-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--theme-app-menu-divider); margin-bottom: 12px; }
+.ext-tab {
+  background: none; border: none; border-bottom: 2px solid transparent; padding: 6px 14px; cursor: pointer;
+  color: var(--theme-app-menu-shortcut); font: inherit; display: inline-flex; align-items: center; gap: 6px;
+}
+.ext-tab:hover { color: var(--theme-app-menu-text); background: var(--theme-app-menu-item-hover); }
+.ext-tab.is-active { color: var(--theme-app-menu-text); border-bottom-color: var(--theme-accent, #0078d7); }
+.ext-tab-count {
+  min-width: 16px; padding: 0 4px; border-radius: 8px; font-size: 10px; line-height: 16px; text-align: center;
+  background: var(--theme-accent, #0078d7); color: #fff;
+}
+.ext-browse-bar { display: flex; gap: 6px; margin: 8px 0; }
+.ext-input {
+  flex: 1; padding: 5px 8px; font: inherit; border: 1px solid var(--theme-app-menu-sidebar-border);
+  background: var(--theme-app-menu-bg, #fff); color: var(--theme-app-menu-text); user-select: text;
+}
+.ext-input:focus { outline: none; border-color: var(--theme-accent, #0078d7); }
+.ext-action-btn {
+  padding: 5px 12px; font: inherit; cursor: pointer; white-space: nowrap;
+  border: 1px solid var(--theme-app-menu-sidebar-border); background: var(--theme-app-menu-bg, #fff); color: var(--theme-app-menu-text);
+}
+.ext-action-btn:hover:not(:disabled) { background: var(--theme-app-menu-item-hover); }
+.ext-action-btn:disabled { opacity: 0.5; cursor: default; }
+.ext-action-primary { background: var(--theme-accent, #0078d7); border-color: var(--theme-accent, #0078d7); color: #fff; }
+.ext-action-primary:hover:not(:disabled) { filter: brightness(1.1); background: var(--theme-accent, #0078d7); }
+.ext-link { color: var(--theme-accent, #0078d7); text-decoration: none; }
+.ext-link:hover { text-decoration: underline; }
+.ext-warning {
+  padding: 8px 10px; margin: 0 0 10px; font-size: 12px; border: 1px solid var(--theme-warning-border, #f59e0b);
+  background: var(--theme-warning-bg, rgba(245, 158, 11, 0.1)); color: var(--theme-app-menu-text);
+}
+.ext-catalog-list { display: flex; flex-direction: column; gap: 4px; }
+.ext-catalog-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.ext-catalog-url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--theme-app-menu-shortcut); }
