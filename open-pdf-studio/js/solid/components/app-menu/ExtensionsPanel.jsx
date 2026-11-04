@@ -29,6 +29,7 @@ export default function ExtensionsPanel() {
   const [nieuweCatalogus, setNieuweCatalogus] = createSignal('');
   const [updates, setUpdates] = createSignal({});         // id -> latest version
   const [catalogusLijst, setCatalogusLijst] = createSignal(catalogi());
+  const [catalogusItems, setCatalogusItems] = createSignal([]); // for updates
 
   async function refreshList() {
     if (!isTauri()) { setPlugins([]); return; }
@@ -45,6 +46,7 @@ export default function ExtensionsPanel() {
     // The catalogue knows the versions of package entries; load it quietly.
     let items = catalogus()?.items;
     if (!items) { try { items = (await laadCatalogi()).items; } catch { items = []; } }
+    setCatalogusItems(items);
     for (const p of plugins()) {
       if (!bronnen()[p.id] && !items.some(i => i.id === p.id)) continue;
       const v = await nieuwsteVersie(p.id, items);
@@ -97,7 +99,15 @@ export default function ExtensionsPanel() {
 
   const handleCatalogusItem = (item) => bezig(item.id, () => installeerItem(item));
 
-  const handleUpdate = (plugin) => bezig(plugin.id, () => installeerVanLink(bronnen()[plugin.id].link, { catalogus: bronnen()[plugin.id].catalogus }));
+  // Update from the link it was installed from, or (installed from a file)
+  // from its catalogue entry.
+  const handleUpdate = (plugin) => bezig(plugin.id, () => {
+    const bron = bronnen()[plugin.id];
+    if (bron?.link) return installeerVanLink(bron.link, { catalogus: bron.catalogus });
+    const item = (catalogus()?.items || catalogusItems()).find(i => i.id === plugin.id);
+    if (!item) throw new Error('No source to update from');
+    return installeerItem(item);
+  });
 
   async function laadCatalogus() {
     setLaden(true);

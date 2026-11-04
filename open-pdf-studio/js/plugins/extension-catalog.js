@@ -144,7 +144,9 @@ export function vergelijkVersies(a, b) {
 export async function nieuwsteVersie(id, catalogusItems = []) {
   const item = catalogusItems.find(i => i.id === id);
   if (item?.version) return item.version;
-  const bron = bronnen()[id];
-  if (!bron?.link || /\.oppx(\?|$)/i.test(bron.link)) return '';
-  try { return (await losLinkOp(bron.link)).version; } catch { return ''; }
+  // Installed from a file but listed in a catalogue: follow the catalogue's
+  // repository, so updates are offered all the same.
+  const link = bronnen()[id]?.link || item?.repo || '';
+  if (!link || /\.oppx(\?|$)/i.test(link)) return '';
+  try { return (await losLinkOp(link)).version; } catch { return ''; }
 }
