@@ -707,6 +707,8 @@
   "ocrLanguage": {
     "title": "文字認識（OCR）",
     "run": "認識",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "言語:",
     "info": "ドキュメント内に{{count}}ページあります。見た目を変えずに、目に見えない検索可能なテキストレイヤーを追加します。保存前であれば元に戻すで完全に取り消せます。",
     "options": {

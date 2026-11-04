@@ -707,6 +707,8 @@
   "ocrLanguage": {
     "title": "זיהוי טקסט (OCR)",
     "run": "זהה",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "שפה:",
     "info": "{{count}} עמודים במסמך. מוסיף שכבת טקסט בלתי נראית וניתנת לחיפוש — העמוד עדיין נראה זהה. הפיך במלואו באמצעות ביטול לפני השמירה.",
     "options": {

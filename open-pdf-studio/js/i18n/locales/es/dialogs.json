@@ -707,6 +707,8 @@
   "ocrLanguage": {
     "title": "Reconocimiento de texto (OCR)",
     "run": "Reconocer",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Idioma:",
     "info": "{{count}} página(s) en el documento. Añade una capa de texto invisible y buscable — la página se ve igual. Totalmente reversible con Deshacer antes de guardar.",
     "options": {

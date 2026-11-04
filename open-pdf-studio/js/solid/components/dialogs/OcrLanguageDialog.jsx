@@ -1,6 +1,7 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 import Dialog from '../Dialog.jsx';
-import { getActiveDocument } from '../../../core/state.js';
+import { getActiveDocument, state } from '../../../core/state.js';
+import { lijstOcrEngines, onOcrEnginesChanged, INGEBOUWD } from '../../../pdf/ocr-engines.js';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
@@ -19,6 +20,18 @@ export default function OcrLanguageDialog(props) {
 
   const [applyTo, setApplyTo] = createSignal('all');
   const [lang, setLang] = createSignal('auto');
+  // The preferred OCR engine (extensions can add engines); saved as a
+  // preference, so page labels and form recognition use it too.
+  const [engines, setEngines] = createSignal(lijstOcrEngines());
+  onCleanup(onOcrEnginesChanged(() => setEngines(lijstOcrEngines())));
+  const [engine, setEngine] = createSignal(
+    lijstOcrEngines().some(e => e.id === state.preferences?.ocrEngine) ? state.preferences.ocrEngine : INGEBOUWD);
+  const kiesEngine = async (id) => {
+    setEngine(id);
+    state.preferences.ocrEngine = id === INGEBOUWD ? null : id;
+    const { savePreferences } = await import('../../../core/preferences.js');
+    savePreferences();
+  };
 
   const close = () => closeDialog('ocr-language');
 
@@ -63,6 +76,18 @@ export default function OcrLanguageDialog(props) {
           >
             <option value="current">{t('cropMargins.currentPage')}</option>
             <option value="all">{t('cropMargins.allPages')}</option>
+          </select>
+        </div>
+        <div class="crop-margins-row">
+          <label class="crop-margins-label">{t('ocrLanguage.engine')}</label>
+          <select
+            class="crop-margins-select"
+            value={engine()}
+            onChange={(e) => kiesEngine(e.target.value)}
+          >
+            {engines().map((e) => (
+              <option value={e.id}>{e.id === INGEBOUWD ? t('ocrLanguage.builtinEngine') : e.label}</option>
+            ))}
           </select>
         </div>
         <div class="crop-margins-row">

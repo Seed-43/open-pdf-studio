@@ -1968,6 +1968,23 @@ fn read_plugin_file(plugin_id: String, file_path: String) -> Result<String, Stri
     fs::read_to_string(&full_path).map_err(|e| format!("Failed to read file: {}", e))
 }
 
+/// A binary file from an installed extension's own folder (models, WebAssembly):
+/// `read_plugin_file` returns text only. Same id and path checks.
+#[tauri::command]
+fn read_plugin_asset(plugin_id: String, file_path: String) -> Result<tauri::ipc::Response, String> {
+    extensie_installatie::controleer_bestaand_id(&plugin_id)?;
+    if file_path.contains("..") || file_path.starts_with('/') || file_path.starts_with('\\') || file_path.contains(':') {
+        return Err("Invalid file path".to_string());
+    }
+    let plugins_dir = get_plugins_dir();
+    let full_path = plugins_dir.join(&plugin_id).join(&file_path);
+    if !full_path.starts_with(plugins_dir.join(&plugin_id)) {
+        return Err("Path traversal detected".to_string());
+    }
+    let data = fs::read(&full_path).map_err(|e| format!("Failed to read file: {}", e))?;
+    Ok(tauri::ipc::Response::new(data))
+}
+
 // ─── Allow FS access to a path (for testing / programmatic file opens) ────
 #[tauri::command]
 fn allow_fs_scope(app: tauri::AppHandle, path: String) -> Result<bool, String> {
@@ -3400,6 +3417,7 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_stop,
             get_opened_file,
             get_shell_action,
+            read_plugin_asset,
             save_session,
             load_session,
             get_username,

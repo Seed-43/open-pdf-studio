@@ -333,6 +333,8 @@ export function createPluginApi(pluginId) {
       systemInstanceLinks: true,
       scopedPropertyPanels: true,
       agentTasks: true,
+      ocrEngines: true,
+      assets: true,
     },
 
     // --- Annotation type registration ---
@@ -704,6 +706,30 @@ export function createPluginApi(pluginId) {
 
     focusAnnotation(request) {
       return navigation().focusAnnotation(request);
+    },
+
+    // --- OCR engines: the user can pick one as the preferred OCR engine;
+    // every OCR job in the app then uses it (js/pdf/ocr-engines.js). ---
+    async registerOcrEngine(descriptor) {
+      scope.eisActief('ocrEngine', String(descriptor?.id));
+      const { registreerOcrEngine, verwijderOcrEngine } = await import('../pdf/ocr-engines.js');
+      const sleutel = registreerOcrEngine(pluginId, descriptor);
+      scope.voegToe('ocrEngine', sleutel, () => verwijderOcrEngine(sleutel));
+      return sleutel;
+    },
+
+    async unregisterOcrEngine(id) {
+      const sleutel = `${pluginId}:${id}`;
+      if (!scope.lijst().some(b => b.soort === 'ocrEngine' && b.sleutel === sleutel)) return false;
+      return scope.verwijder('ocrEngine', sleutel);
+    },
+
+    /** A binary file from this extension's own package (models, WebAssembly). */
+    async readAsset(path) {
+      if (typeof path !== 'string' || !path || path.includes('..')) throw new TypeError('readAsset: a relative path inside the extension');
+      const { invoke } = await import('@tauri-apps/api/core');
+      const data = await invoke('read_plugin_asset', { pluginId, filePath: path });
+      return data instanceof ArrayBuffer ? data : new Uint8Array(data).buffer;
     },
 
     // --- Linttabbladen (#551): alleen data, de host tekent; zie ribbon-tab-registry.js ---

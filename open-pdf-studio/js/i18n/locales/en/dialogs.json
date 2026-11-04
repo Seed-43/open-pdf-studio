@@ -706,6 +706,8 @@
   "ocrLanguage": {
     "title": "Recognize Text (OCR)",
     "run": "Recognize",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Language:",
     "info": "{{count}} page(s) in document. Adds an invisible, searchable text layer — the page still looks the same. Fully reversible with Undo before saving.",
     "options": {

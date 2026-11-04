@@ -707,6 +707,8 @@
   "ocrLanguage": {
     "title": "التعرف على النص (OCR)",
     "run": "تعرّف",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "اللغة:",
     "info": "{{count}} صفحة في المستند. يضيف طبقة نص غير مرئية وقابلة للبحث — يظل شكل الصفحة كما هو. قابل للتراجع الكامل قبل الحفظ.",
     "options": {

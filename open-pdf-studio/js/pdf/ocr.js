@@ -10,12 +10,11 @@ import {
 } from '../solid/stores/printProgressStore.js';
 import i18next from '../i18n/config.js';
 
-function tauri() {
-  return window.__TAURI__ || {};
-}
-
-async function ocrOnePage(filePath, pageIndex, lang) {
-  return await tauri().core.invoke('ocr_pdf_page', { path: filePath, pageIndex, lang });
+// The preferred OCR engine (an extension's, or the built-in Tesseract):
+// see ocr-engines.js.
+async function ocrOnePage(doc, pageIndex, lang) {
+  const { herkenPagina } = await import('./ocr-engines.js');
+  return await herkenPagina(doc, pageIndex + 1, { lang });
 }
 
 /** OCR the current page only. `lang`: a Tesseract language spec (e.g.
@@ -29,7 +28,7 @@ export async function ocrCurrentPage(lang = 'auto') {
 
   startPrintProgress(i18next.t('ocr.progress.page', { ns: 'statusbar', page: doc.currentPage }) || `Recognizing text on page ${doc.currentPage}...`);
   try {
-    const words = await ocrOnePage(path, pageIndex, lang);
+    const words = await ocrOnePage(doc, pageIndex, lang);
     // A page/tab switch is harmless; replacing or closing the source is not.
     if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
       sluitPrintProgress();
@@ -67,7 +66,7 @@ export async function ocrAllPages(lang = 'auto') {
         i18next.t('ocr.progress.page', { ns: 'statusbar', page: pageNum }) || `Recognizing text on page ${pageNum}...`,
         i / total,
       );
-      const words = await ocrOnePage(path, i, lang);
+      const words = await ocrOnePage(doc, i, lang);
       if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
         sluitPrintProgress();
         return;

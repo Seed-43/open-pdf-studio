@@ -707,6 +707,8 @@
   "ocrLanguage": {
     "title": "Textigenkänning (OCR)",
     "run": "Känn igen",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (built-in)",
     "language": "Språk:",
     "info": "{{count}} sida/sidor i dokumentet. Lägger till ett osynligt, sökbart textlager — sidan ser fortfarande likadan ut. Helt återställningsbart med Ångra innan du sparar.",
     "options": {
