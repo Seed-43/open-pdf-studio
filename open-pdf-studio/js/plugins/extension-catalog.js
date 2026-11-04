@@ -7,16 +7,17 @@
 //
 // Catalogue format (extensions.json):
 // { "version": 1, "extensions": [ {
-//     "id": "lens-ocr", "name": "Lens OCR", "description": "...",
-//     "author": "Seed-43", "repo": "https://github.com/Seed-43/lens-ocr",
-//     "homepage": "...", "tags": ["ocr"],
-//     "package": "https://.../lens-ocr.oppx", "sha256": "...",  (optional)
+//     "id": "my-extension", "name": "My Extension", "description": "...",
+//     "author": "...", "repo": "https://github.com/owner/my-extension",
+//     "homepage": "...", "tags": ["markup"],
+//     "package": "https://.../my-extension.oppx", "sha256": "...",  (optional)
 //     "version": "0.1.2"   (with package: the version it installs)
 // } ] }
 
 import { state } from '../core/state.js';
 
-export const STANDAARD_CATALOGUS = 'https://raw.githubusercontent.com/Seed-43/PDF43/main/extensions.json';
+// The project's own catalogue repository (to be created by the maintainers).
+export const STANDAARD_CATALOGUS = 'https://raw.githubusercontent.com/OpenAEC-Foundation/open-pdf-studio-extensions/main/extensions.json';
 
 const invoke = (cmd, args) => window.__TAURI__.core.invoke(cmd, args);
 

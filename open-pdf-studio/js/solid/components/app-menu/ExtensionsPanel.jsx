@@ -8,7 +8,7 @@ import {
 } from '../../../plugins/extension-catalog.js';
 
 // Repository with the shared catalogue and how to add an extension to it.
-const CATALOGUS_REPO = 'https://github.com/Seed-43/PDF43';
+const CATALOGUS_REPO = 'https://github.com/OpenAEC-Foundation/open-pdf-studio-extensions';
 
 // Het extensiepaneel toont alles wat de levenscyclus kent (#550): actieve,
 // mislukte en niet-geladen extensies, zodat ook een kapotte extensie hier te
