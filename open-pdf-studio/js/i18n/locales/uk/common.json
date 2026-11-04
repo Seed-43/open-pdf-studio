@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Не можна видалити всі сторінки. Має залишитися щонайменше одна сторінка.",
   "cannotDeleteAllPagesSource": "Не можна видалити всі сторінки з вихідного документа.",
   "noPagesSelected": "Не вибрано сторінок для витягування.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Вибраний PDF не містить сторінок.",
   "failedToSavePdf": "Не вдалося зберегти PDF: {{error}}",
   "failedToLoadPdf": "Не вдалося завантажити PDF: {{error}}",

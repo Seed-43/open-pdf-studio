@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Нельзя удалить все страницы. Должна остаться хотя бы одна страница.",
   "cannotDeleteAllPagesSource": "Нельзя удалить все страницы из исходного документа.",
   "noPagesSelected": "Не выбраны страницы для извлечения.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "В выбранном PDF нет страниц.",
   "failedToSavePdf": "Не удалось сохранить PDF: {{error}}",
   "failedToLoadPdf": "Не удалось загрузить PDF: {{error}}",

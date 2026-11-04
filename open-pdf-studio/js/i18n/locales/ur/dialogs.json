@@ -275,6 +275,15 @@
     "pagesCount": "صفحات۔",
     "cannotDeleteAll": "تمام صفحات حذف نہیں کیے جا سکتے۔ کم از کم ایک صفحہ باقی رہنا چاہیے۔"
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "صفحات نکالیں",
     "pageRange": "صفحہ کی حد:",

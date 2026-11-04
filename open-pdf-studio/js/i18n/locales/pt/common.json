@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Não é possível excluir todas as páginas. Pelo menos uma página deve permanecer.",
   "cannotDeleteAllPagesSource": "Não é possível excluir todas as páginas do documento de origem.",
   "noPagesSelected": "Nenhuma página selecionada para extração.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "O PDF selecionado não tem páginas.",
   "failedToSavePdf": "Falha ao salvar o PDF: {{error}}",
   "failedToLoadPdf": "Falha ao carregar o PDF: {{error}}",

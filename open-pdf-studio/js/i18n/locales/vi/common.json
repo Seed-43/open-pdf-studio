@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Không thể xóa tất cả các trang. Phải giữ lại ít nhất một trang.",
   "cannotDeleteAllPagesSource": "Không thể xóa tất cả các trang khỏi tài liệu nguồn.",
   "noPagesSelected": "Chưa chọn trang nào để trích xuất.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "PDF đã chọn không có trang nào.",
   "failedToSavePdf": "Lưu PDF thất bại: {{error}}",
   "failedToLoadPdf": "Tải PDF thất bại: {{error}}",

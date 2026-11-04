@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Det går inte att radera alla sidor. Minst en sida måste finnas kvar.",
   "cannotDeleteAllPagesSource": "Det går inte att radera alla sidor från källdokumentet.",
   "noPagesSelected": "Inga sidor har valts för extrahering.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Den valda PDF-filen har inga sidor.",
   "failedToSavePdf": "Det gick inte att spara PDF: {{error}}",
   "failedToLoadPdf": "Det gick inte att läsa in PDF: {{error}}",

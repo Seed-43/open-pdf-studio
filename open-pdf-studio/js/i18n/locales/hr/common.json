@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Nije moguće obrisati sve stranice. Mora ostati barem jedna stranica.",
   "cannotDeleteAllPagesSource": "Nije moguće obrisati sve stranice iz izvornog dokumenta.",
   "noPagesSelected": "Nisu odabrane stranice za izdvajanje.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Odabrani PDF nema stranica.",
   "failedToSavePdf": "Spremanje PDF-a nije uspjelo: {{error}}",
   "failedToLoadPdf": "Učitavanje PDF-a nije uspjelo: {{error}}",

@@ -275,6 +275,15 @@
     "pagesCount": "σελίδες.",
     "cannotDeleteAll": "Δεν είναι δυνατή η διαγραφή όλων των σελίδων. Πρέπει να μείνει τουλάχιστον μία σελίδα."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Εξαγωγή σελίδων",
     "pageRange": "Εύρος σελίδων:",

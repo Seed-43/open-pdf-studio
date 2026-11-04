@@ -275,6 +275,15 @@
     "pagesCount": "पृष्ठ।",
     "cannotDeleteAll": "सभी पृष्ठ नहीं हटाए जा सकते। कम से कम एक पृष्ठ रहना चाहिए।"
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "पृष्ठ निकालें",
     "pageRange": "पृष्ठ सीमा:",

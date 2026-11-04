@@ -275,6 +275,15 @@
     "pagesCount": "str.",
     "cannotDeleteAll": "Nie je možné odstrániť všetky strany. Aspoň jedna strana musí zostať."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Extrahovať strany",
     "pageRange": "Rozsah strán:",

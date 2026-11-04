@@ -72,6 +72,7 @@
   "cannotDeleteAllPages": "Није могуће обрисати све странице. Мора остати бар једна страница.",
   "cannotDeleteAllPagesSource": "Није могуће обрисати све странице из изворног документа.",
   "noPagesSelected": "Нису изабране странице за издвајање.",
+  "pageClipboardEmpty": "Copy or cut pages first, then use Paste and replace.",
   "selectedPdfNoPages": "Изабрани PDF нема страница.",
   "failedToSavePdf": "Чување PDF-а није успело: {{error}}",
   "failedToLoadPdf": "Учитавање PDF-а није успело: {{error}}",

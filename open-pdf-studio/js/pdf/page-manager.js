@@ -172,6 +172,65 @@ export async function pastePage(afterPageNum) {
   }
 }
 
+/**
+ * Replace the given pages with the page clipboard (#963): the pages go out,
+ * the copied pages come in where the first of them was. Their markups go
+ * with them, as with Replace Pages.
+ * @param {number[]} pageNumbers 1-based pages to replace
+ */
+export async function pasteReplacePages(pageNumbers) {
+  if (!getActiveDocument()?.pdfDoc) return;
+  if (!pageClipboard) { showMessage(i18next.t('pageClipboardEmpty')); return; }
+  const weg = [...new Set(pageNumbers || [])].sort((a, b) => a - b);
+  if (!weg.length) return;
+
+  const cacheKey = getCacheKey();
+  const currentBytes = getCachedPdfBytes(cacheKey);
+  if (!currentBytes) return;
+
+  const doc = getActiveDocument();
+  const oldAnnotations = doc.annotations.map(a => ({ ...a }));
+  const oldRotations = { ...doc.pageRotations };
+  const oldPage = doc.currentPage;
+
+  showLoading('Replacing page...');
+  try {
+    const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
+    const oldNumPages = destDoc.getPageCount();
+    if (weg.some(p => p < 1 || p > oldNumPages)) return;
+    const srcDoc = await PDFDocument.load(pageClipboard.bytes, { ignoreEncryption: true });
+    const aantalIn = srcDoc.getPageCount();
+    const copiedPages = await destDoc.copyPages(srcDoc, Array.from({ length: aantalIn }, (_, i) => i));
+
+    for (const p of [...weg].reverse()) destDoc.removePage(p - 1);
+    const insertIdx = weg[0] - 1;
+    for (let i = 0; i < copiedPages.length; i++) destDoc.insertPage(insertIdx + i, copiedPages[i]);
+    relinkCopiedPageZones(destDoc, copiedPages, doc);
+
+    // Replaced pages lose their markups; the rest shift by what came in
+    // minus what went out before them.
+    const pageMapping = {};
+    for (let oldP = 1; oldP <= oldNumPages; oldP++) {
+      if (weg.includes(oldP)) { pageMapping[oldP] = null; continue; }
+      const wegErvoor = weg.filter(p => p < oldP).length;
+      pageMapping[oldP] = oldP < weg[0] ? oldP : oldP - wegErvoor + aantalIn;
+    }
+
+    const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
+    const newRotations = remapRotations(doc.pageRotations, pageMapping);
+    const newBytes = new Uint8Array(await destDoc.save());
+    const targetPage = insertIdx + 1;
+    const newViewports = viewportsVanPaginas(copiedPages, insertIdx + 1);
+    const inModel = await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
+    recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, inModel || newAnnotations, newRotations, targetPage);
+  } catch (err) {
+    console.error('Failed to paste and replace pages:', err);
+    showMessage(i18next.t('failedToReplacePage', { error: err.message }));
+  } finally {
+    hideLoading();
+  }
+}
+
 // Copied pages keep the spatial zone ids of their original; an id that the
 // document already uses gets a fresh one, or both zones become invalid.
 function relinkCopiedPageZones(destDoc, copiedPages, doc) {
@@ -628,14 +687,24 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
       }
     }
 
+    // Which pages of a multi-page source (#963); a silent caller takes all.
+    let indices = Array.from({ length: srcPageCount }, (_, i) => i);
+    if (!stil && srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      const naam = String(filePath).split(/[\/]/).pop() || '';
+      indices = await kiesBronPaginas(srcBytes, naam, srcPageCount, 'insert');
+      if (!indices) return false;
+      showLoading('Inserting pages...');
+    }
+    const aantalIn = indices.length;
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
     // 0-based insertion index
     const insertIdx = position === 'before' ? refPage - 1 : refPage;
 
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
     for (let i = 0; i < copiedPages.length; i++) {
       destDoc.insertPage(insertIdx + i, copiedPages[i]);
@@ -659,7 +728,7 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
       if (oldP <= insertIdx) {
         pageMapping[oldP] = oldP;
       } else {
-        pageMapping[oldP] = oldP + srcPageCount;
+        pageMapping[oldP] = oldP + aantalIn;
       }
     }
 
@@ -1202,12 +1271,21 @@ export async function replacePages(pageNumber) {
       return;
     }
 
+    // Which pages of a multi-page source replace this page (#963).
+    let indices = [0];
+    if (srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      const naam = String(filePath).split(/[\/]/).pop() || '';
+      indices = await kiesBronPaginas(srcBytes, naam, srcPageCount, 'replace');
+      if (!indices) return;
+      showLoading('Replacing page...');
+    }
+    const aantalIn = indices.length;
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
-    // Copy all pages from source
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
 
     // Remove the target page
@@ -1222,7 +1300,7 @@ export async function replacePages(pageNumber) {
     // Build page mapping
     // Pages before the replaced page: unchanged
     // The replaced page: mapped to null (deleted)
-    // Pages after: shifted by (srcPageCount - 1)
+    // Pages after: shifted by (aantalIn - 1)
     const pageMapping = {};
     for (let oldP = 1; oldP <= oldNumPages; oldP++) {
       if (oldP < pageNumber) {
@@ -1230,7 +1308,7 @@ export async function replacePages(pageNumber) {
       } else if (oldP === pageNumber) {
         pageMapping[oldP] = null; // replaced page loses its annotations
       } else {
-        pageMapping[oldP] = oldP + srcPageCount - 1;
+        pageMapping[oldP] = oldP + aantalIn - 1;
       }
     }
 

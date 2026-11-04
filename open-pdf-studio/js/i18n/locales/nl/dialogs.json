@@ -256,6 +256,15 @@
     "portrait": "Staand",
     "landscape": "Liggend"
   },
+  "choosePages": {
+    "title": "Pagina's kiezen",
+    "from": "{{name}} heeft {{count}} pagina's. Kies welke je wilt gebruiken.",
+    "selected": "{{count}} van {{total}} gekozen",
+    "all": "Alles",
+    "none": "Geen",
+    "insert": "Invoegen",
+    "replace": "Vervangen"
+  },
   "extractPages": {
     "title": "Pagina's extraheren",
     "pageRange": "Paginabereik:",

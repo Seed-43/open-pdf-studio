@@ -275,6 +275,15 @@
     "pagesCount": "pàgines.",
     "cannotDeleteAll": "No es poden suprimir totes les pàgines. N'ha de quedar com a mínim una."
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "Extreu pàgines",
     "pageRange": "Interval de pàgines:",

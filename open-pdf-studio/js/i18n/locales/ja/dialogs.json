@@ -275,6 +275,15 @@
     "pagesCount": "ページ。",
     "cannotDeleteAll": "すべてのページを削除することはできません。少なくとも 1 ページは残す必要があります。"
   },
+  "choosePages": {
+    "title": "Choose pages",
+    "from": "{{name}} has {{count}} pages. Choose which ones to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "extractPages": {
     "title": "ページの抽出",
     "pageRange": "ページ範囲：",
