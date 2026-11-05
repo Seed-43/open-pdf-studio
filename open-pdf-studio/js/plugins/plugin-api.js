@@ -335,6 +335,7 @@ export function createPluginApi(pluginId) {
       agentTasks: true,
       ocrEngines: true,
       assets: true,
+      paletteVisibility: true,
     },
 
     // --- Annotation type registration ---
@@ -360,6 +361,20 @@ export function createPluginApi(pluginId) {
       scope.eisActief('palette', String(descriptor?.id));
       registerToolPalette(descriptor);
       registeredPalettes.push(descriptor.id);
+    },
+
+    /** Show or hide one of this extension's palettes (as the View tab does). */
+    async setToolPaletteVisible(id, visible) {
+      if (!registeredPalettes.includes(id)) return false;
+      const m = await import('../solid/components/ExtensionToolPalette.jsx');
+      if (m.isExtPaletteVisible(id) !== !!visible) m.toggleExtPalette(id);
+      return true;
+    },
+
+    async isToolPaletteVisible(id) {
+      if (!registeredPalettes.includes(id)) return false;
+      const m = await import('../solid/components/ExtensionToolPalette.jsx');
+      return m.isExtPaletteVisible(id);
     },
 
     unregisterToolPalette(id) {
