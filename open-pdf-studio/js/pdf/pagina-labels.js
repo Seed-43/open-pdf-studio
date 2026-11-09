@@ -333,6 +333,15 @@ export const OCR_GOED_GENOEG = 70;
 export const OCR_MARGE = 5;
 
 /**
+ * Tekens die OCR in bladnamen vaak verwisselt. Een $ in een code ($-101,
+ * E$01) is in een tekeningnummer vrijwel altijd een S. Een losse $
+ * (bedragen) blijft staan.
+ */
+export function verbeterOcrTekst(tekst) {
+  return String(tekst || '').replace(/\$(?=[-.]?[A-Za-z0-9])|(?<=[A-Za-z0-9])\$/g, 'S');
+}
+
+/**
  * Lezing van OCR-woorden ({text, left, top, width, height, confidence})
  * binnen `vak`: de tekst en de gemiddelde zekerheid, gewogen naar het aantal
  * tekens (null als geen woord een zekerheid heeft).
@@ -341,7 +350,7 @@ export const OCR_MARGE = 5;
 export function ocrLezing(woorden, vak, graden = 0) {
   const raak = (woorden || []).filter((w) => typeof w?.text === 'string' && w.text.trim()
     && middenBinnen({ x: w.left, y: w.top, width: w.width, height: w.height }, vak));
-  const tekst = regelsTotTekst(raak.map((w) => ({ x: w.left, y: w.top, width: w.width, height: w.height, text: w.text })));
+  const tekst = verbeterOcrTekst(regelsTotTekst(raak.map((w) => ({ x: w.left, y: w.top, width: w.width, height: w.height, text: w.text }))));
   let tekens = 0;
   let som = 0;
   for (const w of raak) {

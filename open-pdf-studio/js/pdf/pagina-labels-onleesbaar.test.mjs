@@ -27,3 +27,14 @@ test('isOnleesbareTekstlaag: aandeel over de hele pagina', () => {
   assert.equal(isOnleesbareTekstlaag([]), false);
   assert.ok(ONLEESBAAR_AANDEEL > 0 && ONLEESBAAR_AANDEEL < 1);
 });
+
+test('verbeterOcrTekst: $ in een code wordt S', async () => {
+  const { verbeterOcrTekst, ocrLezing } = await import('./pagina-labels.js');
+  assert.equal(verbeterOcrTekst('$101'), 'S101');
+  assert.equal(verbeterOcrTekst('$-101 GENERAL NOTE$'), 'S-101 GENERAL NOTES');
+  assert.equal(verbeterOcrTekst('E$01'), 'ES01');
+  assert.equal(verbeterOcrTekst('Cost $ 100'), 'Cost $ 100');
+  assert.equal(verbeterOcrTekst(''), '');
+  const w = { text: '$201', left: 0, top: 0, width: 10, height: 5, confidence: 90 };
+  assert.equal(ocrLezing([w], { x: 0, y: 0, width: 20, height: 10 }).tekst, 'S201');
+});
