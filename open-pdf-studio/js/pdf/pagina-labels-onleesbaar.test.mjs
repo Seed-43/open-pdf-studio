@@ -38,3 +38,20 @@ test('verbeterOcrTekst: $ in een code wordt S', async () => {
   const w = { text: '$201', left: 0, top: 0, width: 10, height: 5, confidence: 90 };
   assert.equal(ocrLezing([w], { x: 0, y: 0, width: 20, height: 10 }).tekst, 'S201');
 });
+
+test('draaiingenVoorVak: gedraaid lezen alleen waar het nodig is', async () => {
+  const { draaiingenVoorVak, OCR_DRAAIINGEN } = await import('./pagina-labels.js');
+  const staand = { width: 20, height: 80 };
+  const liggend = { width: 120, height: 20 };
+  // Goed genoeg bij 0°: niets extra.
+  assert.deepEqual(draaiingenVoorVak({ tekst: 'S-101', score: 95 }, staand), []);
+  // Leeg: altijd beide kwartslagen, de vorige winnaar eerst.
+  assert.deepEqual(draaiingenVoorVak({ tekst: '', score: null }, liggend), OCR_DRAAIINGEN);
+  assert.deepEqual(draaiingenVoorVak({ tekst: '', score: null }, staand, { graden: 270 }), [270, 90]);
+  // Onzeker maar wel tekst in een liggend vak: niet draaien.
+  assert.deepEqual(draaiingenVoorVak({ tekst: 'S-1O1', score: 50 }, liggend), []);
+  // Onzeker in een staand vak: draaien, tenzij 0° eerder won.
+  assert.deepEqual(draaiingenVoorVak({ tekst: 'xx', score: 50 }, staand), OCR_DRAAIINGEN);
+  assert.deepEqual(draaiingenVoorVak({ tekst: 'xx', score: 50 }, staand, { graden: 0 }), []);
+  assert.deepEqual(draaiingenVoorVak({ tekst: 'xx', score: 50 }, staand, { graden: 90 }), [90, 270]);
+});

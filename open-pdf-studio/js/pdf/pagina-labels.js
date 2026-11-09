@@ -331,6 +331,29 @@ export const OCR_DRAAIINGEN = [90, 270];
 export const OCR_GOED_GENOEG = 70;
 /** Een gedraaide lezing moet zoveel punten zekerder zijn om te winnen. */
 export const OCR_MARGE = 5;
+/** Een vak minstens zoveel keer breder dan hoog bevat liggende tekst. */
+export const LIGGEND_VAK = 2;
+
+/**
+ * Welke extra draaiingen een vak nog nodig heeft na de lezing bij 0°, in
+ * volgorde. Niets als 0° goed genoeg is. Daarna: een liggend vak met tekst
+ * bij 0° en een vak dat op eerdere pagina's bij 0° won, worden niet
+ * gedraaid (dat kost twee keer de hele pagina door OCR); won eerder een
+ * kwartslag, dan die eerst.
+ * @param {{tekst:string, score:number|null}} lezing0
+ * @param {{width:number, height:number}} vak
+ * @param {{graden:number|null}|null} stand
+ */
+export function draaiingenVoorVak(lezing0, vak, stand = null) {
+  if (!moetGedraaidLezen(lezing0)) return [];
+  if (lezing0?.tekst) {
+    if (stand?.graden === 0) return [];
+    if (vak && vak.width >= LIGGEND_VAK * vak.height) return [];
+  }
+  const vorige = stand?.graden;
+  if (OCR_DRAAIINGEN.includes(vorige)) return [vorige, ...OCR_DRAAIINGEN.filter((g) => g !== vorige)];
+  return [...OCR_DRAAIINGEN];
+}
 
 /**
  * Tekens die OCR in bladnamen vaak verwisselt. Een $ in een code ($-101,
