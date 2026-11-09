@@ -258,6 +258,45 @@ export function tekstInGebied(items, viewport, vak) {
   return regelsTotTekst(spans.map((s) => ({ ...s.bbox, text: s.text })));
 }
 
+// ── Onleesbare tekstlaag ─────────────────────────────────────────────────
+// Lettertypen die zonder /ToUnicode zijn ingebed geven glyph-codes in plaats
+// van letters: stuurtekens, tekens uit het privégebied of U+FFFD, gemengd met
+// verschoven leestekens ("BR2" wordt "%5\x15"). Zo'n tekstlaag is niet leeg
+// maar wel onbruikbaar; de naambouwer leest zo'n vak dan met OCR.
+
+const ONLEESBAAR_TEKEN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\uE000-\uF8FF\uFFFD]/g;
+
+/** Minimaal aandeel onleesbare tekens waarboven een hele tekstlaag niet te vertrouwen is. */
+export const ONLEESBAAR_AANDEEL = 0.2;
+
+function telTekens(tekst) {
+  const zichtbaar = String(tekst || '').replace(/\s/g, '');
+  const fout = (zichtbaar.match(ONLEESBAAR_TEKEN) || []).length;
+  return { totaal: zichtbaar.length, fout };
+}
+
+/** Bevat deze tekst glyph-codes in plaats van letters? Eén is genoeg: een bladnaam bevat nooit een stuurteken. */
+export function isOnleesbareTekst(tekst) {
+  return telTekens(tekst).fout > 0;
+}
+
+/**
+ * Is de tekstlaag van een pagina (pdf.js-items) grotendeels onleesbaar? Dan
+ * zijn ook de vakken die toevallig alleen gewone leestekens opleveren ("%%")
+ * niet te vertrouwen.
+ */
+export function isOnleesbareTekstlaag(items) {
+  let totaal = 0;
+  let fout = 0;
+  for (const item of items || []) {
+    if (typeof item?.str !== 'string') continue;
+    const t = telTekens(item.str);
+    totaal += t.totaal;
+    fout += t.fout;
+  }
+  return totaal > 0 && fout / totaal >= ONLEESBAAR_AANDEEL;
+}
+
 /**
  * Een vak op een pagina van `breedte` × `hoogte` (y omlaag) rechtsom gedraaid
  * met `graden` (90, 180, 270), samen met die pagina.

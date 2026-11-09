@@ -9,7 +9,7 @@ import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
   tekstInGebied, draaiVak, ocrLezing, moetGedraaidLezen, kiesBesteOcrLezing,
-  vakNaarOcrDraaiing, OCR_DRAAIINGEN,
+  vakNaarOcrDraaiing, OCR_DRAAIINGEN, isOnleesbareTekst, isOnleesbareTekstlaag,
 } from './pagina-labels.js';
 
 /**
@@ -121,20 +121,29 @@ async function paginaTekst(doc, pageNum) {
   const viewport = page.getViewport({ scale: 1, rotation: (page.rotate + extra) % 360 });
   const basis = page.getViewport({ scale: 1 });
   const inhoud = await page.getTextContent();
-  return { items: inhoud.items, viewport, extra, breedte: basis.width, hoogte: basis.height };
+  return {
+    items: inhoud.items, viewport, extra, breedte: basis.width, hoogte: basis.height,
+    onleesbaar: isOnleesbareTekstlaag(inhoud.items),
+  };
 }
 
 /**
  * Tekst in `vak` (app-ruimte) op pagina `pageNum`: eerst de tekstlaag, dan
- * OCR als het vak daar leeg is en `ocr` aan staat.
+ * OCR als het vak daar leeg of onleesbaar is (lettertypen zonder /ToUnicode)
+ * en `ocr` aan staat.
  * @returns {Promise<{tekst:string, bron:'tekst'|'ocr'|''}>}
  */
 export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null } = {}) {
   let p = pagina;
+  // Tekst die er gewoon uitziet op een pagina met een onleesbare tekstlaag:
+  // terugval als OCR niets vindt of uit staat.
+  let terugval = '';
   try {
     p = p || await paginaTekst(doc, pageNum);
     const tekst = tekstInGebied(p.items, p.viewport, vak);
-    if (tekst) return { tekst, bron: 'tekst' };
+    const onleesbaar = !!tekst && isOnleesbareTekst(tekst);
+    if (tekst && !onleesbaar && !p.onleesbaar) return { tekst, bron: 'tekst' };
+    if (tekst && !onleesbaar) terugval = tekst;
   } catch (e) {
     console.warn('[paginalabels] tekstlaag niet gelezen:', e?.message || e);
   }
@@ -175,6 +184,7 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
       console.warn('[paginalabels] OCR mislukt:', e?.message || e);
     }
   }
+  if (terugval) return { tekst: terugval, bron: 'tekst' };
   return { tekst: '', bron: '' };
 }
 
