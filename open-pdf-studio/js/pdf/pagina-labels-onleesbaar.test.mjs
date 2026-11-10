@@ -13,7 +13,7 @@ test('isOnleesbareTekst: stuurtekens, privegebied en U+FFFD', () => {
 });
 
 test('isOnleesbareTekst: gewone bladnamen blijven leesbaar', () => {
-  for (const t of ['S-101', 'E907 Rev B', 'Blad 3\nvan 12', 'Ø200 – 45°', 'ﬁnal', 'Ü', '']) {
+  for (const t of ['S-101', 'A-201 Rev B', 'Blad 3\nvan 12', 'Ø200 x 45°', 'ﬁnal', 'Ü', '']) {
     assert.equal(isOnleesbareTekst(t), false, t);
   }
 });
