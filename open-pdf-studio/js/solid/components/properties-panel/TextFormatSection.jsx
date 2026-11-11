@@ -101,6 +101,20 @@ export default function TextFormatSection() {
           </div>
         </div>
 
+        {/* Added text (Add Text, or a new block with Edit Text): rotation in
+            degrees as shown on the page (#1026). */}
+        <Show when={panelMode() === 'textEdit' && annotProps.tekstDraaiing != null}>
+          <div class="property-group">
+            <label>{t('paragraph.rotation')}</label>
+            <PrefComboBox
+              value={() => annotProps.rotation}
+              setValue={(val) => updateAnnotProp('rotation', val)}
+              options={[0, 45, 90, 135, 180, 225, 270, 315]}
+              min={-360} max={360} fallback={0} suffix="°"
+            />
+          </div>
+        </Show>
+
         {/* PDF text-edit mode: allow deleting the text edit that is open in the
             inline editor (inserted or existing PDF text). */}
         <Show when={panelMode() === 'textEdit'}>

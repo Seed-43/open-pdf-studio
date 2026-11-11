@@ -979,6 +979,9 @@ export function storeShowTextEditProperties(info) {
   // Override type display and hide irrelevant sections
   setAnnotProps('typeDisplay', i18next.t('pdfText', { ns: 'properties' }));
   setAnnotProps('textFontSize', Math.round(info.fontSize || 12));
+  // Toegevoegde tekst kan gedraaid worden (#1026); null = bestaande PDF-tekst.
+  setAnnotProps('tekstDraaiing', info.rotation ?? null);
+  setAnnotProps('rotation', info.rotation ?? 0);
 
   setSectionVis({
     general: false,

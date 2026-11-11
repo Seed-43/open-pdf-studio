@@ -453,6 +453,11 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
     color: result.color || '#000000',
     originalSpanTexts: []
   };
+  // Op een /Rotate-pagina (bijv. een AutoCAD-plot met /Rotate 270) de tekst
+  // met de paginarotatie mee schrijven, zodat hij rechtop staat zoals de
+  // pagina getoond wordt (#1026); zelfde conventie als een nieuw tekstblok
+  // met de Tekst bewerken-tool.
+  if (geometry.rotation) editRecord.textAngle = geometry.rotation;
 
   if (doc) {
     if (!doc.textEdits) doc.textEdits = [];

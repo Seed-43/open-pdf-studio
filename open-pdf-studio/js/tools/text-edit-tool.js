@@ -1992,7 +1992,11 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     isItalic: ffLower.includes('italic') || ffLower.includes('oblique'),
     isUnderline: textEdit.fontUnderline === true,
     isStrikethrough: textEdit.fontStrikethrough === true,
-    page: pageNum
+    page: pageNum,
+    // Draaiing zoals op het scherm (graden, tegen de klok in): de
+    // tekstrichting min de paginarotatie. Alleen voor toegevoegde tekst;
+    // bestaande PDF-tekst houdt zijn richting (#1026).
+    rotation: textEdit.originalText ? null : weergaveDraaiing(textEdit, pageNum),
   });
 
   const bekendeTekens = `${oldTextEdit.originalText || ''}${oldTextEdit.newText || ''}`;
@@ -2156,8 +2160,27 @@ function applyColorToEditorSelection(color) {
   return true;
 }
 
+// Draaiing van toegevoegde tekst zoals getoond: tekstrichting (textAngle,
+// tegen de klok in in user-space) min de /Rotate van de pagina (#1026).
+function weergaveDraaiing(rec, pageNum) {
+  const r = ((Number(rec.textAngle) || 0) - (Number(getPageRotation(pageNum)) || 0)) % 360;
+  return (r + 360) % 360;
+}
+
 export function applyActiveTextEditStyle(key, value) {
   if (!activeEditor || !activeEditor.styleState) return;
+  // Draaiing (#1026): alleen toegevoegde tekst. Het record wordt live
+  // bijgewerkt; de commit van de sessie maakt er één undo-stap van
+  // (modifyTextEdit vergelijkt het hele record).
+  if (key === 'rotation') {
+    const rec = activeEditor._recordRef;
+    const graden = Number(value);
+    if (!rec || rec.originalText || !Number.isFinite(graden)) return;
+    const hoek = (((Number(getPageRotation(rec.page)) || 0) + graden) % 360 + 360) % 360;
+    if (hoek) rec.textAngle = hoek; else delete rec.textAngle;
+    reRenderAddedText(rec.page);
+    return;
+  }
   const st = activeEditor.styleState;
   switch (key) {
     case 'fontFamily':
