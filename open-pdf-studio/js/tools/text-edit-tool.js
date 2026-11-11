@@ -227,6 +227,10 @@ const KEEP_EDITOR_SELECTOR = [
   '[class*="color-palette"]',
   '[class*="colorPicker"]',
   'input[type="color"]',
+  // Keuzelijst van een PrefComboBox (lettergrootte, draaiing): die staat in
+  // een Portal buiten het paneel; een keuze daaruit sloot de editor vóór de
+  // waarde aankwam (#1026).
+  '.pref-combo-dropdown',
   '[data-keep-text-editor]',
 ].join(', ');
 
