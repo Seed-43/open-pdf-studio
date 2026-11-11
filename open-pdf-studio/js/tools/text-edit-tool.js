@@ -2162,9 +2162,15 @@ function applyColorToEditorSelection(color) {
 
 // Draaiing van toegevoegde tekst zoals getoond: tekstrichting (textAngle,
 // tegen de klok in in user-space) min de /Rotate van de pagina (#1026).
+// De totale paginadraaiing: de eigen /Rotate van de pagina plus de
+// weergavedraaiing van de gebruiker (zoals resolveTextEditPageGeometry).
+function paginaDraaiing(pageNum) {
+  const eigen = Number(getActiveDocument()?.pageDims?.[pageNum]?.rotation) || 0;
+  return normaliseerRotatie(eigen + (Number(getPageRotation(pageNum)) || 0));
+}
 function weergaveDraaiing(rec, pageNum) {
-  const r = ((Number(rec.textAngle) || 0) - (Number(getPageRotation(pageNum)) || 0)) % 360;
-  return (r + 360) % 360;
+  // Vrije hoek (45 graden mag): alleen in 0..359 brengen, niet afronden op kwartslagen.
+  return ((((Number(rec.textAngle) || 0) - paginaDraaiing(pageNum)) % 360) + 360) % 360;
 }
 
 export function applyActiveTextEditStyle(key, value) {
@@ -2176,7 +2182,7 @@ export function applyActiveTextEditStyle(key, value) {
     const rec = activeEditor._recordRef;
     const graden = Number(value);
     if (!rec || rec.originalText || !Number.isFinite(graden)) return;
-    const hoek = (((Number(getPageRotation(rec.page)) || 0) + graden) % 360 + 360) % 360;
+    const hoek = (((paginaDraaiing(rec.page) + graden) % 360) + 360) % 360;
     if (hoek) rec.textAngle = hoek; else delete rec.textAngle;
     reRenderAddedText(rec.page);
     return;
