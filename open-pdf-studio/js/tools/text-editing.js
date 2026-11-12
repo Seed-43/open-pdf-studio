@@ -7,7 +7,7 @@ import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
-import { invertPageRotation, resolveTextEditPageGeometry, toStandardFontName } from '../text/text-edit-appearance.js';
+import { invertPageRotation, normalizePageRotation, resolveTextEditPageGeometry, toStandardFontName } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { paginaNaarClient, weergaveRotatie } from '../pdf/weergave-ruimte.js';
@@ -416,8 +416,14 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   );
 
   // Convert visual page coordinates to PDF user-space (origin at bottom-left).
-  const pdfX = unrotatedPoint.x;
-  const pdfY = geometry.pageHeight - unrotatedPoint.y;
+  // De box-oorsprong meenemen: een CAD- of Revit-plot heeft vaak een
+  // MediaBox rond de oorsprong ([-595 -421 595 421]); zonder deze offset
+  // kwam de tekst buiten de pagina terecht (#1026). Zelfde omrekening als
+  // een nieuw tekstblok met de Tekst bewerken-tool.
+  const pdfX = unrotatedPoint.x + (geometry.offsetXPt || 0);
+  const pdfY = (geometry.offsetYPt || 0) + geometry.pageHeight - unrotatedPoint.y;
+  // Leesrichting van de nieuwe tekst: rechtop zoals de pagina getoond wordt.
+  const tekstHoek = normalizePageRotation(geometry.rotation);
 
   // Map dialog font family + bold/italic to standard PDF font name. Tekst in
   // de pagina komt altijd in een standaardletter; de dialoog meldt welke
@@ -429,20 +435,26 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   // Lange tekst binnen de pagina houden: afbreken op de rechtermarge, en het
   // beginpunt alleen naar links schuiven als de tekst er anders niet past.
   // Zonder dit liep de tekst als één regel de pagina uit.
+  // Afbreken en terugschuiven gebeurt in WEERGAVE-ruimte (de leesrichting
+  // op het scherm); de verschuiving gaat daarna langs de leesrichting in
+  // user-space. Bij een pagina zonder /Rotate is dat hetzelfde als voorheen.
+  const weergaveBreedte = tekstHoek % 180 ? geometry.pageHeight : geometry.pageWidth;
   const plaatsing = plaatsTekstOpPagina({
     tekst: result.text,
-    x: pdfX,
-    paginaBreedte: geometry.pageWidth,
+    x,
+    paginaBreedte: weergaveBreedte,
     meet: maakTekstMeter(fontFamily, fontSize),
   });
+  const schuif = plaatsing.x - x;
+  const rad = tekstHoek * Math.PI / 180;
 
   const editRecord = {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
     page,
     originalText: '',
     newText: plaatsing.tekst,
-    pdfX: plaatsing.x,
-    pdfY,
+    pdfX: pdfX + schuif * Math.cos(rad),
+    pdfY: pdfY + schuif * Math.sin(rad),
     pdfWidth: 0,
     fontSize,
     lineSpacing: fontSize * 1.2,
@@ -453,6 +465,11 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
     color: result.color || '#000000',
     originalSpanTexts: []
   };
+  // Op een /Rotate-pagina (bijv. een AutoCAD-plot met /Rotate 270) de tekst
+  // met de paginarotatie mee schrijven, zodat hij rechtop staat zoals de
+  // pagina getoond wordt (#1026); zelfde conventie als een nieuw tekstblok
+  // met de Tekst bewerken-tool.
+  if (tekstHoek) editRecord.textAngle = tekstHoek;
 
   if (doc) {
     if (!doc.textEdits) doc.textEdits = [];
