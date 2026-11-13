@@ -3675,7 +3675,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     }
     // Groot document: herschrijven kan niet (#638); zeg waarom in plaats van crashen.
     if (grootBestand && !incrementeleBytes) {
-      throw new Error(i18next.t('largeFileSaveRefused', { defaultValue: GROOT_WEIGERING_EN }));
+      const w = activeDoc?.laatsteOpslagWijze;
+      const reden = w?.reden ? ` (${w.reden}${w.detail ? `: ${w.detail}` : ''})` : '';
+      throw new Error(i18next.t('largeFileSaveRefused', { defaultValue: GROOT_WEIGERING_EN }) + reden);
     }
 
     // Per partij objecten een veilig punt (#766).

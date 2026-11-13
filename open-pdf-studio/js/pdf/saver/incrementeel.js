@@ -478,7 +478,11 @@ export function bereidIncrementeelVoor(bytes, pdfDocLib, { vereistVolledig = nul
 // een gewijzigde titel, auteur enz. gelijk houdt met /Info (#1017).
 const ZONE_TOEGESTAAN = new Set(['annotatie', 'formulier', 'lagen', 'info', 'metadata']);
 const CATALOGUS_SLEUTELS = new Set(['AcroForm', 'OCProperties', 'Metadata']);
-const PAGINA_SLEUTELS = new Set(['Annots']);
+// /VP: de meetviewports (schaal-in-pdf.js schrijft de documentschaal, de
+// schaalgebieden en de viewport-annotaties daar), en de schaalcontroles van
+// de app. Geen pagina-inhoud: zonder deze twee kan een document met een
+// schaal nooit incrementeel worden opgeslagen.
+const PAGINA_SLEUTELS = new Set(['Annots', 'VP', 'OPS_ScaleChecks']);
 const ANNOT_SUBTYPES = new Set([
   'Text', 'Link', 'FreeText', 'Line', 'Square', 'Circle', 'Polygon', 'PolyLine', 'Highlight', 'Underline',
   'Squiggly', 'StrikeOut', 'Stamp', 'Caret', 'Ink', 'Popup', 'FileAttachment', 'Sound', 'Movie', 'Widget',
