@@ -102,6 +102,7 @@
       "alleen-online": "Die Datei ist nur online verfügbar und konnte nicht heruntergeladen werden. Prüfen Sie, ob OneDrive läuft, angemeldet und verbunden ist, oder klicken Sie die Datei im Explorer mit rechts an und wählen Sie „Immer auf diesem Gerät beibehalten“.",
       "netwerk": "Der Netzwerkort ist nicht erreichbar. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
       "pad-te-lang": "Der Pfad ist für Windows zu lang. Verschieben Sie die Datei in einen Ordner mit kürzerem Pfad.",
+      "te-groot": "Die Datei ist 1 GB oder größer, mehr als Open PDF Studio derzeit öffnen kann. Teilen Sie sie in kleinere PDFs auf und öffnen Sie diese.",
       "anders": "Die Datei konnte nicht gelesen werden."
     },
     "hintWebdav": "Dies ist ein Netzwerkpfad (WebDAV). Die Bibliothek über einen synchronisierten Ordner zu öffnen (Synchronisieren in SharePoint) ist meist zuverlässiger.",

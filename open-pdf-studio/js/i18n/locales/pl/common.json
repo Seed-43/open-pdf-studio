@@ -102,6 +102,7 @@
       "alleen-online": "The file is only available online and could not be downloaded. Make sure OneDrive is running, signed in and connected to the network, or right-click the file in File Explorer and choose \"Always keep on this device\".",
       "netwerk": "The network location could not be reached. Check the connection and try again.",
       "pad-te-lang": "The path is too long for Windows. Move the file to a folder with a shorter path.",
+      "te-groot": "Plik ma 1 GB lub więcej, więcej niż Open PDF Studio może obecnie otworzyć. Podziel go na mniejsze pliki PDF i otwórz je.",
       "anders": "The file could not be read."
     },
     "hintWebdav": "This is a network (WebDAV) path. Opening the library through a synchronized folder (Sync in SharePoint) is usually more reliable.",

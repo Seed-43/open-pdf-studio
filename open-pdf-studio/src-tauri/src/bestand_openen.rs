@@ -241,6 +241,10 @@ pub enum FoutSoort {
     AlleenOnline,
     Netwerk,
     PadTeLang,
+    /// Groter dan de app in één keer aan de webview kan geven (#638): het
+    /// bestand gaat in zijn geheel over de IPC, en vanaf 1 GiB valt het
+    /// hele proces om (getest: 0,999 GiB opent, 1 GiB crasht).
+    TeGroot,
     Anders,
 }
 
@@ -375,6 +379,20 @@ pub fn lees_document(pad: &str, sync_wortels: &[String]) -> Result<Vec<u8>, Open
     let plaatshouder = kenmerken(pad).map(is_plaatshouder).unwrap_or(false);
     let fout = |e: &io::Error| OpenFout::van_io(OpenStap::Lezen, pad, e, plaatshouder, classificeer_pad(pad, sync_wortels));
     let mut bestand = open_om_te_lezen(pad).map_err(|e| fout(&e))?;
+    // Te groot voor de IPC: een duidelijke melding in plaats van een crash.
+    if let Ok(meta) = bestand.metadata() {
+        if te_groot_om_te_openen(meta.len()) {
+            return Err(OpenFout {
+                stap: OpenStap::Lezen,
+                soort: FoutSoort::TeGroot,
+                pad: pad.to_string(),
+                code: None,
+                melding: format!("{} bytes", meta.len()),
+                plaatshouder,
+                pad_info: classificeer_pad(pad, sync_wortels),
+            });
+        }
+    }
     let mut data = Vec::new();
     bestand.read_to_end(&mut data).map_err(|e| fout(&e))?;
     // Deze opdracht leest buiten de fs-scope om; daarom geeft hij alleen
@@ -384,6 +402,16 @@ pub fn lees_document(pad: &str, sync_wortels: &[String]) -> Result<Vec<u8>, Open
         return Err(fout(&io::Error::new(io::ErrorKind::InvalidData, "not a PDF file")));
     }
     Ok(data)
+}
+
+/// De grootste PDF die read_document_file in één keer aan de webview geeft.
+/// Het document gaat als één antwoord over de IPC; vanaf 1 GiB crasht het
+/// proces van de app (WebView2, getest op Windows 11 met 32 GB geheugen:
+/// 0,999 GiB opent, 1,0 GiB valt om). Groter openen vraagt laden in delen.
+pub const MAX_DOCUMENT_BYTES: u64 = 1 << 30;
+
+pub fn te_groot_om_te_openen(lengte: u64) -> bool {
+    lengte >= MAX_DOCUMENT_BYTES
 }
 
 /// Begint de inhoud met een PDF-kop (`%PDF-`) binnen de eerste 1024 bytes,
@@ -417,6 +445,14 @@ pub fn sync_wortels_uit_omgeving() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn te_groot_vanaf_een_gib() {
+        assert!(!super::te_groot_om_te_openen(0));
+        assert!(!super::te_groot_om_te_openen((1 << 30) - 1));
+        assert!(super::te_groot_om_te_openen(1 << 30));
+        assert!(super::te_groot_om_te_openen(20 * (1 << 30)));
+    }
+
     #[test]
     fn alleen_pdf_inhoud_komt_terug() {
         assert!(super::is_pdf_inhoud(b"%PDF-1.7\n%rest"));

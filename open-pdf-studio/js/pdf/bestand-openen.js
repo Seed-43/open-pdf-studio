@@ -11,7 +11,7 @@
 // het los draaien.
 
 const STAPPEN = ['scope', 'vergrendelen', 'lezen'];
-const SOORTEN = ['niet-gevonden', 'geweigerd', 'in-gebruik', 'alleen-online', 'netwerk', 'pad-te-lang', 'anders'];
+const SOORTEN = ['niet-gevonden', 'geweigerd', 'in-gebruik', 'alleen-online', 'netwerk', 'pad-te-lang', 'te-groot', 'anders'];
 const REDENEN = ['kenmerk', 'in-gebruik', 'geweigerd', 'mislukt'];
 
 // Windows-foutcodes van de cloudbestanden-API (bestanden op aanvraag), gelijk
