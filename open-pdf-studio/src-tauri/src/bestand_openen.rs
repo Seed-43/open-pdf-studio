@@ -22,7 +22,7 @@
 
 use serde::Serialize;
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, Read};
+use std::io::{self, Read, Seek, SeekFrom};
 
 // ── Padsoorten ──────────────────────────────────────────────────────────────
 
@@ -241,9 +241,11 @@ pub enum FoutSoort {
     AlleenOnline,
     Netwerk,
     PadTeLang,
-    /// Groter dan de app in één keer aan de webview kan geven (#638): het
-    /// bestand gaat in zijn geheel over de IPC, en vanaf 1 GiB valt het
-    /// hele proces om (getest: 0,999 GiB opent, 1 GiB crasht).
+    /// 1 GiB of groter: te groot om in één keer over de IPC te gaan (vanaf
+    /// 1 GiB valt het proces om). Geen fout voor de gebruiker: de lader leest
+    /// het dan in delen met read_document_range. `melding` is de lengte.
+    InDelen,
+    /// 2 GiB of groter: meer dan de app opent (#638).
     TeGroot,
     Anders,
 }
@@ -379,12 +381,14 @@ pub fn lees_document(pad: &str, sync_wortels: &[String]) -> Result<Vec<u8>, Open
     let plaatshouder = kenmerken(pad).map(is_plaatshouder).unwrap_or(false);
     let fout = |e: &io::Error| OpenFout::van_io(OpenStap::Lezen, pad, e, plaatshouder, classificeer_pad(pad, sync_wortels));
     let mut bestand = open_om_te_lezen(pad).map_err(|e| fout(&e))?;
-    // Te groot voor de IPC: een duidelijke melding in plaats van een crash.
+    // Te groot voor één IPC-antwoord: in delen lezen (1 tot 2 GiB), of een
+    // duidelijke melding (2 GiB en meer) in plaats van een crash.
     if let Ok(meta) = bestand.metadata() {
-        if te_groot_om_te_openen(meta.len()) {
+        let wijze = openwijze(meta.len());
+        if wijze != Openwijze::InEenKeer {
             return Err(OpenFout {
                 stap: OpenStap::Lezen,
-                soort: FoutSoort::TeGroot,
+                soort: if wijze == Openwijze::InDelen { FoutSoort::InDelen } else { FoutSoort::TeGroot },
                 pad: pad.to_string(),
                 code: None,
                 melding: format!("{} bytes", meta.len()),
@@ -404,14 +408,53 @@ pub fn lees_document(pad: &str, sync_wortels: &[String]) -> Result<Vec<u8>, Open
     Ok(data)
 }
 
-/// De grootste PDF die read_document_file in één keer aan de webview geeft.
-/// Het document gaat als één antwoord over de IPC; vanaf 1 GiB crasht het
-/// proces van de app (WebView2, getest op Windows 11 met 32 GB geheugen:
-/// 0,999 GiB opent, 1,0 GiB valt om). Groter openen vraagt laden in delen.
-pub const MAX_DOCUMENT_BYTES: u64 = 1 << 30;
+/// Vanaf deze grootte gaat een document niet meer als één antwoord over de
+/// IPC: dan crasht het proces van de app (WebView2, getest op Windows 11 met
+/// 32 GB geheugen: 0,999 GiB opent, 1,0 GiB valt om).
+pub const IN_EEN_KEER_BYTES: u64 = 1 << 30;
+/// De grootste PDF die de app opent, in delen gelezen.
+pub const MAX_DOCUMENT_BYTES: u64 = 2 << 30;
+/// Het grootste deel dat read_document_range in één keer geeft.
+pub const MAX_DEEL_BYTES: u64 = 256 << 20;
 
-pub fn te_groot_om_te_openen(lengte: u64) -> bool {
-    lengte >= MAX_DOCUMENT_BYTES
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Openwijze {
+    InEenKeer,
+    InDelen,
+    TeGroot,
+}
+
+pub fn openwijze(lengte: u64) -> Openwijze {
+    if lengte >= MAX_DOCUMENT_BYTES {
+        Openwijze::TeGroot
+    } else if lengte >= IN_EEN_KEER_BYTES {
+        Openwijze::InDelen
+    } else {
+        Openwijze::InEenKeer
+    }
+}
+
+/// Een deel van een groot document (1 tot 2 GiB), voor de lader die het in
+/// delen leest. Zelfde delen als lees_document, en ook alleen voor een PDF:
+/// de kop wordt bij elk deel gecontroleerd.
+pub fn lees_document_deel(pad: &str, begin: u64, lengte: u64, sync_wortels: &[String]) -> Result<Vec<u8>, OpenFout> {
+    let plaatshouder = kenmerken(pad).map(is_plaatshouder).unwrap_or(false);
+    let fout = |e: &io::Error| OpenFout::van_io(OpenStap::Lezen, pad, e, plaatshouder, classificeer_pad(pad, sync_wortels));
+    let mut bestand = open_om_te_lezen(pad).map_err(|e| fout(&e))?;
+    let mut kop = Vec::with_capacity(1024);
+    (&mut bestand).take(1024).read_to_end(&mut kop).map_err(|e| fout(&e))?;
+    if !is_pdf_inhoud(&kop) {
+        return Err(fout(&io::Error::new(io::ErrorKind::InvalidData, "not a PDF file")));
+    }
+    let totaal = bestand.metadata().map_err(|e| fout(&e))?.len();
+    if begin >= totaal || totaal >= MAX_DOCUMENT_BYTES {
+        return Err(fout(&io::Error::new(io::ErrorKind::InvalidInput, "range outside the document")));
+    }
+    let lengte = lengte.min(MAX_DEEL_BYTES).min(totaal - begin);
+    bestand.seek(SeekFrom::Start(begin)).map_err(|e| fout(&e))?;
+    let mut data = vec![0u8; lengte as usize];
+    bestand.read_exact(&mut data).map_err(|e| fout(&e))?;
+    Ok(data)
 }
 
 /// Begint de inhoud met een PDF-kop (`%PDF-`) binnen de eerste 1024 bytes,
@@ -446,11 +489,35 @@ pub fn sync_wortels_uit_omgeving() -> Vec<String> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn te_groot_vanaf_een_gib() {
-        assert!(!super::te_groot_om_te_openen(0));
-        assert!(!super::te_groot_om_te_openen((1 << 30) - 1));
-        assert!(super::te_groot_om_te_openen(1 << 30));
-        assert!(super::te_groot_om_te_openen(20 * (1 << 30)));
+    fn openwijze_naar_grootte() {
+        use super::{openwijze, Openwijze::*};
+        assert_eq!(openwijze(0), InEenKeer);
+        assert_eq!(openwijze((1 << 30) - 1), InEenKeer);
+        assert_eq!(openwijze(1 << 30), InDelen);
+        assert_eq!(openwijze((2 << 30) - 1), InDelen);
+        assert_eq!(openwijze(2 << 30), TeGroot);
+        assert_eq!(openwijze(20 * (1 << 30)), TeGroot);
+    }
+
+    #[test]
+    fn deel_van_een_document() {
+        let map = std::env::temp_dir().join(format!("ops-deel-{}", std::process::id()));
+        std::fs::create_dir_all(&map).unwrap();
+        let pad = map.join("a.pdf");
+        let mut inhoud = b"%PDF-1.7\n".to_vec();
+        inhoud.extend((0..5000u32).map(|i| (i % 251) as u8));
+        std::fs::write(&pad, &inhoud).unwrap();
+        let p = pad.to_str().unwrap();
+        assert_eq!(super::lees_document_deel(p, 0, 9, &[]).unwrap(), &inhoud[..9]);
+        assert_eq!(super::lees_document_deel(p, 100, 50, &[]).unwrap(), &inhoud[100..150]);
+        // Over het einde: tot het einde.
+        let n = inhoud.len() as u64;
+        assert_eq!(super::lees_document_deel(p, n - 10, 50, &[]).unwrap(), &inhoud[inhoud.len() - 10..]);
+        assert!(super::lees_document_deel(p, n, 10, &[]).is_err());
+        let geen = map.join("b.pdf");
+        std::fs::write(&geen, b"geen pdf").unwrap();
+        assert!(super::lees_document_deel(geen.to_str().unwrap(), 0, 4, &[]).is_err());
+        let _ = std::fs::remove_dir_all(&map);
     }
 
     #[test]

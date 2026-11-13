@@ -696,6 +696,26 @@ async fn read_document_file(path: String) -> Result<tauri::ipc::Response, bestan
     Ok(tauri::ipc::Response::new(data))
 }
 
+/// Een deel van een document van 1 tot 2 GiB: read_document_file geeft dan
+/// de fout in-delen met de lengte, en de lader leest het zo in delen (één
+/// antwoord van 1 GiB of meer laat de app crashen, #638).
+#[tauri::command]
+async fn read_document_range(path: String, offset: u64, length: u64) -> Result<tauri::ipc::Response, bestand_openen::OpenFout> {
+    let pad = path.clone();
+    let data = tauri::async_runtime::spawn_blocking(move || {
+        bestand_openen::lees_document_deel(&pad, offset, length, &bestand_openen::sync_wortels_uit_omgeving())
+    })
+    .await
+    .map_err(|e| bestand_openen::OpenFout::van_io(
+        bestand_openen::OpenStap::Lezen,
+        &path,
+        &std::io::Error::other(e.to_string()),
+        false,
+        bestand_openen::classificeer_pad(&path, &[]),
+    ))??;
+    Ok(tauri::ipc::Response::new(data))
+}
+
 /// Vergrendel een zojuist gelezen document en besluit of het bewerkbaar of
 /// alleen-lezen opent (#1005). Mislukt het vergrendelen (de
 /// synchronisatie-app of een andere app heeft het bestand open om te
@@ -3747,6 +3767,7 @@ pub fn run(opts: StartupOpts) {
             lock_file,
             unlock_file,
             read_document_file,
+            read_document_range,
             lock_document_file,
             is_default_pdf_app,
             default_pdf_app_status,

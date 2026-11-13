@@ -102,7 +102,7 @@
       "alleen-online": "Le fichier n'est disponible qu'en ligne et n'a pas pu être téléchargé. Vérifiez que OneDrive est lancé, connecté et en ligne, ou faites un clic droit sur le fichier dans l'Explorateur et choisissez « Toujours conserver sur cet appareil ».",
       "netwerk": "L'emplacement réseau est inaccessible. Vérifiez la connexion et réessayez.",
       "pad-te-lang": "Le chemin est trop long pour Windows. Déplacez le fichier dans un dossier au chemin plus court.",
-      "te-groot": "Le fichier fait 1 Go ou plus, ce qu'Open PDF Studio ne peut pas encore ouvrir. Divisez-le en PDF plus petits et ouvrez-les.",
+      "te-groot": "Le fichier fait 2 Go ou plus, ce qu'Open PDF Studio ne peut pas encore ouvrir. Divisez-le en PDF plus petits et ouvrez-les.",
       "anders": "Le fichier n'a pas pu être lu."
     },
     "hintWebdav": "Il s'agit d'un chemin réseau (WebDAV). Ouvrir la bibliothèque via un dossier synchronisé (Synchroniser dans SharePoint) est généralement plus fiable.",

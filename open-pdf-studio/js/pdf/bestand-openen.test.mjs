@@ -169,3 +169,27 @@ test('de loader leest eerst en vergrendelt daarna, en de saver stuurt alleen-lez
   assert.match(saver, /!saveAsPath && opslaanNaarOpslaanAls\(activeDoc\)\) \{\s*return await savePDFAs\(activeDoc\);/);
   assert.match(saver, /doc\.bestandAlleenLezen = null/);
 });
+
+test('leesDocument: 1 tot 2 GiB in delen, de rest zoals altijd', async () => {
+  const { leesInDelen, DEEL_BYTES } = await import('./bestand-openen.js');
+  const totaal = DEEL_BYTES * 2 + 123;
+  const bron = new Uint8Array(totaal);
+  for (let i = 0; i < totaal; i += 4093) bron[i] = (i / 4093) % 251;
+  const vragen = [];
+  const invoke = async (cmd, a) => {
+    if (cmd === 'read_document_file') throw { stap: 'lezen', soort: 'in-delen', pad: a.path, code: null, melding: `${totaal} bytes` };
+    assert.equal(cmd, 'read_document_range');
+    vragen.push([a.offset, a.length]);
+    return bron.slice(a.offset, a.offset + a.length).buffer;
+  };
+  const data = await leesDocument(PAD, { invoke, t });
+  assert.equal(data.length, totaal);
+  assert.deepEqual(vragen, [[0, DEEL_BYTES], [DEEL_BYTES, DEEL_BYTES], [2 * DEEL_BYTES, 123]]);
+  assert.ok(data.every((b, i) => b === bron[i]));
+  // Een leeg deel is een fout, geen eindeloze lus.
+  await assert.rejects(leesInDelen(PAD, 10, { invoke: async () => new ArrayBuffer(0) }));
+  // te-groot blijft een melding.
+  await assert.rejects(
+    leesDocument(PAD, { invoke: async () => { throw { stap: 'lezen', soort: 'te-groot', pad: PAD, code: null, melding: '3000000000 bytes' }; }, t }),
+    (e) => e.openFout?.soort === 'te-groot');
+});

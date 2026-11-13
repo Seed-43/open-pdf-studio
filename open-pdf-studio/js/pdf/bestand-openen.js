@@ -11,7 +11,7 @@
 // het los draaien.
 
 const STAPPEN = ['scope', 'vergrendelen', 'lezen'];
-const SOORTEN = ['niet-gevonden', 'geweigerd', 'in-gebruik', 'alleen-online', 'netwerk', 'pad-te-lang', 'te-groot', 'anders'];
+const SOORTEN = ['niet-gevonden', 'geweigerd', 'in-gebruik', 'alleen-online', 'netwerk', 'pad-te-lang', 'in-delen', 'te-groot', 'anders'];
 const REDENEN = ['kenmerk', 'in-gebruik', 'geweigerd', 'mislukt'];
 
 // Windows-foutcodes van de cloudbestanden-API (bestanden op aanvraag), gelijk
@@ -112,14 +112,42 @@ function isOnbekendCommando(fout, cmd) {
  * @returns {Promise<Uint8Array>}
  * @throws {OpenBestandFout}
  */
-export async function leesDocument(pad, { invoke, leesTerugval, t }) {
+/** Grootte van een deel bij het lezen in delen (1 tot 2 GiB, #638). */
+export const DEEL_BYTES = 64 * 1024 * 1024;
+
+/**
+ * Een document van 1 tot 2 GiB in delen lezen: één IPC-antwoord van 1 GiB
+ * of meer laat de app crashen. Eén array van de hele lengte, deel voor deel
+ * gevuld, zodat er geen tweede kopie ontstaat.
+ */
+export async function leesInDelen(pad, totaal, { invoke, bijVoortgang } = {}) {
+  const data = new Uint8Array(totaal);
+  for (let begin = 0; begin < totaal;) {
+    const lengte = Math.min(DEEL_BYTES, totaal - begin);
+    const deel = await invoke('read_document_range', { path: pad, offset: begin, length: lengte });
+    const bytes = deel instanceof Uint8Array ? deel : new Uint8Array(deel);
+    if (!bytes.length) throw { stap: 'lezen', soort: 'anders', pad, code: null, melding: `empty range at ${begin}` };
+    data.set(bytes, begin);
+    begin += bytes.length;
+    bijVoortgang?.(begin, totaal);
+  }
+  return data;
+}
+
+export async function leesDocument(pad, { invoke, leesTerugval, t, bijVoortgang }) {
   let data;
   try {
     try {
       data = await invoke('read_document_file', { path: pad });
     } catch (e) {
-      if (!leesTerugval || !isOnbekendCommando(e, 'read_document_file')) throw e;
-      data = await leesTerugval(pad);
+      // 1 tot 2 GiB: Rust geeft de lengte, de lader leest het in delen.
+      const groot = e && typeof e === 'object' && e.soort === 'in-delen' ? Number(/^(\d+)/.exec(String(e.melding || ''))?.[1]) : 0;
+      if (groot > 0) {
+        data = await leesInDelen(pad, groot, { invoke, bijVoortgang });
+      } else {
+        if (!leesTerugval || !isOnbekendCommando(e, 'read_document_file')) throw e;
+        data = await leesTerugval(pad);
+      }
     }
   } catch (e) {
     const f = normaliseerOpenFout(e, pad);

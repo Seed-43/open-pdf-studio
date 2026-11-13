@@ -178,7 +178,7 @@
       "alleen-online": "Het bestand staat alleen online en kon niet worden gedownload. Controleer of OneDrive draait, aangemeld is en verbinding heeft, of klik in de Verkenner met rechts op het bestand en kies \"Altijd behouden op dit apparaat\".",
       "netwerk": "De netwerklocatie is niet bereikbaar. Controleer de verbinding en probeer het opnieuw.",
       "pad-te-lang": "Het pad is te lang voor Windows. Verplaats het bestand naar een map met een korter pad.",
-      "te-groot": "Het bestand is 1 GB of groter, meer dan Open PDF Studio nu kan openen. Splits het in kleinere PDF's en open die.",
+      "te-groot": "Het bestand is 2 GB of groter, meer dan Open PDF Studio nu kan openen. Splits het in kleinere PDF's en open die.",
       "anders": "Het bestand kon niet worden gelezen."
     },
     "hintWebdav": "Dit is een netwerkpad (WebDAV). De bibliotheek openen via een gesynchroniseerde map (Synchroniseren in SharePoint) werkt meestal betrouwbaarder.",

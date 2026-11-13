@@ -102,7 +102,7 @@
       "alleen-online": "The file is only available online and could not be downloaded. Make sure OneDrive is running, signed in and connected to the network, or right-click the file in File Explorer and choose \"Always keep on this device\".",
       "netwerk": "The network location could not be reached. Check the connection and try again.",
       "pad-te-lang": "The path is too long for Windows. Move the file to a folder with a shorter path.",
-      "te-groot": "文件大小为 1 GB 或以上，超出了 Open PDF Studio 目前可打开的范围。请将其拆分为较小的 PDF 后再打开。",
+      "te-groot": "文件大小为 2 GB 或以上，超出了 Open PDF Studio 目前可打开的范围。请将其拆分为较小的 PDF 后再打开。",
       "anders": "The file could not be read."
     },
     "hintWebdav": "This is a network (WebDAV) path. Opening the library through a synchronized folder (Sync in SharePoint) is usually more reliable.",
