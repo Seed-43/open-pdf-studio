@@ -808,6 +808,20 @@ export async function writeBinaryFileAtomic(path, data, { annulering = null } = 
   return true;
 }
 
+// A large document (1 to 2 GiB, #638): only the incremental update goes over
+// the IPC; Rust copies `sourcePath` (still `expectedLength` bytes) and adds it.
+export async function appendDocumentUpdate(path, sourcePath, expectedLength, tail) {
+  const bytes = tail instanceof Uint8Array ? tail : new Uint8Array(tail);
+  await getTauriCore().invoke('append_document_update', bytes, {
+    headers: {
+      'x-opds-path': encodeURIComponent(path),
+      'x-opds-source': encodeURIComponent(sourcePath),
+      'x-opds-length': String(expectedLength),
+    },
+  });
+  return true;
+}
+
 // A protected PDF (#378): Rust encrypts the plain bytes with the security
 // session `sessie` (src-tauri/src/pdf_beveiliging.rs) and writes atomically.
 export async function writeProtectedPdfAtomic(path, data, sessie) {

@@ -1,4 +1,5 @@
 {
+  "largeFileSaveRefused": "This file is 1 GB or larger. Only markups can be saved on files this large; this change needs the whole file rewritten, which Open PDF Studio cannot do at this size yet.",
   "ok": "OK",
   "cancel": "Cancel",
   "save": "Save",

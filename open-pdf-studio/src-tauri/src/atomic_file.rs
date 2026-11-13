@@ -41,6 +41,27 @@ pub fn write_cancellable(path: &Path, bytes: &[u8], cancelled: &AtomicBool) -> i
     }, check)
 }
 
+/// Save a large document (1 to 2 GiB, #638) without sending it over the IPC:
+/// the staged file is a copy of `source` with `tail` (an incremental update,
+/// ISO 32000-1 §7.5.6) added, and replaces `path` like `write`. `source` must
+/// still be `expected_len` bytes long: the update was built on that file.
+pub fn write_appended(path: &Path, source: &Path, expected_len: u64, tail: &[u8]) -> io::Result<()> {
+    let len = fs::metadata(source)?.len();
+    if len != expected_len {
+        return Err(io::Error::other(format!(
+            "the file changed on disk since it was opened ({len} bytes, expected {expected_len})"
+        )));
+    }
+    write_with(path, |file| {
+        let mut bron = File::open(source)?;
+        let gekopieerd = io::copy(&mut bron, file)?;
+        if gekopieerd != expected_len {
+            return Err(io::Error::other("the file changed on disk while saving"));
+        }
+        file.write_all(tail)
+    }, || Ok(()))
+}
+
 /// Publish a complete new file without ever replacing an existing destination.
 /// Filesystems without hard-link support fail safely; there is no copy fallback.
 pub fn write_new(path: &Path, bytes: &[u8]) -> io::Result<()> {
@@ -141,6 +162,31 @@ fn replace(staged: &Path, target: &Path) -> io::Result<()> {
             }
             Err(e) => return Err(e),
         }
+    }
+}
+
+#[cfg(test)]
+mod appended_tests {
+    use super::*;
+
+    #[test]
+    fn copies_the_source_and_adds_the_update() {
+        let map = std::env::temp_dir().join(format!("ops-append-{}", std::process::id()));
+        fs::create_dir_all(&map).unwrap();
+        let bron = map.join("a.pdf");
+        fs::write(&bron, b"%PDF-1.7 original").unwrap();
+        // In place, the way Save does it.
+        write_appended(&bron, &bron, 17, b" update").unwrap();
+        assert_eq!(fs::read(&bron).unwrap(), b"%PDF-1.7 original update");
+        // Save As: the source stays as it was.
+        let doel = map.join("b.pdf");
+        write_appended(&doel, &bron, 24, b" 2").unwrap();
+        assert_eq!(fs::read(&doel).unwrap(), b"%PDF-1.7 original update 2");
+        assert_eq!(fs::read(&bron).unwrap(), b"%PDF-1.7 original update");
+        // Changed on disk since it was read: refused, nothing written.
+        assert!(write_appended(&bron, &bron, 17, b" x").is_err());
+        assert_eq!(fs::read(&bron).unwrap(), b"%PDF-1.7 original update");
+        let _ = fs::remove_dir_all(&map);
     }
 }
 

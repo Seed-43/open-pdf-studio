@@ -1,4 +1,5 @@
 {
+  "largeFileSaveRefused": "Dit bestand is 1 GB of groter. Op zulke grote bestanden kunnen alleen markeringen worden opgeslagen; deze wijziging vraagt het hele bestand opnieuw te schrijven, en dat kan Open PDF Studio bij deze grootte nog niet.",
   "ok": "OK",
   "cancel": "Annuleren",
   "save": "Opslaan",

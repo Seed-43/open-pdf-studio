@@ -401,6 +401,31 @@ async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), Strin
     result?
 }
 
+/// Save a large document (1 to 2 GiB, #638): the body is only the incremental
+/// update; Rust copies the source file and adds it (atomic_file::write_appended),
+/// so the whole document never goes over the IPC (from 1 GiB that crashes).
+#[tauri::command]
+async fn append_document_update(request: tauri::ipc::Request<'_>) -> Result<(), String> {
+    let kop = |naam: &str| -> Result<String, String> {
+        let v = request.headers().get(naam).ok_or(format!("Missing {naam}"))?.to_str().map_err(|e| e.to_string())?;
+        Ok(urlencoding::decode(v).map_err(|e| e.to_string())?.into_owned())
+    };
+    let path = kop("x-opds-path")?;
+    let source = kop("x-opds-source")?;
+    let expected: u64 = kop("x-opds-length")?.parse().map_err(|_| "Bad x-opds-length".to_string())?;
+    let tail = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
+        tauri::ipc::InvokeBody::Json(value) => {
+            serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing file data")?)
+                .map_err(|e| e.to_string())?
+        }
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        atomic_file::write_appended(std::path::Path::new(&path), std::path::Path::new(&source), expected, &tail)
+            .map_err(|e| e.to_string())
+    }).await.map_err(|e| e.to_string())?
+}
+
 #[tauri::command]
 async fn write_file_new(request: tauri::ipc::Request<'_>) -> Result<(), String> {
     let header = request.headers().get("x-opds-path")
@@ -3768,6 +3793,7 @@ pub fn run(opts: StartupOpts) {
             unlock_file,
             read_document_file,
             read_document_range,
+            append_document_update,
             lock_document_file,
             is_default_pdf_app,
             default_pdf_app_status,

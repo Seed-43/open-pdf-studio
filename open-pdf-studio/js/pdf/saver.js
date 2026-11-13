@@ -8,7 +8,7 @@ import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-util
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, markDocumentModified, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, writeProtectedPdfAtomic, saveFileDialog, unlockFile, lockFile,
+import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, writeProtectedPdfAtomic, appendDocumentUpdate, saveFileDialog, unlockFile, lockFile,
   hostKanOpslaanAls, leesHostNieuwPad, leesHostPad, hostNieuwUitkomst, meldHostNieuwStil, meldHostGeopend, extractFileName } from '../core/platform.js';
 import { kopieNaam } from '../core/host-opslaan-als.js';
 import { legDocumentVast, blijfBijOrigineel, wisselNaarNieuwBestand } from './host-opslaan-als-document.js';
@@ -402,6 +402,22 @@ export async function bouwAnnotatieDocument(activeDoc = getActiveDocument(), { a
  * en elke pagina krijgt een pauze, zodat de bediening blijft reageren.
  * @returns {Promise<Uint8Array>}
  */
+/** Vanaf deze grootte gaat het document in delen over de IPC (#638). */
+export const GROOT_BESTAND_BYTES = 2 ** 30;
+const GROOT_WEIGERING_EN = 'This file is 1 GB or larger. Only markups can be saved on files this large; this change needs the whole file rewritten, which Open PDF Studio cannot do at this size yet.';
+export function isGrootBestand(bytes) {
+  return !!bytes && bytes.length >= GROOT_BESTAND_BYTES;
+}
+/** Begint `a` met `b`? Begin en eind van `b` vergeleken, plus steekproeven. */
+export function begintMet(a, b) {
+  if (a.length < b.length) return false;
+  const n = b.length, stap = Math.max(1, Math.floor(n / 4096));
+  for (let i = 0; i < Math.min(n, 65536); i++) if (a[i] !== b[i]) return false;
+  for (let i = Math.max(0, n - 65536); i < n; i++) if (a[i] !== b[i]) return false;
+  for (let i = 0; i < n; i += stap) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 export async function bouwMomentopname(doc) {
   if (!doc?.pdfDoc) throw new Error('no document');
   // Ontsleutelde inhoud van een beveiligd bestand komt niet in het herstel.
@@ -459,12 +475,22 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       existingPdfBytes = await annulering.wacht(readBinaryFile(currentPath));
     }
 
+    // Een groot document (1 tot 2 GiB, #638): het hele bestand opnieuw
+    // opbouwen en over de IPC sturen laat de app crashen. Opslaan gaat dan
+    // altijd incrementeel, en alleen de toevoeging gaat naar Rust
+    // (appendDocumentUpdate). Geen herstelmomentopname: die schrijft alles.
+    const grootBestand = isGrootBestand(existingPdfBytes);
+    if (grootBestand && momentopname) throw new Error('large documents are not snapshotted');
+    if (grootBestand && (alleenAnnotaties || !isTauri() || !currentPath)) {
+      throw new Error(i18next.t('largeFileSaveRefused', { defaultValue: GROOT_WEIGERING_EN }));
+    }
+
     // Incrementeel opslaan (#679, voorkeur, standaard uit): alleen voor een
     // echte save. pdf-lib werkt de documentgegevens dan pas bij ná de
     // momentopname van de objecten (bereidIncrementeelVoor), zodat /Info
     // onder de wijzigingen valt; het resultaat is verder hetzelfde.
     const incrementeelGevraagd = !momentopname && !alleenAnnotaties
-      && state.preferences?.incrementalSave === true;
+      && (state.preferences?.incrementalSave === true || grootBestand);
     const pdfDocLib = momentopname
       ? await PDFDocument.load(existingPdfBytes, { parseSpeed: MOMENTOPNAME_OBJECTEN_PER_TIK })
       : await annulering.wacht(PDFDocument.load(existingPdfBytes, incrementeelGevraagd ? { updateMetadata: false } : undefined));
@@ -3647,6 +3673,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     } else if (activeDoc) {
       activeDoc.laatsteOpslagWijze = { wijze: 'volledig', reden: 'uitgeschakeld' };
     }
+    // Groot document: herschrijven kan niet (#638); zeg waarom in plaats van crashen.
+    if (grootBestand && !incrementeleBytes) {
+      throw new Error(i18next.t('largeFileSaveRefused', { defaultValue: GROOT_WEIGERING_EN }));
+    }
 
     // Per partij objecten een veilig punt (#766).
     if (!incrementeleBytes) await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
@@ -3686,7 +3716,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     await unlockFile(outputPath);
     try {
       if (!stillCurrent()) throw changedDuringSave();
-      if (beveiligingsSessie) {
+      if (grootBestand) {
+        // Alleen de toevoeging over de IPC; Rust kopieert het bronbestand en
+        // zet haar erachter. De bytes moeten met de bron beginnen.
+        if (beveiligingsSessie || savedBytes.length <= existingPdfBytes.length
+            || !begintMet(savedBytes, existingPdfBytes)) {
+          throw new Error(i18next.t('largeFileSaveRefused', { defaultValue: GROOT_WEIGERING_EN }));
+        }
+        annulering.vastleggen();
+        await appendDocumentUpdate(outputPath, currentPath, existingPdfBytes.length, savedBytes.subarray(existingPdfBytes.length));
+      } else if (beveiligingsSessie) {
         // De versleutelde schrijver kan niet annuleren: de annulering vóór
         // het schrijven vastleggen (gooit als er al geannuleerd is).
         annulering.vastleggen();
@@ -3728,8 +3767,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Update cache so subsequent saves use the latest PDF as base. The bytes
     // it replaces stay available to Compare as "before the last save".
-    rememberPreviousPdfBytes(outputPath);
-    setCachedPdfBytes(outputPath, savedBytes.slice());
+    // Een groot document: geen tweede en derde kopie van 1 tot 2 GiB.
+    if (grootBestand) {
+      setCachedPdfBytes(outputPath, savedBytes);
+    } else {
+      rememberPreviousPdfBytes(outputPath);
+      setCachedPdfBytes(outputPath, savedBytes.slice());
+    }
     // A close/reload during the atomic write cannot be undone here. Keep the
     // new live document dirty, and never publish the old save as its state.
     if (!stillCurrent()) throw changedDuringSave();
